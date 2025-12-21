@@ -144,7 +144,7 @@ Commands are also available for Cursor. Copy the `.cursor/commands/` folder to y
 curl -L https://github.com/anderskev/beagle/archive/refs/heads/main.tar.gz | tar -xz --strip-components=1 beagle-main/.cursor
 ```
 
-See [Cursor documentation](https://docs.cursor.com/) for command usage.
+See [Cursor documentation](https://cursor.com/docs/agent/chat/commands) for command usage.
 
 ## Contributing
 

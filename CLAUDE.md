@@ -90,6 +90,20 @@ Beagle command patterns:
 
 This is a pure markdown plugin. No npm, no build, no tests. Validation is manual inspection of markdown syntax and YAML frontmatter.
 
+## Release Process
+
+1. **Update CHANGELOG.md** - Add new version section with changes (Keep a Changelog format)
+2. **Bump version** - Update `version` in `.claude-plugin/plugin.json` (semver)
+3. **Commit** - `chore(release): bump version to X.Y.Z`
+4. **Push** - `git push origin main`
+5. **Tag** - `git tag -a vX.Y.Z -m "Release vX.Y.Z - Summary"` and `git push origin vX.Y.Z`
+6. **Release** - `gh release create vX.Y.Z --title "vX.Y.Z" --notes "..."`
+
+Version bumping:
+- **Patch** (x.y.Z): Bug fixes, documentation
+- **Minor** (x.Y.0): New commands, skills, or features
+- **Major** (X.0.0): Breaking changes to existing commands/skills
+
 ## Cursor IDE Support
 
 Cursor commands in `.cursor/commands/` are expanded versions with all skill content embedded (no dynamic skill loading). When updating skills, regenerate Cursor commands to keep them in sync.

@@ -1,0 +1,20 @@
+{
+  "name": "beagle-plugins",
+  "owner": {
+    "name": "Kevin Anderson",
+    "email": "public@anderskev.com"
+  },
+  "metadata": {
+    "description": "Beagle plugins and tools for Claude Code",
+    "version": "1.0.0"
+  },
+  "plugins": [
+    {
+      "name": "beagle",
+      "source": "./",
+      "description": "Technology knowledge bases and development workflows for React, Python, Go, AI frameworks, and more",
+      "version": "1.0.0",
+      "keywords": ["react", "python", "go", "ai", "langgraph", "pydantic", "tailwind", "vitest", "zustand"]
+    }
+  ]
+}

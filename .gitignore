@@ -1,0 +1,38 @@
+# Logs
+logs/
+*.log
+
+# OS files
+.DS_Store
+Thumbs.db
+
+# IDE
+.idea/
+.vscode/
+*.swp
+*.swo
+
+# Node (if used for MCP servers)
+node_modules/
+npm-debug.log*
+
+# Python (if used for MCP servers)
+__pycache__/
+*.py[cod]
+.env
+.venv/
+venv/
+
+# Build outputs
+dist/
+build/
+
+# Security - prevent accidental commits
+*.pem
+*.key
+*.p12
+*.pfx
+*credentials*
+*secret*
+.env*
+!.env.example

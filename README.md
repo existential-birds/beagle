@@ -1,4 +1,8 @@
-# Beagle - Claude Code Plugin
+# beagle
+
+![Apollo 10 astronaut Thomas P. Stafford pats the nose of a stuffed Snoopy held by a member of the launch pad closeout crew](assets/Stafford_and_Snoopy.jpg)
+
+*Image: NASA, Public Domain. [Source](https://www.nasa.gov/multimedia/imagegallery/image_feature_572.html) | [Wikimedia Commons](https://commons.wikimedia.org/w/index.php?curid=119486770)*
 
 Code review skills and verification workflows for Python, Go, React, and AI frameworks. Designed to complement [superpowers](https://github.com/obra/superpowers) with pre-push reviews and GitHub bot feedback handling.
 

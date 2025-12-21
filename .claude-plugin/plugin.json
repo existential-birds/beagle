@@ -1,7 +1,7 @@
 {
   "name": "beagle",
   "description": "Code review skills and verification workflows for Python, Go, React, and AI frameworks",
-  "version": "1.1.0",
+  "version": "1.2.0",
   "author": {
     "name": "Kevin Anderson",
     "email": "public@anderskev.com"

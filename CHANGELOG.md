@@ -4,6 +4,13 @@ All notable changes to Beagle are documented here.
 
 Format follows [Keep a Changelog](https://keepachangelog.com/en/1.1.0/). Versioning adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [1.2.0] - 2025-12-21
+
+### Added
+
+- New `prompt-improver` command for optimizing code-related prompts following Claude best practices
+- Cursor IDE version of `prompt-improver` command
+
 ## [1.1.0] - 2025-12-21
 
 ### Changed
@@ -27,5 +34,6 @@ Format follows [Keep a Changelog](https://keepachangelog.com/en/1.1.0/). Version
 - Development commands: `skill-builder`, `ensure-docs`
 - Cursor IDE command equivalents
 
+[1.2.0]: https://github.com/anderskev/beagle/compare/v1.1.0...v1.2.0
 [1.1.0]: https://github.com/anderskev/beagle/compare/v1.0.0...v1.1.0
 [1.0.0]: https://github.com/anderskev/beagle/releases/tag/v1.0.0

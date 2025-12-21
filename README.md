@@ -8,7 +8,13 @@ Code review skills and verification workflows for Python, Go, React, and AI fram
 
 ## Installation
 
-Add the marketplace to `~/.claude/settings.json`:
+Run this command in your terminal:
+
+```bash
+claude plugin marketplace add https://github.com/anderskev/beagle && claude plugin install beagle
+```
+
+Or manually add the marketplace to `~/.claude/settings.json`:
 
 ```json
 {
@@ -16,11 +22,7 @@ Add the marketplace to `~/.claude/settings.json`:
 }
 ```
 
-Then restart Claude Code and run:
-
-```
-/plugin install beagle
-```
+Then restart Claude Code and run `/plugin install beagle`.
 
 For more on Claude Code plugins, see [Plugin documentation](https://docs.claude.com/en/docs/claude-code/plugins).
 

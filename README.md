@@ -11,14 +11,14 @@ Code review skills and verification workflows for Python, Go, React, and AI fram
 Run this command in your terminal:
 
 ```bash
-claude plugin marketplace add https://github.com/anderskev/beagle && claude plugin install beagle
+claude plugin marketplace add https://github.com/existential-birds/beagle && claude plugin install beagle
 ```
 
 Or manually add the marketplace to `~/.claude/settings.json`:
 
 ```json
 {
-  "marketplaces": ["https://github.com/anderskev/beagle"]
+  "marketplaces": ["https://github.com/existential-birds/beagle"]
 }
 ```
 
@@ -143,7 +143,7 @@ Run commands with `/beagle:<command>`. See [Slash commands](https://docs.claude.
 Commands are also available for Cursor. Copy the `.cursor/commands/` folder to your project:
 
 ```bash
-curl -L https://github.com/anderskev/beagle/archive/refs/heads/main.tar.gz | tar -xz --strip-components=1 beagle-main/.cursor
+curl -L https://github.com/existential-birds/beagle/archive/refs/heads/main.tar.gz | tar -xz --strip-components=1 beagle-main/.cursor
 ```
 
 See [Cursor documentation](https://cursor.com/docs/agent/chat/commands) for command usage.

@@ -1,8 +1,8 @@
 {
-  "name": "beagle-plugins",
+  "name": "existential-birds",
   "owner": {
-    "name": "Kevin Anderson",
-    "email": "public@anderskev.com"
+    "name": "Existential Birds, LLC",
+    "email": "tech@existentialbirds.com"
   },
   "metadata": {
     "description": "Beagle plugins and tools for Claude Code",

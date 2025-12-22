@@ -4,5 +4,5 @@ contact_links:
     url: https://docs.anthropic.com/en/docs/claude-code
     about: Official Claude Code documentation
   - name: Discussions
-    url: https://github.com/anderskev/beagle/discussions
+    url: https://github.com/existential-birds/beagle/discussions
     about: Ask questions and share ideas

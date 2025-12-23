@@ -26,6 +26,26 @@ Then restart Claude Code and run `/plugin install beagle`.
 
 For more on Claude Code plugins, see [Plugin documentation](https://docs.claude.com/en/docs/claude-code/plugins).
 
+## Updating
+
+To update to the latest version:
+
+```bash
+claude plugin update beagle
+```
+
+Or reinstall the plugin:
+
+```bash
+claude plugin install beagle
+```
+
+To update the marketplace index:
+
+```bash
+claude plugin marketplace update https://github.com/existential-birds/beagle
+```
+
 ## Skills
 
 Claude loads skills automatically when relevant. See [Agent Skills](https://docs.claude.com/en/docs/agents-and-tools/agent-skills/overview) for how skills work.

@@ -4,6 +4,14 @@ All notable changes to Beagle are documented here.
 
 Format follows [Keep a Changelog](https://keepachangelog.com/en/1.1.0/). Versioning adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [1.3.0] - 2025-12-23
+
+### Added
+
+- **bubbletea:** Add false positive prevention for Elm architecture patterns to avoid flagging intentional BubbleTea designs ([#1](https://github.com/existential-birds/beagle/pull/1))
+- **bubbletea:** Add comprehensive Bubbles component coverage with patterns for list, table, viewport, textinput, textarea, spinner, progress, filepicker, help, key, and paginator components ([#1](https://github.com/existential-birds/beagle/pull/1))
+- **bubbletea:** Add reference documentation for Elm architecture, component composition, and Bubbles library integration ([#1](https://github.com/existential-birds/beagle/pull/1))
+
 ## [1.2.0] - 2025-12-21
 
 ### Added
@@ -34,6 +42,7 @@ Format follows [Keep a Changelog](https://keepachangelog.com/en/1.1.0/). Version
 - Development commands: `skill-builder`, `ensure-docs`
 - Cursor IDE command equivalents
 
+[1.3.0]: https://github.com/existential-birds/beagle/compare/v1.2.0...v1.3.0
 [1.2.0]: https://github.com/existential-birds/beagle/compare/v1.1.0...v1.2.0
 [1.1.0]: https://github.com/existential-birds/beagle/compare/v1.0.0...v1.1.0
 [1.0.0]: https://github.com/existential-birds/beagle/releases/tag/v1.0.0

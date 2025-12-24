@@ -345,6 +345,180 @@ func (m Model) View() string {
 }
 ```
 
+## Huh Forms Integration
+
+[Huh](https://github.com/charmbracelet/huh) is a form library built on BubbleTea.
+
+### Basic Form
+
+```go
+import "github.com/charmbracelet/huh"
+
+form := huh.NewForm(
+    huh.NewGroup(
+        huh.NewInput().
+            Key("name").
+            Title("What's your name?").
+            Validate(func(s string) error {
+                if s == "" {
+                    return errors.New("name required")
+                }
+                return nil
+            }),
+
+        huh.NewSelect[string]().
+            Key("role").
+            Title("Select role").
+            Options(
+                huh.NewOption("Admin", "admin"),
+                huh.NewOption("User", "user"),
+            ),
+
+        huh.NewConfirm().
+            Key("confirm").
+            Title("Continue?"),
+    ),
+)
+
+// Run standalone (blocking)
+err := form.Run()
+
+// Get values
+name := form.GetString("name")
+role := form.GetString("role")
+confirmed := form.GetBool("confirm")
+```
+
+### Embedding in BubbleTea
+
+```go
+type Model struct {
+    form *huh.Form
+    done bool
+}
+
+func NewModel() Model {
+    form := huh.NewForm(
+        huh.NewGroup(
+            huh.NewInput().Key("name").Title("Name"),
+        ),
+    ).WithTheme(huh.ThemeDracula())
+
+    return Model{form: form}
+}
+
+func (m Model) Init() tea.Cmd {
+    return m.form.Init()
+}
+
+func (m Model) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
+    // Check completion first
+    if m.form.State == huh.StateCompleted {
+        m.done = true
+        return m, nil
+    }
+
+    // Update form
+    form, cmd := m.form.Update(msg)
+    if f, ok := form.(*huh.Form); ok {
+        m.form = f
+    }
+    return m, cmd
+}
+
+func (m Model) View() string {
+    if m.done {
+        return fmt.Sprintf("Hello, %s!", m.form.GetString("name"))
+    }
+    return m.form.View()
+}
+```
+
+### Field Types
+
+```go
+// Text input
+huh.NewInput().Key("name").Title("Name").Placeholder("Enter name")
+
+// Multi-line text
+huh.NewText().Key("bio").Title("Bio").Lines(5)
+
+// Single select
+huh.NewSelect[string]().Key("color").Title("Color").
+    Options(
+        huh.NewOption("Red", "red"),
+        huh.NewOption("Blue", "blue"),
+    )
+
+// Multi select
+huh.NewMultiSelect[string]().Key("tags").Title("Tags").
+    Options(
+        huh.NewOption("Go", "go"),
+        huh.NewOption("Rust", "rust"),
+    )
+
+// Confirmation
+huh.NewConfirm().Key("agree").Title("Agree?")
+
+// File picker
+huh.NewFilePicker().Key("file").Title("Select file")
+```
+
+### Theming
+
+```go
+form := huh.NewForm(...).
+    WithTheme(huh.ThemeDracula()).      // Built-in themes
+    WithWidth(60).
+    WithShowHelp(true).
+    WithShowErrors(true)
+
+// Built-in themes
+huh.ThemeBase()
+huh.ThemeCharm()
+huh.ThemeDracula()
+huh.ThemeCatppuccin()
+huh.ThemeBase16()
+```
+
+### Multi-Page Forms
+
+```go
+form := huh.NewForm(
+    // Page 1
+    huh.NewGroup(
+        huh.NewInput().Key("name").Title("Name"),
+        huh.NewInput().Key("email").Title("Email"),
+    ).Title("Personal Info"),
+
+    // Page 2
+    huh.NewGroup(
+        huh.NewSelect[string]().Key("plan").Title("Plan").
+            Options(
+                huh.NewOption("Free", "free"),
+                huh.NewOption("Pro", "pro"),
+            ),
+    ).Title("Subscription"),
+)
+```
+
+### Anti-Patterns
+
+```go
+// ❌ BAD - calling Run() inside BubbleTea (blocks)
+func (m Model) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
+    m.form.Run()  // BLOCKS THE UI!
+    return m, nil
+}
+
+// ✅ GOOD - use Update loop
+func (m Model) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
+    form, cmd := m.form.Update(msg)
+    m.form = form.(*huh.Form)
+    return m, cmd
+}
+```
+
 ## Review Questions
 
 1. Are sub-components properly initialized?
@@ -352,3 +526,4 @@ func (m Model) View() string {
 3. Is WindowSizeMsg passed to all components needing resize?
 4. Is there a clear state machine for view transitions?
 5. Is focus tracked and components blurred/focused correctly?
+6. Are Huh forms embedded correctly (not using blocking Run())?

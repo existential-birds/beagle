@@ -9,22 +9,60 @@ description: Reviews BubbleTea TUI code for proper Elm architecture, model/updat
 
 | Issue Type | Reference |
 |------------|-----------|
+| Elm architecture, tea.Cmd as data | [references/elm-architecture.md](references/elm-architecture.md) |
 | Model state, message handling | [references/model-update.md](references/model-update.md) |
 | View rendering, Lipgloss styling | [references/view-styling.md](references/view-styling.md) |
-| Component composition, bubbles | [references/composition.md](references/composition.md) |
+| Component composition, Huh forms | [references/composition.md](references/composition.md) |
+| Bubbles components (list, table, etc.) | [references/bubbles-components.md](references/bubbles-components.md) |
+
+## CRITICAL: Avoid False Positives
+
+**Read [elm-architecture.md](references/elm-architecture.md) first!** The most common review mistake is flagging correct patterns as bugs.
+
+### NOT Issues (Do NOT Flag These)
+
+| Pattern | Why It's Correct |
+|---------|------------------|
+| `return m, m.loadData()` | `tea.Cmd` is returned immediately; runtime executes async |
+| Value receiver on `Update()` | Standard BubbleTea pattern; model returned by value |
+| Nested `m.child, cmd = m.child.Update(msg)` | Normal component composition |
+| Helper functions returning `tea.Cmd` | Creates command descriptor, no I/O in Update |
+| `tea.Batch(cmd1, cmd2)` | Commands execute concurrently by runtime |
+
+### ACTUAL Issues (DO Flag These)
+
+| Pattern | Why It's Wrong |
+|---------|----------------|
+| `os.ReadFile()` in Update | Blocks UI thread |
+| `http.Get()` in Update | Network I/O blocks |
+| `time.Sleep()` in Update | Freezes UI |
+| `<-channel` in Update (blocking) | May block indefinitely |
+| `huh.Form.Run()` in Update | Blocking call |
 
 ## Review Checklist
 
+### Architecture
+- [ ] **No blocking I/O in Update()** (file, network, sleep)
+- [ ] Helper functions returning `tea.Cmd` are NOT flagged as blocking
+- [ ] Commands used for all async operations
+
+### Model & Update
 - [ ] Model is immutable (Update returns new model, not mutates)
 - [ ] Init returns proper initial command (or nil)
 - [ ] Update handles all expected message types
-- [ ] View is a pure function (no side effects)
-- [ ] tea.Quit used correctly for exit
-- [ ] Key bindings use key.Matches with help.KeyMap
-- [ ] Lipgloss styles are defined once, not in View
-- [ ] Commands are used for I/O, not direct calls
 - [ ] WindowSizeMsg handled for responsive layout
 - [ ] tea.Batch used for multiple commands
+- [ ] tea.Quit used correctly for exit
+
+### View & Styling
+- [ ] View is a pure function (no side effects)
+- [ ] Lipgloss styles defined once, not in View
+- [ ] Key bindings use key.Matches with help.KeyMap
+
+### Components
+- [ ] Sub-component updates propagated correctly
+- [ ] Bubbles components initialized with dimensions
+- [ ] Huh forms embedded via Update loop (not Run())
 
 ## Critical Patterns
 
@@ -92,14 +130,17 @@ func (m Model) View() string {
 
 ## When to Load References
 
-- Reviewing Update function logic → model-update.md
-- Reviewing View function, styling → view-styling.md
-- Reviewing component hierarchy → composition.md
+- **First time reviewing BubbleTea** → [elm-architecture.md](references/elm-architecture.md) (prevents false positives)
+- Reviewing Update function logic → [model-update.md](references/model-update.md)
+- Reviewing View function, styling → [view-styling.md](references/view-styling.md)
+- Reviewing component hierarchy → [composition.md](references/composition.md)
+- Using Bubbles components → [bubbles-components.md](references/bubbles-components.md)
 
 ## Review Questions
 
-1. Is the model immutable in Update?
-2. Are I/O operations done via commands?
+1. Is Update() free of blocking I/O? (NOT: "is the cmd helper blocking?")
+2. Is the model immutable in Update?
 3. Are Lipgloss styles defined once, not in View?
 4. Is WindowSizeMsg handled for resizing?
 5. Are key bindings documented with help.KeyMap?
+6. Are Bubbles components sized correctly?

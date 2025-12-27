@@ -114,6 +114,8 @@ Claude loads skills automatically when relevant. See [Agent Skills](https://docs
 | `receive-feedback` | Processing code review feedback |
 | `agent-architecture-analysis` | Analyzing agent system architecture |
 | `12-factor-apps` | 12-Factor App compliance patterns |
+| `review-feedback-schema` | Schema for tracking review outcomes |
+| `review-skill-improver` | Analyze feedback to improve review skills |
 
 </details>
 

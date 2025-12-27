@@ -52,6 +52,37 @@ def bad_tool(user_id: int, ctx: RunContext[MyDeps]) -> str:
 
 **Fix**: RunContext must always be the first parameter.
 
+## Valid Patterns (Not Errors)
+
+### Raw Function Tool Registration
+
+The following pattern IS valid and supported by pydantic-ai:
+
+```python
+from pydantic_ai import Agent, RunContext
+
+async def search_db(ctx: RunContext[MyDeps], query: str) -> list[dict]:
+    """Search the database."""
+    return await ctx.deps.db.search(query)
+
+async def get_user(ctx: RunContext[MyDeps], user_id: int) -> dict:
+    """Get user by ID."""
+    return await ctx.deps.db.get_user(user_id)
+
+# Valid: Pass raw functions to Agent(tools=[...])
+agent = Agent(
+    'openai:gpt-4o',
+    deps_type=MyDeps,
+    tools=[search_db, get_user]  # RunContext detected from signature
+)
+```
+
+**Why this works:** PydanticAI inspects function signatures. If the first parameter is `RunContext[T]`, it's treated as a context-aware tool. No decorator required.
+
+**Reference:** https://ai.pydantic.dev/agents/#registering-tools-via-the-tools-argument
+
+**Do NOT flag** code that passes functions with `RunContext` signatures to `Agent(tools=[...])`. This is equivalent to using `@agent.tool` and is explicitly documented.
+
 ## Dependency Type Mismatches
 
 ### Wrong: Missing deps at runtime

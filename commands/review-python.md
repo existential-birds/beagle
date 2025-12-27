@@ -15,7 +15,30 @@ description: Comprehensive Python/FastAPI backend code review with optional para
 git diff --name-only $(git merge-base HEAD main)..HEAD | grep -E '\.py$'
 ```
 
-## Step 2: Detect Technologies
+## Step 2: Verify Linter Status
+
+**CRITICAL**: Run project linters BEFORE flagging any style or type issues.
+
+```bash
+# Check if ruff config exists and run it
+if [ -f "pyproject.toml" ] || [ -f "ruff.toml" ]; then
+    ruff check <changed_files>
+fi
+
+# Check if mypy config exists and run it
+if [ -f "pyproject.toml" ] || [ -f "mypy.ini" ]; then
+    mypy <changed_files>
+fi
+```
+
+**Rules:**
+- If a linter passes for a specific rule (e.g., line length), DO NOT flag that issue manually
+- Linter configuration is authoritative for style rules
+- Only flag issues that linters cannot detect (semantic issues, architectural problems)
+
+**Why:** Analysis of 24 review outcomes showed 4 false positives (17%) where reviewers flagged line-length violations that `ruff check` confirmed don't exist. The linter's configuration reflects intentional project decisions.
+
+## Step 3: Detect Technologies
 
 ```bash
 # Detect Pydantic-AI
@@ -31,7 +54,7 @@ grep -r "psycopg\|asyncpg\|JSONB\|GIN" --include="*.py" -l | head -3
 git diff --name-only $(git merge-base HEAD main)..HEAD | grep -E 'test.*\.py$'
 ```
 
-## Step 3: Load Skills
+## Step 4: Load Skills
 
 **Always load:**
 - `beagle:python-code-review`
@@ -46,7 +69,7 @@ git diff --name-only $(git merge-base HEAD main)..HEAD | grep -E 'test.*\.py$'
 | SQLAlchemy detected | `beagle:sqlalchemy-code-review` |
 | Postgres detected | `beagle:postgres-code-review` |
 
-## Step 4: Review
+## Step 5: Review
 
 **Sequential (default):**
 1. Load applicable skills
@@ -61,6 +84,15 @@ git diff --name-only $(git merge-base HEAD main)..HEAD | grep -E 'test.*\.py$'
 3. Each agent loads its skill and reviews its domain
 4. Wait for all agents
 5. Consolidate findings
+
+### Before Flagging Optimization or Pattern Issues
+
+1. **Check CLAUDE.md** for documented intentional patterns
+2. **Check code comments** around the flagged area for "intentional", "optimization", or "NOTE:"
+3. **Trace the code path** before claiming missing coverage or inconsistent handling
+4. **Consider framework idioms** - what looks wrong generically may be correct for the framework
+
+**Why:** Analysis showed rejections where reviewers flagged "inconsistent error handling" that was intentional optimization, and "missing test coverage" for code paths that don't exist.
 
 ## Output Format
 

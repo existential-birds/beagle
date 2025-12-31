@@ -46,6 +46,14 @@ To update the marketplace index:
 claude plugin marketplace update https://github.com/existential-birds/beagle
 ```
 
+To enable automatic marketplace updates, add to `~/.claude/settings.json`:
+
+```json
+{
+  "autoUpdateMarketplaces": true
+}
+```
+
 ## Skills
 
 Claude loads skills automatically when relevant. See [Agent Skills](https://docs.claude.com/en/docs/agents-and-tools/agent-skills/overview) for how skills work.
@@ -170,3 +178,20 @@ curl -L https://github.com/existential-birds/beagle/archive/refs/heads/main.tar.
 ```
 
 See [Cursor documentation](https://cursor.com/docs/agent/chat/commands) for command usage.
+
+## Troubleshooting
+
+### "Marketplace file not found" error
+
+If you see an error like:
+
+```
+Warning: Failed to load marketplace 'xyz': Marketplace file not found at /path/to/plugin
+```
+
+This means a marketplace entry in `~/.claude/plugins/known_marketplaces.json` points to a directory that no longer exists. To fix:
+
+1. Open `~/.claude/plugins/known_marketplaces.json`
+2. Remove the stale marketplace entry
+3. Also check `~/.claude/settings.json` for any `enabledPlugins` referencing that marketplace
+4. Restart Claude Code

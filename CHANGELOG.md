@@ -4,6 +4,12 @@ All notable changes to Beagle are documented here.
 
 Format follows [Keep a Changelog](https://keepachangelog.com/en/1.1.0/). Versioning adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [1.5.1] - 2025-12-31
+
+### Fixed
+
+- **commands:** Add explicit `Skill` tool instructions to all commands that load skills, fixing issue where Claude Code would manually search for skill files instead of using the Skill tool ([#11](https://github.com/existential-birds/beagle/pull/11))
+
 ## [1.5.0] - 2025-12-31
 
 ### Added
@@ -57,6 +63,7 @@ Format follows [Keep a Changelog](https://keepachangelog.com/en/1.1.0/). Version
 - Development commands: `skill-builder`, `ensure-docs`
 - Cursor IDE command equivalents
 
+[1.5.1]: https://github.com/existential-birds/beagle/compare/v1.5.0...v1.5.1
 [1.5.0]: https://github.com/existential-birds/beagle/compare/v1.4.0...v1.5.0
 [1.4.0]: https://github.com/existential-birds/beagle/compare/v1.3.0...v1.4.0
 [1.3.0]: https://github.com/existential-birds/beagle/compare/v1.2.0...v1.3.0

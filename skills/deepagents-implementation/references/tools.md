@@ -19,7 +19,7 @@ Every agent created with `create_deep_agent` has these tools:
 | `edit_file` | String replacement in existing files |
 | `glob` | Find files matching pattern (e.g., `**/*.py`) |
 | `grep` | Search for text patterns in files |
-| `execute`* | Run shell commands (requires SandboxBackend) |
+| `execute`* | Run shell commands |
 
 *`execute` only available with `FilesystemBackend` or backends implementing `SandboxBackendProtocol`.
 

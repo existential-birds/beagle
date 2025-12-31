@@ -98,6 +98,7 @@ Claude loads skills automatically when relevant. See [Agent Skills](https://docs
 | `pydantic-ai-*` | Agent creation, tools, dependency injection, testing |
 | `langgraph-*` | Graph architecture, implementation patterns |
 | `vercel-ai-sdk` | Streaming, use-chat, tools |
+| `deepagents-*` | Architecture, implementation, code review for Deep Agents |
 
 </details>
 

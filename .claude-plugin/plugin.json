@@ -1,11 +1,11 @@
 {
   "name": "beagle",
   "description": "Code review skills and verification workflows for Python, Go, React, and AI frameworks",
-  "version": "1.3.0",
+  "version": "1.4.0",
   "author": {
     "name": "Existential Birds, LLC",
     "email": "tech@existentialbirds.com"
   },
   "repository": "https://github.com/existential-birds/beagle",
-  "keywords": ["react", "python", "go", "typescript", "fastapi", "sqlalchemy", "postgres", "pytest", "bubbletea", "wish", "prometheus", "pydantic", "langgraph", "tailwind", "vitest", "zustand", "shadcn", "react-flow", "react-router", "code-review"]
+  "keywords": ["react", "python", "go", "typescript", "fastapi", "sqlalchemy", "postgres", "pytest", "bubbletea", "wish", "prometheus", "pydantic", "langgraph", "deepagents", "tailwind", "vitest", "zustand", "shadcn", "react-flow", "react-router", "code-review"]
 }

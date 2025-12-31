@@ -75,7 +75,9 @@ If no comments found, output: "No comments from {bot} found on this PR."
 
 ### 5. Evaluate with receive-feedback
 
-Load the **receive-feedback** skill and process the formatted feedback document:
+Use the Skill tool to load the receive-feedback skill: `Skill(skill: "beagle:receive-feedback")`
+
+Then process the formatted feedback document:
 
 1. Parse each actionable item from the formatted document
 2. Process each item through verify → evaluate → execute

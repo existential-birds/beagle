@@ -36,6 +36,8 @@ git diff --name-only $(git merge-base HEAD main)..HEAD | grep -E '_test\.go$'
 
 ## Step 3: Load Skills
 
+Use the `Skill` tool to load each applicable skill (e.g., `Skill(skill: "beagle:go-code-review")`).
+
 **Always load:**
 - `beagle:go-code-review`
 

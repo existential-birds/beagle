@@ -33,6 +33,8 @@ git diff --name-only $(git merge-base HEAD main)..HEAD | grep -E '\.test\.tsx?$'
 
 ## Step 3: Load Skills
 
+Use the `Skill` tool to load each applicable skill (e.g., `Skill(skill: "beagle:react-router-code-review")`).
+
 **Always load:**
 - `beagle:react-router-code-review`
 - `beagle:shadcn-code-review`

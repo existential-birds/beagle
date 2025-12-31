@@ -56,6 +56,8 @@ git diff --name-only $(git merge-base HEAD main)..HEAD | grep -E 'test.*\.py$'
 
 ## Step 4: Load Skills
 
+Use the `Skill` tool to load each applicable skill (e.g., `Skill(skill: "beagle:python-code-review")`).
+
 **Always load:**
 - `beagle:python-code-review`
 - `beagle:fastapi-code-review`

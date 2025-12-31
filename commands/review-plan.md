@@ -29,6 +29,8 @@ Read the plan file and extract:
 
 ## Step 2: Load Skills
 
+Use the `Skill` tool to load each applicable skill (e.g., `Skill(skill: "beagle:python-code-review")`).
+
 Based on detected tech stack, load relevant skills:
 
 | Detected | Skill |

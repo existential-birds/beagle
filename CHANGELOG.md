@@ -4,6 +4,13 @@ All notable changes to Beagle are documented here.
 
 Format follows [Keep a Changelog](https://keepachangelog.com/en/1.1.0/). Versioning adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [1.5.0] - 2025-12-31
+
+### Added
+
+- **review-feedback-schema:** New skill providing structured CSV schema for logging code review outcomes (verdict, rationale, rule source) to enable feedback-driven skill improvement
+- **review-skill-improver:** New skill that analyzes feedback logs to identify false positive patterns and suggest specific skill modifications
+
 ## [1.4.0] - 2025-12-30
 
 ### Added
@@ -50,6 +57,7 @@ Format follows [Keep a Changelog](https://keepachangelog.com/en/1.1.0/). Version
 - Development commands: `skill-builder`, `ensure-docs`
 - Cursor IDE command equivalents
 
+[1.5.0]: https://github.com/existential-birds/beagle/compare/v1.4.0...v1.5.0
 [1.4.0]: https://github.com/existential-birds/beagle/compare/v1.3.0...v1.4.0
 [1.3.0]: https://github.com/existential-birds/beagle/compare/v1.2.0...v1.3.0
 [1.2.0]: https://github.com/existential-birds/beagle/compare/v1.1.0...v1.2.0

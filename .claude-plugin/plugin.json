@@ -1,7 +1,7 @@
 {
   "name": "beagle",
   "description": "Code review skills and verification workflows for Python, Go, React, and AI frameworks",
-  "version": "1.4.0",
+  "version": "1.5.0",
   "author": {
     "name": "Existential Birds, LLC",
     "email": "tech@existentialbirds.com"

@@ -8,12 +8,33 @@ Generate Architecture Decision Records (ADRs) from decisions made during the cur
 
 ## Workflow Overview
 
-1. **Extract** - Analyze conversation for decisions using a subagent
-2. **Confirm** - Present decisions to user for selection
-3. **Write** - Generate ADRs in parallel using subagents
-4. **Report** - Summarize created files and status
+1. **Context** - Gather repository context and existing ADRs
+2. **Extract** - Analyze conversation for decisions using a subagent
+3. **Confirm** - Present decisions to user for selection
+4. **Write** - Generate ADRs in parallel using subagents
+5. **Report** - Summarize created files and status
+6. **Verify** - Validate generated ADRs against Definition of Done
 
-## Step 1: Extract Decisions
+## Step 1: Gather Context
+
+```bash
+# Get current branch and recent commits
+git branch --show-current
+git log --oneline -5
+
+# Check for existing ADRs
+ls docs/adrs/ 2>/dev/null || echo "No ADR directory found"
+
+# Count existing ADRs for numbering
+find docs/adrs -name "*.md" 2>/dev/null | wc -l
+```
+
+This context helps the ADR writer:
+- Reference related commits in the ADR
+- Avoid duplicate ADRs for already-documented decisions
+- Determine correct sequence numbering
+
+## Step 2: Extract Decisions
 
 Launch a subagent to analyze the current conversation for architectural decisions:
 
@@ -44,9 +65,9 @@ Task(
 )
 ```
 
-If the subagent returns an empty `decisions` array, skip to Step 4 with message: "No architectural decisions detected in this session."
+If the subagent returns an empty `decisions` array, skip to Step 5 with message: "No architectural decisions detected in this session."
 
-## Step 2: Confirm with User
+## Step 3: Confirm with User
 
 Present extracted decisions using `AskUserQuestion`:
 
@@ -68,7 +89,7 @@ Parse user response:
 - `"none"` or empty - Skip with message "No ADRs will be created."
 - `"1,3"` or `"1-3"` - Process specified decisions
 
-## Step 3: Write ADRs (Parallel)
+## Step 4: Write ADRs (Parallel)
 
 For each confirmed decision, launch an ADR Writer subagent in background:
 
@@ -95,7 +116,7 @@ Task(
 
 All subagents run in parallel. Wait for all to complete before proceeding.
 
-## Step 4: Report Results
+## Step 5: Report Results
 
 Collect outputs from all subagents and present summary:
 
@@ -118,6 +139,33 @@ If no decisions were processed:
 ```
 No ADRs were created. Run this command again after making architectural decisions.
 ```
+
+## Step 6: Verify Generated ADRs
+
+For each created ADR, validate against Definition of Done:
+
+```markdown
+## Verification Checklist
+
+| ADR | E | C | A | D | R | Status |
+|-----|---|---|---|---|---|--------|
+| 0003-use-postgresql.md | ✓ | ✓ | ✓ | ⚠ | ✗ | Incomplete |
+
+Legend: E=Evidence, C=Criteria, A=Agreement, D=Documentation, R=Realization
+```
+
+**Verification steps:**
+1. Open each generated ADR file
+2. Confirm filename follows `NNNN-slugified-title.md` pattern
+3. Check frontmatter has `status: draft` and `date`
+4. Review for `[INVESTIGATE]` prompts - these need follow-up
+5. Verify at least 2 alternatives are documented
+6. Confirm consequences section has both Good and Bad items
+
+**If gaps exist:**
+- Keep status as `draft` until gaps are resolved
+- Use `[INVESTIGATE]` prompts to guide follow-up session
+- Schedule review with stakeholders before changing to `accepted`
 
 ## Output Location
 

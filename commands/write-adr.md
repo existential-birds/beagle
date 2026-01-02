@@ -38,7 +38,7 @@ This context helps the ADR writer:
 
 Launch a subagent to analyze the current conversation for architectural decisions:
 
-```
+```text
 Task(
   description: "Analyze conversation and extract architectural decisions",
   model: "sonnet",
@@ -71,7 +71,7 @@ If the subagent returns an empty `decisions` array, skip to Step 5 with message:
 
 Present extracted decisions using `AskUserQuestion`:
 
-```
+```text
 ## Detected Decisions
 
 1. **Use PostgreSQL for primary datastore**
@@ -93,7 +93,7 @@ Parse user response:
 
 For each confirmed decision, launch an ADR Writer subagent in background:
 
-```
+```text
 Task(
   description: "Write ADR for: {decision.title}",
   model: "sonnet",
@@ -136,7 +136,7 @@ Collect outputs from all subagents and present summary:
 ```
 
 If no decisions were processed:
-```
+```text
 No ADRs were created. Run this command again after making architectural decisions.
 ```
 

@@ -37,11 +37,22 @@ Generate Architectural Decision Records (ADRs) following the MADR template with 
 
 ### Step 1: Get Sequence Number
 
+**If a number was pre-assigned** (e.g., when called from `/beagle:write-adr` with parallel writes):
+- Use the pre-assigned number directly
+- Do NOT call the script - this prevents duplicate numbers in parallel execution
+
+**If no number was pre-assigned** (standalone use):
 ```bash
 python scripts/next_adr_number.py
 ```
 
 This outputs the next available ADR number (e.g., `0003`).
+
+For parallel allocation (used by parent commands):
+```bash
+python scripts/next_adr_number.py --count 3
+# Outputs: 0003, 0004, 0005 (one per line)
+```
 
 ### Step 2: Explore Context
 
@@ -93,6 +104,29 @@ These prompts signal incomplete sections for later follow-up.
 
 ### Step 7: Write File
 
+**IMPORTANT: Every ADR MUST start with YAML frontmatter.**
+
+The frontmatter block is REQUIRED and must include at minimum:
+```yaml
+---
+status: draft
+date: YYYY-MM-DD
+---
+```
+
+Full frontmatter template:
+```yaml
+---
+status: draft
+date: 2024-01-15
+decision-makers: [alice, bob]
+consulted: []
+informed: []
+---
+```
+
+**Validation:** Before writing the file, verify the content starts with `---` followed by valid YAML frontmatter. If frontmatter is missing, add it before writing.
+
 Save to `docs/adrs/NNNN-slugified-title.md`:
 
 ```
@@ -101,13 +135,13 @@ docs/adrs/0004-adopt-event-sourcing-pattern.md
 docs/adrs/0005-migrate-to-kubernetes.md
 ```
 
-### Step 8: Set Status
+### Step 8: Verify Frontmatter
 
-In frontmatter, always set initial status:
-
-```yaml
-status: draft
-```
+After writing, confirm the file:
+1. Starts with `---` on the first line
+2. Contains `status: draft` (or other valid status)
+3. Contains `date: YYYY-MM-DD` with actual date
+4. Ends frontmatter with `---` before the title
 
 ## File Naming Convention
 

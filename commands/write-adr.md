@@ -69,29 +69,75 @@ If the subagent returns an empty `decisions` array, skip to Step 5 with message:
 
 ## Step 3: Confirm with User
 
-Present extracted decisions using `AskUserQuestion`:
+**Display all extracted decisions with full details**, then ask user to select:
 
 ```text
 ## Detected Decisions
 
-1. **Use PostgreSQL for primary datastore**
-   Context: Discussed during data modeling phase
+### 1. Use PostgreSQL for primary datastore
+**Confidence:** high
 
-2. **Implement event sourcing for audit trail**
-   Context: Required for compliance requirements
+**Problem:** Need ACID transactions for financial records
+
+**Decision:** PostgreSQL for user data storage
+
+**Alternatives discussed:**
+- MongoDB
+- SQLite
+
+**Rationale:** ACID compliance, team familiarity, mature ecosystem
+
+**Source:** Discussion about database selection in planning phase
+
+---
+
+### 2. Implement event sourcing for audit trail
+**Confidence:** medium
+
+**Problem:** Compliance requires complete audit history
+
+**Decision:** Event sourcing pattern for state changes
+
+**Alternatives discussed:**
+- Database triggers
+- Application-level logging
+
+**Rationale:** Immutable audit trail, temporal queries, debugging capability
+
+**Source:** Compliance requirements discussion
+
+---
+
+## Selection
 
 Which decisions should I write ADRs for?
-- Enter numbers (e.g., "1,3" or "1-3"), "all", or "none" to skip
+- Enter numbers (e.g., "1,2" or "1-2"), "all", or "none" to skip
 ```
+
+**Important:** Always display the full decision details (problem, decision, alternatives, rationale) from the extraction output BEFORE asking for selection. Do not truncate to just title and context.
 
 Parse user response:
 - `"all"` - Process all decisions
 - `"none"` or empty - Skip with message "No ADRs will be created."
-- `"1,3"` or `"1-3"` - Process specified decisions
+- `"1,2"` or `"1-2"` - Process specified decisions
 
 ## Step 4: Write ADRs (Parallel)
 
-For each confirmed decision, launch an ADR Writer subagent in background:
+**Pre-allocate ADR numbers before launching subagents** to prevent numbering conflicts:
+
+```bash
+# Pre-allocate numbers for all confirmed decisions
+# Example: If user selected 3 decisions
+python skills/adr-writing/scripts/next_adr_number.py --count 3
+# Output:
+# 0003
+# 0004
+# 0005
+```
+
+**Assign each pre-allocated number to its corresponding decision** before launching subagents.
+
+For each confirmed decision, launch an ADR Writer subagent in background with its **pre-assigned number**:
 
 ```text
 Task(
@@ -106,13 +152,18 @@ Task(
     {decision JSON}
     ```
 
+    **IMPORTANT: Use this pre-assigned ADR number: {assigned_number}**
+
     Instructions:
     1. Explore codebase for additional context
     2. Write MADR-formatted ADR to docs/adr/
-    3. Use sequential numbering (check existing ADRs)
-    4. Return created file path
+    3. Use the pre-assigned number {assigned_number} - DO NOT call next_adr_number.py
+    4. Filename format: {assigned_number}-slugified-title.md
+    5. Return created file path
 )
 ```
+
+**Critical:** Pass the pre-allocated number to each subagent. Subagents must NOT call `next_adr_number.py` themselves - this causes duplicate numbers when running in parallel.
 
 All subagents run in parallel. Wait for all to complete before proceeding.
 
@@ -157,7 +208,12 @@ Legend: E=Evidence, C=Criteria, A=Agreement, D=Documentation, R=Realization
 **Verification steps:**
 1. Open each generated ADR file
 2. Confirm filename follows `NNNN-slugified-title.md` pattern
-3. Check frontmatter has `status: draft` and `date`
+3. **Verify YAML frontmatter exists at file start:**
+   - File MUST begin with `---`
+   - Contains `status: draft` (or valid status)
+   - Contains `date: YYYY-MM-DD` (actual date)
+   - Ends with `---` before title
+   - If frontmatter is missing, add it immediately
 4. Review for `[INVESTIGATE]` prompts - these need follow-up
 5. Verify at least 2 alternatives are documented
 6. Confirm consequences section has both Good and Bad items
@@ -174,19 +230,28 @@ ADRs are written to `docs/adr/`. If no ADR directory exists, create it with an i
 ## MADR Format Reference
 
 ```markdown
-# {NUMBER}. {TITLE}
+---
+status: draft
+date: YYYY-MM-DD
+---
 
-Date: {YYYY-MM-DD}
+# {TITLE}
 
-## Status
-Proposed
+## Context and Problem Statement
 
-## Context
 {What is the issue motivating this decision?}
 
-## Decision
-{What change are we proposing/doing?}
+## Decision Drivers
 
-## Consequences
-{What becomes easier or harder?}
+* {driver 1}
+* {driver 2}
+
+## Decision Outcome
+
+Chosen option: "{option}", because {reason}.
+
+### Consequences
+
+* Good, because {positive}
+* Bad, because {negative}
 ```

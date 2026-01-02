@@ -6,6 +6,7 @@ Scans docs/adrs/ for existing ADRs and returns the next available number.
 Usage:
     python scripts/next_adr_number.py
     python scripts/next_adr_number.py --dir /path/to/docs/adrs
+    python scripts/next_adr_number.py --count 3  # Pre-allocate 3 numbers for parallel writes
 """
 
 import argparse
@@ -88,6 +89,12 @@ def main() -> int:
         action="store_true",
         help="List existing ADR numbers",
     )
+    parser.add_argument(
+        "--count",
+        type=int,
+        default=1,
+        help="Number of sequential ADR numbers to allocate (for parallel writes)",
+    )
     args = parser.parse_args()
 
     adr_dir = args.dir or find_adr_directory()
@@ -102,7 +109,14 @@ def main() -> int:
         return 0
 
     next_num = next_number(existing)
-    print(format_number(next_num))
+
+    if args.count == 1:
+        print(format_number(next_num))
+    else:
+        # Output multiple numbers, one per line, for parallel allocation
+        allocated = [format_number(next_num + i) for i in range(args.count)]
+        print("\n".join(allocated))
+
     return 0
 
 

@@ -125,6 +125,8 @@ Claude loads skills automatically when relevant. See [Agent Skills](https://docs
 | `12-factor-apps` | 12-Factor App compliance patterns |
 | `review-feedback-schema` | Schema for tracking review outcomes |
 | `review-skill-improver` | Analyze feedback to improve review skills |
+| `adr-decision-extraction` | Extract architectural decisions from conversation |
+| `adr-writing` | Write MADR-formatted ADRs |
 
 </details>
 
@@ -162,6 +164,7 @@ Run commands with `/beagle:<command>`. See [Slash commands](https://docs.claude.
 | Command | Description |
 |---------|-------------|
 | `/beagle:skill-builder` | Create skills following best practices |
+| `/beagle:write-adr` | Generate ADRs from session decisions |
 | `/beagle:12-factor-apps-analysis` | Analyze codebase for 12-Factor compliance |
 | `/beagle:receive-feedback <path>` | Process code review feedback |
 | `/beagle:fetch-pr-feedback` | Fetch bot review comments from PR |

@@ -4,6 +4,28 @@ All notable changes to Beagle are documented here.
 
 Format follows [Keep a Changelog](https://keepachangelog.com/en/1.1.0/). Versioning adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [1.7.0] - 2026-01-03
+
+### Added
+
+- **llm-artifacts-detection:** New skill for detecting common LLM coding agent artifacts (over-abstraction, dead code, DRY violations, verbose comments, defensive overkill)
+- **review-llm-artifacts:** New command to detect LLM artifacts using 4 parallel subagents (tests, dead code, abstraction, style) with JSON report output
+- **fix-llm-artifacts:** New command to apply fixes from review with safe/risky classification, dry-run support, and post-fix verification
+
+## [1.6.1] - 2026-01-03
+
+### Fixed
+
+- **adr:** Resolve decision display, numbering, and frontmatter issues ([#18](https://github.com/existential-birds/beagle/pull/18))
+
+## [1.6.0] - 2026-01-02
+
+### Added
+
+- **adr-decision-extraction:** New skill for extracting architectural decisions from conversation context
+- **adr-writing:** New skill for writing MADR-formatted Architecture Decision Records with templates and validation
+- **write-adr:** New command to generate ADRs from decisions made in the current session ([#15](https://github.com/existential-birds/beagle/pull/15))
+
 ## [1.5.1] - 2025-12-31
 
 ### Fixed
@@ -63,6 +85,9 @@ Format follows [Keep a Changelog](https://keepachangelog.com/en/1.1.0/). Version
 - Development commands: `skill-builder`, `ensure-docs`
 - Cursor IDE command equivalents
 
+[1.7.0]: https://github.com/existential-birds/beagle/compare/v1.6.1...v1.7.0
+[1.6.1]: https://github.com/existential-birds/beagle/compare/v1.6.0...v1.6.1
+[1.6.0]: https://github.com/existential-birds/beagle/compare/v1.5.1...v1.6.0
 [1.5.1]: https://github.com/existential-birds/beagle/compare/v1.5.0...v1.5.1
 [1.5.0]: https://github.com/existential-birds/beagle/compare/v1.4.0...v1.5.0
 [1.4.0]: https://github.com/existential-birds/beagle/compare/v1.3.0...v1.4.0

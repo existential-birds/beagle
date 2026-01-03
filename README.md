@@ -127,6 +127,7 @@ Claude loads skills automatically when relevant. See [Agent Skills](https://docs
 | `review-skill-improver` | Analyze feedback to improve review skills |
 | `adr-decision-extraction` | Extract architectural decisions from conversation |
 | `adr-writing` | Write MADR-formatted ADRs |
+| `llm-artifacts-detection` | Criteria for detecting LLM coding artifacts |
 
 </details>
 
@@ -144,6 +145,7 @@ Run commands with `/beagle:<command>`. See [Slash commands](https://docs.claude.
 | `/beagle:review-go` | Go code review with BubbleTea/Wish/Prometheus detection |
 | `/beagle:review-tui` | BubbleTea TUI code review with Elm architecture focus |
 | `/beagle:review-plan <path>` | Review implementation plans before execution |
+| `/beagle:review-llm-artifacts` | Detect LLM coding artifacts (dead code, over-abstraction) |
 
 </details>
 
@@ -169,6 +171,9 @@ Run commands with `/beagle:<command>`. See [Slash commands](https://docs.claude.
 | `/beagle:receive-feedback <path>` | Process code review feedback |
 | `/beagle:fetch-pr-feedback` | Fetch bot review comments from PR |
 | `/beagle:respond-pr-feedback` | Reply to bot review comments |
+| `/beagle:fix-llm-artifacts` | Fix detected LLM artifacts with safe/risky classification |
+| `/beagle:ensure-docs` | Verify documentation coverage and generate missing docs |
+| `/beagle:prompt-improver` | Optimize prompts for code-related tasks |
 
 </details>
 

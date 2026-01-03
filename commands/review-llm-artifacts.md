@@ -210,9 +210,32 @@ Write findings to `.beagle/llm-artifacts-review.json`:
 - Review the JSON report at `.beagle/llm-artifacts-review.json`
 ```
 
+## Step 7: Verification
+
+Before completing, verify the review executed correctly:
+
+1. **JSON validity:** Confirm `.beagle/llm-artifacts-review.json` exists and is parseable
+2. **Subagent success:** All 4 subagents completed without errors
+3. **Git HEAD captured:** The `git_head` field is non-empty in the report
+4. **Staleness check:** If a previous report exists, compare stored `git_head` to current HEAD and warn if different
+
+```bash
+# Verify JSON is valid
+python3 -c "import json; json.load(open('.beagle/llm-artifacts-review.json'))" 2>/dev/null && echo "✓ Valid JSON" || echo "✗ Invalid JSON"
+
+# Check for staleness (if previous report exists)
+STORED_HEAD=$(jq -r '.git_head' .beagle/llm-artifacts-review.json 2>/dev/null)
+CURRENT_HEAD=$(git rev-parse --short HEAD)
+if [ "$STORED_HEAD" != "$CURRENT_HEAD" ]; then
+  echo "⚠️ Report was generated on $STORED_HEAD, current HEAD is $CURRENT_HEAD"
+fi
+```
+
+If any verification fails, report the error and do not proceed.
+
 ## Output Format for Each Finding
 
-```
+```text
 [FILE:LINE] **ISSUE_TYPE** (Risk, Fix Safety)
 - Description
 - Suggestion: Specific fix recommendation

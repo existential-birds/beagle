@@ -1,0 +1,6 @@
+date,source,file,line,issue,severity,verdict,action
+2026-01-04,coderabbitai[bot],commands/llm-judge.md,46,Argument parsing order inconsistent with examples,Major,Accepted,Fixed examples to place flags after positional args
+2026-01-04,coderabbitai[bot],commands/llm-judge.md,56,Missing JSON language identifier,Minor,Rejected,False positive - line 48 already has json identifier
+2026-01-04,coderabbitai[bot],commands/llm-judge.md,71,No error handling for validation failures,Critical,Accepted,Added exit 1 and fixed bash array syntax
+2026-01-04,coderabbitai[bot],commands/llm-judge.md,79,No error handling for spec file read,Major,Accepted,Added read failure and empty file checks
+2026-01-04,coderabbitai[bot],docs/plans/2025-01-04-llm-judge-design.md,72,Style Judge dimension mismatch in diagram,Major,N/A,File was deleted in this PR

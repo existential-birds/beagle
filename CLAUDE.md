@@ -79,6 +79,7 @@ Beagle command patterns:
 | `respond-pr-feedback` | Post replies to bot review comments |
 | `12-factor-apps-analysis` | Analyze codebase for 12-Factor compliance |
 | `ensure-docs` | Documentation quality checking with language-specific standards |
+| `llm-judge` | Compare implementations using LLM-as-judge methodology |
 
 ## Conventions
 

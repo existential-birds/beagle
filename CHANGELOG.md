@@ -4,6 +4,12 @@ All notable changes to Beagle are documented here.
 
 Format follows [Keep a Changelog](https://keepachangelog.com/en/1.1.0/). Versioning adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [1.8.0] - 2026-01-04
+
+### Added
+
+- **llm-judge:** Add LLM-as-judge comparison command for evaluating implementations against requirements using structured scoring rubrics, fact extraction, and parallel judge agents ([#24](https://github.com/existential-birds/beagle/pull/24))
+
 ## [1.7.0] - 2026-01-03
 
 ### Added
@@ -85,6 +91,7 @@ Format follows [Keep a Changelog](https://keepachangelog.com/en/1.1.0/). Version
 - Development commands: `skill-builder`, `ensure-docs`
 - Cursor IDE command equivalents
 
+[1.8.0]: https://github.com/existential-birds/beagle/compare/v1.7.0...v1.8.0
 [1.7.0]: https://github.com/existential-birds/beagle/compare/v1.6.1...v1.7.0
 [1.6.1]: https://github.com/existential-birds/beagle/compare/v1.6.0...v1.6.1
 [1.6.0]: https://github.com/existential-birds/beagle/compare/v1.5.1...v1.6.0

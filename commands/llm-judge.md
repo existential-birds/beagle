@@ -29,10 +29,10 @@ Compare code implementations across multiple repositories using structured LLM-a
 /beagle:llm-judge ./spec.md /path/to/repo-a /path/to/repo-b
 
 # With custom labels
-/beagle:llm-judge ./spec.md --labels="Claude,GPT-4,Gemini" /path/a /path/b /path/c
+/beagle:llm-judge ./spec.md /path/a /path/b /path/c --labels="Claude,GPT-4,Gemini"
 
 # With custom weights
-/beagle:llm-judge ./spec.md --weights="functionality:40,security:35,tests:15,overengineering:5,dead_code:5" /path/a /path/b
+/beagle:llm-judge ./spec.md /path/a /path/b --weights="functionality:40,security:35,tests:15,overengineering:5,dead_code:5"
 ```
 
 ## Step 1: Parse Arguments
@@ -59,23 +59,24 @@ Parse `$ARGUMENTS` to extract:
 
 ```bash
 # Check spec exists
-[ -f "$SPEC_PATH" ] || echo "Error: Spec file not found: $SPEC_PATH"
+[ -f "$SPEC_PATH" ] || { echo "Error: Spec file not found: $SPEC_PATH"; exit 1; }
 
 # Check each repo exists and is a git repo
-for repo in $REPO_PATHS; do
-  [ -d "$repo/.git" ] || echo "Error: Not a git repository: $repo"
+for repo in "${REPO_PATHS[@]}"; do
+  [ -d "$repo/.git" ] || { echo "Error: Not a git repository: $repo"; exit 1; }
 done
 
 # Ensure at least 2 repos
-[ ${#REPO_PATHS[@]} -ge 2 ] || echo "Error: Need at least 2 repositories to compare"
+[ ${#REPO_PATHS[@]} -ge 2 ] || { echo "Error: Need at least 2 repositories to compare"; exit 1; }
 ```
 
-If validation fails, exit with error message.
+Validation failures exit immediately with error message.
 
 ## Step 3: Read Spec Document
 
 ```bash
-SPEC_CONTENT=$(cat "$SPEC_PATH")
+SPEC_CONTENT=$(cat "$SPEC_PATH") || { echo "Error: Failed to read spec file: $SPEC_PATH"; exit 1; }
+[ -z "$SPEC_CONTENT" ] && { echo "Error: Spec file is empty: $SPEC_PATH"; exit 1; }
 ```
 
 ## Step 4: Load the Skill

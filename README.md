@@ -4,7 +4,7 @@
 
 *Image: NASA, Public Domain. [Source](https://www.nasa.gov/multimedia/imagegallery/image_feature_572.html)*
 
-Code review skills and verification workflows for Python, Go, React, and AI frameworks. Designed to complement [superpowers](https://github.com/obra/superpowers).
+Code review skills and verification workflows for Python, Go, React, iOS/Swift, and AI frameworks. Designed to complement [superpowers](https://github.com/obra/superpowers).
 
 ## Installation
 
@@ -23,6 +23,7 @@ Auto-loaded by Claude when relevant. See [Agent Skills](https://docs.claude.com/
 | **Frontend** | react-flow-\*, react-router-\*, tailwind-v4, shadcn-\*, zustand-state, dagre-react-flow, vitest-testing, ai-elements |
 | **Backend (Python)** | python-code-review, fastapi-code-review, sqlalchemy-code-review, postgres-code-review, pytest-code-review, docling, sqlite-vec |
 | **Backend (Go)** | go-code-review, go-testing-code-review, bubbletea-code-review, wish-ssh-code-review, prometheus-go-code-review |
+| **iOS/Swift** | swift-code-review, swiftui-code-review, swiftdata-code-review, combine-code-review, urlsession-code-review, healthkit-code-review, cloudkit-code-review, watchos-code-review, widgetkit-code-review, app-intents-code-review, swift-testing-code-review |
 | **AI Frameworks** | pydantic-ai-\* (6), langgraph-\* (3), vercel-ai-sdk, deepagents-\* (3) |
 | **Workflow** | receive-feedback, review-feedback-schema, review-skill-improver, llm-artifacts-detection |
 | **Architecture** | 12-factor-apps, agent-architecture-analysis, adr-\*, github-projects |
@@ -37,6 +38,7 @@ Run with `/beagle:<command>`. See [Slash commands](https://docs.claude.com/en/do
 | `review-frontend` | React/TypeScript code review |
 | `review-go` | Go code review |
 | `review-tui` | BubbleTea TUI code review |
+| `review-ios` | iOS/SwiftUI code review |
 | `review-plan <path>` | Review implementation plans |
 | `review-llm-artifacts` | Detect LLM coding artifacts |
 | `fix-llm-artifacts` | Fix detected artifacts |

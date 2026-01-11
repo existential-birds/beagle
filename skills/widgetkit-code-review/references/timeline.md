@@ -94,8 +94,14 @@ func getSnapshot(in context: Context, completion: @escaping (Entry) -> ()) {
     fetchRealData { completion(Entry(date: .now, data: $0)) }  // Slow for gallery
 }
 
-// GOOD: Sample data for previews
-if context.isPreview { completion(Entry(date: .now, data: .sample)) }
+// GOOD: Sample data for previews, real data otherwise
+func getSnapshot(in context: Context, completion: @escaping (Entry) -> ()) {
+    if context.isPreview {
+        completion(Entry(date: .now, data: .sample))
+    } else {
+        completion(Entry(date: .now, data: .current))
+    }
+}
 ```
 
 ```swift

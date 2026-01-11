@@ -86,3 +86,10 @@ Types: `feat`, `fix`, `docs`, `refactor`, `chore`
 - Includes working code examples
 - Follows the technology's official conventions
 - Avoids duplicating Claude's existing knowledge
+
+## Releasing
+
+Maintainers use internal commands to create releases:
+
+1. `/release` - Creates a release PR with updated CHANGELOG and version bump
+2. `/release-tag <version>` - After PR is merged, tags and creates GitHub release

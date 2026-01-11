@@ -61,13 +61,18 @@ request.setValue("application/json", forHTTPHeaderField: "Content-Type")
 ### Form URL Encoded
 
 ```swift
-let parameters = ["username": "john", "password": "secret"]
-let bodyString = parameters
-    .map { "\($0.key)=\($0.value.addingPercentEncoding(withAllowedCharacters: .urlQueryAllowed) ?? "")" }
-    .joined(separator: "&")
-request.httpBody = bodyString.data(using: .utf8)
+// CORRECT: Use URLComponents for proper encoding
+var components = URLComponents()
+components.queryItems = [
+    URLQueryItem(name: "username", value: "john"),
+    URLQueryItem(name: "password", value: "secret")
+]
+// percentEncodedQuery encodes spaces as + and handles reserved characters
+request.httpBody = components.percentEncodedQuery?.data(using: .utf8)
 request.setValue("application/x-www-form-urlencoded", forHTTPHeaderField: "Content-Type")
 ```
+
+> **Warning**: Don't use `.urlQueryAllowed` for form-encoded values. It includes reserved characters (`&`, `=`, `+`, `/`, `?`) that must be escaped in parameter values. Use `URLComponents` or a custom charset with only RFC 3986 unreserved characters.
 
 ### Multipart Form Data
 
@@ -112,16 +117,20 @@ config.timeoutIntervalForRequest = 30.0   // Resets on each packet
 config.timeoutIntervalForResource = 300.0 // Total time (default: 7 days!)
 ```
 
+> **Note**: Per-request `timeoutInterval` only takes effect if it's not more restrictive than the session's `timeoutIntervalForRequest`. If the session enforces a stricter limit, that limit applies instead.
+
 ## Critical Anti-Patterns
 
 ### 1. CRLF Injection (CVE-2022-3918)
 
+> **Note**: This vulnerability affects swift-corelibs-foundation versions before 5.7.3. In 5.7.3+, URLRequest rejects CR/LF in header values at the framework level. Manual sanitization is only needed for projects that cannot upgrade.
+
 ```swift
-// DANGEROUS: User input in headers
+// DANGEROUS: User input in headers (affects swift-corelibs-foundation < 5.7.3)
 let userInput = "value\r\nEvil-Header: injected"
 request.setValue(userInput, forHTTPHeaderField: "X-Custom")
 
-// SAFE: Sanitize header values
+// SAFE: Sanitize header values (for pre-5.7.3 or as defense-in-depth)
 let sanitized = userInput.replacingOccurrences(of: "\r", with: "")
     .replacingOccurrences(of: "\n", with: "")
 request.setValue(sanitized, forHTTPHeaderField: "X-Custom")

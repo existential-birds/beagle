@@ -4,3 +4,14 @@ date,source,file,line,issue,severity,verdict,action
 2026-01-04,coderabbitai[bot],commands/llm-judge.md,71,No error handling for validation failures,Critical,Accepted,Added exit 1 and fixed bash array syntax
 2026-01-04,coderabbitai[bot],commands/llm-judge.md,79,No error handling for spec file read,Major,Accepted,Added read failure and empty file checks
 2026-01-04,coderabbitai[bot],docs/plans/2025-01-04-llm-judge-design.md,72,Style Judge dimension mismatch in diagram,Major,N/A,File was deleted in this PR
+2026-01-11,coderabbitai[bot],commands/review-ios.md,66,Tech detection patterns may match false positives,Minor,Rejected,Impact minimal; overengineering for markdown plugin
+2026-01-11,coderabbitai[bot],skills/cloudkit-code-review/references/sharing.md,9,Add blank line before table,Minor,Rejected,Current format already has proper spacing
+2026-01-11,coderabbitai[bot],skills/cloudkit-code-review/SKILL.md,45,Missing Output Format section,Minor,Accepted,Added Output Format section with examples
+2026-01-11,coderabbitai[bot],skills/healthkit-code-review/references/background.md,35,Hyphenate Low Power Mode,Minor,Rejected,Apple uses Low Power Mode officially (no hyphen)
+2026-01-11,coderabbitai[bot],skills/swift-testing-code-review/references/async-testing.md,132,Clarify confirmation semantics,Minor,Accepted,Expanded explanation with completion-handler options
+2026-01-11,coderabbitai[bot],skills/urlsession-code-review/references/caching.md,51,Add Apple documentation citation,Minor,Accepted,Added link to Apple Developer Documentation
+2026-01-11,coderabbitai[bot],skills/urlsession-code-review/references/caching.md,149,deinit placement outside class definition,Critical,Accepted,Moved deinit inside CorrectManager class
+2026-01-11,coderabbitai[bot],skills/urlsession-code-review/references/request-building.md,70,.urlQueryAllowed incorrect for form-encoded values,Major,Accepted,Replaced with URLComponents; added warning note
+2026-01-11,coderabbitai[bot],skills/urlsession-code-review/references/request-building.md,113,Clarify timeout override behavior,Minor,Accepted,Added note about session vs request timeout precedence
+2026-01-11,coderabbitai[bot],skills/urlsession-code-review/references/request-building.md,128,CVE-2022-3918 version context,Minor,Accepted,Added version context (< 5.7.3) and upgrade guidance
+2026-01-11,coderabbitai[bot],skills/widgetkit-code-review/references/timeline.md,74,Nonexistent Date methods in examples,Minor,Accepted,Fixed to use Calendar.current.date(byAdding:value:to:)

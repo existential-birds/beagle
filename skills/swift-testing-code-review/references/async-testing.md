@@ -129,7 +129,12 @@ await confirmation(expectedCount: 0) { confirm in
 }
 ```
 
-**Critical**: All confirmations MUST be fulfilled before the closure returns. Unlike XCTest's `XCTestExpectation`, confirmations do not suspend waiting for future events.
+**Critical**: All `confirm()` calls MUST execute before the `confirmation` closure returns (eager evaluation). Unlike XCTest's `XCTestExpectation` with `fulfillment(of:timeout:)`, confirmations do not suspend waiting for future events.
+
+For completion-handler APIs:
+- **Option A**: Convert to async/await and `await` the async work inside the confirmation closure
+- **Option B**: Use `withCheckedContinuation` (shown in Anti-Pattern #1 above)
+- **Option C**: For callback-style tests that need waiting, use XCTest's `fulfillment(of:timeout:)` instead
 
 ## Time Limits
 

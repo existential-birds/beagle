@@ -48,7 +48,7 @@ func application(_ application: UIApplication,
 }
 ```
 
-**Cache rules**: Response must be <= 5% of disk cache size to be cached.
+**Cache rules**: Response must be <= 5% of disk cache size to be cached. ([Apple Developer Documentation](https://developer.apple.com/documentation/foundation/urlsessiondatadelegate/urlsession(_:datatask:willcacheresponse:completionhandler:)))
 
 ## Session Configuration
 
@@ -143,8 +143,14 @@ class LeakyManager {
 }
 
 // CORRECT: Invalidate session
-deinit {
-    session.finishTasksAndInvalidate()
+class CorrectManager {
+    var session: URLSession!
+    init() {
+        session = URLSession(configuration: .default, delegate: self, delegateQueue: nil)
+    }
+    deinit {
+        session.finishTasksAndInvalidate()
+    }
 }
 ```
 

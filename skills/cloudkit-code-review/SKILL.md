@@ -36,6 +36,15 @@ description: Reviews CloudKit code for container setup, record handling, subscri
 - Reviewing push notifications or sync triggers -> subscriptions.md
 - Reviewing sharing or collaboration features -> sharing.md
 
+## Output Format
+
+Report issues using: `[FILE:LINE] ISSUE_TITLE`
+
+Examples:
+- `[AppDelegate.swift:24] CKContainer not in custom zone`
+- `[SyncManager.swift:156] Unhandled CKErrorPartialFailure`
+- `[DataStore.swift:89] Missing retryAfterSeconds backoff`
+
 ## Review Questions
 
 1. What happens when the user is signed out of iCloud?

@@ -68,10 +68,16 @@ Limitations: Not immediate; may only update when app backgrounds; subject to dai
 
 ```swift
 // BAD: Entries too close together
-for minute in 0..<60 { entries.append(Entry(date: now.addingMinutes(minute))) }
+for minute in 0..<60 {
+    let date = Calendar.current.date(byAdding: .minute, value: minute, to: now)!
+    entries.append(Entry(date: date))
+}
 
 // GOOD: Reasonable intervals (5+ minutes minimum)
-for hour in 0..<24 { entries.append(Entry(date: now.addingHours(hour))) }
+for hour in 0..<24 {
+    let date = Calendar.current.date(byAdding: .hour, value: hour, to: now)!
+    entries.append(Entry(date: date))
+}
 ```
 
 ```swift

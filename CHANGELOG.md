@@ -4,6 +4,14 @@ All notable changes to Beagle are documented here.
 
 Format follows [Keep a Changelog](https://keepachangelog.com/en/1.1.0/). Versioning adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [1.9.0] - 2026-01-11
+
+### Added
+
+- **ios:** Add comprehensive iOS/SwiftUI code review system with 12 new skills covering Swift, SwiftUI, SwiftData, Combine, URLSession, HealthKit, CloudKit, WatchOS, WidgetKit, App Intents, and Swift Testing ([#29](https://github.com/existential-birds/beagle/pull/29))
+- **commands:** Add `review-ios` command for iOS codebase reviews with automatic technology detection ([#29](https://github.com/existential-birds/beagle/pull/29))
+- **commands:** Add `release` and `release-tag` commands for automated release workflow with changelog generation and GitHub releases ([#30](https://github.com/existential-birds/beagle/pull/30))
+
 ## [1.8.0] - 2026-01-04
 
 ### Added
@@ -91,6 +99,7 @@ Format follows [Keep a Changelog](https://keepachangelog.com/en/1.1.0/). Version
 - Development commands: `skill-builder`, `ensure-docs`
 - Cursor IDE command equivalents
 
+[1.9.0]: https://github.com/existential-birds/beagle/compare/v1.8.0...v1.9.0
 [1.8.0]: https://github.com/existential-birds/beagle/compare/v1.7.0...v1.8.0
 [1.7.0]: https://github.com/existential-birds/beagle/compare/v1.6.1...v1.7.0
 [1.6.1]: https://github.com/existential-birds/beagle/compare/v1.6.0...v1.6.1

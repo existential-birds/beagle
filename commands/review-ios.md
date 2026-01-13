@@ -65,7 +65,11 @@ grep -r "import HealthKit\|HKHealthStore\|HKQuery" --include="*.swift" -l | head
 grep -r "import WatchKit\|WKExtension\|WKInterfaceController" --include="*.swift" -l | head -3
 ```
 
-## Step 4: Load Skills
+## Step 4: Load Verification Protocol
+
+Load `beagle:review-verification-protocol` skill and keep its checklist in mind throughout the review.
+
+## Step 5: Load Skills
 
 Use the `Skill` tool to load each applicable skill (e.g., `Skill(skill: "beagle:swift-code-review")`).
 
@@ -87,7 +91,7 @@ Use the `Skill` tool to load each applicable skill (e.g., `Skill(skill: "beagle:
 | HealthKit detected | `beagle:healthkit-code-review` |
 | WatchKit detected | `beagle:watchos-code-review` |
 
-## Step 5: Review
+## Step 6: Review
 
 **Sequential (default):**
 1. Load applicable skills
@@ -109,6 +113,15 @@ Use the `Skill` tool to load each applicable skill (e.g., `Skill(skill: "beagle:
 2. **Check code comments** for intentional patterns (// MARK:, // NOTE:, etc.)
 3. **Consider Apple framework idioms** - what looks wrong generically may be correct for the framework
 4. **Trace async code paths** before claiming missing error handling or race conditions
+
+## Step 7: Verify Findings
+
+Before reporting any issue:
+1. Re-read the actual code (not just diff context)
+2. For "unused" claims - did you search all references?
+3. For "missing" claims - did you check framework/parent handling?
+4. For syntax issues - did you verify against current version docs?
+5. Remove any findings that are style preferences, not actual issues
 
 ## Output Format
 

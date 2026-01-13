@@ -54,7 +54,11 @@ grep -r "psycopg\|asyncpg\|JSONB\|GIN" --include="*.py" -l | head -3
 git diff --name-only $(git merge-base HEAD main)..HEAD | grep -E 'test.*\.py$'
 ```
 
-## Step 4: Load Skills
+## Step 4: Load Verification Protocol
+
+Load `beagle:review-verification-protocol` skill and keep its checklist in mind throughout the review.
+
+## Step 5: Load Skills
 
 Use the `Skill` tool to load each applicable skill (e.g., `Skill(skill: "beagle:python-code-review")`).
 
@@ -71,7 +75,7 @@ Use the `Skill` tool to load each applicable skill (e.g., `Skill(skill: "beagle:
 | SQLAlchemy detected | `beagle:sqlalchemy-code-review` |
 | Postgres detected | `beagle:postgres-code-review` |
 
-## Step 5: Review
+## Step 6: Review
 
 **Sequential (default):**
 1. Load applicable skills
@@ -95,6 +99,15 @@ Use the `Skill` tool to load each applicable skill (e.g., `Skill(skill: "beagle:
 4. **Consider framework idioms** - what looks wrong generically may be correct for the framework
 
 **Why:** Analysis showed rejections where reviewers flagged "inconsistent error handling" that was intentional optimization, and "missing test coverage" for code paths that don't exist.
+
+## Step 7: Verify Findings
+
+Before reporting any issue:
+1. Re-read the actual code (not just diff context)
+2. For "unused" claims - did you search all references?
+3. For "missing" claims - did you check framework/parent handling?
+4. For syntax issues - did you verify against current version docs?
+5. Remove any findings that are style preferences, not actual issues
 
 ## Output Format
 

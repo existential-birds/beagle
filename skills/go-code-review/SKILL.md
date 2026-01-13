@@ -40,3 +40,36 @@ description: Reviews Go code for idiomatic patterns, error handling, concurrency
 2. Are goroutines properly managed with context cancellation?
 3. Are resources (files, connections) closed with defer?
 4. Are interfaces minimal and defined where used?
+
+## Valid Patterns (Do NOT Flag)
+
+These patterns are acceptable and should NOT be flagged as issues:
+
+- **`_ = err` with reason comment** - Intentionally ignored errors with explanation
+  ```go
+  _ = conn.Close() // Best effort cleanup, already handling primary error
+  ```
+- **Empty interface `interface{}`** - For truly generic code (pre-generics codebases)
+- **Naked returns in short functions** - Acceptable in functions < 5 lines with named returns
+- **Channel without close** - When consumer stops via context cancellation, not channel close
+- **Mutex protecting struct fields** - Even if accessed only via methods, this is correct encapsulation
+- **`//nolint` directives with reason** - Acceptable when accompanied by explanation
+  ```go
+  //nolint:errcheck // Error logged but not returned per API contract
+  ```
+- **Defer in loop** - When function scope cleanup is intentional (e.g., processing files in batches)
+
+## Context-Sensitive Rules
+
+Only flag these issues when the specific conditions apply:
+
+| Issue | Flag ONLY IF |
+|-------|--------------|
+| Missing error check | Error return is actionable (can retry, log, or propagate) |
+| Goroutine leak | No context cancellation path exists for the goroutine |
+| Missing defer | Resource isn't explicitly closed before next acquisition or return |
+| Interface pollution | Interface has > 1 method AND only one consumer exists |
+
+## Before Submitting Findings
+
+Load and follow [review-verification-protocol](../review-verification-protocol/SKILL.md) before reporting any issue.

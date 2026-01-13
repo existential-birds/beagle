@@ -128,6 +128,40 @@ date,file,line,rule_source,category,severity,issue,verdict,rationale
 2025-12-27,amelia/agents/developer.py,128,python-code-review:type-safety,type-safety,major,Return type list[Any] loses type safety,ACCEPT,Changed to list[AgentMessage] and removed unused Any import
 ```
 
+## Pre-Review Verification Checklist
+
+Before reporting ANY finding, reviewers MUST verify:
+
+### Verification Steps
+
+1. **Confirm the issue exists**: Read the actual code, don't infer from context
+2. **Check surrounding code**: The issue may be handled elsewhere (guards, earlier checks)
+3. **Trace state/variable usage**: Search for all references before claiming "unused"
+4. **Verify assertions**: If claiming "X is missing", confirm X isn't present
+5. **Check framework handling**: Many frameworks handle validation/errors automatically
+6. **Validate syntax understanding**: Verify against current docs (Tailwind v4, TS 5.x, etc.)
+
+### Common False Positive Patterns
+
+| Pattern | Root Cause | Prevention |
+|---------|------------|------------|
+| "Unused variable" | Variable used elsewhere | Search all references |
+| "Missing validation" | Framework validates | Check Pydantic/Zod/etc. |
+| "Type assertion" | Actually annotation | Confirm `as` vs `:` |
+| "Memory leak" | Cleanup exists | Check effect returns |
+| "Wrong syntax" | New framework version | Verify against current docs |
+| "Style issue" | Preference not rule | Both approaches valid |
+
+### Signals of False Positive Risk
+
+If you're about to flag any of these, double-check:
+- "This variable appears unused" → Search for ALL references first
+- "Missing error handling" → Check parent/framework handling
+- "Should use X instead of Y" → Both may be valid
+- "This syntax looks wrong" → Verify against current version docs
+
+Reference: [review-verification-protocol](../review-verification-protocol/SKILL.md) for full verification workflow.
+
 ## How This Feeds Into Skill Improvement
 
 1. **Aggregate by rule_source**: Identify which rules have high REJECT rates

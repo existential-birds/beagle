@@ -34,7 +34,11 @@ grep -r "charmbracelet/wish\|ssh\.Session" --include="*.go" -l | head -3
 git diff --name-only $(git merge-base HEAD main)..HEAD | grep -E '_test\.go$'
 ```
 
-## Step 3: Load Skills
+## Step 3: Load Verification Protocol
+
+Load `beagle:review-verification-protocol` skill and keep its checklist in mind throughout the review.
+
+## Step 4: Load Skills
 
 Use the `Skill` tool to load each applicable skill (e.g., `Skill(skill: "beagle:go-code-review")`).
 
@@ -49,7 +53,7 @@ Use the `Skill` tool to load each applicable skill (e.g., `Skill(skill: "beagle:
 | Test files changed | `beagle:go-testing-code-review` |
 | Wish SSH detected | `beagle:wish-ssh-code-review` |
 
-## Step 4: Review Focus Areas
+## Step 5: Review Focus Areas
 
 ### Model/Update/View (Elm Architecture)
 
@@ -80,7 +84,7 @@ Use the `Skill` tool to load each applicable skill (e.g., `Skill(skill: "beagle:
 - [ ] PTY window size passed to TUI
 - [ ] Per-session Lipgloss renderer
 
-## Step 5: Review
+## Step 6: Review
 
 **Sequential (default):**
 1. Load applicable skills
@@ -96,6 +100,15 @@ Use the `Skill` tool to load each applicable skill (e.g., `Skill(skill: "beagle:
 2. Spawn subagents for: Go quality, BubbleTea, SSH
 3. Wait for all agents
 4. Consolidate findings
+
+## Step 7: Verify Findings
+
+Before reporting any issue:
+1. Re-read the actual code (not just diff context)
+2. For "unused" claims - did you search all references?
+3. For "missing" claims - did you check framework/parent handling?
+4. For syntax issues - did you verify against current version docs?
+5. Remove any findings that are style preferences, not actual issues
 
 ## Output Format
 

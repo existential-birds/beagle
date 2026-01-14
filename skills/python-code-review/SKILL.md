@@ -32,7 +32,7 @@ description: Reviews Python code for type safety, async patterns, error handling
 
 These patterns are intentional and correct - do not report as issues:
 
-- **`|| []` or `or []` fallback for dict.get()** - `dict.get()` returns value or None, the fallback handles None correctly
+- **`or []` fallback for dict.get()** - `dict.get()` returns value or None, the fallback handles None correctly
 - **Type annotation vs type assertion** - Annotations declare types but are not runtime assertions; don't confuse with missing validation
 - **Using `Any` when interacting with untyped libraries** - Required when external libraries lack type stubs
 - **Empty `__init__.py` files** - Valid for package structure, no code required

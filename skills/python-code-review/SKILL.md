@@ -9,6 +9,7 @@ description: Reviews Python code for type safety, async patterns, error handling
 
 | Issue Type | Reference |
 |------------|-----------|
+| Indentation, line length, whitespace, naming | [references/pep8-style.md](references/pep8-style.md) |
 | Missing/wrong type hints, Any usage | [references/type-safety.md](references/type-safety.md) |
 | Blocking calls in async, missing await | [references/async-patterns.md](references/async-patterns.md) |
 | Bare except, missing context, logging | [references/error-handling.md](references/error-handling.md) |
@@ -16,14 +17,30 @@ description: Reviews Python code for type safety, async patterns, error handling
 
 ## Review Checklist
 
+### PEP8 Style
+- [ ] 4-space indentation (no tabs)
+- [ ] Line length ≤79 characters (≤72 for docstrings/comments)
+- [ ] Two blank lines around top-level definitions, one within classes
+- [ ] Imports grouped: stdlib → third-party → local (blank line between groups)
+- [ ] No whitespace inside brackets or before colons/commas
+- [ ] Naming: `snake_case` for functions/variables, `CamelCase` for classes, `UPPER_CASE` for constants
+- [ ] Inline comments separated by at least two spaces
+
+### Type Safety
 - [ ] Type hints on all function parameters and return types
 - [ ] No `Any` unless necessary (with comment explaining why)
 - [ ] Proper `T | None` syntax (Python 3.10+)
+
+### Async Patterns
 - [ ] No blocking calls (`time.sleep`, `requests`) in async functions
 - [ ] Proper `await` on all coroutines
+
+### Error Handling
 - [ ] No bare `except:` clauses
 - [ ] Specific exception types with context
 - [ ] `raise ... from` to preserve stack traces
+
+### Common Mistakes
 - [ ] No mutable default arguments
 - [ ] Using `logger` not `print()` for output
 - [ ] f-strings preferred over `.format()` or `%`
@@ -49,6 +66,7 @@ Only flag these issues when the specific conditions apply:
 
 ## When to Load References
 
+- Reviewing code formatting/style → pep8-style.md
 - Reviewing function signatures → type-safety.md
 - Reviewing `async def` functions → async-patterns.md
 - Reviewing try/except blocks → error-handling.md
@@ -56,10 +74,13 @@ Only flag these issues when the specific conditions apply:
 
 ## Review Questions
 
-1. Are all function signatures fully typed?
-2. Are async functions truly non-blocking?
-3. Do exceptions include meaningful context?
-4. Are there any mutable default arguments?
+1. Does the code follow PEP8 formatting (indentation, line length, whitespace)?
+2. Are imports properly grouped (stdlib → third-party → local)?
+3. Do names follow conventions (snake_case, CamelCase, UPPER_CASE)?
+4. Are all function signatures fully typed?
+5. Are async functions truly non-blocking?
+6. Do exceptions include meaningful context?
+7. Are there any mutable default arguments?
 
 ## Before Submitting Findings
 

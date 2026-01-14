@@ -4,6 +4,18 @@ All notable changes to Beagle are documented here.
 
 Format follows [Keep a Changelog](https://keepachangelog.com/en/1.1.0/). Versioning adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [1.10.0] - 2026-01-13
+
+### Added
+
+- **review:** Add verification protocol to reduce false positives with mandatory verification steps before flagging issues ([#33](https://github.com/existential-birds/beagle/pull/33))
+- **skills:** Add `review-verification-protocol` skill with evidence requirements and false positive prevention guidelines ([#33](https://github.com/existential-birds/beagle/pull/33))
+
+### Changed
+
+- **review:** Update all review commands (review-frontend, review-go, review-ios, review-python, review-tui) to integrate verification protocol ([#33](https://github.com/existential-birds/beagle/pull/33))
+- **skills:** Enhance code review skills (fastapi, go, python, react-router, shadcn) with verification requirements ([#33](https://github.com/existential-birds/beagle/pull/33))
+
 ## [1.9.0] - 2026-01-11
 
 ### Added
@@ -99,6 +111,7 @@ Format follows [Keep a Changelog](https://keepachangelog.com/en/1.1.0/). Version
 - Development commands: `skill-builder`, `ensure-docs`
 - Cursor IDE command equivalents
 
+[1.10.0]: https://github.com/existential-birds/beagle/compare/v1.9.0...v1.10.0
 [1.9.0]: https://github.com/existential-birds/beagle/compare/v1.8.0...v1.9.0
 [1.8.0]: https://github.com/existential-birds/beagle/compare/v1.7.0...v1.8.0
 [1.7.0]: https://github.com/existential-birds/beagle/compare/v1.6.1...v1.7.0

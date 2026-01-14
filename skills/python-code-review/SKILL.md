@@ -35,7 +35,6 @@ These patterns are intentional and correct - do not report as issues:
 - **Type annotation vs type assertion** - Annotations declare types but are not runtime assertions; don't confuse with missing validation
 - **Using `Any` when interacting with untyped libraries** - Required when external libraries lack type stubs
 - **Empty `__init__.py` files** - Valid for package structure, no code required
-- **`# type: ignore` comments** - Acceptable when type checker is incorrect or overly strict
 - **`noqa` comments** - Valid when linter rule doesn't apply to specific case
 - **Using `cast()` after runtime type check** - Correct pattern to inform type checker of narrowed type
 

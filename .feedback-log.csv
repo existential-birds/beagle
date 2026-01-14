@@ -19,3 +19,4 @@ date,source,file,line,issue,severity,verdict,action
 2026-01-13,coderabbitai[bot],skills/python-code-review/SKILL.md,49,Mutable default rule contradicts checklist,Major,Accepted,Removed context-sensitive exception; checklist rule is absolute
 2026-01-13,user,skills/python-code-review/SKILL.md,50,Missing type hints rule should be absolute,Major,Accepted,Removed context-sensitive exception; type hints always required
 2026-01-13,user,skills/python-code-review/SKILL.md,35,or [] fallback is not valid pattern,Major,Accepted,Removed from Valid Patterns; use dict.get(key default) instead
+2026-01-13,user,skills/python-code-review/SKILL.md,38,type: ignore requires explicit user permission,Major,Accepted,Removed from Valid Patterns; always flag unless user permits

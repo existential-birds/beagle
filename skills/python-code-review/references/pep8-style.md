@@ -9,9 +9,9 @@
 def foo():
   return bar
 
-# BAD - tabs
+# BAD - tabs (shown with → for visibility)
 def foo():
-	return bar
+→   return bar  # ← actual code would have tab here
 
 # GOOD - 4 spaces
 def foo():

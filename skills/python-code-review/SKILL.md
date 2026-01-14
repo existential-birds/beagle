@@ -46,8 +46,6 @@ Only flag these issues when the specific conditions apply:
 
 | Issue | Flag ONLY IF |
 |-------|--------------|
-| Mutable default arguments | The default is actually modified in the function body |
-| Missing type hints | Function is public API (no leading underscore) or has complex logic |
 | Generic exception handling | Specific exception types are available and meaningful |
 | Unused variables | Variable lacks `_` prefix AND isn't used in f-strings, logging, or debugging |
 

@@ -16,3 +16,5 @@ date,source,file,line,issue,severity,verdict,action
 2026-01-11,coderabbitai[bot],skills/urlsession-code-review/references/request-building.md,128,CVE-2022-3918 version context,Minor,Accepted,Added version context (< 5.7.3) and upgrade guidance
 2026-01-11,coderabbitai[bot],skills/widgetkit-code-review/references/timeline.md,74,Nonexistent Date methods in examples,Minor,Accepted,Fixed to use Calendar.current.date(byAdding:value:to:)
 2026-01-13,coderabbitai[bot],skills/python-code-review/SKILL.md,35,JavaScript syntax || [] in Python doc,Minor,Accepted,Removed JS syntax; kept Python or []
+2026-01-13,coderabbitai[bot],skills/python-code-review/SKILL.md,49,Mutable default rule contradicts checklist,Major,Accepted,Removed context-sensitive exception; checklist rule is absolute
+2026-01-13,user,skills/python-code-review/SKILL.md,50,Missing type hints rule should be absolute,Major,Accepted,Removed context-sensitive exception; type hints always required

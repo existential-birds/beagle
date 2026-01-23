@@ -6,7 +6,7 @@
 
 ## Summary
 
-Create a `/beagle:draft-docs` command and supporting skills to generate first-draft technical documentation following Mintlify best practices. The command analyzes code based on user prompts and generates Reference or How-To documentation to a staging location for review.
+Create a `/beagle:draft-docs` command and supporting skills to generate first-draft technical documentation following documentation best practices. The command analyzes code based on user prompts and generates Reference or How-To documentation to a staging location for review.
 
 ## Decisions Made
 
@@ -36,13 +36,13 @@ Create a `/beagle:draft-docs` command and supporting skills to generate first-dr
 /beagle:draft-docs --publish docs/drafts/websocket-api.md
 → Asks: "Which section?" → API Reference
 → Moves to: docs/api/websocket-api.md
-→ Updates: mint.json navigation
+→ Updates: docs navigation config
 ```
 
 ### Command Flow
 
 1. **Parse Input** - Extract topic, detect content type (Reference vs How-To)
-2. **Load Skills** - Always `mintlify-style` + appropriate content type skill
+2. **Load Skills** - Always `docs-style` + appropriate content type skill
 3. **Analyze Code** - Search for relevant symbols/files based on prompt
 4. **Generate Draft** - Apply templates, write to `docs/drafts/`
 5. **Publish Mode** - (with `--publish`) Move to final location, update nav config
@@ -54,17 +54,17 @@ beagle/
 ├── commands/
 │   └── draft-docs.md              # Main command
 ├── skills/
-│   ├── mintlify-style/
+│   ├── docs-style/
 │   │   └── SKILL.md               # Core writing principles
-│   ├── mintlify-reference-docs/
+│   ├── reference-docs/
 │   │   └── SKILL.md               # Reference doc patterns
-│   └── mintlify-howto-docs/
+│   └── howto-docs/
 │       └── SKILL.md               # How-To guide patterns
 ```
 
-## Skill: mintlify-style
+## Skill: docs-style
 
-Core Mintlify writing principles applied to all documentation.
+Core technical writing principles applied to all documentation.
 
 ### Voice & Tone
 - Second person ("you" not "the user")
@@ -92,7 +92,7 @@ Core Mintlify writing principles applied to all documentation.
 - Obvious instructions that add no value
 - Colloquialisms that hurt clarity/localization
 
-## Skill: mintlify-reference-docs
+## Skill: reference-docs
 
 Reference documentation is information-oriented - helping users find precise technical details.
 
@@ -137,7 +137,7 @@ Brief description (1-2 sentences).
 - Include imports/setup
 - Use realistic values, not "foo/bar"
 
-## Skill: mintlify-howto-docs
+## Skill: howto-docs
 
 How-To guides are problem-oriented - helping users complete specific tasks.
 
@@ -191,6 +191,6 @@ GitHub issues to track:
 
 ## References
 
-- [Mintlify Technical Writing Guide](https://www.mintlify.com/guides)
-- [Diátaxis Framework](https://diataxis.fr/)
-- Amelia Issue #142: Replace VitePress docs with Mintlify
+- [Diataxis Framework](https://diataxis.fr/) - Documentation system with four content types (Tutorials, How-To, Reference, Explanation)
+- [Google Developer Documentation Style Guide](https://developers.google.com/style) - Comprehensive technical writing standards
+- [Write the Docs](https://www.writethedocs.org/guide/) - Community documentation best practices

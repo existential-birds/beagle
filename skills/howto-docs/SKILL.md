@@ -1,6 +1,6 @@
 ---
-name: mintlify-howto-docs
-description: How-To guide patterns for Mintlify documentation - task-oriented guides for users with specific goals
+name: howto-docs
+description: How-To guide patterns for documentation - task-oriented guides for users with specific goals
 autoContext:
   whenUserAsks:
     - how to guide
@@ -10,14 +10,13 @@ autoContext:
     - procedural guide
     - step-by-step guide
     - how to documentation
-    - mintlify how to
 dependencies:
-  - mintlify-style
+  - docs-style
 ---
 
-# Mintlify How-To Documentation Skill
+# How-To Documentation Skill
 
-This skill provides patterns for writing effective How-To guides in Mintlify documentation. How-To guides are task-oriented content for users who have a specific goal in mind.
+This skill provides patterns for writing effective How-To guides in documentation. How-To guides are task-oriented content for users who have a specific goal in mind.
 
 ## Purpose & Audience
 
@@ -144,11 +143,11 @@ Be explicit about what's needed:
 - Completed the [initial setup guide](/getting-started)
 ```
 
-## Mintlify Components for How-To Guides
+## Components for How-To Guides
 
 ### Steps Component
 
-For numbered procedures, use the Steps component:
+For numbered procedures, use a Steps component:
 
 ```markdown
 <Steps>
@@ -331,7 +330,7 @@ Before publishing, verify:
 
 ## Related Skills
 
-- **mintlify-style**: Core Mintlify writing conventions and components
-- **mintlify-tutorial-docs**: Tutorial patterns for learning-oriented content
-- **mintlify-reference-docs**: Reference documentation patterns
-- **mintlify-explanation-docs**: Conceptual documentation patterns
+- **docs-style**: Core writing conventions and components
+- **tutorial-docs**: Tutorial patterns for learning-oriented content
+- **reference-docs**: Reference documentation patterns
+- **explanation-docs**: Conceptual documentation patterns

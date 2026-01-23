@@ -1,5 +1,5 @@
 ---
-description: Generate first-draft technical documentation following Mintlify best practices from code analysis
+description: Generate first-draft technical documentation from code analysis
 ---
 
 # Draft Docs
@@ -26,8 +26,8 @@ Extract from the prompt:
 
 | Keywords | Type | Skill |
 |----------|------|-------|
-| "how to", "guide", "steps", "configure", "set up" | How-To | `mintlify-howto-docs` |
-| "API", "reference", "parameters", "function", "endpoint" | Reference | `mintlify-reference-docs` |
+| "how to", "guide", "steps", "configure", "set up" | How-To | `howto-docs` |
+| "API", "reference", "parameters", "function", "endpoint" | Reference | `reference-docs` |
 
 If ambiguous, ask: "Should this be a Reference doc (technical lookup) or How-To guide (task completion)?"
 
@@ -35,10 +35,10 @@ If ambiguous, ask: "Should this be a Reference doc (technical lookup) or How-To 
 
 Always load both:
 
-1. `beagle:mintlify-style` - Core writing principles
+1. `beagle:docs-style` - Core writing principles
 2. Detected type skill:
-   - `beagle:mintlify-reference-docs` for Reference
-   - `beagle:mintlify-howto-docs` for How-To
+   - `beagle:reference-docs` for Reference
+   - `beagle:howto-docs` for How-To
 
 ### Step 3: Analyze Code
 
@@ -59,13 +59,13 @@ Gather:
 Apply the loaded skills to generate documentation:
 
 **For Reference docs:**
-- Follow `mintlify-reference-docs` template structure
+- Follow `reference-docs` template structure
 - Document all parameters with types
 - Include complete, runnable examples from actual code
 - Add Related section linking to connected symbols
 
 **For How-To docs:**
-- Follow `mintlify-howto-docs` template structure
+- Follow `howto-docs` template structure
 - Start title with "How to"
 - List concrete prerequisites
 - Break into single-action steps
@@ -135,12 +135,12 @@ mv docs/drafts/{slug}.md {destination}/{slug}.md
 
 ### Step 4: Update Navigation
 
-Check for `mint.json` and update navigation:
+Check for `docs/navigation.json` and update navigation:
 
-1. **Read current mint.json**
+1. **Read current navigation.json**
 2. **Find appropriate navigation group**
 3. **Add new page entry**
-4. **Write updated mint.json**
+4. **Write updated navigation.json**
 
 Example update:
 ```json
@@ -150,7 +150,7 @@ Example update:
       "group": "API Reference",
       "pages": [
         "api/existing-page",
-        "api/websocket-api"  // ← Added
+        "api/websocket-api"
       ]
     }
   ]
@@ -164,7 +164,7 @@ Example update:
 
 **From:** `docs/drafts/{slug}.md`
 **To:** `{destination}/{slug}.md`
-**Navigation:** Updated `mint.json`
+**Navigation:** Updated `docs/navigation.json`
 
 The document is now live in your docs.
 ```
@@ -185,7 +185,7 @@ The document is now live in your docs.
 
 ## Rules
 
-- Always load `mintlify-style` skill for every draft
+- Always load `docs-style` skill for every draft
 - Generate to `docs/drafts/` - never directly to final location
 - Include frontmatter with title and description
 - Use realistic examples from actual codebase

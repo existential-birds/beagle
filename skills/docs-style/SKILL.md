@@ -1,9 +1,9 @@
 ---
-name: mintlify-style
-description: Core Mintlify documentation writing principles for voice, tone, structure, and LLM-friendly patterns. Use when writing or reviewing any documentation.
+name: docs-style
+description: Core technical documentation writing principles for voice, tone, structure, and LLM-friendly patterns. Use when writing or reviewing any documentation.
 ---
 
-# Mintlify Documentation Style Guide
+# Documentation Style Guide
 
 Apply these principles when writing or reviewing documentation to ensure clarity, consistency, and accessibility for both human readers and LLMs.
 

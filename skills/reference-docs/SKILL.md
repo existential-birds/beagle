@@ -1,13 +1,13 @@
 ---
-name: mintlify-reference-docs
-description: Reference documentation patterns for API and symbol documentation following Mintlify best practices. Use when writing reference docs, API docs, parameter tables, or technical specifications. Triggers on reference docs, API reference, function reference, parameters table, symbol documentation.
+name: reference-docs
+description: Reference documentation patterns for API and symbol documentation. Use when writing reference docs, API docs, parameter tables, or technical specifications. Triggers on reference docs, API reference, function reference, parameters table, symbol documentation.
 ---
 
 # Reference Documentation Patterns
 
 Reference documentation is information-oriented - helping experienced users find precise technical details quickly. This skill provides patterns for writing clear, scannable reference pages.
 
-**Dependency:** Always use this skill in conjunction with `mintlify-style` for core writing principles.
+**Dependency:** Always use this skill in conjunction with `docs-style` for core writing principles.
 
 ## Purpose and Audience
 

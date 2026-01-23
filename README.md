@@ -102,6 +102,19 @@ Claude loads skills automatically when relevant. See [Agent Skills](https://docs
 </details>
 
 <details>
+<summary><strong>Documentation</strong></summary>
+
+| Skill | Triggers |
+|-------|----------|
+| `docs-style` | Writing documentation, voice and tone |
+| `tutorial-docs` | Learning-oriented tutorials, getting started guides |
+| `howto-docs` | Task-oriented how-to guides |
+| `reference-docs` | API reference, parameter documentation |
+| `explanation-docs` | Conceptual explanations, design rationale |
+
+</details>
+
+<details>
 <summary><strong>Utilities</strong></summary>
 
 | Skill | Triggers |
@@ -146,11 +159,23 @@ Run commands with `/beagle:<command>`. See [Slash commands](https://docs.claude.
 </details>
 
 <details>
+<summary><strong>Documentation</strong></summary>
+
+| Command | Description |
+|---------|-------------|
+| `/beagle:draft-docs <prompt>` | Generate documentation drafts from code |
+| `/beagle:improve-doc <path>` | Analyze and improve docs using Diátaxis |
+| `/beagle:ensure-docs` | Verify documentation coverage |
+
+</details>
+
+<details>
 <summary><strong>Other</strong></summary>
 
 | Command | Description |
 |---------|-------------|
 | `/beagle:skill-builder` | Create skills following best practices |
+| `/beagle:prompt-improver` | Optimize prompts for code tasks |
 | `/beagle:12-factor-apps-analysis` | Analyze codebase for 12-Factor compliance |
 | `/beagle:receive-feedback <path>` | Process code review feedback |
 | `/beagle:fetch-pr-feedback` | Fetch bot review comments from PR |

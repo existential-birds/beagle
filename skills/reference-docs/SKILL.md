@@ -247,7 +247,7 @@ Document allowed values clearly:
 ```markdown
 ## Endpoint
 
-```
+```http
 GET /api/v1/users/{userId}
 ```
 

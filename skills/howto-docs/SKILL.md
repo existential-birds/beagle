@@ -65,7 +65,7 @@ Brief intro (1-2 sentences): what you'll accomplish and why it's useful.
 
 [Continue with clear, single-action steps]
 
-```code
+```bash
 # Example command or code if needed
 ```
 

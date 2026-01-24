@@ -10,7 +10,9 @@ Powers the agents in [Amelia](https://github.com/existential-birds/amelia).
 
 ## Installation
 
-**Prerequisite:** [Claude Code](https://claude.ai/code) CLI installed
+**Prerequisites:**
+- [Claude Code](https://claude.ai/code) CLI installed
+- [agent-browser](https://github.com/vercel-labs/agent-browser) for `run-test-plan` command (optional)
 
 ```bash
 claude plugin marketplace add https://github.com/existential-birds/beagle
@@ -24,6 +26,16 @@ To update: `claude plugin update beagle`
 **Troubleshooting:**
 - "Marketplace file not found": Remove stale entries from `~/.claude/plugins/known_marketplaces.json` and restart Claude Code.
 - Plugin not updating: Run `claude plugin marketplace update beagle` to refresh the marketplace, then `claude plugin update beagle`.
+
+### Other Agents
+
+Use the [skills CLI](https://skills.sh/docs/cli) to install beagle skills for other AI agents:
+
+```bash
+npx skills add existential-birds/beagle
+```
+
+This downloads the skills and configures them for your agent. Commands (`/beagle:*`) are Claude Code specific and not available through the skills CLI.
 
 ## Skills
 
@@ -54,6 +66,8 @@ Run with `/beagle:<command>`. See [Slash commands](https://docs.claude.com/en/do
 | `review-plan <path>` | Review implementation plans |
 | `review-llm-artifacts` | Detect LLM coding artifacts |
 | `fix-llm-artifacts` | Fix detected artifacts |
+| `gen-test-plan` | Generate YAML test plan from branch changes |
+| `run-test-plan` | Execute test plan, stop on first failure |
 | `commit-push` | Commit and push changes |
 | `create-pr` | Create PR with template |
 | `gen-release-notes <tag>` | Generate release notes |

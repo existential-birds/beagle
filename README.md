@@ -10,7 +10,9 @@ Powers the agents in [Amelia](https://github.com/existential-birds/amelia).
 
 ## Installation
 
-**Prerequisite:** [Claude Code](https://claude.ai/code) CLI installed
+**Prerequisites:**
+- [Claude Code](https://claude.ai/code) CLI installed
+- [agent-browser](https://github.com/vercel-labs/agent-browser) for `run-test-plan` command (optional)
 
 ```bash
 claude plugin marketplace add https://github.com/existential-birds/beagle

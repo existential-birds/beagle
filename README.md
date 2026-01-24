@@ -25,6 +25,16 @@ To update: `claude plugin update beagle`
 - "Marketplace file not found": Remove stale entries from `~/.claude/plugins/known_marketplaces.json` and restart Claude Code.
 - Plugin not updating: Run `claude plugin marketplace update beagle` to refresh the marketplace, then `claude plugin update beagle`.
 
+### Other Agents
+
+Use the [skills CLI](https://skills.sh/docs/cli) to install beagle skills for other AI agents:
+
+```bash
+npx skills add existential-birds/beagle
+```
+
+This downloads the skills and configures them for your agent. Commands (`/beagle:*`) are Claude Code specific and not available through the skills CLI.
+
 ## Skills
 
 Auto-loaded by Claude when relevant. See [Agent Skills](https://docs.claude.com/en/docs/agents-and-tools/agent-skills/overview).

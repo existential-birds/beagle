@@ -25,6 +25,7 @@ Auto-loaded by Claude when relevant. See [Agent Skills](https://docs.claude.com/
 | **Backend (Go)** | go-code-review, go-testing-code-review, bubbletea-code-review, wish-ssh-code-review, prometheus-go-code-review |
 | **iOS/Swift** | swift-code-review, swiftui-code-review, swiftdata-code-review, combine-code-review, urlsession-code-review, healthkit-code-review, cloudkit-code-review, watchos-code-review, widgetkit-code-review, app-intents-code-review, swift-testing-code-review |
 | **AI Frameworks** | pydantic-ai-\* (6), langgraph-\* (3), vercel-ai-sdk, deepagents-\* (3) |
+| **Documentation** | docs-style, tutorial-docs, howto-docs, reference-docs, explanation-docs |
 | **Workflow** | receive-feedback, review-feedback-schema, review-skill-improver, llm-artifacts-detection |
 | **Architecture** | 12-factor-apps, agent-architecture-analysis, adr-\*, github-projects |
 
@@ -46,6 +47,8 @@ Run with `/beagle:<command>`. See [Slash commands](https://docs.claude.com/en/do
 | `create-pr` | Create PR with template |
 | `gen-release-notes <tag>` | Generate release notes |
 | `write-adr` | Generate ADRs from decisions |
+| `draft-docs <prompt>` | Generate documentation drafts |
+| `improve-doc <path>` | Improve docs using Diátaxis |
 | `12-factor-apps-analysis` | 12-Factor compliance check |
 | `receive-feedback <path>` | Process review feedback |
 | `fetch-pr-feedback` | Fetch bot comments from PR |

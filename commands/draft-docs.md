@@ -17,6 +17,30 @@ Generate Reference or How-To documentation drafts to `docs/drafts/` for review b
 /beagle:draft-docs "Document the authentication middleware"
 ```
 
+### Step 0: Gather Context
+
+Before parsing input, gather project context:
+
+```bash
+# Check for existing docs structure
+ls -la docs/ 2>/dev/null || echo "No docs/ directory found"
+
+# Identify documentation framework
+ls docs/navigation.json docs/mint.json docs/docusaurus.config.js docs/mkdocs.yml 2>/dev/null | head -1
+
+# Check for existing drafts
+ls docs/drafts/*.md 2>/dev/null || echo "No existing drafts"
+
+# Get recent code changes for context
+git diff --name-only $(git merge-base HEAD main)..HEAD 2>/dev/null | head -20
+```
+
+**Capture:**
+- Docs structure: `docs/` subdirectories present
+- Navigation system: `navigation.json`, `mint.json`, or other config
+- Tech stack hints: from file extensions and imports in changed files
+- Existing drafts: to avoid duplicates
+
 ### Step 1: Parse Input
 
 Extract from the prompt:
@@ -102,6 +126,30 @@ Apply the loaded skills to generate documentation:
       ```
    ```
 
+### Step 6: End-of-Run Verification
+
+Verify draft generation completed successfully:
+
+```bash
+# Confirm draft file exists
+ls -la docs/drafts/{slug}.md
+
+# Validate frontmatter (YAML header)
+head -10 docs/drafts/{slug}.md | grep -E "^---$|^title:|^description:"
+
+# Check markdown syntax (if markdownlint available)
+markdownlint docs/drafts/{slug}.md 2>/dev/null || echo "markdownlint not available"
+```
+
+**Verification Checklist:**
+- [ ] Draft file created at `docs/drafts/{slug}.md`
+- [ ] Frontmatter includes `title` and `description`
+- [ ] Content type matches detected type (Reference or How-To)
+- [ ] Code examples are complete and runnable
+- [ ] All analyzed symbols referenced in draft
+
+If any verification fails, report the specific issue and offer to regenerate.
+
 ## Mode 2: Publish Draft
 
 ```
@@ -168,6 +216,33 @@ Example update:
 
 The document is now live in your docs.
 ```
+
+### Step 6: End-of-Run Verification
+
+Verify publish completed successfully:
+
+```bash
+# Confirm file moved to destination
+ls -la {destination}/{slug}.md
+
+# Confirm draft removed
+ls docs/drafts/{slug}.md 2>/dev/null && echo "WARNING: Draft still exists" || echo "Draft cleaned up"
+
+# Verify navigation updated
+grep -q "{slug}" docs/navigation.json && echo "Navigation includes new page" || echo "WARNING: Navigation may need manual update"
+
+# Check markdown syntax at final location
+markdownlint {destination}/{slug}.md 2>/dev/null || echo "markdownlint not available"
+```
+
+**Verification Checklist:**
+- [ ] Document moved to `{destination}/{slug}.md`
+- [ ] Draft removed from `docs/drafts/`
+- [ ] Navigation file updated with new page entry
+- [ ] No broken links in navigation structure
+- [ ] Document accessible at expected URL path
+
+If any verification fails, report the specific issue and offer remediation steps.
 
 ## Content Type Detection
 

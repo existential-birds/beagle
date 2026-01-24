@@ -4,15 +4,26 @@
 
 *Image: NASA, Public Domain. [Source](https://www.nasa.gov/multimedia/imagegallery/image_feature_572.html)*
 
-Code review skills and verification workflows for Python, Go, React, iOS/Swift, and AI frameworks. Designed to complement [superpowers](https://github.com/obra/superpowers).
+A Claude Code plugin for code review and verification workflows. Catch issues before you push with pre-commit reviews for Python, Go, React, iOS/Swift, and AI frameworks.
+
+Powers the agents in [Amelia](https://github.com/existential-birds/amelia).
 
 ## Installation
 
+**Prerequisite:** [Claude Code](https://claude.ai/code) CLI installed
+
 ```bash
-claude plugin marketplace add https://github.com/existential-birds/beagle && claude plugin install beagle
+claude plugin marketplace add https://github.com/existential-birds/beagle
+claude plugin install beagle
 ```
 
+Verify installation by running `/beagle:` in Claude Code—you should see the command list.
+
 To update: `claude plugin update beagle`
+
+**Troubleshooting:**
+- "Marketplace file not found": Remove stale entries from `~/.claude/plugins/known_marketplaces.json` and restart Claude Code.
+- Plugin not updating: Run `claude plugin marketplace update beagle` to refresh the marketplace, then `claude plugin update beagle`.
 
 ## Skills
 
@@ -57,14 +68,3 @@ Run with `/beagle:<command>`. See [Slash commands](https://docs.claude.com/en/do
 | `skill-builder` | Create new skills |
 | `prompt-improver` | Optimize prompts |
 
-## Cursor IDE
-
-Copy commands to your project:
-
-```bash
-curl -L https://github.com/existential-birds/beagle/archive/refs/heads/main.tar.gz | tar -xz --strip-components=1 beagle-main/.cursor
-```
-
-## Troubleshooting
-
-**"Marketplace file not found"**: Remove stale entries from `~/.claude/plugins/known_marketplaces.json` and restart Claude Code.

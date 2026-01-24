@@ -4,6 +4,18 @@ All notable changes to Beagle are documented here.
 
 Format follows [Keep a Changelog](https://keepachangelog.com/en/1.1.0/). Versioning adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [1.11.0] - 2026-01-24
+
+### Added
+
+- **docs:** Add `draft-docs` command for generating first-draft technical documentation with two-phase workflow (draft to `docs/drafts/`, then publish) ([#5](https://github.com/existential-birds/beagle/pull/5))
+- **docs:** Add `improve-doc` command for analyzing and refining existing documentation using the Diátaxis framework with interactive refinement workflow ([#5](https://github.com/existential-birds/beagle/pull/5))
+- **skills:** Add `docs-style` skill with core writing principles for technical documentation (voice, tone, structure) ([#5](https://github.com/existential-birds/beagle/pull/5))
+- **skills:** Add `reference-docs` skill with patterns for API reference and configuration documentation ([#5](https://github.com/existential-birds/beagle/pull/5))
+- **skills:** Add `howto-docs` skill with patterns for task-oriented how-to guides ([#5](https://github.com/existential-birds/beagle/pull/5))
+- **skills:** Add `tutorial-docs` skill with patterns for learning-oriented tutorials ([#5](https://github.com/existential-birds/beagle/pull/5))
+- **skills:** Add `explanation-docs` skill with patterns for understanding-oriented explanations ([#5](https://github.com/existential-birds/beagle/pull/5))
+
 ## [1.10.0] - 2026-01-13
 
 ### Added
@@ -111,6 +123,7 @@ Format follows [Keep a Changelog](https://keepachangelog.com/en/1.1.0/). Version
 - Development commands: `skill-builder`, `ensure-docs`
 - Cursor IDE command equivalents
 
+[1.11.0]: https://github.com/existential-birds/beagle/compare/v1.10.0...v1.11.0
 [1.10.0]: https://github.com/existential-birds/beagle/compare/v1.9.0...v1.10.0
 [1.9.0]: https://github.com/existential-birds/beagle/compare/v1.8.0...v1.9.0
 [1.8.0]: https://github.com/existential-birds/beagle/compare/v1.7.0...v1.8.0

@@ -66,6 +66,8 @@ Run with `/beagle:<command>`. See [Slash commands](https://docs.claude.com/en/do
 | `review-plan <path>` | Review implementation plans |
 | `review-llm-artifacts` | Detect LLM coding artifacts |
 | `fix-llm-artifacts` | Fix detected artifacts |
+| `gen-test-plan` | Generate YAML test plan from branch changes |
+| `run-test-plan` | Execute test plan, stop on first failure |
 | `commit-push` | Commit and push changes |
 | `create-pr` | Create PR with template |
 | `gen-release-notes <tag>` | Generate release notes |

@@ -4,7 +4,7 @@ This file provides guidance to Claude Code (claude.ai/code) when working with co
 
 ## What This Is
 
-Beagle is a Claude Code plugin providing code review skills and verification workflows. Designed to complement [superpowers](https://github.com/obra/superpowers) with pre-push reviews and GitHub bot feedback handling. It contains 40 skills (auto-loaded by Claude when relevant) and 14 commands (user-invoked via `/beagle:<command>`).
+Beagle is a Claude Code plugin providing code review skills and verification workflows. Designed to complement [superpowers](https://github.com/obra/superpowers) with pre-push reviews and GitHub bot feedback handling. It contains 45 skills (auto-loaded by Claude when relevant) and 14 commands (user-invoked via `/beagle:<command>`).
 
 ## Plugin Architecture
 
@@ -12,7 +12,7 @@ Beagle is a Claude Code plugin providing code review skills and verification wor
 beagle/
 ├── .claude-plugin/          # Plugin manifest (plugin.json) and marketplace config
 ├── commands/                # User-invoked slash commands (14 files)
-├── skills/                  # Model-invoked agent skills (40 skills, flat structure)
+├── skills/                  # Model-invoked agent skills (45 skills, flat structure)
 └── .cursor/commands/        # Cursor IDE versions (embedded skill content)
 ```
 
@@ -21,7 +21,7 @@ beagle/
 - **Backend Python**: python-code-review, fastapi-*, sqlalchemy-code-review, postgres-code-review, pytest-code-review
 - **Backend Go**: go-code-review, bubbletea-code-review, wish-ssh-code-review, prometheus-go-code-review, go-testing-code-review
 - **AI Frameworks**: pydantic-ai-* (6 skills), langgraph-* (3 skills), vercel-ai-sdk
-- **Utilities**: docling, sqlite-vec, github-projects, 12-factor-apps, ai-elements, agent-architecture-analysis, receive-feedback
+- **Utilities**: docling, sqlite-vec, github-projects, 12-factor-apps, ai-elements, agent-architecture-analysis, receive-feedback, review-feedback-schema, review-skill-improver
 
 ## Local Development
 
@@ -79,6 +79,7 @@ Beagle command patterns:
 | `respond-pr-feedback` | Post replies to bot review comments |
 | `12-factor-apps-analysis` | Analyze codebase for 12-Factor compliance |
 | `ensure-docs` | Documentation quality checking with language-specific standards |
+| `llm-judge` | Compare implementations using LLM-as-judge methodology |
 
 ## Conventions
 

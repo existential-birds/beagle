@@ -34,7 +34,13 @@ grep -r "rs/zerolog\|zerolog\.Logger" --include="*.go" -l | head -3
 git diff --name-only $(git merge-base HEAD main)..HEAD | grep -E '_test\.go$'
 ```
 
-## Step 3: Load Skills
+## Step 3: Load Verification Protocol
+
+Load `beagle:review-verification-protocol` skill and keep its checklist in mind throughout the review.
+
+## Step 4: Load Skills
+
+Use the `Skill` tool to load each applicable skill (e.g., `Skill(skill: "beagle:go-code-review")`).
 
 **Always load:**
 - `beagle:go-code-review`
@@ -48,7 +54,7 @@ git diff --name-only $(git merge-base HEAD main)..HEAD | grep -E '_test\.go$'
 | Wish SSH detected | `beagle:wish-ssh-code-review` |
 | Prometheus detected | `beagle:prometheus-go-code-review` |
 
-## Step 4: Review
+## Step 5: Review
 
 **Sequential (default):**
 1. Load applicable skills
@@ -62,6 +68,15 @@ git diff --name-only $(git merge-base HEAD main)..HEAD | grep -E '_test\.go$'
 3. Each agent loads its skill and reviews its domain
 4. Wait for all agents
 5. Consolidate findings
+
+## Step 6: Verify Findings
+
+Before reporting any issue:
+1. Re-read the actual code (not just diff context)
+2. For "unused" claims - did you search all references?
+3. For "missing" claims - did you check framework/parent handling?
+4. For syntax issues - did you verify against current version docs?
+5. Remove any findings that are style preferences, not actual issues
 
 ## Output Format
 

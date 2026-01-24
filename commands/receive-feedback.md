@@ -16,9 +16,9 @@ Process external code review feedback using the receive-feedback skill.
 
 1. **Read** the feedback file at `$ARGUMENTS`
 2. **Parse** individual feedback items (numbered, bulleted, or freeform)
-3. **Load** the receive-feedback skill
-4. **Process** each item through verify → evaluate → execute
-5. **Produce** structured response summary (see RESPONSE.md)
+3. **Load skill** using the Skill tool: `Skill(skill: "beagle:receive-feedback")`
+4. **Process** each item through verify → evaluate → execute (as defined in the skill)
+5. **Produce** structured response summary (per skill's RESPONSE.md)
 6. **Prompt** whether to log to `.feedback-log.csv`
 
 ## Expected Feedback File Format

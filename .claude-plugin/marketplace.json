@@ -13,7 +13,7 @@
       "name": "beagle",
       "source": "./",
       "description": "Code review skills and verification workflows for Python, Go, React, and AI frameworks",
-      "version": "1.1.0",
+      "version": "1.12.0",
       "keywords": ["code-review", "python", "go", "react", "ai", "langgraph", "pydantic", "fastapi", "bubbletea"]
     }
   ]

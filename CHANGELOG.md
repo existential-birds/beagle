@@ -4,6 +4,13 @@ All notable changes to Beagle are documented here.
 
 Format follows [Keep a Changelog](https://keepachangelog.com/en/1.1.0/). Versioning adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [1.12.0] - 2026-01-24
+
+### Added
+
+- **commands:** Add `gen-test-plan` command for generating structured test plans from feature specs, user stories, or existing code using multi-agent architecture ([#38](https://github.com/existential-birds/beagle/pull/38))
+- **commands:** Add `run-test-plan` command for executing test plans with browser automation via the agent-browser skill, producing structured test reports ([#38](https://github.com/existential-birds/beagle/pull/38))
+
 ## [1.11.0] - 2026-01-24
 
 ### Added
@@ -123,6 +130,7 @@ Format follows [Keep a Changelog](https://keepachangelog.com/en/1.1.0/). Version
 - Development commands: `skill-builder`, `ensure-docs`
 - Cursor IDE command equivalents
 
+[1.12.0]: https://github.com/existential-birds/beagle/compare/v1.11.0...v1.12.0
 [1.11.0]: https://github.com/existential-birds/beagle/compare/v1.10.0...v1.11.0
 [1.10.0]: https://github.com/existential-birds/beagle/compare/v1.9.0...v1.10.0
 [1.9.0]: https://github.com/existential-birds/beagle/compare/v1.8.0...v1.9.0

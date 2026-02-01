@@ -6,7 +6,7 @@
 
 A Claude Code plugin for code review and verification workflows. Catch issues before you push with pre-commit reviews for Python, Go, React, iOS/Swift, and AI frameworks.
 
-Powers the agents in [Amelia](https://github.com/existential-birds/amelia).
+Powers the agents in [Amelia](https://github.com/existential-birds/amelia). For automated review-fix-test loops, see [Daydream](https://github.com/existential-birds/daydream).
 
 ## Installation
 

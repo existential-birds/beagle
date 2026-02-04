@@ -19,7 +19,6 @@ Process external code review feedback using the receive-feedback skill.
 3. **Load skill** using the Skill tool: `Skill(skill: "beagle:receive-feedback")`
 4. **Process** each item through verify → evaluate → execute (as defined in the skill)
 5. **Produce** structured response summary (per skill's RESPONSE.md)
-6. **Prompt** whether to log to `.feedback-log.csv`
 
 ## Expected Feedback File Format
 

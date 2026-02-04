@@ -95,8 +95,8 @@ For each identified issue, produce:
 ## Usage
 
 ```bash
-# In a project with feedback log
-/review-skill-improver --log .feedback-log.csv --output improvement-report.md
+# Analyze feedback and generate improvement report
+/review-skill-improver --output improvement-report.md
 ```
 
 ## Example Analysis

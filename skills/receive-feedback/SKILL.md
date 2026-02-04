@@ -45,5 +45,4 @@ For each feedback item:
 - `VERIFICATION.md` - Tool-based verification workflow
 - `EVALUATION.md` - Decision matrix and rules
 - `RESPONSE.md` - Structured output format
-- `TRACKING.md` - Logging disposition to CSV
 - `references/skill-integration.md` - Using with code-review skills

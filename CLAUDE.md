@@ -12,8 +12,7 @@ Beagle is a Claude Code plugin providing code review skills and verification wor
 beagle/
 ├── .claude-plugin/          # Plugin manifest (plugin.json) and marketplace config
 ├── commands/                # User-invoked slash commands (14 files)
-├── skills/                  # Model-invoked agent skills (45 skills, flat structure)
-└── .cursor/commands/        # Cursor IDE versions (embedded skill content)
+└── skills/                  # Model-invoked agent skills (45 skills, flat structure)
 ```
 
 **Skill categories** (all in flat `skills/` folder):
@@ -104,7 +103,3 @@ Version bumping:
 - **Patch** (x.y.Z): Bug fixes, documentation
 - **Minor** (x.Y.0): New commands, skills, or features
 - **Major** (X.0.0): Breaking changes to existing commands/skills
-
-## Cursor IDE Support
-
-Cursor commands in `.cursor/commands/` are expanded versions with all skill content embedded (no dynamic skill loading). When updating skills, regenerate Cursor commands to keep them in sync.

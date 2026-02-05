@@ -5,16 +5,24 @@
     "email": "tech@existentialbirds.com"
   },
   "metadata": {
-    "description": "Beagle plugins and tools for Claude Code",
-    "version": "1.0.0"
+    "description": "Framework-aware code review skills for React, Python, Go, Elixir, and AI frameworks",
+    "version": "1.0.0",
+    "pluginRoot": "./plugins"
   },
   "plugins": [
     {
       "name": "beagle",
       "source": "./",
-      "description": "Code review skills and verification workflows for Python, Go, React, and AI frameworks",
-      "version": "1.12.0",
-      "keywords": ["code-review", "python", "go", "react", "ai", "langgraph", "pydantic", "fastapi", "bubbletea"]
+      "description": "Code review skills and verification workflows for Python, Go, Elixir, React, and AI frameworks",
+      "version": "1.13.0",
+      "keywords": ["code-review", "python", "go", "elixir", "react", "ai", "langgraph", "pydantic", "fastapi", "bubbletea"]
+    },
+    {
+      "name": "beagle-elixir",
+      "source": "beagle-elixir",
+      "description": "Elixir, Phoenix, and LiveView code review skills",
+      "category": "backend",
+      "tags": ["elixir", "phoenix", "liveview", "exunit", "code-review"]
     }
   ]
 }

@@ -8,13 +8,14 @@ Format follows [Keep a Changelog](https://keepachangelog.com/en/1.1.0/). Version
 
 ### Added
 
-- **commands:** Add `review-elixir` command for comprehensive Elixir/Phoenix code review with optional parallel agents
-- **skills:** Add `elixir-code-review` skill for reviewing Elixir code for idiomatic patterns, OTP basics, and documentation
-- **skills:** Add `phoenix-code-review` skill for reviewing Phoenix code for controller patterns, context boundaries, routing, and plugs
-- **skills:** Add `liveview-code-review` skill for reviewing Phoenix LiveView code for lifecycle patterns, assigns/streams usage, components, and security
-- **skills:** Add `elixir-performance-review` skill for reviewing Elixir code for performance issues including GenServer bottlenecks, memory usage, and concurrency patterns
-- **skills:** Add `elixir-security-review` skill for reviewing Elixir code for security vulnerabilities including code injection, atom exhaustion, and secret handling
-- **skills:** Add `exunit-code-review` skill for reviewing ExUnit test code for proper patterns, boundary mocking with Mox, and test adapter usage
+- **commands:** Add `review-elixir` command for comprehensive Elixir/Phoenix code review with optional parallel agents ([#43](https://github.com/existential-birds/beagle/pull/43))
+- **skills:** Add 6 Elixir code review skills: `elixir-code-review` (idiomatic patterns, OTP, documentation), `phoenix-code-review` (controllers, contexts, routing, plugs), `liveview-code-review` (lifecycle, assigns/streams, components, security), `elixir-performance-review` (GenServer bottlenecks, memory, concurrency), `elixir-security-review` (code injection, atom exhaustion, secret handling), and `exunit-code-review` (test patterns, Mox boundary mocking, test adapters) ([#43](https://github.com/existential-birds/beagle/pull/43))
+- **marketplace:** Add `beagle-elixir` as standalone plugin for installing Elixir review skills independently ([#43](https://github.com/existential-birds/beagle/pull/43))
+
+### Removed
+
+- **cursor:** Remove Cursor IDE command support (15 command files) in favor of Claude Code-only workflow ([#42](https://github.com/existential-birds/beagle/pull/42))
+- **feedback:** Remove `.feedback-log.csv` tracking from receive-feedback skill and command ([#42](https://github.com/existential-birds/beagle/pull/42))
 
 ## [1.12.0] - 2026-01-24
 

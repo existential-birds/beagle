@@ -56,7 +56,7 @@ end
 ```elixir
 # CRITICAL VULNERABILITY
 def deserialize(data) do
-  :erlang.binary_to_term(data)  # Can create atoms, execute code!
+  :erlang.binary_to_term(data)  # Can create atoms and function references!
 end
 ```
 

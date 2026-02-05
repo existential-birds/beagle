@@ -19,7 +19,8 @@ send(pid, large_binary)
 
 ```elixir
 # Release reference to large binary
-header = :binary.copy(<<header::binary-size(100), _::binary>> = large_binary)
+<<header::binary-size(100), _::binary>> = large_binary
+header = :binary.copy(header)
 ```
 
 ## Process Heap

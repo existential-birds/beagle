@@ -6,8 +6,7 @@
   },
   "metadata": {
     "description": "Framework-aware code review skills for React, Python, Go, Elixir, and AI frameworks",
-    "version": "1.0.0",
-    "pluginRoot": "./plugins"
+    "version": "1.1.0"
   },
   "plugins": [
     {
@@ -19,7 +18,7 @@
     },
     {
       "name": "beagle-elixir",
-      "source": "beagle-elixir",
+      "source": "./plugins/beagle-elixir",
       "description": "Elixir, Phoenix, and LiveView code review skills",
       "version": "1.0.0",
       "category": "backend",

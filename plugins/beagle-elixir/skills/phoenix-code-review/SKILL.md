@@ -62,4 +62,4 @@ description: Reviews Phoenix code for controller patterns, context boundaries, r
 
 ## Before Submitting Findings
 
-Load and follow [review-verification-protocol](../review-verification-protocol/SKILL.md) before reporting any issue.
+Load and follow [review-verification-protocol](../../../../skills/review-verification-protocol/SKILL.md) before reporting any issue.

@@ -116,12 +116,14 @@ test "async process uses mock" do
     {:ok, %{}}
   end)
 
-  # Allow the spawned process to use expectations set by parent
-  Task.async(fn ->
-    Mox.allow(MyApp.HTTPClientMock, parent, self())
+  # Start the task first to get its pid
+  task = Task.async(fn ->
     ExternalService.fetch_data(123)
   end)
-  |> Task.await()
+
+  # Parent grants permission to the child process BEFORE it uses the mock
+  Mox.allow(MyApp.HTTPClientMock, parent, task.pid)
+  Task.await(task)
 
   assert_receive {^ref, :called}
 end

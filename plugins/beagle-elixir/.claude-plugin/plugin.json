@@ -1,0 +1,19 @@
+{
+  "name": "beagle-elixir",
+  "description": "Elixir, Phoenix, and LiveView code review skills",
+  "version": "1.0.0",
+  "author": {
+    "name": "Existential Birds, LLC",
+    "email": "tech@existentialbirds.com"
+  },
+  "repository": "https://github.com/existential-birds/beagle",
+  "keywords": [
+    "elixir",
+    "phoenix",
+    "liveview",
+    "oban",
+    "ecto",
+    "exunit",
+    "code-review"
+  ]
+}

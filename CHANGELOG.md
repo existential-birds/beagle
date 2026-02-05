@@ -4,6 +4,18 @@ All notable changes to Beagle are documented here.
 
 Format follows [Keep a Changelog](https://keepachangelog.com/en/1.1.0/). Versioning adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [1.13.0] - 2026-02-05
+
+### Added
+
+- **commands:** Add `review-elixir` command for comprehensive Elixir/Phoenix code review with optional parallel agents
+- **skills:** Add `elixir-code-review` skill for reviewing Elixir code for idiomatic patterns, OTP basics, and documentation
+- **skills:** Add `phoenix-code-review` skill for reviewing Phoenix code for controller patterns, context boundaries, routing, and plugs
+- **skills:** Add `liveview-code-review` skill for reviewing Phoenix LiveView code for lifecycle patterns, assigns/streams usage, components, and security
+- **skills:** Add `elixir-performance-review` skill for reviewing Elixir code for performance issues including GenServer bottlenecks, memory usage, and concurrency patterns
+- **skills:** Add `elixir-security-review` skill for reviewing Elixir code for security vulnerabilities including code injection, atom exhaustion, and secret handling
+- **skills:** Add `exunit-code-review` skill for reviewing ExUnit test code for proper patterns, boundary mocking with Mox, and test adapter usage
+
 ## [1.12.0] - 2026-01-24
 
 ### Added
@@ -130,6 +142,7 @@ Format follows [Keep a Changelog](https://keepachangelog.com/en/1.1.0/). Version
 - Development commands: `skill-builder`, `ensure-docs`
 - Cursor IDE command equivalents
 
+[1.13.0]: https://github.com/existential-birds/beagle/compare/v1.12.0...v1.13.0
 [1.12.0]: https://github.com/existential-birds/beagle/compare/v1.11.0...v1.12.0
 [1.11.0]: https://github.com/existential-birds/beagle/compare/v1.10.0...v1.11.0
 [1.10.0]: https://github.com/existential-birds/beagle/compare/v1.9.0...v1.10.0

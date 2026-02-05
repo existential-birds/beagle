@@ -39,7 +39,11 @@ end
 
 ```elixir
 def handle_params(%{"page" => page}, _uri, socket) do
-  page = String.to_integer(page)
+  page =
+    case Integer.parse(page) do
+      {n, ""} when n > 0 -> n
+      _ -> 1
+    end
   {:noreply, assign(socket, page: page, items: load_page(page))}
 end
 

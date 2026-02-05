@@ -102,4 +102,6 @@ end
 
 ## Before Submitting Findings
 
+Use the issue format: `[FILE:LINE] ISSUE_TITLE` for each finding.
+
 Load and follow [review-verification-protocol](../review-verification-protocol/SKILL.md) before reporting any issue.

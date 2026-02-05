@@ -149,6 +149,15 @@ Ready: Yes | No | With fixes 1-N
 Rationale: [1-2 sentences]
 ```
 
+## Rules
+
+- Load skills BEFORE reviewing (not after)
+- Number every issue sequentially (1, 2, 3...)
+- Include FILE:LINE for each issue
+- Separate Issue/Why/Fix clearly
+- Categorize by actual severity
+- Run verification after fixes
+
 ## Post-Fix Verification
 
 After fixes are applied, run:
@@ -161,12 +170,3 @@ mix test
 ```
 
 All checks must pass before approval.
-
-## Rules
-
-- Load skills BEFORE reviewing (not after)
-- Number every issue sequentially (1, 2, 3...)
-- Include FILE:LINE for each issue
-- Separate Issue/Why/Fix clearly
-- Categorize by actual severity
-- Run verification after fixes

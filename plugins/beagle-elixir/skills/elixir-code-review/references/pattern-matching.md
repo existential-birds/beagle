@@ -33,9 +33,12 @@ else
   {:error, reason} -> {:error, reason}  # Which operation failed?
 end
 
-# GOOD - tagged for clarity
-with {:ok, user} <- fetch_user(id),
-     {:ok, posts} <- fetch_posts(user) do
+# GOOD - tagged for clarity with helper
+defp tag_error({:error, reason}, tag), do: {:error, tag, reason}
+defp tag_error(other, _tag), do: other
+
+with {:ok, user} <- tag_error(fetch_user(id), :user),
+     {:ok, posts} <- tag_error(fetch_posts(user), :posts) do
   {:ok, posts}
 else
   {:error, :user, reason} -> {:error, {:user_fetch_failed, reason}}

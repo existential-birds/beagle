@@ -30,7 +30,7 @@ description: Reviews ExUnit test code for proper patterns, boundary mocking with
 
 ### Test Structure
 - [ ] Tests are `async: true` unless sharing database state
-- [ ] Describe blocks group related tests
+- [ ] Describe-blocks group related tests
 - [ ] Setup extracts common test data
 - [ ] Tests have clear arrange/act/assert structure
 
@@ -66,5 +66,7 @@ description: Reviews ExUnit test code for proper patterns, boundary mocking with
 | Mock internal | Module being mocked is internal code |
 
 ## Before Submitting Findings
+
+Use the issue format: `[FILE:LINE] ISSUE_TITLE` for each finding.
 
 Load and follow [review-verification-protocol](../review-verification-protocol/SKILL.md) before reporting any issue.

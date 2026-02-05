@@ -13,7 +13,7 @@ end
 
 # GOOD - defers expensive work
 def init(args) do
-  {:ok, %{}, {:continue, :load_data}}
+  {:ok, %{data: nil}, {:continue, :load_data}}
 end
 
 @impl true

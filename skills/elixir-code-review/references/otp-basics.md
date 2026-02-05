@@ -97,14 +97,21 @@ end
 # GOOD - use Task for async work
 @impl true
 def handle_call(:fetch_external, from, state) do
-  Task.async(fn -> HTTPClient.get!(url) end)
-  {:noreply, %{state | pending: from}}
+  task = Task.async(fn -> HTTPClient.get!(url) end)
+  {:noreply, %{state | pending: from, task_ref: task.ref}}
 end
 
 @impl true
-def handle_info({ref, result}, %{pending: from} = state) do
+def handle_info({ref, result}, %{pending: from, task_ref: ref} = state) do
+  Process.demonitor(ref, [:flush])
   GenServer.reply(from, result)
-  {:noreply, %{state | pending: nil}}
+  {:noreply, %{state | pending: nil, task_ref: nil}}
+end
+
+@impl true
+def handle_info({:DOWN, ref, :process, _pid, reason}, %{pending: from, task_ref: ref} = state) do
+  GenServer.reply(from, {:error, reason})
+  {:noreply, %{state | pending: nil, task_ref: nil}}
 end
 ```
 
@@ -120,7 +127,17 @@ end
 
 # GOOD - use ETS for read-heavy workloads
 defmodule Cache do
-  def get(key), do: :ets.lookup(:cache, key)
+  def create_table do
+    :ets.new(:cache, [:named_table, :public, :set])
+  end
+
+  def get(key) do
+    case :ets.lookup(:cache, key) do
+      [{^key, val}] -> {:ok, val}
+      [] -> :error
+    end
+  end
+
   def put(key, val), do: :ets.insert(:cache, {key, val})
 end
 ```

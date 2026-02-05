@@ -56,7 +56,7 @@ end
 ```elixir
 # CRITICAL VULNERABILITY
 def deserialize(data) do
-  :erlang.binary_to_term(data)  # Can create atoms and function references!
+  :erlang.binary_to_term(data)  # Can create atoms and function references; dangerous if later invoked
 end
 ```
 
@@ -75,6 +75,16 @@ rescue
   ArgumentError -> {:error, :invalid_term}
 end
 ```
+
+**Note:** The `[:safe]` option does NOT prevent DoS from:
+- Huge terms consuming memory
+- Deeply nested structures causing stack overflow
+- Decompression bombs (compressed binaries expand to massive size)
+
+**Mitigations:**
+- Enforce input size limits before decoding
+- Use `[:safe, :used]` for stream parsing to detect unconsumed bytes
+- Consider timeout wrappers for untrusted input
 
 ### Prefer JSON for External Data
 

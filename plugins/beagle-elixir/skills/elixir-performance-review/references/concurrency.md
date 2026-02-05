@@ -6,9 +6,9 @@
 
 ```elixir
 # BAD - unlinked task, crashes silently
-Task.async(fn -> risky_work() end)
+Task.start(fn -> risky_work() end)
 
-# BAD - linked task, crashes caller
+# BAD - linked task, crashes caller if task crashes
 Task.async(fn -> risky_work() end) |> Task.await()
 
 # GOOD - supervised, restartable

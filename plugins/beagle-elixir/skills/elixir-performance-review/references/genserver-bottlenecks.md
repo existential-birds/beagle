@@ -76,17 +76,24 @@ All other messages wait during the HTTP call.
 
 ### Solutions
 
-**1. Use Task for async work:**
+**1. Use Task.Supervisor for async work:**
 
 ```elixir
 def handle_call(:fetch_external, from, state) do
-  Task.async(fn -> HTTPClient.get!(url) end)
-  {:noreply, Map.put(state, :pending, from)}
+  task = Task.Supervisor.async_nolink(MyApp.TaskSupervisor, fn ->
+    HTTPClient.get!(url)
+  end)
+  {:noreply, Map.put(state, :pending, {from, task.ref})}
 end
 
-def handle_info({ref, result}, %{pending: from} = state) do
+def handle_info({ref, result}, %{pending: {from, ref}} = state) do
   Process.demonitor(ref, [:flush])
   GenServer.reply(from, result)
+  {:noreply, Map.delete(state, :pending)}
+end
+
+def handle_info({:DOWN, ref, :process, _pid, reason}, %{pending: {from, ref}} = state) do
+  GenServer.reply(from, {:error, reason})
   {:noreply, Map.delete(state, :pending)}
 end
 ```

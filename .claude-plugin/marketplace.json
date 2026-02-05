@@ -21,6 +21,7 @@
       "name": "beagle-elixir",
       "source": "beagle-elixir",
       "description": "Elixir, Phoenix, and LiveView code review skills",
+      "version": "1.0.0",
       "category": "backend",
       "tags": ["elixir", "phoenix", "liveview", "exunit", "code-review"]
     }

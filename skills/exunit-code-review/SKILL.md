@@ -30,7 +30,7 @@ description: Reviews ExUnit test code for proper patterns, boundary mocking with
 
 ### Test Structure
 - [ ] Tests are `async: true` unless sharing database state
-- [ ] Describe blocks group related tests
+- [ ] Describe-blocks group related tests
 - [ ] Setup extracts common test data
 - [ ] Tests have clear arrange/act/assert structure
 

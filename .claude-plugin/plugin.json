@@ -1,7 +1,7 @@
 {
   "name": "beagle",
-  "description": "Code review skills and verification workflows for Python, Go, React, and AI frameworks",
-  "version": "1.12.0",
+  "description": "Code review skills and verification workflows for Python, Go, Elixir, React, and AI frameworks",
+  "version": "1.13.0",
   "author": {
     "name": "Existential Birds, LLC",
     "email": "tech@existentialbirds.com"
@@ -11,6 +11,9 @@
     "react",
     "python",
     "go",
+    "elixir",
+    "phoenix",
+    "liveview",
     "typescript",
     "fastapi",
     "sqlalchemy",

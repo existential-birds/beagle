@@ -116,11 +116,13 @@ end
 ### Configure Appropriately
 
 ```elixir
-# Client-side timeout
+# Client-side timeout (use catch, not rescue - timeouts are exit signals)
 def fetch(pid) do
-  GenServer.call(pid, :fetch, 10_000)  # 10 second timeout
-rescue
-  exit: {:timeout, _} -> {:error, :timeout}
+  try do
+    GenServer.call(pid, :fetch, 10_000)  # 10 second timeout
+  catch
+    :exit, {:timeout, _} -> {:error, :timeout}
+  end
 end
 
 # Server-side timeout for idle

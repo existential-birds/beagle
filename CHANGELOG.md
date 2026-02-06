@@ -9,6 +9,9 @@ Format follows [Keep a Changelog](https://keepachangelog.com/en/1.1.0/). Version
 ### Fixed
 - **marketplace:** Add deprecated `beagle` stub plugin for backward compatibility — users with the pre-v2 `beagle@existential-birds` reference no longer get load errors on startup ([#49](https://github.com/existential-birds/beagle/pull/49))
 
+### Changed
+- **license:** Switch from MIT to Apache License 2.0
+
 ### Added
 - Upgrade notice in README with uninstall instructions for the old monolithic plugin
 

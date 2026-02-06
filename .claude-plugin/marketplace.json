@@ -6,9 +6,17 @@
   },
   "metadata": {
     "description": "Framework-aware code review skills and workflows for modern development",
-    "version": "2.0.1"
+    "version": "2.0.2"
   },
   "plugins": [
+    {
+      "name": "beagle",
+      "source": "./plugins/beagle",
+      "description": "Deprecated: split into beagle-core, beagle-react, etc. You can safely disable this plugin.",
+      "version": "2.0.0",
+      "category": "deprecated",
+      "tags": ["deprecated"]
+    },
     {
       "name": "beagle-core",
       "source": "./plugins/beagle-core",

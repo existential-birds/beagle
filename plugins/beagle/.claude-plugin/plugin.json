@@ -1,0 +1,13 @@
+{
+  "name": "beagle",
+  "description": "Deprecated: this plugin has been split into beagle-core, beagle-react, beagle-python, beagle-go, beagle-elixir, beagle-ios, beagle-ai, beagle-docs, beagle-analysis, and beagle-testing. You can safely disable this plugin.",
+  "version": "2.0.0",
+  "author": {
+    "name": "Existential Birds, LLC",
+    "email": "tech@existentialbirds.com"
+  },
+  "repository": "https://github.com/existential-birds/beagle",
+  "keywords": [
+    "deprecated"
+  ]
+}

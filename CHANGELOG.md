@@ -4,6 +4,11 @@ All notable changes to Beagle are documented here.
 
 Format follows [Keep a Changelog](https://keepachangelog.com/en/1.1.0/). Versioning adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [2.0.1] - 2026-02-06
+
+### Fixed
+- **marketplace:** Use `./plugins/` prefix in all plugin source paths to conform to marketplace schema (bare names like `"beagle-core"` are not valid source values)
+
 ## [2.0.0] - 2026-02-05
 
 ### Removed
@@ -185,6 +190,7 @@ Format follows [Keep a Changelog](https://keepachangelog.com/en/1.1.0/). Version
 - Development commands: `skill-builder`, `ensure-docs`
 - Cursor IDE command equivalents
 
+[2.0.1]: https://github.com/existential-birds/beagle/compare/v2.0.0...v2.0.1
 [2.0.0]: https://github.com/existential-birds/beagle/compare/v1.14.0...v2.0.0
 [1.14.0]: https://github.com/existential-birds/beagle/compare/v1.13.1...v1.14.0
 [1.13.1]: https://github.com/existential-birds/beagle/compare/v1.13.0...v1.13.1

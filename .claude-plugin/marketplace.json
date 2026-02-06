@@ -6,12 +6,12 @@
   },
   "metadata": {
     "description": "Framework-aware code review skills and workflows for modern development",
-    "version": "2.0.0"
+    "version": "2.0.1"
   },
   "plugins": [
     {
       "name": "beagle-core",
-      "source": "beagle-core",
+      "source": "./plugins/beagle-core",
       "description": "Shared code review workflows, verification protocol, git commands, and feedback handling",
       "version": "1.0.0",
       "category": "workflow",
@@ -19,7 +19,7 @@
     },
     {
       "name": "beagle-python",
-      "source": "beagle-python",
+      "source": "./plugins/beagle-python",
       "description": "Python, FastAPI, SQLAlchemy, PostgreSQL, and pytest code review",
       "version": "1.0.0",
       "category": "backend",
@@ -27,7 +27,7 @@
     },
     {
       "name": "beagle-go",
-      "source": "beagle-go",
+      "source": "./plugins/beagle-go",
       "description": "Go, BubbleTea TUI, Wish SSH, and Prometheus code review",
       "version": "1.0.0",
       "category": "backend",
@@ -35,7 +35,7 @@
     },
     {
       "name": "beagle-elixir",
-      "source": "beagle-elixir",
+      "source": "./plugins/beagle-elixir",
       "description": "Elixir, Phoenix, LiveView, and ExUnit code review",
       "version": "1.0.0",
       "category": "backend",
@@ -43,7 +43,7 @@
     },
     {
       "name": "beagle-ios",
-      "source": "beagle-ios",
+      "source": "./plugins/beagle-ios",
       "description": "Swift, SwiftUI, SwiftData, and iOS framework code review",
       "version": "1.0.0",
       "category": "mobile",
@@ -51,7 +51,7 @@
     },
     {
       "name": "beagle-react",
-      "source": "beagle-react",
+      "source": "./plugins/beagle-react",
       "description": "React, React Flow, React Router, shadcn/ui, Tailwind, Vitest, and Zustand code review",
       "version": "1.0.0",
       "category": "frontend",
@@ -59,7 +59,7 @@
     },
     {
       "name": "beagle-ai",
-      "source": "beagle-ai",
+      "source": "./plugins/beagle-ai",
       "description": "Pydantic AI, LangGraph, DeepAgents, and Vercel AI SDK skills",
       "version": "1.0.0",
       "category": "ai",
@@ -67,7 +67,7 @@
     },
     {
       "name": "beagle-docs",
-      "source": "beagle-docs",
+      "source": "./plugins/beagle-docs",
       "description": "Documentation quality, generation, and improvement using Diataxis principles",
       "version": "1.0.0",
       "category": "documentation",
@@ -75,7 +75,7 @@
     },
     {
       "name": "beagle-analysis",
-      "source": "beagle-analysis",
+      "source": "./plugins/beagle-analysis",
       "description": "Architecture analysis, 12-Factor compliance, ADR generation, and LLM-as-judge",
       "version": "1.0.0",
       "category": "analysis",
@@ -83,7 +83,7 @@
     },
     {
       "name": "beagle-testing",
-      "source": "beagle-testing",
+      "source": "./plugins/beagle-testing",
       "description": "Language-agnostic test plan generation and execution",
       "version": "1.0.0",
       "category": "testing",

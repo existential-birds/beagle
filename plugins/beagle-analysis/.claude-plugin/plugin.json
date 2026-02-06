@@ -1,0 +1,17 @@
+{
+  "name": "beagle-analysis",
+  "description": "Architecture analysis, 12-Factor compliance, ADR generation, and LLM-as-judge comparison.",
+  "version": "1.0.0",
+  "author": {
+    "name": "Existential Birds, LLC",
+    "email": "tech@existentialbirds.com"
+  },
+  "repository": "https://github.com/existential-birds/beagle",
+  "keywords": [
+    "12-factor",
+    "architecture",
+    "adr",
+    "llm-judge",
+    "analysis"
+  ]
+}

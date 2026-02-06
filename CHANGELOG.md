@@ -4,6 +4,14 @@ All notable changes to Beagle are documented here.
 
 Format follows [Keep a Changelog](https://keepachangelog.com/en/1.1.0/). Versioning adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [2.0.2] - 2026-02-06
+
+### Fixed
+- **marketplace:** Add deprecated `beagle` stub plugin for backward compatibility — users with the pre-v2 `beagle@existential-birds` reference no longer get load errors on startup ([#49](https://github.com/existential-birds/beagle/pull/49))
+
+### Added
+- Upgrade notice in README with uninstall instructions for the old monolithic plugin
+
 ## [2.0.1] - 2026-02-06
 
 ### Fixed
@@ -190,6 +198,7 @@ Format follows [Keep a Changelog](https://keepachangelog.com/en/1.1.0/). Version
 - Development commands: `skill-builder`, `ensure-docs`
 - Cursor IDE command equivalents
 
+[2.0.2]: https://github.com/existential-birds/beagle/compare/v2.0.1...v2.0.2
 [2.0.1]: https://github.com/existential-birds/beagle/compare/v2.0.0...v2.0.1
 [2.0.0]: https://github.com/existential-birds/beagle/compare/v1.14.0...v2.0.0
 [1.14.0]: https://github.com/existential-birds/beagle/compare/v1.13.1...v1.14.0

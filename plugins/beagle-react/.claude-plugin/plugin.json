@@ -1,0 +1,21 @@
+{
+  "name": "beagle-react",
+  "description": "React, React Flow, React Router, shadcn/ui, Tailwind v4, Vitest, and Zustand code review. Pairs with beagle-core for full workflow.",
+  "version": "1.0.0",
+  "author": {
+    "name": "Existential Birds, LLC",
+    "email": "tech@existentialbirds.com"
+  },
+  "repository": "https://github.com/existential-birds/beagle",
+  "keywords": [
+    "react",
+    "react-flow",
+    "react-router",
+    "shadcn",
+    "tailwind",
+    "vitest",
+    "zustand",
+    "typescript",
+    "code-review"
+  ]
+}

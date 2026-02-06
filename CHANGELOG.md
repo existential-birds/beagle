@@ -4,6 +4,19 @@ All notable changes to Beagle are documented here.
 
 Format follows [Keep a Changelog](https://keepachangelog.com/en/1.1.0/). Versioning adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [1.14.0] - 2026-02-05
+
+### Added
+- Marketplace structure for selective plugin installation
+- `beagle-elixir` plugin: standalone Elixir/Phoenix/LiveView code review
+  - Skills: elixir-code-review, elixir-security-review, elixir-performance-review
+  - Skills: phoenix-code-review, liveview-code-review, exunit-code-review
+  - Command: review-elixir
+
+### Changed
+- Repository now functions as both a plugin and a marketplace
+- Users can install individual plugins via `/plugin install beagle-elixir@existential-birds`
+
 ## [1.13.0] - 2026-02-05
 
 ### Added

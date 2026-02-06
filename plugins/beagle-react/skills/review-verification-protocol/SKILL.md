@@ -53,14 +53,14 @@ Before flagging ANY issue, verify:
 3. Verify if framework guarantees the type (loader data, form data)
 
 **Valid patterns often flagged incorrectly:**
-```elixir
-# Pattern matching, NOT type casting
-%UserData{} = data = load_user()
+```typescript
+// Type annotation, NOT assertion
+const data: UserData = await loader()
 
-# Guard clauses narrow the type safely
-def process(%User{name: name} = user) do
-  name  # Elixir knows this is a User struct
-end
+// Type narrowing makes this safe
+if (isUser(data)) {
+  data.name  // TypeScript knows this is User
+}
 ```
 
 ### "Potential Memory Leak/Race Condition"
@@ -123,34 +123,34 @@ end
 
 ## Valid Patterns (Do NOT Flag)
 
-### Elixir
+### TypeScript
 
 | Pattern | Why It's Valid |
 |---------|----------------|
-| `case` with multiple clauses | Standard pattern matching, not excessive branching |
-| `with` chains | Idiomatic for sequential operations that may fail |
-| Pipe operator (`\|>`) chains | Elixir's core composition pattern |
-| `@spec` without Dialyzer enforcement | Documentation value even without static analysis |
-| `defp` private functions | Proper encapsulation, not hidden complexity |
+| `map.get(key) \|\| []` | `Map.get()` returns `T \| undefined`, fallback is correct |
+| Class exports without separate type export | Classes work as both value and type |
+| `as const` on literal arrays | Creates readonly tuple types |
+| Type annotation on variable declaration | Not a type assertion |
+| `satisfies` instead of `as` | Type checking without assertion |
 
-### Phoenix/LiveView
+### React
 
 | Pattern | Why It's Valid |
 |---------|----------------|
-| `assign/2` in `mount/3` | Standard LiveView state initialization |
-| `handle_event/3` returning `{:noreply, socket}` | Correct for UI-triggered state updates |
-| `~H` sigil for inline templates | Valid for small components |
-| `on_mount` hooks | Correct lifecycle pattern for auth/setup |
-| PubSub broadcasts in handle_info | Standard real-time communication pattern |
+| Array index as key (static list) | Valid when: items don't reorder, list is static, no item identity needed |
+| Inline arrow in onClick | Valid for non-performance-critical handlers (runs once per click) |
+| State that appears unused | May be set via refs, external callbacks, or triggers re-renders |
+| Empty dependency array with refs | Refs are stable, don't need to be dependencies |
+| Non-null assertion after check | TypeScript narrowing may not track through all patterns |
 
 ### Testing
 
 | Pattern | Why It's Valid |
 |---------|----------------|
-| `assert` without message | ExUnit provides clear diff output |
-| `setup` block for test context | Standard ExUnit fixture pattern |
-| `describe` blocks for grouping | Idiomatic test organization |
-| `conn` pipeline in controller tests | Phoenix test helper convention |
+| `toHaveTextContent` without regex | Handles nested text correctly |
+| Mock at module level | Defined once, not duplicated |
+| Index-based test data | Tests don't need stable identity |
+| Simplified error messages | Test clarity over production polish |
 
 ### General
 
@@ -163,28 +163,28 @@ end
 
 ## Context-Sensitive Rules
 
-### Pattern Matching
+### React Keys
 
-Flag missing pattern match **ONLY IF ALL** of these are true:
-- [ ] Function receives structured data that should be destructured
-- [ ] Not a pass-through function that forwards data unchanged
-- [ ] Pattern match would prevent actual runtime errors
-- [ ] Not a GenServer callback with standard signature
+Flag array index as key **ONLY IF ALL** of these are true:
+- [ ] Items CAN be reordered (sortable list, drag-drop)
+- [ ] Items CAN be inserted/removed from middle
+- [ ] Items HAVE stable identifiers available (id, uuid)
+- [ ] The list is NOT completely replaced atomically
 
-### Process Architecture
+### useEffect Dependencies
 
-Flag missing supervision **ONLY IF**:
-- [ ] Process is long-lived (not a Task)
-- [ ] Crash would affect system stability
-- [ ] No supervisor already manages this process
-- [ ] Not a test-only process
+Flag missing dependency **ONLY IF**:
+- [ ] The value actually changes during component lifetime
+- [ ] Stale closure would cause incorrect behavior
+- [ ] The value is NOT a ref (refs are stable)
+- [ ] The value is NOT a stable callback (useCallback with empty deps)
 
 ### Error Handling
 
-Flag missing error handling **ONLY IF**:
-- [ ] No `with` clause handles the error case
-- [ ] No supervision tree restarts the process
-- [ ] The error would cascade beyond the current process
+Flag missing try/catch **ONLY IF**:
+- [ ] No error boundary catches this at a higher level
+- [ ] The framework doesn't handle errors (loader errorElement)
+- [ ] The error would cause a crash, not just a failed operation
 - [ ] User needs specific feedback for this error type
 
 ## Before Submitting Review

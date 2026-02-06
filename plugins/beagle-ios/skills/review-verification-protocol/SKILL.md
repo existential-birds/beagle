@@ -53,14 +53,14 @@ Before flagging ANY issue, verify:
 3. Verify if framework guarantees the type (loader data, form data)
 
 **Valid patterns often flagged incorrectly:**
-```elixir
-# Pattern matching, NOT type casting
-%UserData{} = data = load_user()
+```swift
+// Type annotation, NOT forced unwrap
+let data: UserData = await loader()
 
-# Guard clauses narrow the type safely
-def process(%User{name: name} = user) do
-  name  # Elixir knows this is a User struct
-end
+// Type narrowing makes this safe
+if let user = data as? User {
+  user.name  // Swift knows this is User
+}
 ```
 
 ### "Potential Memory Leak/Race Condition"
@@ -123,34 +123,34 @@ end
 
 ## Valid Patterns (Do NOT Flag)
 
-### Elixir
+### Swift
 
 | Pattern | Why It's Valid |
 |---------|----------------|
-| `case` with multiple clauses | Standard pattern matching, not excessive branching |
-| `with` chains | Idiomatic for sequential operations that may fail |
-| Pipe operator (`\|>`) chains | Elixir's core composition pattern |
-| `@spec` without Dialyzer enforcement | Documentation value even without static analysis |
-| `defp` private functions | Proper encapsulation, not hidden complexity |
+| `guard let` early return | Standard Swift pattern for unwrapping, not excessive nesting |
+| `weak self` in closures | Required for breaking retain cycles, not unnecessary |
+| `@State` / `@Binding` property wrappers | SwiftUI state management primitives |
+| Optional chaining (`foo?.bar?.baz`) | Safe access pattern, not error suppression |
+| `as?` conditional cast | Safer than force cast, correct for type narrowing |
 
-### Phoenix/LiveView
+### SwiftUI
 
 | Pattern | Why It's Valid |
 |---------|----------------|
-| `assign/2` in `mount/3` | Standard LiveView state initialization |
-| `handle_event/3` returning `{:noreply, socket}` | Correct for UI-triggered state updates |
-| `~H` sigil for inline templates | Valid for small components |
-| `on_mount` hooks | Correct lifecycle pattern for auth/setup |
-| PubSub broadcasts in handle_info | Standard real-time communication pattern |
+| `@StateObject` in parent, `@ObservedObject` in child | Correct ownership pattern |
+| View body computed property without caching | SwiftUI manages re-rendering efficiently |
+| `AnyView` for heterogeneous lists | Valid when `@ViewBuilder` or generics aren't practical |
+| `EnvironmentObject` injection | Standard SwiftUI dependency injection |
+| `PreferenceKey` for child-to-parent data | Correct alternative to callbacks for layout data |
 
 ### Testing
 
 | Pattern | Why It's Valid |
 |---------|----------------|
-| `assert` without message | ExUnit provides clear diff output |
-| `setup` block for test context | Standard ExUnit fixture pattern |
-| `describe` blocks for grouping | Idiomatic test organization |
-| `conn` pipeline in controller tests | Phoenix test helper convention |
+| `XCTAssertEqual` without custom message | Default messages are often sufficient |
+| `async let` in test methods | Valid for concurrent test setup |
+| `@MainActor` test classes | Required when testing UI-bound code |
+| Mock objects without protocol conformance | Simple test doubles are acceptable |
 
 ### General
 
@@ -163,28 +163,28 @@ end
 
 ## Context-Sensitive Rules
 
-### Pattern Matching
+### Swift Optionals
 
-Flag missing pattern match **ONLY IF ALL** of these are true:
-- [ ] Function receives structured data that should be destructured
-- [ ] Not a pass-through function that forwards data unchanged
-- [ ] Pattern match would prevent actual runtime errors
-- [ ] Not a GenServer callback with standard signature
+Flag force unwrap (`!`) **ONLY IF ALL** of these are true:
+- [ ] Value CAN actually be nil at runtime
+- [ ] No prior `guard let` or `if let` protects the access
+- [ ] Not in test code or prototype
+- [ ] Not a `@IBOutlet` (which is conventionally force-unwrapped)
 
-### Process Architecture
+### View Body Complexity
 
-Flag missing supervision **ONLY IF**:
-- [ ] Process is long-lived (not a Task)
-- [ ] Crash would affect system stability
-- [ ] No supervisor already manages this process
-- [ ] Not a test-only process
+Flag complex View body **ONLY IF**:
+- [ ] Body exceeds 40 lines
+- [ ] Nested components could be extracted without losing clarity
+- [ ] Performance profiling shows actual rendering issues
+- [ ] Not a leaf view with minimal composition
 
 ### Error Handling
 
-Flag missing error handling **ONLY IF**:
-- [ ] No `with` clause handles the error case
-- [ ] No supervision tree restarts the process
-- [ ] The error would cascade beyond the current process
+Flag missing `do/catch` **ONLY IF**:
+- [ ] No `Result` type wraps the throwing call
+- [ ] No higher-level error handler catches this
+- [ ] The error would cause a crash, not just a failed operation
 - [ ] User needs specific feedback for this error type
 
 ## Before Submitting Review

@@ -53,14 +53,18 @@ Before flagging ANY issue, verify:
 3. Verify if framework guarantees the type (loader data, form data)
 
 **Valid patterns often flagged incorrectly:**
-```elixir
-# Pattern matching, NOT type casting
-%UserData{} = data = load_user()
+```go
+// Type assertion with ok check, NOT unsafe cast
+data, ok := value.(UserData)
+if !ok {
+    return fmt.Errorf("unexpected type: %T", value)
+}
 
-# Guard clauses narrow the type safely
-def process(%User{name: name} = user) do
-  name  # Elixir knows this is a User struct
-end
+// Type switch is safe narrowing
+switch v := value.(type) {
+case User:
+    v.Name  // Go knows this is User
+}
 ```
 
 ### "Potential Memory Leak/Race Condition"
@@ -123,34 +127,34 @@ end
 
 ## Valid Patterns (Do NOT Flag)
 
-### Elixir
+### Go
 
 | Pattern | Why It's Valid |
 |---------|----------------|
-| `case` with multiple clauses | Standard pattern matching, not excessive branching |
-| `with` chains | Idiomatic for sequential operations that may fail |
-| Pipe operator (`\|>`) chains | Elixir's core composition pattern |
-| `@spec` without Dialyzer enforcement | Documentation value even without static analysis |
-| `defp` private functions | Proper encapsulation, not hidden complexity |
+| `val, ok := map[key]` | Comma-ok idiom, standard for maps |
+| Returning `error` as last return value | Go error handling convention |
+| `defer` for cleanup | Correct resource management pattern |
+| Short variable names in small scope | Idiomatic Go (e.g., `i`, `err`, `ctx`) |
+| `interface{}` / `any` in generic code | Valid for truly heterogeneous data |
 
-### Phoenix/LiveView
+### Concurrency
 
 | Pattern | Why It's Valid |
 |---------|----------------|
-| `assign/2` in `mount/3` | Standard LiveView state initialization |
-| `handle_event/3` returning `{:noreply, socket}` | Correct for UI-triggered state updates |
-| `~H` sigil for inline templates | Valid for small components |
-| `on_mount` hooks | Correct lifecycle pattern for auth/setup |
-| PubSub broadcasts in handle_info | Standard real-time communication pattern |
+| Unbuffered channel for synchronization | Correct when goroutines must synchronize |
+| `select` with `default` | Non-blocking channel operation, intentional |
+| `sync.Once` for initialization | Thread-safe lazy init pattern |
+| `context.Background()` in main/tests | Valid root context for top-level calls |
+| Goroutine without explicit join | Valid for fire-and-forget with proper lifecycle management |
 
 ### Testing
 
 | Pattern | Why It's Valid |
 |---------|----------------|
-| `assert` without message | ExUnit provides clear diff output |
-| `setup` block for test context | Standard ExUnit fixture pattern |
-| `describe` blocks for grouping | Idiomatic test organization |
-| `conn` pipeline in controller tests | Phoenix test helper convention |
+| Table-driven tests | Standard Go testing pattern |
+| `t.Helper()` in test utilities | Correct for accurate error line reporting |
+| `testify/assert` alongside stdlib | Common and acceptable in Go projects |
+| Test function names without `_` | `TestFooBar` is idiomatic Go |
 
 ### General
 
@@ -163,29 +167,29 @@ end
 
 ## Context-Sensitive Rules
 
-### Pattern Matching
-
-Flag missing pattern match **ONLY IF ALL** of these are true:
-- [ ] Function receives structured data that should be destructured
-- [ ] Not a pass-through function that forwards data unchanged
-- [ ] Pattern match would prevent actual runtime errors
-- [ ] Not a GenServer callback with standard signature
-
-### Process Architecture
-
-Flag missing supervision **ONLY IF**:
-- [ ] Process is long-lived (not a Task)
-- [ ] Crash would affect system stability
-- [ ] No supervisor already manages this process
-- [ ] Not a test-only process
-
 ### Error Handling
 
-Flag missing error handling **ONLY IF**:
-- [ ] No `with` clause handles the error case
-- [ ] No supervision tree restarts the process
-- [ ] The error would cascade beyond the current process
-- [ ] User needs specific feedback for this error type
+Flag unchecked error **ONLY IF ALL** of these are true:
+- [ ] Error return is explicitly ignored (not `_`)
+- [ ] Function can return meaningful errors (not just `Close()`)
+- [ ] Not in test code or example code
+- [ ] Error would indicate a real problem, not a benign condition
+
+### Goroutine Lifecycle
+
+Flag goroutine leak **ONLY IF**:
+- [ ] No context cancellation controls the goroutine
+- [ ] No channel or WaitGroup provides shutdown signal
+- [ ] Goroutine can outlive its parent scope
+- [ ] Not a top-level server goroutine managed by the runtime
+
+### Interface Design
+
+Flag missing interface **ONLY IF**:
+- [ ] Concrete type is used across package boundaries
+- [ ] Testing requires mocking the dependency
+- [ ] Multiple implementations exist or are planned
+- [ ] Not a simple data struct (interfaces for behavior, not data)
 
 ## Before Submitting Review
 

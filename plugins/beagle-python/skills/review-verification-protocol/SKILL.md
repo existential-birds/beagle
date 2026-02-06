@@ -53,14 +53,13 @@ Before flagging ANY issue, verify:
 3. Verify if framework guarantees the type (loader data, form data)
 
 **Valid patterns often flagged incorrectly:**
-```elixir
-# Pattern matching, NOT type casting
-%UserData{} = data = load_user()
+```python
+# Type annotation, NOT cast
+data: UserData = await load_user()
 
-# Guard clauses narrow the type safely
-def process(%User{name: name} = user) do
-  name  # Elixir knows this is a User struct
-end
+# Type narrowing with isinstance
+if isinstance(data, User):
+    data.name  # Mypy knows this is User
 ```
 
 ### "Potential Memory Leak/Race Condition"
@@ -123,34 +122,34 @@ end
 
 ## Valid Patterns (Do NOT Flag)
 
-### Elixir
+### Python
 
 | Pattern | Why It's Valid |
 |---------|----------------|
-| `case` with multiple clauses | Standard pattern matching, not excessive branching |
-| `with` chains | Idiomatic for sequential operations that may fail |
-| Pipe operator (`\|>`) chains | Elixir's core composition pattern |
-| `@spec` without Dialyzer enforcement | Documentation value even without static analysis |
-| `defp` private functions | Proper encapsulation, not hidden complexity |
+| `dict.get(key, [])` | Returns default for missing keys, not error suppression |
+| `Optional[T]` return type | Standard way to express nullable in Python typing |
+| `assert` in test code | pytest uses assertions, not try/except |
+| Type annotation on variable | Not a cast, just a hint for type checkers |
+| `typing.cast()` with prior validation | Valid after runtime check confirms type |
 
-### Phoenix/LiveView
+### FastAPI
 
 | Pattern | Why It's Valid |
 |---------|----------------|
-| `assign/2` in `mount/3` | Standard LiveView state initialization |
-| `handle_event/3` returning `{:noreply, socket}` | Correct for UI-triggered state updates |
-| `~H` sigil for inline templates | Valid for small components |
-| `on_mount` hooks | Correct lifecycle pattern for auth/setup |
-| PubSub broadcasts in handle_info | Standard real-time communication pattern |
+| `Depends()` without explicit type | FastAPI infers dependency type from function signature |
+| `async def` endpoint without await | May use sync DB calls or simple returns |
+| Response model different from DB model | Separation of concerns between API and persistence |
+| `BackgroundTasks` parameter | Valid for fire-and-forget operations |
+| Direct `request.state` access | Standard pattern for middleware-injected data |
 
 ### Testing
 
 | Pattern | Why It's Valid |
 |---------|----------------|
-| `assert` without message | ExUnit provides clear diff output |
-| `setup` block for test context | Standard ExUnit fixture pattern |
-| `describe` blocks for grouping | Idiomatic test organization |
-| `conn` pipeline in controller tests | Phoenix test helper convention |
+| `assert` without message | pytest rewrites assertions to show detailed diffs |
+| `@pytest.fixture` without explicit scope | Default `function` scope is correct for most fixtures |
+| `monkeypatch` over `unittest.mock` | Simpler API, pytest-native |
+| Fixture returning mutable state | Each test gets fresh fixture invocation by default |
 
 ### General
 
@@ -163,28 +162,28 @@ end
 
 ## Context-Sensitive Rules
 
-### Pattern Matching
+### Type Annotations
 
-Flag missing pattern match **ONLY IF ALL** of these are true:
-- [ ] Function receives structured data that should be destructured
-- [ ] Not a pass-through function that forwards data unchanged
-- [ ] Pattern match would prevent actual runtime errors
-- [ ] Not a GenServer callback with standard signature
+Flag missing type annotation **ONLY IF ALL** of these are true:
+- [ ] Function is public API (not prefixed with `_`)
+- [ ] Types are not obvious from context (e.g., `x = 5` is clearly `int`)
+- [ ] Not a test function or fixture
+- [ ] Codebase has existing typing conventions
 
-### Process Architecture
+### Exception Handling
 
-Flag missing supervision **ONLY IF**:
-- [ ] Process is long-lived (not a Task)
-- [ ] Crash would affect system stability
-- [ ] No supervisor already manages this process
-- [ ] Not a test-only process
+Flag bare `except` **ONLY IF**:
+- [ ] Not in a top-level error boundary / middleware
+- [ ] The caught exception is actually swallowed (not logged/re-raised)
+- [ ] Specific exception types are known and available
+- [ ] Not in cleanup/teardown code where any error should be caught
 
 ### Error Handling
 
-Flag missing error handling **ONLY IF**:
-- [ ] No `with` clause handles the error case
-- [ ] No supervision tree restarts the process
-- [ ] The error would cascade beyond the current process
+Flag missing try/except **ONLY IF**:
+- [ ] No middleware or error handler catches this at a higher level
+- [ ] The framework doesn't handle errors (FastAPI exception handlers)
+- [ ] The error would cause a crash, not just a failed operation
 - [ ] User needs specific feedback for this error type
 
 ## Before Submitting Review

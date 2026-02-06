@@ -1,8 +1,8 @@
 ---
-description: Comprehensive Elixir/Phoenix code review with optional parallel agents
+description: Comprehensive Python/FastAPI backend code review with optional parallel agents
 ---
 
-# Elixir Code Review
+# Backend Code Review
 
 ## Arguments
 
@@ -12,79 +12,77 @@ description: Comprehensive Elixir/Phoenix code review with optional parallel age
 ## Step 1: Identify Changed Files
 
 ```bash
-git diff --name-only $(git merge-base HEAD main)..HEAD | grep -E '\.ex$|\.exs$|\.heex$'
+git diff --name-only $(git merge-base HEAD main)..HEAD | grep -E '\.py$'
 ```
 
-## Step 2: Verify Linter/Formatter Status
+## Step 2: Verify Linter Status
 
-**CRITICAL**: Run project linters BEFORE flagging any style issues.
+**CRITICAL**: Run project linters BEFORE flagging any style or type issues.
 
 ```bash
-# Check formatting
-mix format --check-formatted
-
-# Check Credo if present
-if [ -f ".credo.exs" ] || grep -q ":credo" mix.exs 2>/dev/null; then
-    mix credo --strict
+# Check if ruff config exists and run it
+if [ -f "pyproject.toml" ] || [ -f "ruff.toml" ]; then
+    ruff check <changed_files>
 fi
 
-# Check Dialyzer if configured
-if grep -q ":dialyxir" mix.exs 2>/dev/null; then
-    mix dialyzer --format short
+# Check if mypy config exists and run it
+if [ -f "pyproject.toml" ] || [ -f "mypy.ini" ]; then
+    mypy <changed_files>
 fi
 ```
 
 **Rules:**
-- If a linter passes for a specific rule, DO NOT flag that issue manually
+- If a linter passes for a specific rule (e.g., line length), DO NOT flag that issue manually
 - Linter configuration is authoritative for style rules
 - Only flag issues that linters cannot detect (semantic issues, architectural problems)
+
+**Why:** Analysis of 24 review outcomes showed 4 false positives (17%) where reviewers flagged line-length violations that `ruff check` confirmed don't exist. The linter's configuration reflects intentional project decisions.
 
 ## Step 3: Detect Technologies
 
 ```bash
-# Detect Phoenix
-grep -r "use Phoenix\|Phoenix.Router\|Phoenix.Controller" --include="*.ex" -l | head -3
+# Detect Pydantic-AI
+grep -r "pydantic_ai\|@agent\.tool\|RunContext" --include="*.py" -l | head -3
 
-# Detect LiveView
-grep -r "use Phoenix.LiveView\|Phoenix.LiveComponent\|~H" --include="*.ex" -l | head -3
+# Detect SQLAlchemy
+grep -r "from sqlalchemy\|Session\|relationship" --include="*.py" -l | head -3
 
-# Detect Oban
-grep -r "use Oban.Worker\|Oban.insert" --include="*.ex" -l | head -3
+# Detect Postgres-specific
+grep -r "psycopg\|asyncpg\|JSONB\|GIN" --include="*.py" -l | head -3
 
 # Check for test files
-git diff --name-only $(git merge-base HEAD main)..HEAD | grep -E '_test\.exs$'
+git diff --name-only $(git merge-base HEAD main)..HEAD | grep -E 'test.*\.py$'
 ```
 
 ## Step 4: Load Verification Protocol
 
-Load `beagle-elixir:review-verification-protocol` skill and keep its checklist in mind throughout the review.
+Load `beagle-python:review-verification-protocol` skill and keep its checklist in mind throughout the review.
 
 ## Step 5: Load Skills
 
-Use the `Skill` tool to load each applicable skill.
+Use the `Skill` tool to load each applicable skill (e.g., `Skill(skill: "beagle-python:python-code-review")`).
 
 **Always load:**
-- `beagle-elixir:elixir-code-review`
+- `beagle-python:python-code-review`
+- `beagle-python:fastapi-code-review`
 
 **Conditionally load based on detection:**
 
 | Condition | Skill |
 |-----------|-------|
-| Phoenix detected | `beagle-elixir:phoenix-code-review` |
-| LiveView detected | `beagle-elixir:liveview-code-review` |
-| Performance focus requested | `beagle-elixir:elixir-performance-review` |
-| Security focus requested | `beagle-elixir:elixir-security-review` |
-| Test files changed | `beagle-elixir:exunit-code-review` |
+| Test files changed | `beagle-python:pytest-code-review` |
+| Pydantic-AI detected | `beagle-ai:pydantic-ai-common-pitfalls` |
+| SQLAlchemy detected | `beagle-python:sqlalchemy-code-review` |
+| Postgres detected | `beagle-python:postgres-code-review` |
 
 ## Step 6: Review
 
 **Sequential (default):**
 1. Load applicable skills
-2. Review Elixir quality issues first
-3. Review Phoenix patterns (if detected)
-4. Review LiveView patterns (if detected)
-5. Review detected technology areas
-6. Consolidate findings
+2. Review Python quality issues first
+3. Review FastAPI patterns
+4. Review detected technology areas
+5. Consolidate findings
 
 **Parallel (--parallel flag):**
 1. Detect all technologies upfront
@@ -93,12 +91,14 @@ Use the `Skill` tool to load each applicable skill.
 4. Wait for all agents
 5. Consolidate findings
 
-### Before Flagging Issues
+### Before Flagging Optimization or Pattern Issues
 
 1. **Check CLAUDE.md** for documented intentional patterns
 2. **Check code comments** around the flagged area for "intentional", "optimization", or "NOTE:"
-3. **Trace the code path** before claiming missing coverage
-4. **Consider framework idioms** - what looks wrong generically may be correct for Elixir/Phoenix
+3. **Trace the code path** before claiming missing coverage or inconsistent handling
+4. **Consider framework idioms** - what looks wrong generically may be correct for the framework
+
+**Why:** Analysis showed rejections where reviewers flagged "inconsistent error handling" that was intentional optimization, and "missing test coverage" for code paths that don't exist.
 
 ## Step 7: Verify Findings
 
@@ -154,10 +154,9 @@ Rationale: [1-2 sentences]
 After fixes are applied, run:
 
 ```bash
-mix format --check-formatted
-mix credo --strict
-mix dialyzer
-mix test
+ruff check .
+mypy .
+pytest
 ```
 
 All checks must pass before approval.

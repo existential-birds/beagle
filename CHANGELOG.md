@@ -4,6 +4,42 @@ All notable changes to Beagle are documented here.
 
 Format follows [Keep a Changelog](https://keepachangelog.com/en/1.1.0/). Versioning adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [2.0.0] - 2026-02-05
+
+### Removed
+- **BREAKING**: Monolith `beagle` plugin removed. Users must now install individual plugins.
+
+### Changed
+- **BREAKING**: All skill references use new plugin prefixes (e.g., `beagle-python:python-code-review`)
+
+### Added
+- `beagle-core` plugin: shared workflows, verification protocol, git commands, feedback handling
+- `beagle-python` plugin: Python, FastAPI, SQLAlchemy, PostgreSQL, pytest code review
+- `beagle-go` plugin: Go, BubbleTea, Wish SSH, Prometheus code review
+- `beagle-ios` plugin: Swift, SwiftUI, SwiftData, iOS frameworks code review
+- `beagle-react` plugin: React, React Flow, React Router, shadcn/ui, Tailwind, Vitest, Zustand
+- `beagle-ai` plugin: Pydantic AI, LangGraph, DeepAgents, Vercel AI SDK
+- `beagle-docs` plugin: documentation quality using Diataxis principles
+- `beagle-analysis` plugin: 12-Factor compliance, ADRs, LLM-as-judge
+- `beagle-testing` plugin: test plan generation and execution
+
+### Changed
+- Repository is now a marketplace-only structure under `plugins/`
+- Root-level `skills/` and `commands/` directories removed
+
+## [1.14.0] - 2026-02-05
+
+### Added
+- Marketplace structure for selective plugin installation
+- `beagle-elixir` plugin: standalone Elixir/Phoenix/LiveView code review
+  - Skills: elixir-code-review, elixir-security-review, elixir-performance-review
+  - Skills: phoenix-code-review, liveview-code-review, exunit-code-review
+  - Command: review-elixir
+
+### Changed
+- Repository now functions as both a plugin and a marketplace
+- Users can install individual plugins via `/plugin install beagle-elixir@existential-birds`
+
 ## [1.13.1] - 2026-02-05
 
 ### Fixed
@@ -149,6 +185,8 @@ Format follows [Keep a Changelog](https://keepachangelog.com/en/1.1.0/). Version
 - Development commands: `skill-builder`, `ensure-docs`
 - Cursor IDE command equivalents
 
+[2.0.0]: https://github.com/existential-birds/beagle/compare/v1.14.0...v2.0.0
+[1.14.0]: https://github.com/existential-birds/beagle/compare/v1.13.1...v1.14.0
 [1.13.1]: https://github.com/existential-birds/beagle/compare/v1.13.0...v1.13.1
 [1.13.0]: https://github.com/existential-birds/beagle/compare/v1.12.0...v1.13.0
 [1.12.0]: https://github.com/existential-birds/beagle/compare/v1.11.0...v1.12.0

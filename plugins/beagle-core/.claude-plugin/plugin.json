@@ -1,0 +1,17 @@
+{
+  "name": "beagle-core",
+  "description": "Shared code review workflows, verification protocol, git commands, and feedback handling. Recommended as a base for all beagle plugins.",
+  "version": "1.0.0",
+  "author": {
+    "name": "Existential Birds, LLC",
+    "email": "tech@existentialbirds.com"
+  },
+  "repository": "https://github.com/existential-birds/beagle",
+  "keywords": [
+    "code-review",
+    "verification",
+    "git",
+    "feedback",
+    "llm-artifacts"
+  ]
+}

@@ -1,5 +1,11 @@
 # beagle
 
+> **Upgrading from beagle v1?** The monolithic `beagle` plugin was split into individual plugins in v2.0.0. If you still have `beagle@existential-birds` enabled in `~/.claude/settings.json`, it now loads as a no-op stub. You can remove it with:
+> ```
+> claude plugin uninstall beagle@existential-birds
+> ```
+> Then install the individual plugins you need (see [Installation](#installation) below).
+
 ![Apollo 10 astronaut Thomas P. Stafford pats the nose of a stuffed Snoopy](assets/Stafford_and_Snoopy.jpg)
 
 *Image: NASA, Public Domain. [Source](https://www.nasa.gov/multimedia/imagegallery/image_feature_572.html)*

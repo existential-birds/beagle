@@ -57,7 +57,7 @@ git diff --name-only $(git merge-base HEAD main)..HEAD | grep -E '_test\.exs$'
 
 ## Step 4: Load Verification Protocol
 
-Load `beagle:review-verification-protocol` skill and keep its checklist in mind throughout the review.
+Load `beagle-elixir:review-verification-protocol` skill and keep its checklist in mind throughout the review.
 
 ## Step 5: Load Skills
 

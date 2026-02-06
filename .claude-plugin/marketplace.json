@@ -5,25 +5,90 @@
     "email": "tech@existentialbirds.com"
   },
   "metadata": {
-    "description": "Framework-aware code review skills for React, Python, Go, Elixir, and AI frameworks",
-    "version": "1.0.0",
+    "description": "Framework-aware code review skills and workflows for modern development",
+    "version": "2.0.0",
     "pluginRoot": "./plugins"
   },
   "plugins": [
     {
-      "name": "beagle",
-      "source": "./",
-      "description": "Code review skills and verification workflows for Python, Go, Elixir, React, and AI frameworks",
-      "version": "1.13.0",
-      "keywords": ["code-review", "python", "go", "elixir", "react", "ai", "langgraph", "pydantic", "fastapi", "bubbletea"]
+      "name": "beagle-core",
+      "source": "beagle-core",
+      "description": "Shared code review workflows, verification protocol, git commands, and feedback handling",
+      "version": "1.0.0",
+      "category": "workflow",
+      "tags": ["code-review", "verification", "git", "feedback"]
+    },
+    {
+      "name": "beagle-python",
+      "source": "beagle-python",
+      "description": "Python, FastAPI, SQLAlchemy, PostgreSQL, and pytest code review",
+      "version": "1.0.0",
+      "category": "backend",
+      "tags": ["python", "fastapi", "sqlalchemy", "postgres", "pytest", "code-review"]
+    },
+    {
+      "name": "beagle-go",
+      "source": "beagle-go",
+      "description": "Go, BubbleTea TUI, Wish SSH, and Prometheus code review",
+      "version": "1.0.0",
+      "category": "backend",
+      "tags": ["go", "bubbletea", "wish", "prometheus", "tui", "code-review"]
     },
     {
       "name": "beagle-elixir",
       "source": "beagle-elixir",
-      "description": "Elixir, Phoenix, and LiveView code review skills",
+      "description": "Elixir, Phoenix, LiveView, and ExUnit code review",
       "version": "1.0.0",
       "category": "backend",
       "tags": ["elixir", "phoenix", "liveview", "exunit", "code-review"]
+    },
+    {
+      "name": "beagle-ios",
+      "source": "beagle-ios",
+      "description": "Swift, SwiftUI, SwiftData, and iOS framework code review",
+      "version": "1.0.0",
+      "category": "mobile",
+      "tags": ["swift", "swiftui", "ios", "healthkit", "cloudkit", "widgetkit", "code-review"]
+    },
+    {
+      "name": "beagle-react",
+      "source": "beagle-react",
+      "description": "React, React Flow, React Router, shadcn/ui, Tailwind, Vitest, and Zustand code review",
+      "version": "1.0.0",
+      "category": "frontend",
+      "tags": ["react", "typescript", "tailwind", "shadcn", "vitest", "code-review"]
+    },
+    {
+      "name": "beagle-ai",
+      "source": "beagle-ai",
+      "description": "Pydantic AI, LangGraph, DeepAgents, and Vercel AI SDK skills",
+      "version": "1.0.0",
+      "category": "ai",
+      "tags": ["pydantic-ai", "langgraph", "deepagents", "vercel-ai", "agents"]
+    },
+    {
+      "name": "beagle-docs",
+      "source": "beagle-docs",
+      "description": "Documentation quality, generation, and improvement using Diataxis principles",
+      "version": "1.0.0",
+      "category": "documentation",
+      "tags": ["documentation", "diataxis", "technical-writing"]
+    },
+    {
+      "name": "beagle-analysis",
+      "source": "beagle-analysis",
+      "description": "Architecture analysis, 12-Factor compliance, ADR generation, and LLM-as-judge",
+      "version": "1.0.0",
+      "category": "analysis",
+      "tags": ["12-factor", "architecture", "adr", "llm-judge"]
+    },
+    {
+      "name": "beagle-testing",
+      "source": "beagle-testing",
+      "description": "Language-agnostic test plan generation and execution",
+      "version": "1.0.0",
+      "category": "testing",
+      "tags": ["testing", "test-plan", "qa"]
     }
   ]
 }

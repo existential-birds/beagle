@@ -1,0 +1,21 @@
+{
+  "name": "beagle-ios",
+  "description": "Swift, SwiftUI, SwiftData, and iOS framework code review (HealthKit, CloudKit, WidgetKit, watchOS, App Intents). Pairs with beagle-core for full workflow.",
+  "version": "1.0.0",
+  "author": {
+    "name": "Existential Birds, LLC",
+    "email": "tech@existentialbirds.com"
+  },
+  "repository": "https://github.com/existential-birds/beagle",
+  "keywords": [
+    "swift",
+    "swiftui",
+    "swiftdata",
+    "ios",
+    "healthkit",
+    "cloudkit",
+    "widgetkit",
+    "watchos",
+    "code-review"
+  ]
+}

@@ -53,13 +53,13 @@ Before flagging ANY issue, verify:
 3. Verify if framework guarantees the type (loader data, form data)
 
 **Valid patterns often flagged incorrectly:**
-```typescript
-// Type annotation, NOT assertion
-const data: UserData = await loader()
+```swift
+// Type annotation, NOT forced unwrap
+let data: UserData = await loader()
 
 // Type narrowing makes this safe
-if (isUser(data)) {
-  data.name  // TypeScript knows this is User
+if let user = data as? User {
+  user.name  // Swift knows this is User
 }
 ```
 
@@ -123,34 +123,34 @@ if (isUser(data)) {
 
 ## Valid Patterns (Do NOT Flag)
 
-### TypeScript
+### Swift
 
 | Pattern | Why It's Valid |
 |---------|----------------|
-| `map.get(key) \|\| []` | `Map.get()` returns `T \| undefined`, fallback is correct |
-| Class exports without separate type export | Classes work as both value and type |
-| `as const` on literal arrays | Creates readonly tuple types |
-| Type annotation on variable declaration | Not a type assertion |
-| `satisfies` instead of `as` | Type checking without assertion |
+| `guard let` early return | Standard Swift pattern for unwrapping, not excessive nesting |
+| `weak self` in closures | Required for breaking retain cycles, not unnecessary |
+| `@State` / `@Binding` property wrappers | SwiftUI state management primitives |
+| Optional chaining (`foo?.bar?.baz`) | Safe access pattern, not error suppression |
+| `as?` conditional cast | Safer than force cast, correct for type narrowing |
 
-### React
+### SwiftUI
 
 | Pattern | Why It's Valid |
 |---------|----------------|
-| Array index as key (static list) | Valid when: items don't reorder, list is static, no item identity needed |
-| Inline arrow in onClick | Valid for non-performance-critical handlers (runs once per click) |
-| State that appears unused | May be set via refs, external callbacks, or triggers re-renders |
-| Empty dependency array with refs | Refs are stable, don't need to be dependencies |
-| Non-null assertion after check | TypeScript narrowing may not track through all patterns |
+| `@StateObject` in parent, `@ObservedObject` in child | Correct ownership pattern |
+| View body computed property without caching | SwiftUI manages re-rendering efficiently |
+| `AnyView` for heterogeneous lists | Valid when `@ViewBuilder` or generics aren't practical |
+| `EnvironmentObject` injection | Standard SwiftUI dependency injection |
+| `PreferenceKey` for child-to-parent data | Correct alternative to callbacks for layout data |
 
 ### Testing
 
 | Pattern | Why It's Valid |
 |---------|----------------|
-| `toHaveTextContent` without regex | Handles nested text correctly |
-| Mock at module level | Defined once, not duplicated |
-| Index-based test data | Tests don't need stable identity |
-| Simplified error messages | Test clarity over production polish |
+| `XCTAssertEqual` without custom message | Default messages are often sufficient |
+| `async let` in test methods | Valid for concurrent test setup |
+| `@MainActor` test classes | Required when testing UI-bound code |
+| Mock objects without protocol conformance | Simple test doubles are acceptable |
 
 ### General
 
@@ -163,27 +163,27 @@ if (isUser(data)) {
 
 ## Context-Sensitive Rules
 
-### React Keys
+### Swift Optionals
 
-Flag array index as key **ONLY IF ALL** of these are true:
-- [ ] Items CAN be reordered (sortable list, drag-drop)
-- [ ] Items CAN be inserted/removed from middle
-- [ ] Items HAVE stable identifiers available (id, uuid)
-- [ ] The list is NOT completely replaced atomically
+Flag force unwrap (`!`) **ONLY IF ALL** of these are true:
+- [ ] Value CAN actually be nil at runtime
+- [ ] No prior `guard let` or `if let` protects the access
+- [ ] Not in test code or prototype
+- [ ] Not a `@IBOutlet` (which is conventionally force-unwrapped)
 
-### useEffect Dependencies
+### View Body Complexity
 
-Flag missing dependency **ONLY IF**:
-- [ ] The value actually changes during component lifetime
-- [ ] Stale closure would cause incorrect behavior
-- [ ] The value is NOT a ref (refs are stable)
-- [ ] The value is NOT a stable callback (useCallback with empty deps)
+Flag complex View body **ONLY IF**:
+- [ ] Body exceeds 40 lines
+- [ ] Nested components could be extracted without losing clarity
+- [ ] Performance profiling shows actual rendering issues
+- [ ] Not a leaf view with minimal composition
 
 ### Error Handling
 
-Flag missing try/catch **ONLY IF**:
-- [ ] No error boundary catches this at a higher level
-- [ ] The framework doesn't handle errors (loader errorElement)
+Flag missing `do/catch` **ONLY IF**:
+- [ ] No `Result` type wraps the throwing call
+- [ ] No higher-level error handler catches this
 - [ ] The error would cause a crash, not just a failed operation
 - [ ] User needs specific feedback for this error type
 
@@ -194,6 +194,7 @@ Final verification:
 2. For each finding, can you point to the specific line that proves the issue exists?
 3. Would a domain expert agree this is a problem, or is it a style preference?
 4. Does fixing this provide real value, or is it busywork?
+5. Format every finding as: `[FILE:LINE] ISSUE_TITLE`
 
 If uncertain about any finding, either:
 - Remove it from the review

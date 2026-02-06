@@ -194,6 +194,7 @@ Final verification:
 2. For each finding, can you point to the specific line that proves the issue exists?
 3. Would a domain expert agree this is a problem, or is it a style preference?
 4. Does fixing this provide real value, or is it busywork?
+5. Format every finding as: `[FILE:LINE] ISSUE_TITLE`
 
 If uncertain about any finding, either:
 - Remove it from the review

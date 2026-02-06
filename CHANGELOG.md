@@ -6,9 +6,11 @@ Format follows [Keep a Changelog](https://keepachangelog.com/en/1.1.0/). Version
 
 ## [2.0.0] - 2026-02-05
 
-### Breaking Changes
-- Removed monolith `beagle` plugin. Users must now install individual plugins.
-- All skill references use new plugin prefixes (e.g., `beagle-python:python-code-review`)
+### Removed
+- **BREAKING**: Monolith `beagle` plugin removed. Users must now install individual plugins.
+
+### Changed
+- **BREAKING**: All skill references use new plugin prefixes (e.g., `beagle-python:python-code-review`)
 
 ### Added
 - `beagle-core` plugin: shared workflows, verification protocol, git commands, feedback handling

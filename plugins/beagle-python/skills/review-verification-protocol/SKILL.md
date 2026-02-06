@@ -53,14 +53,13 @@ Before flagging ANY issue, verify:
 3. Verify if framework guarantees the type (loader data, form data)
 
 **Valid patterns often flagged incorrectly:**
-```typescript
-// Type annotation, NOT assertion
-const data: UserData = await loader()
+```python
+# Type annotation, NOT cast
+data: UserData = await load_user()
 
-// Type narrowing makes this safe
-if (isUser(data)) {
-  data.name  // TypeScript knows this is User
-}
+# Type narrowing with isinstance
+if isinstance(data, User):
+    data.name  # Mypy knows this is User
 ```
 
 ### "Potential Memory Leak/Race Condition"
@@ -123,34 +122,34 @@ if (isUser(data)) {
 
 ## Valid Patterns (Do NOT Flag)
 
-### TypeScript
+### Python
 
 | Pattern | Why It's Valid |
 |---------|----------------|
-| `map.get(key) \|\| []` | `Map.get()` returns `T \| undefined`, fallback is correct |
-| Class exports without separate type export | Classes work as both value and type |
-| `as const` on literal arrays | Creates readonly tuple types |
-| Type annotation on variable declaration | Not a type assertion |
-| `satisfies` instead of `as` | Type checking without assertion |
+| `dict.get(key, [])` | Returns default for missing keys, not error suppression |
+| `Optional[T]` return type | Standard way to express nullable in Python typing |
+| `assert` in test code | pytest uses assertions, not try/except |
+| Type annotation on variable | Not a cast, just a hint for type checkers |
+| `typing.cast()` with prior validation | Valid after runtime check confirms type |
 
-### React
+### FastAPI
 
 | Pattern | Why It's Valid |
 |---------|----------------|
-| Array index as key (static list) | Valid when: items don't reorder, list is static, no item identity needed |
-| Inline arrow in onClick | Valid for non-performance-critical handlers (runs once per click) |
-| State that appears unused | May be set via refs, external callbacks, or triggers re-renders |
-| Empty dependency array with refs | Refs are stable, don't need to be dependencies |
-| Non-null assertion after check | TypeScript narrowing may not track through all patterns |
+| `Depends()` without explicit type | FastAPI infers dependency type from function signature |
+| `async def` endpoint without await | May use sync DB calls or simple returns |
+| Response model different from DB model | Separation of concerns between API and persistence |
+| `BackgroundTasks` parameter | Valid for fire-and-forget operations |
+| Direct `request.state` access | Standard pattern for middleware-injected data |
 
 ### Testing
 
 | Pattern | Why It's Valid |
 |---------|----------------|
-| `toHaveTextContent` without regex | Handles nested text correctly |
-| Mock at module level | Defined once, not duplicated |
-| Index-based test data | Tests don't need stable identity |
-| Simplified error messages | Test clarity over production polish |
+| `assert` without message | pytest rewrites assertions to show detailed diffs |
+| `@pytest.fixture` without explicit scope | Default `function` scope is correct for most fixtures |
+| `monkeypatch` over `unittest.mock` | Simpler API, pytest-native |
+| Fixture returning mutable state | Each test gets fresh fixture invocation by default |
 
 ### General
 
@@ -163,27 +162,27 @@ if (isUser(data)) {
 
 ## Context-Sensitive Rules
 
-### React Keys
+### Type Annotations
 
-Flag array index as key **ONLY IF ALL** of these are true:
-- [ ] Items CAN be reordered (sortable list, drag-drop)
-- [ ] Items CAN be inserted/removed from middle
-- [ ] Items HAVE stable identifiers available (id, uuid)
-- [ ] The list is NOT completely replaced atomically
+Flag missing type annotation **ONLY IF ALL** of these are true:
+- [ ] Function is public API (not prefixed with `_`)
+- [ ] Types are not obvious from context (e.g., `x = 5` is clearly `int`)
+- [ ] Not a test function or fixture
+- [ ] Codebase has existing typing conventions
 
-### useEffect Dependencies
+### Exception Handling
 
-Flag missing dependency **ONLY IF**:
-- [ ] The value actually changes during component lifetime
-- [ ] Stale closure would cause incorrect behavior
-- [ ] The value is NOT a ref (refs are stable)
-- [ ] The value is NOT a stable callback (useCallback with empty deps)
+Flag bare `except` **ONLY IF**:
+- [ ] Not in a top-level error boundary / middleware
+- [ ] The caught exception is actually swallowed (not logged/re-raised)
+- [ ] Specific exception types are known and available
+- [ ] Not in cleanup/teardown code where any error should be caught
 
 ### Error Handling
 
-Flag missing try/catch **ONLY IF**:
-- [ ] No error boundary catches this at a higher level
-- [ ] The framework doesn't handle errors (loader errorElement)
+Flag missing try/except **ONLY IF**:
+- [ ] No middleware or error handler catches this at a higher level
+- [ ] The framework doesn't handle errors (FastAPI exception handlers)
 - [ ] The error would cause a crash, not just a failed operation
 - [ ] User needs specific feedback for this error type
 
@@ -194,6 +193,7 @@ Final verification:
 2. For each finding, can you point to the specific line that proves the issue exists?
 3. Would a domain expert agree this is a problem, or is it a style preference?
 4. Does fixing this provide real value, or is it busywork?
+5. Format every finding as: `[FILE:LINE] ISSUE_TITLE`
 
 If uncertain about any finding, either:
 - Remove it from the review

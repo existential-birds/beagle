@@ -53,13 +53,17 @@ Before flagging ANY issue, verify:
 3. Verify if framework guarantees the type (loader data, form data)
 
 **Valid patterns often flagged incorrectly:**
-```typescript
-// Type annotation, NOT assertion
-const data: UserData = await loader()
+```go
+// Type assertion with ok check, NOT unsafe cast
+data, ok := value.(UserData)
+if !ok {
+    return fmt.Errorf("unexpected type: %T", value)
+}
 
-// Type narrowing makes this safe
-if (isUser(data)) {
-  data.name  // TypeScript knows this is User
+// Type switch is safe narrowing
+switch v := value.(type) {
+case User:
+    v.Name  // Go knows this is User
 }
 ```
 
@@ -123,34 +127,34 @@ if (isUser(data)) {
 
 ## Valid Patterns (Do NOT Flag)
 
-### TypeScript
+### Go
 
 | Pattern | Why It's Valid |
 |---------|----------------|
-| `map.get(key) \|\| []` | `Map.get()` returns `T \| undefined`, fallback is correct |
-| Class exports without separate type export | Classes work as both value and type |
-| `as const` on literal arrays | Creates readonly tuple types |
-| Type annotation on variable declaration | Not a type assertion |
-| `satisfies` instead of `as` | Type checking without assertion |
+| `val, ok := map[key]` | Comma-ok idiom, standard for maps |
+| Returning `error` as last return value | Go error handling convention |
+| `defer` for cleanup | Correct resource management pattern |
+| Short variable names in small scope | Idiomatic Go (e.g., `i`, `err`, `ctx`) |
+| `interface{}` / `any` in generic code | Valid for truly heterogeneous data |
 
-### React
+### Concurrency
 
 | Pattern | Why It's Valid |
 |---------|----------------|
-| Array index as key (static list) | Valid when: items don't reorder, list is static, no item identity needed |
-| Inline arrow in onClick | Valid for non-performance-critical handlers (runs once per click) |
-| State that appears unused | May be set via refs, external callbacks, or triggers re-renders |
-| Empty dependency array with refs | Refs are stable, don't need to be dependencies |
-| Non-null assertion after check | TypeScript narrowing may not track through all patterns |
+| Unbuffered channel for synchronization | Correct when goroutines must synchronize |
+| `select` with `default` | Non-blocking channel operation, intentional |
+| `sync.Once` for initialization | Thread-safe lazy init pattern |
+| `context.Background()` in main/tests | Valid root context for top-level calls |
+| Goroutine without explicit join | Valid for fire-and-forget with proper lifecycle management |
 
 ### Testing
 
 | Pattern | Why It's Valid |
 |---------|----------------|
-| `toHaveTextContent` without regex | Handles nested text correctly |
-| Mock at module level | Defined once, not duplicated |
-| Index-based test data | Tests don't need stable identity |
-| Simplified error messages | Test clarity over production polish |
+| Table-driven tests | Standard Go testing pattern |
+| `t.Helper()` in test utilities | Correct for accurate error line reporting |
+| `testify/assert` alongside stdlib | Common and acceptable in Go projects |
+| Test function names without `_` | `TestFooBar` is idiomatic Go |
 
 ### General
 
@@ -163,29 +167,29 @@ if (isUser(data)) {
 
 ## Context-Sensitive Rules
 
-### React Keys
-
-Flag array index as key **ONLY IF ALL** of these are true:
-- [ ] Items CAN be reordered (sortable list, drag-drop)
-- [ ] Items CAN be inserted/removed from middle
-- [ ] Items HAVE stable identifiers available (id, uuid)
-- [ ] The list is NOT completely replaced atomically
-
-### useEffect Dependencies
-
-Flag missing dependency **ONLY IF**:
-- [ ] The value actually changes during component lifetime
-- [ ] Stale closure would cause incorrect behavior
-- [ ] The value is NOT a ref (refs are stable)
-- [ ] The value is NOT a stable callback (useCallback with empty deps)
-
 ### Error Handling
 
-Flag missing try/catch **ONLY IF**:
-- [ ] No error boundary catches this at a higher level
-- [ ] The framework doesn't handle errors (loader errorElement)
-- [ ] The error would cause a crash, not just a failed operation
-- [ ] User needs specific feedback for this error type
+Flag unchecked error **ONLY IF ALL** of these are true:
+- [ ] Error return is explicitly ignored (not `_`)
+- [ ] Function can return meaningful errors (not just `Close()`)
+- [ ] Not in test code or example code
+- [ ] Error would indicate a real problem, not a benign condition
+
+### Goroutine Lifecycle
+
+Flag goroutine leak **ONLY IF**:
+- [ ] No context cancellation controls the goroutine
+- [ ] No channel or WaitGroup provides shutdown signal
+- [ ] Goroutine can outlive its parent scope
+- [ ] Not a top-level server goroutine managed by the runtime
+
+### Interface Design
+
+Flag missing interface **ONLY IF**:
+- [ ] Concrete type is used across package boundaries
+- [ ] Testing requires mocking the dependency
+- [ ] Multiple implementations exist or are planned
+- [ ] Not a simple data struct (interfaces for behavior, not data)
 
 ## Before Submitting Review
 
@@ -194,6 +198,7 @@ Final verification:
 2. For each finding, can you point to the specific line that proves the issue exists?
 3. Would a domain expert agree this is a problem, or is it a style preference?
 4. Does fixing this provide real value, or is it busywork?
+5. Format every finding as: `[FILE:LINE] ISSUE_TITLE`
 
 If uncertain about any finding, either:
 - Remove it from the review

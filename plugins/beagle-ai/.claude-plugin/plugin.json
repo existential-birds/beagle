@@ -1,0 +1,19 @@
+{
+  "name": "beagle-ai",
+  "description": "Pydantic AI, LangGraph, DeepAgents, and Vercel AI SDK skills for building and reviewing AI applications.",
+  "version": "1.0.0",
+  "author": {
+    "name": "Existential Birds, LLC",
+    "email": "tech@existentialbirds.com"
+  },
+  "repository": "https://github.com/existential-birds/beagle",
+  "keywords": [
+    "pydantic-ai",
+    "langgraph",
+    "deepagents",
+    "vercel-ai",
+    "ai",
+    "agents",
+    "code-review"
+  ]
+}

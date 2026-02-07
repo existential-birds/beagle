@@ -21,7 +21,7 @@
       "name": "beagle-core",
       "source": "./plugins/beagle-core",
       "description": "Shared code review workflows, verification protocol, git commands, and feedback handling",
-      "version": "1.0.0",
+      "version": "1.0.1",
       "category": "workflow",
       "tags": ["code-review", "verification", "git", "feedback"]
     },
@@ -93,7 +93,7 @@
       "name": "beagle-testing",
       "source": "./plugins/beagle-testing",
       "description": "Language-agnostic test plan generation and execution",
-      "version": "1.0.0",
+      "version": "1.0.1",
       "category": "testing",
       "tags": ["testing", "test-plan", "qa"]
     }

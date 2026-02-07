@@ -4,6 +4,11 @@ All notable changes to Beagle are documented here.
 
 Format follows [Keep a Changelog](https://keepachangelog.com/en/1.1.0/). Versioning adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [2.0.3] - 2026-02-06
+
+### Fixed
+- **beagle-elixir:** Bump plugin version to 1.0.1 to ensure `review-elixir` command is picked up by plugin cache on update
+
 ## [2.0.2] - 2026-02-06
 
 ### Fixed

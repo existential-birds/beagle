@@ -174,7 +174,7 @@ Group by reviewer:
 
 Footer:
 
-```
+```markdown
 **Threads resolved: 3/3**
 ```
 

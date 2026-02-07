@@ -4,6 +4,13 @@ All notable changes to Beagle are documented here.
 
 Format follows [Keep a Changelog](https://keepachangelog.com/en/1.1.0/). Versioning adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [2.2.0] - 2026-02-07
+
+### Added
+- **beagle-elixir:** `elixir-writing-docs` skill — Elixir documentation authoring patterns for `@moduledoc`, `@doc`, doctests, admonitions, and cross-references ([#57](https://github.com/existential-birds/beagle/pull/57))
+- **beagle-elixir:** `exdoc-config` skill — ExDoc configuration for mix.exs, cheatsheets, livebooks, extras, and advanced formatting ([#57](https://github.com/existential-birds/beagle/pull/57))
+- **beagle-elixir:** `elixir-docs-review` skill — review Elixir documentation for quality, spec coverage, and completeness ([#57](https://github.com/existential-birds/beagle/pull/57))
+
 ## [2.1.1] - 2026-02-07
 
 ### Fixed
@@ -225,6 +232,7 @@ Format follows [Keep a Changelog](https://keepachangelog.com/en/1.1.0/). Version
 - Development commands: `skill-builder`, `ensure-docs`
 - Cursor IDE command equivalents
 
+[2.2.0]: https://github.com/existential-birds/beagle/compare/v2.1.1...v2.2.0
 [2.1.1]: https://github.com/existential-birds/beagle/compare/v2.1.0...v2.1.1
 [2.1.0]: https://github.com/existential-birds/beagle/compare/v2.0.3...v2.1.0
 [2.0.3]: https://github.com/existential-birds/beagle/compare/v2.0.2...v2.0.3

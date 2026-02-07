@@ -178,7 +178,7 @@ Kino.DataTable.new(readings)
 
 ### Directory Conventions
 
-```
+```text
 project/
   README.md
   CHANGELOG.md

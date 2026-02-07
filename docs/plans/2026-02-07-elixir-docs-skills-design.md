@@ -63,7 +63,7 @@ Three new skills for the `beagle-elixir` plugin covering Elixir documentation wr
 
 ## File Structure
 
-```
+```text
 plugins/beagle-elixir/skills/
 ├── elixir-writing-docs/
 │   ├── SKILL.md

@@ -176,41 +176,61 @@ For endpoints affected by changes:
     <Natural language description of expected behavior>
 ```
 
-### UI Routes (agent-browser tests)
+### UI Routes (agent-browser CLI tests)
 
-For UI routes affected by changes:
+For UI routes affected by changes, always use `agent-browser` CLI commands executed via Bash.
+Never use abstract action syntax — steps must be real CLI commands that can be copy-pasted into a terminal.
+
 ```yaml
 - id: TC-XX
   name: <Describe the user journey>
   context: |
     <Which files changed and why this route is affected>
   steps:
-    - action: agent-browser open
-      url: http://localhost:<port>/<path>
-    - action: agent-browser snapshot
-    - action: agent-browser fill
-      ref: "@<field-name>"
-      value: "<test value>"
-    - action: agent-browser click
-      ref: "@<button-name>"
-    - action: agent-browser wait
-      type: url
-      value: "<expected-path>"
-    - action: agent-browser snapshot
+    - run: agent-browser open http://localhost:<port>/<path>
+    - run: agent-browser snapshot -i
+      note: Capture interactive elements with refs
+    - run: agent-browser fill @<ref> "<test value>"
+    - run: agent-browser click @<ref>
+    - run: agent-browser wait --url "**/<expected-path>"
+    - run: agent-browser snapshot -i
+      note: Verify final state
+    - run: agent-browser screenshot evidence/tc-XX.png
   expected: |
     <Natural language description of expected behavior>
   evidence:
     screenshot: evidence/tc-XX.png
 ```
 
+**agent-browser CLI reference for test steps:**
+
+| Action | CLI Command |
+|--------|-------------|
+| Navigate | `agent-browser open <url>` |
+| Snapshot (interactive) | `agent-browser snapshot -i` |
+| Fill input | `agent-browser fill @<ref> "<value>"` |
+| Click element | `agent-browser click @<ref>` |
+| Wait for URL | `agent-browser wait --url "<pattern>"` |
+| Wait for text | `agent-browser wait --text "<text>"` |
+| Wait for idle | `agent-browser wait --load networkidle` |
+| Screenshot | `agent-browser screenshot <path>` |
+| Get text | `agent-browser get text @<ref>` |
+| Check visible | `agent-browser is visible @<ref>` |
+| Select dropdown | `agent-browser select @<ref> "<value>"` |
+| Scroll to element | `agent-browser scrollintoview @<ref>` |
+
+**Important:** Refs (like `@e1`, `@e2`) come from `agent-browser snapshot -i` output. Always snapshot before interacting with elements, and re-snapshot after navigation or significant DOM changes.
+
 ### Test Case Guidelines
 
 - At least one test per affected entry point
-- API tests for backend-only changes
-- Browser tests for UI changes
+- API tests (curl) for backend-only changes
+- Browser tests (agent-browser CLI) for UI changes — always use real CLI commands, not abstract action syntax
 - Both when full-stack changes
 - Include authentication steps if endpoints are protected
 - Use `${ENV_VAR}` syntax for secrets/tokens
+- Always `agent-browser snapshot -i` before interacting with elements to get valid refs
+- Re-snapshot after navigation or significant DOM changes
 
 ## Step 6: Write YAML Test Plan
 
@@ -245,16 +265,33 @@ setup:
       timeout: 30
 
 tests:
+  # API test example:
   - id: TC-01
-    name: <Test name>
+    name: <API test name>
     context: |
       <Why this test exists, which changes affect it>
     steps:
-      - <action steps>
+      - action: curl
+        method: GET
+        url: http://localhost:<port>/<path>
+    expected: |
+      <Expected behavior in natural language>
+
+  # Browser test example (always use agent-browser CLI commands):
+  - id: TC-02
+    name: <UI test name>
+    context: |
+      <Why this test exists, which changes affect it>
+    steps:
+      - run: agent-browser open http://localhost:<port>/<path>
+      - run: agent-browser snapshot -i
+      - run: agent-browser click @<ref>
+      - run: agent-browser snapshot -i
+      - run: agent-browser screenshot evidence/tc-02.png
     expected: |
       <Expected behavior in natural language>
     evidence:
-      screenshot: evidence/tc-01.png
+      screenshot: evidence/tc-02.png
 ```
 
 ## Step 7: Report Summary
@@ -324,6 +361,8 @@ grep -E "^version:|^metadata:|^setup:|^tests:" docs/testing/test-plan.yaml
 - Include context explaining why each test matters (trace from changes)
 - Use natural language for `expected` field (agent will interpret)
 - Default to conservative port detection (8000 for API, 5173/3000 for frontend)
-- Include `agent-browser snapshot` after significant UI state changes
+- **Browser automation steps MUST use `agent-browser` CLI commands** (e.g., `agent-browser open`, `agent-browser snapshot -i`, `agent-browser click @ref`) — never use abstract action syntax
+- Always `agent-browser snapshot -i` before interacting with elements and after navigation/DOM changes
+- Use `agent-browser screenshot <path>` to capture evidence for browser tests
 - Use `${ENV_VAR}` syntax for secrets, never hardcode credentials
 - If no user-facing changes detected, explain why and suggest manual verification

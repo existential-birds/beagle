@@ -1,21 +1,20 @@
 ---
-description: Respond to bot review comments on a PR after evaluation and fixes
+description: Respond to review comments on a PR after evaluation and fixes
 ---
 
 # Respond to PR Feedback
 
-Post replies to bot review comments after you've evaluated the feedback and made fixes.
+Post replies to review comments after you've evaluated the feedback and made fixes. Resolves conversation threads by default.
 
 ## Usage
 
-```
-/beagle-core:respond-pr-feedback [--bot <username>] [--pr <number>] [--as <username>]
+```bash
+/beagle-core:respond-pr-feedback [--pr <number>] [--no-resolve]
 ```
 
 **Flags:**
-- `--bot <username>` - Bot whose comments to respond to (default: `coderabbitai[bot]`)
 - `--pr <number>` - PR number to target (default: current branch's PR)
-- `--as <username>` - Filter already-replied based on this responder (default: current `gh` user)
+- `--no-resolve` - Skip thread resolution after posting replies (default: resolve all)
 
 ## Prerequisites
 
@@ -26,90 +25,78 @@ Run `/beagle-core:fetch-pr-feedback` first to evaluate the feedback and make any
 ### 1. Parse Arguments
 
 Extract flags from `$ARGUMENTS`:
-- `--bot <username>` or default to `coderabbitai[bot]`
 - `--pr <number>` or detect from current branch
-- `--as <username>` or detect from `gh api user`
+- `--no-resolve` flag (boolean, default false)
 
 ### 2. Get PR Context
 
 ```bash
-# Get repo info
-gh repo view --json nameWithOwner --jq '.nameWithOwner'
+# Get PR info (if --pr not specified, uses current branch)
+gh pr view --json number,author --jq '{number, author: .author.login}'
 
-# Get PR number (if not specified)
-gh pr view --json number --jq '.number'
+# Get repo owner/name
+gh repo view --json owner,name --jq '{owner: .owner.login, name: .name}'
 
-# Get responder username (if --as not specified)
+# Get current authenticated user
 gh api user --jq '.login'
 ```
 
-### 3. Fetch Unreplied Comments
+Store as `$PR_NUMBER`, `$PR_AUTHOR`, `$OWNER`, `$REPO`, `$CURRENT_USER`.
 
-This query filters out already-replied comments and deduplicates (CodeRabbit reposts on each iteration):
+**Note:** `$OWNER`, `$REPO`, etc. are placeholders. Substitute actual values from previous steps.
+
+### 3. Fetch Unreplied Comments and Thread Data
+
+#### 3a. Unreplied Review Comments
+
+Fetch review comments, excluding PR author and current user, filtering to root comments that haven't been replied to:
 
 ```bash
-gh api --paginate "repos/{owner}/{repo}/pulls/{number}/comments" | jq -s 'add |
-  # Get root comments from target bot (not replies to itself)
-  [.[] | select(.user.login == "{bot}" and .in_reply_to_id == null)] as $roots |
-  # Get IDs that responder has already replied to
-  [.[] | select(.user.login == "{responder}") | .in_reply_to_id] as $replied |
-  # Filter to unreplied comments only
+gh api --paginate "repos/$OWNER/$REPO/pulls/$PR_NUMBER/comments" | \
+  jq -s --arg pr_author "$PR_AUTHOR" --arg current_user "$CURRENT_USER" 'add |
+  # Root comments from reviewers (not replies, not PR author, not current user)
+  [.[] | select(
+    .in_reply_to_id == null and
+    .user.login != $pr_author and
+    .user.login != $current_user
+  )] as $roots |
+  # IDs that current user has already replied to
+  [.[] | select(.user.login == $current_user) | .in_reply_to_id] as $replied |
+  # Filter to unreplied only
   $roots | map(select(. as $c | $replied | index($c.id) == null)) |
-  # Group by file:line and pick newest comment for each (handles duplicates)
-  group_by({p: .path, l: .line}) |
+  # Dedup: group by path + line + reviewer, pick newest per group
+  group_by({
+    p: .path,
+    l: (.line // .original_line),
+    u: .user.login
+  }) |
   map(sort_by(.created_at) | last) |
   # Output needed fields
-  map({id, path, line, body})
+  map({
+    id,
+    user: .user.login,
+    path,
+    line_display: (
+      .line as $end | .start_line as $start |
+      if $start and $start != $end then "\($start)-\($end)"
+      else "\($end // .original_line)" end
+    ),
+    body
+  })
 '
 ```
 
-If no unreplied comments found, output: "All {bot} comments have been addressed."
+If no unreplied comments found, output: "All review comments have been addressed." and stop.
 
-### 4. Generate and Post Replies
+#### 3b. Pre-fetch Thread Data
 
-For each unreplied comment, determine the appropriate response based on your evaluation:
-
-| Evaluation Outcome | Response |
-|-------------------|----------|
-| Feedback was incorrect/unfounded | Explain why the current code is correct |
-| Feedback lacked context | Explain the design decision |
-| Feedback was valid and fixed | "Fixed in {commit}" or brief description of change |
-| Feedback was valid but won't fix | Explain the tradeoff/decision |
-
-Post reply to each comment:
+Fetch review thread IDs to enable resolution after posting replies:
 
 ```bash
-gh api "repos/{owner}/{repo}/pulls/{number}/comments/{comment_id}/replies" \
-  -X POST --raw-field body="@{bot} {response}"
-```
-
-### 5. Prompt to Resolve Threads
-
-After posting replies, ask the user:
-
-> Would you like to resolve these conversation threads?
-> 1. **Yes, all** - Resolve all threads that were just replied to
-> 2. **Select individually** - Choose which threads to resolve
-> 3. **No** - Leave threads open for further discussion
-
-To resolve a thread, use the GraphQL API:
-
-```bash
-gh api graphql -f query='
-  mutation {
-    resolveReviewThread(input: {threadId: "{thread_id}"}) {
-      thread { isResolved }
-    }
-  }
-'
-```
-
-Note: To get the `thread_id`, you need to query review threads:
-```bash
-gh api graphql -f query='
+gh api graphql -f query="
   query {
-    repository(owner: "{owner}", name: "{repo}") {
-      pullRequest(number: {number}) {
+    repository(owner: \"$OWNER\", name: \"$REPO\") {
+      pullRequest(number: $PR_NUMBER) {
         reviewThreads(first: 100) {
           nodes {
             id
@@ -122,23 +109,78 @@ gh api graphql -f query='
       }
     }
   }
-'
+"
 ```
 
-Match `databaseId` to your comment IDs to find the corresponding `thread_id`.
+Build a lookup map: comment `databaseId` → thread `id` (unresolved threads only). This enables immediate resolution after posting each reply.
+
+### 4. Generate and Post Replies
+
+For each unreplied comment, determine the appropriate response based on your evaluation:
+
+| Evaluation Outcome | Response |
+|--------------------|----------|
+| Feedback was incorrect/unfounded | Explain why the current code is correct |
+| Feedback lacked context | Explain the design decision |
+| Feedback was valid and fixed | "Fixed in `$COMMIT_SHA`" or brief description of change |
+| Feedback was valid but won't fix | Explain the tradeoff/decision |
+
+**Tagging guideline:** `@`-tag bot reviewers (e.g., `@coderabbitai`) to trigger their processing. Do not `@`-tag human reviewers.
+
+Post reply to each comment:
+
+```bash
+gh api "repos/$OWNER/$REPO/pulls/$PR_NUMBER/comments/$COMMENT_ID/replies" \
+  -X POST --raw-field body="$RESPONSE"
+```
+
+### 5. Resolve Threads
+
+**This step runs by default.** Skip only if `--no-resolve` was passed.
+
+After posting each reply, look up the `$THREAD_ID` from the step 3b mapping using the comment's `$COMMENT_ID`:
+
+```bash
+gh api graphql -f query="
+  mutation {
+    resolveReviewThread(input: {threadId: \"$THREAD_ID\"}) {
+      thread { isResolved }
+    }
+  }
+"
+```
+
+- If a comment's `$COMMENT_ID` has a matching thread ID in the lookup, resolve it
+- If no thread ID found (e.g., issue comment rather than review thread), skip resolution for that comment
 
 ### 6. Output Summary
 
-Display a summary table:
+Group by reviewer:
 
-| File:Line | Response Type | Thread Status |
-|-----------|---------------|---------------|
-| `src/foo.ts:42` | Fixed | Resolved |
-| `src/bar.ts:15` | Explained design | Open |
+```markdown
+### Reviewer: coderabbitai[bot]
+
+| File:Line | Response Type | Thread |
+|-----------|---------------|--------|
+| `src/foo.ts:42` | Fixed in `abc1234` | Resolved |
+| `src/bar.ts:15` | Explained design | Resolved |
+
+### Reviewer: octocat
+
+| File:Line | Response Type | Thread |
+|-----------|---------------|--------|
+| `src/baz.ts:7` | Won't fix | Resolved |
+```
+
+Footer:
+
+```markdown
+**Threads resolved: 3/3**
+```
 
 ## Response Guidelines
 
-- **Always tag the bot** at the start: `@coderabbitai ...`
+- `@`-tag bot reviewers to trigger re-processing; do not tag human reviewers
 - Keep responses concise and technical
 - No performative agreement ("Great point!", "You're right!")
 - Reference specific code/design when explaining decisions
@@ -147,12 +189,12 @@ Display a summary table:
 ## Example
 
 ```bash
-# Respond to CodeRabbit on current PR
+# Respond to all reviewers on current PR (resolves threads)
 /beagle-core:respond-pr-feedback
 
 # Respond on a specific PR
 /beagle-core:respond-pr-feedback --pr 123
 
-# Use different bot/responder
-/beagle-core:respond-pr-feedback --bot renovate[bot] --as my-bot[bot]
+# Respond without resolving threads
+/beagle-core:respond-pr-feedback --no-resolve
 ```

@@ -1,7 +1,7 @@
 {
   "name": "beagle-elixir",
   "description": "Elixir, Phoenix, and LiveView code review skills",
-  "version": "1.0.0",
+  "version": "1.0.1",
   "author": {
     "name": "Existential Birds, LLC",
     "email": "tech@existentialbirds.com"

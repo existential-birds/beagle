@@ -108,20 +108,31 @@ cat response.json
 cat status_code.txt
 ```
 
-**agent-browser actions:**
+**agent-browser CLI actions:**
 
-Load the `agent-browser:agent-browser` skill and delegate browser actions:
+Execute browser steps as `agent-browser` CLI commands via Bash. Each `run:` step in the test plan is a CLI command:
 
+```bash
+# Navigate
+agent-browser open <url>
+
+# Snapshot interactive elements (always do before interacting)
+agent-browser snapshot -i
+
+# Interact using refs from snapshot output (@e1, @e2, etc.)
+agent-browser fill @<ref> "<value>"
+agent-browser click @<ref>
+
+# Wait for conditions
+agent-browser wait --url "<pattern>"
+agent-browser wait --text "<text>"
+agent-browser wait --load networkidle
+
+# Capture evidence
+agent-browser screenshot docs/testing/evidence/<test.id>.png
 ```
-Skill(skill: "agent-browser:agent-browser")
-```
 
-Execute browser actions according to the skill's capabilities:
-- `agent-browser open`: Navigate to URL
-- `agent-browser fill`: Fill form field by ref
-- `agent-browser click`: Click element by ref
-- `agent-browser wait`: Wait for condition (url, element, etc.)
-- `agent-browser snapshot`: Capture screenshot
+**Important:** Always run `agent-browser snapshot -i` before interacting with elements to get valid refs, and re-snapshot after navigation or significant DOM changes.
 
 Save screenshots to `docs/testing/evidence/<test.id>.png`
 

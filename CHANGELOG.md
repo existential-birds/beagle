@@ -4,6 +4,20 @@ All notable changes to Beagle are documented here.
 
 Format follows [Keep a Changelog](https://keepachangelog.com/en/1.1.0/). Versioning adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [2.1.0] - 2026-02-07
+
+### Added
+- **beagle-go:** `go-architect` skill — project structure, dependency injection, graceful shutdown patterns
+- **beagle-go:** `go-concurrency-web` skill — worker pools, rate limiting, race detection for web services
+- **beagle-go:** `go-data-persistence` skill — sqlx/pgx patterns, transactions, migrations, connection pooling
+- **beagle-go:** `go-middleware` skill — net/http middleware chains, slog structured logging, context propagation, error handling
+- **beagle-go:** `go-web-expert` skill — net/http server patterns, request validation, handler testing
+
+### Changed
+- **beagle-go:** Enhanced `go-code-review` with functional options and sync.Pool patterns
+- **beagle-go:** Enhanced `go-testing-code-review` with benchmarks, fuzz tests, HTTP handler tests, and golden file patterns
+- **docs:** Add DeepWiki badge to README
+
 ## [2.0.3] - 2026-02-06
 
 ### Fixed

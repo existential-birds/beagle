@@ -1,5 +1,7 @@
 # beagle
 
+[![Ask DeepWiki](https://deepwiki.com/badge.svg)](https://deepwiki.com/existential-birds/beagle)
+
 > **Upgrading from beagle v1?** The monolithic `beagle` plugin was split into individual plugins in v2.0.0. If you still have `beagle@existential-birds` enabled in `~/.claude/settings.json`, it now loads as a no-op stub. You can remove it with:
 > ```
 > claude plugin uninstall beagle@existential-birds

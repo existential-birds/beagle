@@ -1,7 +1,7 @@
 {
   "name": "beagle-go",
-  "description": "Go, BubbleTea TUI, Wish SSH, and Prometheus code review. Pairs with beagle-core for full workflow.",
-  "version": "1.0.0",
+  "description": "Go code review and development skills covering architecture, middleware, data persistence, concurrency, and framework-specific patterns for BubbleTea, Wish SSH, and Prometheus.",
+  "version": "2.0.0",
   "author": {
     "name": "Existential Birds, LLC",
     "email": "tech@existentialbirds.com"
@@ -9,10 +9,18 @@
   "repository": "https://github.com/existential-birds/beagle",
   "keywords": [
     "go",
+    "net-http",
+    "middleware",
+    "slog",
+    "sqlx",
+    "pgx",
+    "concurrency",
     "bubbletea",
     "wish",
     "prometheus",
     "tui",
-    "code-review"
+    "code-review",
+    "architecture",
+    "dependency-injection"
   ]
 }

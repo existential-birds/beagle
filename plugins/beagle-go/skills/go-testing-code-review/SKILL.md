@@ -22,6 +22,10 @@ description: Reviews Go test code for proper table-driven tests, assertions, and
 - [ ] Parallel tests don't share mutable state
 - [ ] Mocks use interfaces defined in test file
 - [ ] Coverage includes edge cases and error paths
+- [ ] Performance-critical functions have `Benchmark*` tests
+- [ ] Input parsers/validators have `Fuzz*` tests (Go 1.18+)
+- [ ] HTTP handlers tested with `httptest.NewRequest`/`httptest.NewRecorder`
+- [ ] Golden file tests use `testdata/*.golden` pattern with `-update` flag
 
 ## Critical Patterns
 
@@ -111,6 +115,85 @@ func TestWithTempFile(t *testing.T) {
     t.Cleanup(func() {
         os.Remove(f.Name())
     })
+}
+```
+
+## Additional Patterns
+
+### Benchmarks
+```go
+func BenchmarkProcess(b *testing.B) {
+    data := generateTestData(1000)
+    b.ResetTimer()
+
+    for i := 0; i < b.N; i++ {
+        Process(data)
+    }
+}
+
+// Run: go test -bench=BenchmarkProcess -benchmem
+```
+
+### Fuzz Tests (Go 1.18+)
+```go
+func FuzzParseInput(f *testing.F) {
+    // Seed corpus
+    f.Add(`{"name": "test"}`)
+    f.Add(``)
+    f.Add(`{invalid}`)
+
+    f.Fuzz(func(t *testing.T, input string) {
+        result, err := ParseInput(input)
+        if err != nil {
+            return // invalid input is expected
+        }
+        // If parsing succeeded, re-encoding should work
+        if _, err := json.Marshal(result); err != nil {
+            t.Errorf("Marshal after Parse: %v", err)
+        }
+    })
+}
+
+// Run: go test -fuzz=FuzzParseInput -fuzztime=30s
+```
+
+### HTTP Handler Tests
+```go
+func TestHandler(t *testing.T) {
+    srv := NewServer(mockDeps)
+
+    req := httptest.NewRequest("GET", "/api/users/123", nil)
+    w := httptest.NewRecorder()
+
+    srv.ServeHTTP(w, req)
+
+    if w.Code != http.StatusOK {
+        t.Errorf("status = %d, want %d", w.Code, http.StatusOK)
+    }
+}
+```
+
+### Golden Files
+```go
+var update = flag.Bool("update", false, "update golden files")
+
+func TestRender(t *testing.T) {
+    got := Render(input)
+    golden := filepath.Join("testdata", t.Name()+".golden")
+
+    if *update {
+        if err := os.WriteFile(golden, got, 0644); err != nil {
+            t.Fatalf("writing golden file: %v", err)
+        }
+    }
+
+    want, err := os.ReadFile(golden)
+    if err != nil {
+        t.Fatalf("reading golden file: %v (run with -update to create)", err)
+    }
+    if !bytes.Equal(got, want) {
+        t.Errorf("output mismatch:\ngot:\n%s\nwant:\n%s", got, want)
+    }
 }
 ```
 

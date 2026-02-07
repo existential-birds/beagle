@@ -254,6 +254,51 @@ func TestAdd(t *testing.T) {
 }
 ```
 
+## Sync and Performance
+
+### 12. sync.Pool Misuse
+
+**Problem**: Using sync.Pool for objects that shouldn't be pooled, or not resetting objects.
+
+```go
+// BAD - not resetting before Put
+buf := bufPool.Get().(*bytes.Buffer)
+buf.WriteString("data")
+bufPool.Put(buf)  // still has "data"!
+
+// GOOD - reset before returning to pool
+buf := bufPool.Get().(*bytes.Buffer)
+defer func() {
+    buf.Reset()
+    bufPool.Put(buf)
+}()
+buf.WriteString("data")
+```
+
+### 13. Missing Functional Options
+
+**Problem**: Constructor with many parameters, hard to extend.
+
+```go
+// BAD - parameter bloat
+func NewServer(addr string, timeout time.Duration, logger *slog.Logger, maxConns int) *Server
+
+// GOOD - functional options
+type Option func(*Server)
+
+func WithTimeout(d time.Duration) Option {
+    return func(s *Server) { s.timeout = d }
+}
+
+func NewServer(addr string, opts ...Option) *Server {
+    s := &Server{addr: addr, timeout: 30 * time.Second}  // defaults
+    for _, opt := range opts {
+        opt(s)
+    }
+    return s
+}
+```
+
 ## Review Questions
 
 1. Is `defer Close()` called immediately after opening resources?

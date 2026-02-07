@@ -4,7 +4,7 @@
 
 Best for small applications, CLIs, microservices with fewer than ~10 handlers, and projects where a single developer or small team owns the entire codebase.
 
-```
+```text
 myapp/
 ├── main.go
 ├── server.go
@@ -112,7 +112,7 @@ func (s *Server) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 
 For larger applications with multiple bounded contexts, multiple teams, or significant growth expected.
 
-```
+```text
 myapp/
 ├── cmd/
 │   └── server/
@@ -151,7 +151,7 @@ myapp/
 
 Entry points for the application. Each subdirectory produces one binary.
 
-```
+```text
 cmd/
 ├── server/
 │   └── main.go       # HTTP server

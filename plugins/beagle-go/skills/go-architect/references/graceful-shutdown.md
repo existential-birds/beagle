@@ -36,16 +36,20 @@ func run(ctx context.Context) error {
         Handler: srv,
     }
 
-    // Start server in goroutine
+    errCh := make(chan error, 1)
     go func() {
         slog.Info("server starting", "addr", httpServer.Addr)
         if err := httpServer.ListenAndServe(); err != nil && err != http.ErrServerClosed {
-            slog.Error("server error", "err", err)
+            errCh <- err
         }
     }()
 
-    // Wait for interrupt signal
-    <-ctx.Done()
+    // Wait for interrupt signal or server error
+    select {
+    case <-ctx.Done():
+    case err := <-errCh:
+        return fmt.Errorf("server listen: %w", err)
+    }
     slog.Info("shutting down gracefully")
 
     // Give outstanding requests time to complete

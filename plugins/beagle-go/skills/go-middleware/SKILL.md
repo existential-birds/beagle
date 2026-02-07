@@ -164,7 +164,7 @@ func Chain(h http.Handler, middleware ...func(http.Handler) http.Handler) http.H
     return h
 }
 
-handler := Chain(router, Recovery, RequestID, Logger, Auth)
+handler := Chain(router, Recovery, RequestID, Logger(slog.Default()), Auth)
 ```
 
 ### Recommended Order

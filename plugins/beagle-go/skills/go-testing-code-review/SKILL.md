@@ -182,10 +182,15 @@ func TestRender(t *testing.T) {
     golden := filepath.Join("testdata", t.Name()+".golden")
 
     if *update {
-        os.WriteFile(golden, got, 0644)
+        if err := os.WriteFile(golden, got, 0644); err != nil {
+            t.Fatalf("writing golden file: %v", err)
+        }
     }
 
-    want, _ := os.ReadFile(golden)
+    want, err := os.ReadFile(golden)
+    if err != nil {
+        t.Fatalf("reading golden file: %v (run with -update to create)", err)
+    }
     if !bytes.Equal(got, want) {
         t.Errorf("output mismatch:\ngot:\n%s\nwant:\n%s", got, want)
     }

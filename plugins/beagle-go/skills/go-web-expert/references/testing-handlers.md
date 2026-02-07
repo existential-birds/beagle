@@ -746,7 +746,9 @@ func TestServer_handleGetUser_golden(t *testing.T) {
         // Pretty-print for readable golden files
         var pretty bytes.Buffer
         json.Indent(&pretty, w.Body.Bytes(), "", "  ")
-        os.WriteFile(goldenPath, pretty.Bytes(), 0644)
+        if err := os.WriteFile(goldenPath, pretty.Bytes(), 0644); err != nil {
+            t.Fatalf("writing golden file: %v", err)
+        }
         return
     }
 

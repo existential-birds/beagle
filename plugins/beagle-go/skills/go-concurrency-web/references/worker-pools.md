@@ -4,7 +4,7 @@
 
 Worker pools prevent goroutine leaks and OOM by bounding concurrency. Without a pool, every incoming request that spawns a goroutine can create unbounded parallelism:
 
-- 10,000 requests/second = 10,000 goroutines = ~80 MB of stack memory minimum
+- 10,000 requests/second = 10,000 goroutines = ~20 MB minimum (stacks start at ~2 KB, grow as needed)
 - Each goroutine may hold open database connections, file descriptors, or network sockets
 - The Go scheduler slows down with millions of goroutines
 

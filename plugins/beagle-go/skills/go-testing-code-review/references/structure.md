@@ -274,7 +274,7 @@ func TestValidate(t *testing.T) {
 
 Benchmarks can live in the same `*_test.go` file as unit tests, or in a dedicated `*_bench_test.go` file for large suites:
 
-```
+```text
 package/
 ├── parser.go
 ├── parser_test.go         # unit tests
@@ -316,7 +316,7 @@ func BenchmarkProcess(b *testing.B) {
 
 Place seed corpus files in `testdata/fuzz/<FuzzTestName>/`:
 
-```
+```text
 package/
 └── testdata/
     └── fuzz/
@@ -346,7 +346,7 @@ benchstat old.txt new.txt
 
 Store expected outputs as golden files in the `testdata/` directory:
 
-```
+```text
 package/
 ├── render.go
 ├── render_test.go
@@ -366,8 +366,12 @@ func TestRender(t *testing.T) {
     golden := filepath.Join("testdata", t.Name()+".golden")
 
     if *update {
-        os.MkdirAll(filepath.Dir(golden), 0755)
-        os.WriteFile(golden, got, 0644)
+        if err := os.MkdirAll(filepath.Dir(golden), 0755); err != nil {
+            t.Fatalf("creating golden dir: %v", err)
+        }
+        if err := os.WriteFile(golden, got, 0644); err != nil {
+            t.Fatalf("writing golden file: %v", err)
+        }
     }
 
     want, err := os.ReadFile(golden)

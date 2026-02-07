@@ -85,7 +85,7 @@ func (l *IPRateLimiter) GetLimiter(ip string) *rate.Limiter {
 ### Per-IP Middleware
 
 ```go
-func PerIPRateLimit(rps float64, burst int) func(http.Handler) http.Handler {
+func PerIPRateLimit(rps float64, burst int, trustProxy bool) func(http.Handler) http.Handler {
     limiter := NewIPRateLimiter(rps, burst)
 
     // Start cleanup goroutine
@@ -93,7 +93,7 @@ func PerIPRateLimit(rps float64, burst int) func(http.Handler) http.Handler {
 
     return func(next http.Handler) http.Handler {
         return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
-            ip := extractIP(r)
+            ip := extractIP(r, trustProxy)
             if !limiter.GetLimiter(ip).Allow() {
                 w.Header().Set("Retry-After", "1")
                 http.Error(w, "rate limit exceeded", http.StatusTooManyRequests)
@@ -104,18 +104,23 @@ func PerIPRateLimit(rps float64, burst int) func(http.Handler) http.Handler {
     }
 }
 
-func extractIP(r *http.Request) string {
-    // Check X-Forwarded-For for proxied requests
-    if xff := r.Header.Get("X-Forwarded-For"); xff != "" {
-        // Take the first IP (client IP)
-        if idx := strings.Index(xff, ","); idx != -1 {
-            return strings.TrimSpace(xff[:idx])
+// extractIP returns the client IP address from the request.
+// WARNING: X-Forwarded-For and X-Real-IP headers can be spoofed by clients.
+// Only trust these headers when behind a known reverse proxy that strips/overwrites them.
+func extractIP(r *http.Request, trustProxy bool) string {
+    if trustProxy {
+        // Check X-Forwarded-For for proxied requests
+        if xff := r.Header.Get("X-Forwarded-For"); xff != "" {
+            // Take the first IP (client IP)
+            if idx := strings.Index(xff, ","); idx != -1 {
+                return strings.TrimSpace(xff[:idx])
+            }
+            return strings.TrimSpace(xff)
         }
-        return strings.TrimSpace(xff)
-    }
-    // Check X-Real-IP
-    if xri := r.Header.Get("X-Real-IP"); xri != "" {
-        return xri
+        // Check X-Real-IP
+        if xri := r.Header.Get("X-Real-IP"); xri != "" {
+            return xri
+        }
     }
     // Fall back to RemoteAddr
     host, _, err := net.SplitHostPort(r.RemoteAddr)

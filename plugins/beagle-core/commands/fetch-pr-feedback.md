@@ -51,19 +51,35 @@ Fetch both types of comments, excluding `$PR_AUTHOR` and `$CURRENT_USER` (unless
 **Issue comments** (summary/walkthrough posts):
 ```bash
 gh api --paginate "repos/$OWNER/$REPO/issues/$PR_NUMBER/comments" | \
-  jq -s --arg pr_author "$PR_AUTHOR" --arg current_user "$CURRENT_USER" 'add |
+  jq -s --arg pr_author "$PR_AUTHOR" --arg current_user "$CURRENT_USER" '
+  def clean_body:
+    gsub("(?s)<details>.*?</details>"; "")
+    | gsub("(?s)<!--.*?-->"; "")
+    | gsub("(?s)\\n?---\\n[\\s\\S]*$"; "")
+    | gsub("^\\s+|\\s+$"; "")
+    | if length > 4000 then .[:4000] + "\n\n[comment truncated]" else . end
+  ;
+  add |
   [.[] | select(
     .user.login != $pr_author and
     .user.login != $current_user
   )] |
-  map({id, user: .user.login, body, created_at})
+  map({id, user: .user.login, body: (.body | clean_body), created_at})
 '
 ```
 
 **Review comments** (line-specific):
 ```bash
 gh api --paginate "repos/$OWNER/$REPO/pulls/$PR_NUMBER/comments" | \
-  jq -s --arg pr_author "$PR_AUTHOR" --arg current_user "$CURRENT_USER" 'add |
+  jq -s --arg pr_author "$PR_AUTHOR" --arg current_user "$CURRENT_USER" '
+  def clean_body:
+    gsub("(?s)<details>.*?</details>"; "")
+    | gsub("(?s)<!--.*?-->"; "")
+    | gsub("(?s)\\n?---\\n[\\s\\S]*$"; "")
+    | gsub("^\\s+|\\s+$"; "")
+    | if length > 4000 then .[:4000] + "\n\n[comment truncated]" else . end
+  ;
+  add |
   [.[] | select(
     .user.login != $pr_author and
     .user.login != $current_user
@@ -77,7 +93,7 @@ gh api --paginate "repos/$OWNER/$REPO/pulls/$PR_NUMBER/comments" | \
       if $start and $start != $end then "\($start)-\($end)"
       else "\($end // .original_line)" end
     ),
-    body,
+    body: (.body | clean_body),
     created_at
   })
 '
@@ -87,11 +103,7 @@ If `--include-author` is set, omit the `--arg pr_author` parameter and the `.use
 
 ### 4. Format Feedback Document
 
-**Noise stripping** — apply these rules to every comment body before formatting:
-
-1. **`<details>` blocks** — remove entire `<details>...</details>` blocks (learnings, command hints, configuration sections)
-2. **HTML comments** — remove `<!-- ... -->` blocks
-3. **Bot boilerplate** — remove lines matching: horizontal rule (`---`) followed by bot documentation/footer links (e.g., "Thank you for using...", "Tips:", links to bot docs)
+**Noise stripping** — handled by the `clean_body` jq function in Step 3. Each comment body is already stripped of `<details>` blocks, HTML comments, and bot footer boilerplate before it reaches this step. Comments exceeding 4000 chars after stripping are truncated with a `[comment truncated]` marker.
 
 **Group by reviewer** — organize the formatted output by reviewer username:
 

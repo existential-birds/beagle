@@ -8,7 +8,7 @@ Post replies to review comments after you've evaluated the feedback and made fix
 
 ## Usage
 
-```
+```bash
 /beagle-core:respond-pr-feedback [--pr <number>] [--no-resolve]
 ```
 
@@ -52,15 +52,16 @@ Store as `$PR_NUMBER`, `$PR_AUTHOR`, `$OWNER`, `$REPO`, `$CURRENT_USER`.
 Fetch review comments, excluding PR author and current user, filtering to root comments that haven't been replied to:
 
 ```bash
-gh api --paginate "repos/$OWNER/$REPO/pulls/$PR_NUMBER/comments" | jq -s 'add |
+gh api --paginate "repos/$OWNER/$REPO/pulls/$PR_NUMBER/comments" | \
+  jq -s --arg pr_author "$PR_AUTHOR" --arg current_user "$CURRENT_USER" 'add |
   # Root comments from reviewers (not replies, not PR author, not current user)
   [.[] | select(
     .in_reply_to_id == null and
-    .user.login != "$PR_AUTHOR" and
-    .user.login != "$CURRENT_USER"
+    .user.login != $pr_author and
+    .user.login != $current_user
   )] as $roots |
   # IDs that current user has already replied to
-  [.[] | select(.user.login == "$CURRENT_USER") | .in_reply_to_id] as $replied |
+  [.[] | select(.user.login == $current_user) | .in_reply_to_id] as $replied |
   # Filter to unreplied only
   $roots | map(select(. as $c | $replied | index($c.id) == null)) |
   # Dedup: group by path + line + reviewer, pick newest per group
@@ -92,9 +93,9 @@ If no unreplied comments found, output: "All review comments have been addressed
 Fetch review thread IDs to enable resolution after posting replies:
 
 ```bash
-gh api graphql -f query='
+gh api graphql -f query="
   query {
-    repository(owner: "$OWNER", name: "$REPO") {
+    repository(owner: \"$OWNER\", name: \"$REPO\") {
       pullRequest(number: $PR_NUMBER) {
         reviewThreads(first: 100) {
           nodes {
@@ -108,7 +109,7 @@ gh api graphql -f query='
       }
     }
   }
-'
+"
 ```
 
 Build a lookup map: comment `databaseId` → thread `id` (unresolved threads only). This enables immediate resolution after posting each reply.
@@ -140,13 +141,13 @@ gh api "repos/$OWNER/$REPO/pulls/$PR_NUMBER/comments/$COMMENT_ID/replies" \
 After posting each reply, look up the `$THREAD_ID` from the step 3b mapping using the comment's `$COMMENT_ID`:
 
 ```bash
-gh api graphql -f query='
+gh api graphql -f query="
   mutation {
-    resolveReviewThread(input: {threadId: "$THREAD_ID"}) {
+    resolveReviewThread(input: {threadId: \"$THREAD_ID\"}) {
       thread { isResolved }
     }
   }
-'
+"
 ```
 
 - If a comment's `$COMMENT_ID` has a matching thread ID in the lookup, resolve it

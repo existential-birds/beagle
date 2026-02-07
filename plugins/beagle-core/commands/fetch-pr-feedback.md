@@ -8,7 +8,7 @@ Fetch review comments from all reviewers on the current PR, format them, and eva
 
 ## Usage
 
-```
+```bash
 /beagle-core:fetch-pr-feedback [--pr <number>] [--include-author]
 ```
 
@@ -50,10 +50,11 @@ Fetch both types of comments, excluding `$PR_AUTHOR` and `$CURRENT_USER` (unless
 
 **Issue comments** (summary/walkthrough posts):
 ```bash
-gh api --paginate "repos/$OWNER/$REPO/issues/$PR_NUMBER/comments" | jq -s 'add |
+gh api --paginate "repos/$OWNER/$REPO/issues/$PR_NUMBER/comments" | \
+  jq -s --arg pr_author "$PR_AUTHOR" --arg current_user "$CURRENT_USER" 'add |
   [.[] | select(
-    .user.login != "$PR_AUTHOR" and
-    .user.login != "$CURRENT_USER"
+    .user.login != $pr_author and
+    .user.login != $current_user
   )] |
   map({id, user: .user.login, body, created_at})
 '
@@ -61,10 +62,11 @@ gh api --paginate "repos/$OWNER/$REPO/issues/$PR_NUMBER/comments" | jq -s 'add |
 
 **Review comments** (line-specific):
 ```bash
-gh api --paginate "repos/$OWNER/$REPO/pulls/$PR_NUMBER/comments" | jq -s 'add |
+gh api --paginate "repos/$OWNER/$REPO/pulls/$PR_NUMBER/comments" | \
+  jq -s --arg pr_author "$PR_AUTHOR" --arg current_user "$CURRENT_USER" 'add |
   [.[] | select(
-    .user.login != "$PR_AUTHOR" and
-    .user.login != "$CURRENT_USER"
+    .user.login != $pr_author and
+    .user.login != $current_user
   )] |
   map({
     id,
@@ -81,7 +83,7 @@ gh api --paginate "repos/$OWNER/$REPO/pulls/$PR_NUMBER/comments" | jq -s 'add |
 '
 ```
 
-If `--include-author` is set, remove the `$PR_AUTHOR` exclusion from both queries.
+If `--include-author` is set, omit the `--arg pr_author` parameter and the `.user.login != $pr_author` condition from both queries. Keep the `$current_user` exclusion either way.
 
 ### 4. Format Feedback Document
 

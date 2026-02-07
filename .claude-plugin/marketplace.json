@@ -6,7 +6,7 @@
   },
   "metadata": {
     "description": "Framework-aware code review skills and workflows for modern development",
-    "version": "2.1.1"
+    "version": "2.2.0"
   },
   "plugins": [
     {
@@ -15,7 +15,9 @@
       "description": "Deprecated: split into beagle-core, beagle-react, etc. You can safely disable this plugin.",
       "version": "2.0.0",
       "category": "deprecated",
-      "tags": ["deprecated"]
+      "tags": [
+        "deprecated"
+      ]
     },
     {
       "name": "beagle-core",
@@ -23,7 +25,12 @@
       "description": "Shared code review workflows, verification protocol, git commands, and feedback handling",
       "version": "1.0.2",
       "category": "workflow",
-      "tags": ["code-review", "verification", "git", "feedback"]
+      "tags": [
+        "code-review",
+        "verification",
+        "git",
+        "feedback"
+      ]
     },
     {
       "name": "beagle-python",
@@ -31,7 +38,14 @@
       "description": "Python, FastAPI, SQLAlchemy, PostgreSQL, and pytest code review",
       "version": "1.0.0",
       "category": "backend",
-      "tags": ["python", "fastapi", "sqlalchemy", "postgres", "pytest", "code-review"]
+      "tags": [
+        "python",
+        "fastapi",
+        "sqlalchemy",
+        "postgres",
+        "pytest",
+        "code-review"
+      ]
     },
     {
       "name": "beagle-go",
@@ -39,7 +53,14 @@
       "description": "Go, BubbleTea TUI, Wish SSH, and Prometheus code review",
       "version": "1.0.0",
       "category": "backend",
-      "tags": ["go", "bubbletea", "wish", "prometheus", "tui", "code-review"]
+      "tags": [
+        "go",
+        "bubbletea",
+        "wish",
+        "prometheus",
+        "tui",
+        "code-review"
+      ]
     },
     {
       "name": "beagle-elixir",
@@ -47,7 +68,13 @@
       "description": "Elixir, Phoenix, LiveView, and ExUnit code review",
       "version": "1.0.1",
       "category": "backend",
-      "tags": ["elixir", "phoenix", "liveview", "exunit", "code-review"]
+      "tags": [
+        "elixir",
+        "phoenix",
+        "liveview",
+        "exunit",
+        "code-review"
+      ]
     },
     {
       "name": "beagle-ios",
@@ -55,7 +82,15 @@
       "description": "Swift, SwiftUI, SwiftData, and iOS framework code review",
       "version": "1.0.0",
       "category": "mobile",
-      "tags": ["swift", "swiftui", "ios", "healthkit", "cloudkit", "widgetkit", "code-review"]
+      "tags": [
+        "swift",
+        "swiftui",
+        "ios",
+        "healthkit",
+        "cloudkit",
+        "widgetkit",
+        "code-review"
+      ]
     },
     {
       "name": "beagle-react",
@@ -63,7 +98,14 @@
       "description": "React, React Flow, React Router, shadcn/ui, Tailwind, Vitest, and Zustand code review",
       "version": "1.0.0",
       "category": "frontend",
-      "tags": ["react", "typescript", "tailwind", "shadcn", "vitest", "code-review"]
+      "tags": [
+        "react",
+        "typescript",
+        "tailwind",
+        "shadcn",
+        "vitest",
+        "code-review"
+      ]
     },
     {
       "name": "beagle-ai",
@@ -71,7 +113,13 @@
       "description": "Pydantic AI, LangGraph, DeepAgents, and Vercel AI SDK skills",
       "version": "1.0.0",
       "category": "ai",
-      "tags": ["pydantic-ai", "langgraph", "deepagents", "vercel-ai", "agents"]
+      "tags": [
+        "pydantic-ai",
+        "langgraph",
+        "deepagents",
+        "vercel-ai",
+        "agents"
+      ]
     },
     {
       "name": "beagle-docs",
@@ -79,7 +127,11 @@
       "description": "Documentation quality, generation, and improvement using Diataxis principles",
       "version": "1.0.0",
       "category": "documentation",
-      "tags": ["documentation", "diataxis", "technical-writing"]
+      "tags": [
+        "documentation",
+        "diataxis",
+        "technical-writing"
+      ]
     },
     {
       "name": "beagle-analysis",
@@ -87,7 +139,12 @@
       "description": "Architecture analysis, 12-Factor compliance, ADR generation, and LLM-as-judge",
       "version": "1.0.0",
       "category": "analysis",
-      "tags": ["12-factor", "architecture", "adr", "llm-judge"]
+      "tags": [
+        "12-factor",
+        "architecture",
+        "adr",
+        "llm-judge"
+      ]
     },
     {
       "name": "beagle-testing",
@@ -95,7 +152,11 @@
       "description": "Language-agnostic test plan generation and execution",
       "version": "1.0.1",
       "category": "testing",
-      "tags": ["testing", "test-plan", "qa"]
+      "tags": [
+        "testing",
+        "test-plan",
+        "qa"
+      ]
     }
   ]
 }

@@ -53,11 +53,11 @@ Fetch both types of comments, excluding `$PR_AUTHOR` and `$CURRENT_USER` (unless
 gh api --paginate "repos/$OWNER/$REPO/issues/$PR_NUMBER/comments" | \
   jq -s --arg pr_author "$PR_AUTHOR" --arg current_user "$CURRENT_USER" '
   def clean_body:
-    gsub("(?s)<details>.*</details>"; "")
+    gsub("(?s)<details>.*?</details>"; "")
     | gsub("(?s)<!--.*?-->"; "")
     | gsub("(?s)\\n?---\\n[\\s\\S]*$"; "")
     | gsub("^\\s+|\\s+$"; "")
-    | .[:4000] + (if length > 4000 then "\n\n[comment truncated]" else "" end)
+    | if length > 4000 then .[:4000] + "\n\n[comment truncated]" else . end
   ;
   add |
   [.[] | select(
@@ -73,11 +73,11 @@ gh api --paginate "repos/$OWNER/$REPO/issues/$PR_NUMBER/comments" | \
 gh api --paginate "repos/$OWNER/$REPO/pulls/$PR_NUMBER/comments" | \
   jq -s --arg pr_author "$PR_AUTHOR" --arg current_user "$CURRENT_USER" '
   def clean_body:
-    gsub("(?s)<details>.*</details>"; "")
+    gsub("(?s)<details>.*?</details>"; "")
     | gsub("(?s)<!--.*?-->"; "")
     | gsub("(?s)\\n?---\\n[\\s\\S]*$"; "")
     | gsub("^\\s+|\\s+$"; "")
-    | .[:4000] + (if length > 4000 then "\n\n[comment truncated]" else "" end)
+    | if length > 4000 then .[:4000] + "\n\n[comment truncated]" else . end
   ;
   add |
   [.[] | select(

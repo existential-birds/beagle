@@ -1,6 +1,6 @@
 # beagle-elixir
 
-Elixir, Phoenix, and LiveView code review skills for [Claude Code](https://claude.ai/code). Part of the [beagle](https://github.com/existential-birds/beagle) plugin marketplace.
+Elixir, Phoenix, and LiveView code review and documentation skills for [Claude Code](https://claude.ai/code). Part of the [beagle](https://github.com/existential-birds/beagle) plugin marketplace.
 
 ## Installation
 
@@ -30,6 +30,9 @@ Reviews changed `.ex`, `.exs`, and `.heex` files against `main`. Runs `mix forma
 | **exunit-code-review** | Test patterns, boundary mocking with Mox, and test adapters |
 | **elixir-security-review** | Code injection, atom exhaustion, secret handling, process exposure |
 | **elixir-performance-review** | GenServer bottlenecks, ETS patterns, memory, and concurrency |
+| **elixir-writing-docs** | Writing @moduledoc, @doc, @typedoc, doctests, cross-references, and metadata |
+| **exdoc-config** | ExDoc project setup: mix.exs config, extras, groups, cheatsheets, livebooks |
+| **elixir-docs-review** | Documentation quality review: completeness, @spec coverage, doctest correctness |
 | **review-verification-protocol** | Mandatory verification steps to reduce false positives |
 
 ### Reference Material
@@ -47,6 +50,12 @@ Each review skill includes detailed reference documents:
 **elixir-security-review**: code injection, atom exhaustion, secrets, process exposure
 
 **elixir-performance-review**: GenServer bottlenecks, ETS patterns, memory, concurrency
+
+**elixir-writing-docs**: doctests, cross-references, admonitions and formatting
+
+**exdoc-config**: extras formats (md, cheatmd, livemd), advanced configuration
+
+**elixir-docs-review**: documentation quality, spec coverage
 
 ## See Also
 

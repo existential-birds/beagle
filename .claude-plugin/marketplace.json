@@ -6,7 +6,7 @@
   },
   "metadata": {
     "description": "Framework-aware code review skills and workflows for modern development",
-    "version": "2.1.0"
+    "version": "2.1.1"
   },
   "plugins": [
     {
@@ -21,7 +21,7 @@
       "name": "beagle-core",
       "source": "./plugins/beagle-core",
       "description": "Shared code review workflows, verification protocol, git commands, and feedback handling",
-      "version": "1.0.1",
+      "version": "1.0.2",
       "category": "workflow",
       "tags": ["code-review", "verification", "git", "feedback"]
     },

@@ -4,6 +4,11 @@ All notable changes to Beagle are documented here.
 
 Format follows [Keep a Changelog](https://keepachangelog.com/en/1.1.0/). Versioning adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [2.1.1] - 2026-02-07
+
+### Fixed
+- **beagle-core:** Move noise stripping into jq pipelines for `fetch-pr-feedback` command — bot reviewer comments (e.g. CodeRabbit) contained massive `<details>` blocks and HTML noise inflating feedback files; stripping now happens at the jq level with a 4000-char per-comment safety net ([#55](https://github.com/existential-birds/beagle/pull/55))
+
 ## [2.1.0] - 2026-02-07
 
 ### Added
@@ -220,6 +225,8 @@ Format follows [Keep a Changelog](https://keepachangelog.com/en/1.1.0/). Version
 - Development commands: `skill-builder`, `ensure-docs`
 - Cursor IDE command equivalents
 
+[2.1.1]: https://github.com/existential-birds/beagle/compare/v2.1.0...v2.1.1
+[2.1.0]: https://github.com/existential-birds/beagle/compare/v2.0.3...v2.1.0
 [2.0.3]: https://github.com/existential-birds/beagle/compare/v2.0.2...v2.0.3
 [2.0.2]: https://github.com/existential-birds/beagle/compare/v2.0.1...v2.0.2
 [2.0.1]: https://github.com/existential-birds/beagle/compare/v2.0.0...v2.0.1

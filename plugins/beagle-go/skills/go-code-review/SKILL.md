@@ -58,6 +58,14 @@ These patterns are acceptable and should NOT be flagged as issues:
   //nolint:errcheck // Error logged but not returned per API contract
   ```
 - **Defer in loop** - When function scope cleanup is intentional (e.g., processing files in batches)
+- **Functional options pattern** - `type Option func(*T)` with `With*` constructors is idiomatic for configurable types
+  ```go
+  func NewServer(addr string, opts ...Option) *Server { ... }
+  ```
+- **`sync.Pool` for hot paths** - Acceptable for reducing allocation pressure in performance-critical code
+  ```go
+  var bufPool = sync.Pool{New: func() any { return new(bytes.Buffer) }}
+  ```
 
 ## Context-Sensitive Rules
 

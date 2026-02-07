@@ -268,6 +268,129 @@ func TestValidate(t *testing.T) {
 }
 ```
 
+## Benchmarks and Fuzzing
+
+### Benchmark File Organization
+
+Benchmarks can live in the same `*_test.go` file as unit tests, or in a dedicated `*_bench_test.go` file for large suites:
+
+```
+package/
+├── parser.go
+├── parser_test.go         # unit tests
+├── parser_bench_test.go   # benchmarks (optional, for large suites)
+└── testdata/
+    └── corpus/            # fuzz seed corpus
+```
+
+### Benchmark Naming
+
+```go
+// Function benchmark
+func BenchmarkFunctionName(b *testing.B) {}
+
+// Method benchmark
+func BenchmarkTypeName_Method(b *testing.B) {}
+```
+
+### Sub-Benchmarks for Input Sizes
+
+```go
+func BenchmarkProcess(b *testing.B) {
+    sizes := []int{10, 100, 1000, 10000}
+
+    for _, size := range sizes {
+        b.Run(fmt.Sprintf("size=%d", size), func(b *testing.B) {
+            data := generateTestData(size)
+            b.ResetTimer()
+
+            for i := 0; i < b.N; i++ {
+                Process(data)
+            }
+        })
+    }
+}
+```
+
+### Fuzz Test Seed Corpus
+
+Place seed corpus files in `testdata/fuzz/<FuzzTestName>/`:
+
+```
+package/
+└── testdata/
+    └── fuzz/
+        └── FuzzParseInput/
+            ├── seed1       # each file contains one corpus entry
+            └── seed2
+```
+
+Go will also auto-generate corpus entries in `$GOCACHE/fuzz/` during fuzzing runs.
+
+### Running Benchmarks in CI
+
+```bash
+# Run all benchmarks with memory stats
+go test -bench=. -benchmem ./...
+
+# Compare benchmarks across commits (using benchstat)
+go test -bench=. -benchmem -count=5 ./... > old.txt
+# make changes
+go test -bench=. -benchmem -count=5 ./... > new.txt
+benchstat old.txt new.txt
+```
+
+## Golden Files
+
+### testdata Directory for Golden Files
+
+Store expected outputs as golden files in the `testdata/` directory:
+
+```
+package/
+├── render.go
+├── render_test.go
+└── testdata/
+    ├── TestRender/simple.golden
+    ├── TestRender/complex.golden
+    └── TestRender/empty.golden
+```
+
+### The `-update` Flag Pattern
+
+```go
+var update = flag.Bool("update", false, "update golden files")
+
+func TestRender(t *testing.T) {
+    got := Render(input)
+    golden := filepath.Join("testdata", t.Name()+".golden")
+
+    if *update {
+        os.MkdirAll(filepath.Dir(golden), 0755)
+        os.WriteFile(golden, got, 0644)
+    }
+
+    want, err := os.ReadFile(golden)
+    if err != nil {
+        t.Fatalf("reading golden file: %v (run with -update to create)", err)
+    }
+    if !bytes.Equal(got, want) {
+        t.Errorf("output mismatch:\ngot:\n%s\nwant:\n%s", got, want)
+    }
+}
+```
+
+Run `go test -update ./...` to regenerate golden files after intentional changes.
+
+### When to Use Golden Files
+
+- **Complex output**: Rendered templates, formatted text, serialized data
+- **Serialization formats**: JSON, YAML, protobuf text format
+- **Code generation**: Generated source files, SQL migrations
+- **Snapshot testing**: CLI output, error messages, log formatting
+
+Golden files are preferable to inline expected values when output is large, multi-line, or changes infrequently.
+
 ## Review Questions
 
 1. Are test files colocated with source files?

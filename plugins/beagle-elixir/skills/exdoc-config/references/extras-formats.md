@@ -110,6 +110,38 @@ from u in User,
 - Keep card content concise -- cheatsheets are for quick scanning
 - Plain text under `h2` (before any `h3`) appears as an intro for that section
 - Content before the first `h2` appears as a page introduction
+- Cheatsheets support only a limited subset of Markdown -- headings, plain text, fenced code blocks, and inline attributes
+
+### Layout Attributes
+
+ExDoc provides inline attributes on `h2` and `h3` headers to control card layout:
+
+**Column layouts (on `h2` sections):**
+
+- `{: .col-2}` -- Two equal columns
+- `{: .col-3}` -- Three equal columns
+- `{: .col-2-left}` -- Two columns, left column wider
+
+**List layouts (on `h3` cards):**
+
+- `{: .list-4}` -- Four-column list
+- `{: .list-6}` -- Six-column list
+
+**Width control (on `h2` sections):**
+
+- `{: .width-50}` -- Half-width section
+
+```markdown
+## API
+{: .col-2}
+
+### Functions
+{: .list-6}
+
+* `foo/1`
+* `bar/2`
+* `baz/3`
+```
 
 ### When to Use Cheatsheets
 

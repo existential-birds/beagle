@@ -57,14 +57,14 @@ This downloads the skills and configures them for your agent. Commands are Claud
 | **beagle-core** | 8 | 11 | Shared workflows, verification, git |
 | **beagle-python** | 6 | 1 | Python, FastAPI, SQLAlchemy, pytest |
 | **beagle-go** | 6 | 2 | Go, BubbleTea, Wish SSH, Prometheus |
-| **beagle-elixir** | 7 | 1 | Elixir, Phoenix, LiveView, ExUnit |
+| **beagle-elixir** | 10 | 1 | Elixir, Phoenix, LiveView, ExUnit, ExDoc |
 | **beagle-ios** | 12 | 1 | Swift, SwiftUI, SwiftData, iOS frameworks |
 | **beagle-react** | 15 | 1 | React, React Flow, shadcn/ui, Tailwind |
 | **beagle-ai** | 13 | 0 | Pydantic AI, LangGraph, DeepAgents |
 | **beagle-docs** | 5 | 3 | Documentation quality (Diataxis) |
 | **beagle-analysis** | 5 | 3 | 12-Factor, ADRs, LLM-as-judge |
 | **beagle-testing** | 0 | 2 | Test plan generation and execution |
-| **Total** | **77** | **25** | |
+| **Total** | **80** | **25** | |
 
 ## Commands
 

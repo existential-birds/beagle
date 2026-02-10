@@ -4,6 +4,15 @@ All notable changes to Beagle are documented here.
 
 Format follows [Keep a Changelog](https://keepachangelog.com/en/1.1.0/). Versioning adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [2.3.0] - 2026-02-10
+
+### Added
+- **reviews:** Review Convergence rules added to all 6 review commands (`review-python`, `review-go`, `review-tui`, `review-elixir`, `review-ios`, `review-frontend`) — ensures reviews complete in 1-2 iterations instead of 5+ with single-pass completeness, scope rules, fix complexity budget, and iteration policy ([#59](https://github.com/existential-birds/beagle/pull/59))
+- **reviews:** Informational severity category added to all 6 verification protocols — observations that don't require changes are now captured separately from actionable issues ([#59](https://github.com/existential-birds/beagle/pull/59))
+
+### Changed
+- **reviews:** Verdict criteria updated to only block on Critical/Major issues; Minor issues no longer block approval ([#59](https://github.com/existential-birds/beagle/pull/59))
+
 ## [2.2.0] - 2026-02-07
 
 ### Added
@@ -232,6 +241,7 @@ Format follows [Keep a Changelog](https://keepachangelog.com/en/1.1.0/). Version
 - Development commands: `skill-builder`, `ensure-docs`
 - Cursor IDE command equivalents
 
+[2.3.0]: https://github.com/existential-birds/beagle/compare/v2.2.0...v2.3.0
 [2.2.0]: https://github.com/existential-birds/beagle/compare/v2.1.1...v2.2.0
 [2.1.1]: https://github.com/existential-birds/beagle/compare/v2.1.0...v2.1.1
 [2.1.0]: https://github.com/existential-birds/beagle/compare/v2.0.3...v2.1.0

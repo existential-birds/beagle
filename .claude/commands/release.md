@@ -13,11 +13,11 @@ No arguments required - automatically detects the previous tag.
 ## Versioning Overview
 
 Beagle has three version locations:
-1. **plugin.json version** - Main version, matches repo tags
-2. **marketplace.json metadata.version** - Marketplace version (only update when marketplace structure changes)
-3. **marketplace.json plugins[].version** - Plugin version in marketplace (only update when marketplace structure changes)
+1. **marketplace.json metadata.version** (`.claude-plugin/marketplace.json`) - Main release version, matches repo tags
+2. **Per-plugin plugin.json version** (`plugins/<name>/.claude-plugin/plugin.json`) - Individual plugin versions, bumped when that plugin's files change
+3. **marketplace.json plugins[].version** - Plugin version in marketplace listing (only update when marketplace structure changes)
 
-This command updates **plugin.json only**. Marketplace versions are updated manually when the marketplace structure changes.
+This command updates **marketplace.json metadata.version** and **affected plugin.json versions**. The marketplace `plugins[].version` entries are updated manually when the marketplace structure changes.
 
 ## Prerequisites
 
@@ -99,29 +99,38 @@ Run `/beagle:gen-release-notes ${PREV_TAG}` to:
 
 **Do not proceed** until CHANGELOG.md is updated with the new version.
 
-## Step 4: Update Plugin Version
+## Step 4: Update Versions
 
-After determining the new version from the changelog analysis, update `.claude-plugin/plugin.json`:
+After determining the new version from the changelog analysis:
+
+### 4a. Update marketplace.json metadata.version
 
 ```bash
 # Extract the new version from CHANGELOG.md (first version entry after Unreleased)
 VERSION=$(grep -E '^\#\# \[[0-9]+\.[0-9]+\.[0-9]+\]' CHANGELOG.md | head -1 | sed 's/.*\[\(.*\)\].*/\1/')
 echo "New version: $VERSION"
 
-# Update plugin.json version
-# Use jq if available, otherwise sed
-if command -v jq &> /dev/null; then
-  jq --arg v "$VERSION" '.version = $v' .claude-plugin/plugin.json > .claude-plugin/plugin.json.tmp && mv .claude-plugin/plugin.json.tmp .claude-plugin/plugin.json
-else
-  sed -i '' "s/\"version\": \"[^\"]*\"/\"version\": \"$VERSION\"/" .claude-plugin/plugin.json
-fi
+# Update marketplace.json metadata.version
+jq --arg v "$VERSION" '.metadata.version = $v' .claude-plugin/marketplace.json > .claude-plugin/marketplace.json.tmp && mv .claude-plugin/marketplace.json.tmp .claude-plugin/marketplace.json
 ```
 
-Verify the update:
+### 4b. Bump affected plugin versions
+
+Identify which plugins had files changed since the previous tag:
 
 ```bash
-grep '"version"' .claude-plugin/plugin.json
+git diff ${PREV_TAG}..HEAD --name-only | grep '^plugins/' | sed 's|plugins/\([^/]*\)/.*|\1|' | sort -u
 ```
+
+For each affected plugin, bump the minor version in `plugins/<name>/.claude-plugin/plugin.json` (minor for features, patch for fixes). Read each plugin.json, determine the appropriate bump, and update.
+
+Present the version changes to the user for confirmation before proceeding:
+
+| Location | Old Version | New Version |
+|----------|-------------|-------------|
+| `.claude-plugin/marketplace.json` metadata.version | X.Y.Z | A.B.C |
+| `plugins/<name>/.claude-plugin/plugin.json` | X.Y.Z | A.B.C |
+| ... | ... | ... |
 
 ## Step 5: Create Release Branch
 
@@ -137,8 +146,10 @@ git checkout -b "chore/release-${VERSION}"
 Commit all updated version files:
 
 ```bash
-git add CHANGELOG.md .claude-plugin/plugin.json
-git commit -m "chore(release): bump version to ${VERSION}"
+git add CHANGELOG.md .claude-plugin/marketplace.json
+# Also stage all affected plugin.json files
+git add plugins/*/.claude-plugin/plugin.json
+git commit -m "chore(release): ${VERSION}"
 ```
 
 ## Step 7: Push and Create PR
@@ -149,10 +160,10 @@ Push the branch and create a pull request:
 git push -u origin "chore/release-${VERSION}"
 ```
 
-Create the PR with this structure:
+Create the PR with this structure (include all version locations that were updated):
 
 ```bash
-gh pr create --title "chore(release): ${VERSION}" --body "$(cat <<EOF
+gh pr create --title "chore(release): ${VERSION}" --body "$(cat <<'EOF'
 ## Summary
 
 - Bump version to ${VERSION}
@@ -160,15 +171,15 @@ gh pr create --title "chore(release): ${VERSION}" --body "$(cat <<EOF
 
 ## Version Locations Updated
 
-- [x] \`.claude-plugin/plugin.json\` - Plugin version
-- [ ] \`.claude-plugin/marketplace.json\` - Not updated (only for marketplace structure changes)
+- [x] `.claude-plugin/marketplace.json` metadata.version → ${VERSION}
+- [x] `plugins/<name>/.claude-plugin/plugin.json` → X.Y.Z (list each affected plugin)
 
 ## Post-merge Steps
 
 After merging, run:
-\`\`\`
+```
 /release-tag ${VERSION}
-\`\`\`
+```
 
 ---
 

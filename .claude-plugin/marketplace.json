@@ -23,7 +23,7 @@
       "name": "beagle-core",
       "source": "./plugins/beagle-core",
       "description": "Shared code review workflows, verification protocol, git commands, and feedback handling",
-      "version": "1.0.2",
+      "version": "1.1.0",
       "category": "workflow",
       "tags": [
         "code-review",
@@ -36,7 +36,7 @@
       "name": "beagle-python",
       "source": "./plugins/beagle-python",
       "description": "Python, FastAPI, SQLAlchemy, PostgreSQL, and pytest code review",
-      "version": "1.0.0",
+      "version": "1.1.0",
       "category": "backend",
       "tags": [
         "python",
@@ -51,7 +51,7 @@
       "name": "beagle-go",
       "source": "./plugins/beagle-go",
       "description": "Go, BubbleTea TUI, Wish SSH, and Prometheus code review",
-      "version": "1.0.0",
+      "version": "2.2.0",
       "category": "backend",
       "tags": [
         "go",
@@ -66,7 +66,7 @@
       "name": "beagle-elixir",
       "source": "./plugins/beagle-elixir",
       "description": "Elixir, Phoenix, LiveView, and ExUnit code review",
-      "version": "1.0.1",
+      "version": "1.2.0",
       "category": "backend",
       "tags": [
         "elixir",
@@ -80,7 +80,7 @@
       "name": "beagle-ios",
       "source": "./plugins/beagle-ios",
       "description": "Swift, SwiftUI, SwiftData, and iOS framework code review",
-      "version": "1.0.0",
+      "version": "1.1.0",
       "category": "mobile",
       "tags": [
         "swift",
@@ -96,7 +96,7 @@
       "name": "beagle-react",
       "source": "./plugins/beagle-react",
       "description": "React, React Flow, React Router, shadcn/ui, Tailwind, Vitest, and Zustand code review",
-      "version": "1.0.0",
+      "version": "1.1.0",
       "category": "frontend",
       "tags": [
         "react",

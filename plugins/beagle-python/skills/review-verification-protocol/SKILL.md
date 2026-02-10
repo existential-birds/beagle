@@ -112,6 +112,17 @@ if isinstance(data, User):
 - Inconsistent style (within reason)
 - Non-critical test coverage gaps
 
+### Informational (No Action Required)
+
+**Use for:**
+- Improvements that require adding new dependencies or modules
+- Suggestions for net-new code that didn't exist in the codebase before (new modules, test suites, abstractions)
+- Architectural ideas for future consideration
+- Test infrastructure suggestions (new mock libraries, behaviour extraction)
+- Optimizations without measurable impact in the current context
+
+**These are NOT review blockers.** They should be noted for the author's awareness but must not appear in the actionable issue count. The Verdict should ignore informational items entirely.
+
 ### Do NOT Flag At All
 
 - Style preferences where both approaches are valid
@@ -194,6 +205,8 @@ Final verification:
 3. Would a domain expert agree this is a problem, or is it a style preference?
 4. Does fixing this provide real value, or is it busywork?
 5. Format every finding as: `[FILE:LINE] ISSUE_TITLE`
+6. For each finding, ask: "Does this fix existing code, or does it request entirely new code that didn't exist before?" If the latter, downgrade to Informational.
+7. If this is a re-review: ONLY verify previous fixes. Do not introduce new findings.
 
 If uncertain about any finding, either:
 - Remove it from the review

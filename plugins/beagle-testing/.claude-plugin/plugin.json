@@ -1,7 +1,7 @@
 {
   "name": "beagle-testing",
   "description": "Language-agnostic test plan generation and execution.",
-  "version": "1.0.0",
+  "version": "1.0.1",
   "author": {
     "name": "Existential Birds, LLC",
     "email": "tech@existentialbirds.com"

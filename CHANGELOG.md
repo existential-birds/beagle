@@ -4,6 +4,12 @@ All notable changes to Beagle are documented here.
 
 Format follows [Keep a Changelog](https://keepachangelog.com/en/1.1.0/). Versioning adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [2.3.1] - 2026-02-11
+
+### Fixed
+- **beagle-core:** `fetch-pr-feedback` and `respond-pr-feedback` commands use file-based jq filters to avoid shell escaping issues with `!=`, regex patterns, `<`, `>` operators ([#61](https://github.com/existential-birds/beagle/pull/61))
+- **beagle-testing:** `gen-test-plan` now prioritizes core functionality tests over config-only coverage — previously a new feature could generate 6 settings page tests but zero tests exercising the actual feature ([#61](https://github.com/existential-birds/beagle/pull/61))
+
 ## [2.3.0] - 2026-02-10
 
 ### Added
@@ -241,6 +247,7 @@ Format follows [Keep a Changelog](https://keepachangelog.com/en/1.1.0/). Version
 - Development commands: `skill-builder`, `ensure-docs`
 - Cursor IDE command equivalents
 
+[2.3.1]: https://github.com/existential-birds/beagle/compare/v2.3.0...v2.3.1
 [2.3.0]: https://github.com/existential-birds/beagle/compare/v2.2.0...v2.3.0
 [2.2.0]: https://github.com/existential-birds/beagle/compare/v2.1.1...v2.2.0
 [2.1.1]: https://github.com/existential-birds/beagle/compare/v2.1.0...v2.1.1

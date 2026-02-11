@@ -138,22 +138,66 @@ Build a map of:
 
 For each changed file, determine if it affects user-facing functionality:
 
-1. **Direct entry point change** - File contains route definitions
-2. **Import chain analysis** - Find what imports the changed file and trace up to entry points
-3. **Document the trace path** in test context
+1. **Direct entry point change** — File contains route definitions
+2. **Import chain analysis** — Find what imports the changed file and trace up to entry points
+3. **Architecture-aware tracing** — Read the project's CLAUDE.md, README, or architecture docs to understand data flow and module relationships, rather than relying solely on grep
+4. **Document the trace path** in test context
+
+### Import Chain Analysis by Ecosystem
 
 ```bash
-# For each changed file, find what imports it
-grep -rn "from.*<module>\|import.*<module>" --include="*.py" --include="*.ts" --include="*.tsx"
+# Python — from/import
+grep -rn "from.*<module>\|import.*<module>" --include="*.py"
+
+# TypeScript/JavaScript — import/require
+grep -rn "from.*<module>\|require.*<module>" --include="*.ts" --include="*.tsx" --include="*.js" --include="*.jsx"
+
+# Elixir — alias/import/use
+grep -rn "alias.*<Module>\|import.*<Module>\|use.*<Module>" --include="*.ex" --include="*.exs"
+
+# Go — package references
+grep -rn "<package>\." --include="*.go"
 ```
+
+If the ecosystem is not covered above, or grep results are inconclusive, read the project's CLAUDE.md, README, or architecture docs to understand the module graph and trace the data flow from changed files to user-facing entry points.
+
+### Classify Affected Entry Points
+
+After identifying all affected entry points, classify each one:
+
+| Category | Description | Examples | Priority |
+|----------|-------------|----------|----------|
+| **Core functionality** | Entry points where the feature does its actual work for the end user | Chat endpoint, API action, data processing pipeline, generation flow | **High — test first** |
+| **Configuration/admin** | Entry points where the feature is set up, toggled, or configured | Settings page, admin dashboard, preference toggles, dropdown selections | Lower — test after core |
+
+**Classification rules:**
+- Ask: "If a user wanted to *use* this feature (not configure it), which entry point would they interact with?" — that's core functionality
+- A settings page that adds a new dropdown option is configuration; the endpoint that actually *uses* that option is core functionality
+- The same changed file (e.g., a new provider module) may affect both a settings page and a functional endpoint — both must be traced
+
+**Requirement:** At least one test must target a core functionality entry point before generating configuration/admin tests. If no core functionality entry point can be identified, explicitly document why and flag this for manual review.
 
 **Output:**
 For each affected entry point, document:
 - Which changed files affect it
 - The import/dependency chain
+- **Classification:** Core functionality or Configuration/admin
 - Why this entry point needs testing
 
 ## Step 5: Generate Test Cases
+
+### Prioritization Rule
+
+Before generating test cases, answer this question based on the commit messages and diff:
+
+> **"What does this change do for the end user?"**
+
+The answer identifies the primary behavioral change. Generate tests in this order:
+
+1. **Core functionality tests first** — Tests that exercise the primary behavioral change through a user-facing entry point. If the branch adds a new LLM provider, the #1 test must send a message through that provider and verify a response. If the branch adds a payment method, the #1 test must complete a payment.
+2. **Configuration/admin tests second** — Tests for settings pages, toggles, and admin UI that support the feature.
+
+> **Anti-pattern:** Do NOT generate a plan that only tests configuration UI for a feature without testing the feature itself. If a branch adds a new backend capability (provider, integration, processor, etc.), at least one test MUST exercise that capability end-to-end through a user-facing entry point. A test plan that verifies "the dropdown shows the new option" but never verifies "the new option actually works" is incomplete.
 
 For each affected entry point, create appropriate test cases:
 
@@ -353,6 +397,8 @@ grep -E "^version:|^metadata:|^setup:|^tests:" docs/testing/test-plan.yaml
 - [ ] Setup commands match detected stack
 - [ ] Health checks point to valid endpoints
 - [ ] Each test has id, name, steps, and expected fields
+- [ ] **Behavioral coverage:** At least one test exercises the primary behavioral change described in `changes_summary`. Re-read the `changes_summary` and commit messages — if they describe a capability (e.g., "adds Claude Code as a new LLM provider") but no test invokes that capability (e.g., sends a message through the provider), the plan fails verification. Add the missing core functionality test before completing.
+- [ ] **No config-only plans:** If all tests target configuration/admin entry points and zero tests target core functionality entry points, the plan is incomplete. Go back to Step 4, identify the core functionality entry points, and add tests for them.
 
 ## Rules
 

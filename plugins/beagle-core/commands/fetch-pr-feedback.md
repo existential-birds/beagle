@@ -46,60 +46,68 @@ If no PR exists for current branch, fail with: "No PR found for current branch. 
 
 ### 3. Fetch Comments
 
-Fetch both types of comments, excluding `$PR_AUTHOR` and `$CURRENT_USER` (unless `--include-author` is set). Use `--paginate` with `jq -s 'add'` to combine paginated JSON arrays into one.
+Fetch both types of comments, excluding `$PR_AUTHOR` and `$CURRENT_USER` (unless `--include-author` is set). Use `--paginate` with `jq -s` to combine paginated JSON arrays into one.
+
+Write jq filters to temp files using heredocs with single-quoted delimiters (prevents shell escaping issues with `!=`, regex patterns, and angle brackets):
 
 **Issue comments** (summary/walkthrough posts):
+
 ```bash
+cat > /tmp/issue_comments.jq << 'JQEOF'
+def clean_body:
+  gsub("<details>.*?</details>"; ""; "s")
+  | gsub("<!--.*?-->"; ""; "s")
+  | gsub("\\n?---\\n[\\s\\S]*$"; ""; "s")
+  | gsub("^\\s+|\\s+$"; "")
+  | if length > 4000 then .[:4000] + "\n\n[comment truncated]" else . end
+;
+[(add // []) | .[] | select(
+  .user.login != $pr_author and
+  .user.login != $current_user
+)] |
+map({id, user: .user.login, body: (.body | clean_body), created_at})
+JQEOF
+
 gh api --paginate "repos/$OWNER/$REPO/issues/$PR_NUMBER/comments" | \
-  jq -s --arg pr_author "$PR_AUTHOR" --arg current_user "$CURRENT_USER" '
-  def clean_body:
-    gsub("(?s)<details>.*?</details>"; "")
-    | gsub("(?s)<!--.*?-->"; "")
-    | gsub("(?s)\\n?---\\n[\\s\\S]*$"; "")
-    | gsub("^\\s+|\\s+$"; "")
-    | if length > 4000 then .[:4000] + "\n\n[comment truncated]" else . end
-  ;
-  add |
-  [.[] | select(
-    .user.login != $pr_author and
-    .user.login != $current_user
-  )] |
-  map({id, user: .user.login, body: (.body | clean_body), created_at})
-'
+  jq -s --arg pr_author "$PR_AUTHOR" --arg current_user "$CURRENT_USER" \
+  -f /tmp/issue_comments.jq
 ```
 
 **Review comments** (line-specific):
+
 ```bash
+cat > /tmp/review_comments.jq << 'JQEOF'
+def clean_body:
+  gsub("<details>.*?</details>"; ""; "s")
+  | gsub("<!--.*?-->"; ""; "s")
+  | gsub("\\n?---\\n[\\s\\S]*$"; ""; "s")
+  | gsub("^\\s+|\\s+$"; "")
+  | if length > 4000 then .[:4000] + "\n\n[comment truncated]" else . end
+;
+[(add // []) | .[] | select(
+  .user.login != $pr_author and
+  .user.login != $current_user
+)] |
+map({
+  id,
+  user: .user.login,
+  path,
+  line_display: (
+    .line as $end | .start_line as $start |
+    if $start and $start != $end then "\($start)-\($end)"
+    else "\($end // .original_line)" end
+  ),
+  body: (.body | clean_body),
+  created_at
+})
+JQEOF
+
 gh api --paginate "repos/$OWNER/$REPO/pulls/$PR_NUMBER/comments" | \
-  jq -s --arg pr_author "$PR_AUTHOR" --arg current_user "$CURRENT_USER" '
-  def clean_body:
-    gsub("(?s)<details>.*?</details>"; "")
-    | gsub("(?s)<!--.*?-->"; "")
-    | gsub("(?s)\\n?---\\n[\\s\\S]*$"; "")
-    | gsub("^\\s+|\\s+$"; "")
-    | if length > 4000 then .[:4000] + "\n\n[comment truncated]" else . end
-  ;
-  add |
-  [.[] | select(
-    .user.login != $pr_author and
-    .user.login != $current_user
-  )] |
-  map({
-    id,
-    user: .user.login,
-    path,
-    line_display: (
-      .line as $end | .start_line as $start |
-      if $start and $start != $end then "\($start)-\($end)"
-      else "\($end // .original_line)" end
-    ),
-    body: (.body | clean_body),
-    created_at
-  })
-'
+  jq -s --arg pr_author "$PR_AUTHOR" --arg current_user "$CURRENT_USER" \
+  -f /tmp/review_comments.jq
 ```
 
-If `--include-author` is set, omit the `--arg pr_author` parameter and the `.user.login != $pr_author` condition from both queries. Keep the `$current_user` exclusion either way.
+If `--include-author` is set, omit the `--arg pr_author` parameter and the `.user.login != $pr_author` condition from both jq filter files. Keep the `$current_user` exclusion either way.
 
 ### 4. Format Feedback Document
 

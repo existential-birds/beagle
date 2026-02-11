@@ -49,41 +49,49 @@ Store as `$PR_NUMBER`, `$PR_AUTHOR`, `$OWNER`, `$REPO`, `$CURRENT_USER`.
 
 #### 3a. Unreplied Review Comments
 
-Fetch review comments, excluding PR author and current user, filtering to root comments that haven't been replied to:
+Fetch review comments, excluding PR author and current user, filtering to root comments that haven't been replied to.
+
+Write the jq filter to a temp file using a heredoc with single-quoted delimiter (prevents shell escaping issues with `!=`, regex patterns, and angle brackets):
+
+```bash
+cat > /tmp/unreplied_comments.jq << 'JQEOF'
+add // [] |
+# Root comments from reviewers (not replies, not PR author, not current user)
+[.[] | select(
+  .in_reply_to_id == null and
+  .user.login != $pr_author and
+  .user.login != $current_user
+)] as $roots |
+# IDs that current user has already replied to
+[.[] | select(.user.login == $current_user) | .in_reply_to_id] as $replied |
+# Filter to unreplied only
+$roots | map(select(. as $c | $replied | index($c.id) == null)) |
+# Dedup: group by path + line + reviewer, pick newest per group
+group_by({
+  p: .path,
+  l: (.line // .original_line),
+  u: .user.login
+}) |
+map(sort_by(.created_at) | last) |
+# Output needed fields
+map({
+  id,
+  user: .user.login,
+  path,
+  line_display: (
+    .line as $end | .start_line as $start |
+    if $start and $start != $end then "\($start)-\($end)"
+    else "\($end // .original_line)" end
+  ),
+  body
+})
+JQEOF
+```
 
 ```bash
 gh api --paginate "repos/$OWNER/$REPO/pulls/$PR_NUMBER/comments" | \
-  jq -s --arg pr_author "$PR_AUTHOR" --arg current_user "$CURRENT_USER" 'add |
-  # Root comments from reviewers (not replies, not PR author, not current user)
-  [.[] | select(
-    .in_reply_to_id == null and
-    .user.login != $pr_author and
-    .user.login != $current_user
-  )] as $roots |
-  # IDs that current user has already replied to
-  [.[] | select(.user.login == $current_user) | .in_reply_to_id] as $replied |
-  # Filter to unreplied only
-  $roots | map(select(. as $c | $replied | index($c.id) == null)) |
-  # Dedup: group by path + line + reviewer, pick newest per group
-  group_by({
-    p: .path,
-    l: (.line // .original_line),
-    u: .user.login
-  }) |
-  map(sort_by(.created_at) | last) |
-  # Output needed fields
-  map({
-    id,
-    user: .user.login,
-    path,
-    line_display: (
-      .line as $end | .start_line as $start |
-      if $start and $start != $end then "\($start)-\($end)"
-      else "\($end // .original_line)" end
-    ),
-    body
-  })
-'
+  jq -s --arg pr_author "$PR_AUTHOR" --arg current_user "$CURRENT_USER" \
+  -f /tmp/unreplied_comments.jq
 ```
 
 If no unreplied comments found, output: "All review comments have been addressed." and stop.

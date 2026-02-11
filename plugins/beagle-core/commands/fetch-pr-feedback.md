@@ -55,13 +55,13 @@ Write jq filters to temp files using heredocs with single-quoted delimiters (pre
 ```bash
 cat > /tmp/issue_comments.jq << 'JQEOF'
 def clean_body:
-  gsub("(?s)<details>.*?</details>"; "")
-  | gsub("(?s)<!--.*?-->"; "")
-  | gsub("(?s)\\n?---\\n[\\s\\S]*$"; "")
+  gsub("<details>.*?</details>"; ""; "s")
+  | gsub("<!--.*?-->"; ""; "s")
+  | gsub("\\n?---\\n[\\s\\S]*$"; ""; "s")
   | gsub("^\\s+|\\s+$"; "")
   | if length > 4000 then .[:4000] + "\n\n[comment truncated]" else . end
 ;
-[add | .[] | select(
+[(add // []) | .[] | select(
   .user.login != $pr_author and
   .user.login != $current_user
 )] |
@@ -78,13 +78,13 @@ gh api --paginate "repos/$OWNER/$REPO/issues/$PR_NUMBER/comments" | \
 ```bash
 cat > /tmp/review_comments.jq << 'JQEOF'
 def clean_body:
-  gsub("(?s)<details>.*?</details>"; "")
-  | gsub("(?s)<!--.*?-->"; "")
-  | gsub("(?s)\\n?---\\n[\\s\\S]*$"; "")
+  gsub("<details>.*?</details>"; ""; "s")
+  | gsub("<!--.*?-->"; ""; "s")
+  | gsub("\\n?---\\n[\\s\\S]*$"; ""; "s")
   | gsub("^\\s+|\\s+$"; "")
   | if length > 4000 then .[:4000] + "\n\n[comment truncated]" else . end
 ;
-[add | .[] | select(
+[(add // []) | .[] | select(
   .user.login != $pr_author and
   .user.login != $current_user
 )] |

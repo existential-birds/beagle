@@ -61,10 +61,10 @@ This downloads the skills and configures them for your agent. Commands are Claud
 | **beagle-ios** | 12 | 1 | Swift, SwiftUI, SwiftData, iOS frameworks |
 | **beagle-react** | 15 | 1 | React, React Flow, shadcn/ui, Tailwind |
 | **beagle-ai** | 13 | 0 | Pydantic AI, LangGraph, DeepAgents |
-| **beagle-docs** | 5 | 3 | Documentation quality (Diataxis) |
+| **beagle-docs** | 7 | 5 | Documentation quality, AI writing detection (Diataxis) |
 | **beagle-analysis** | 5 | 3 | 12-Factor, ADRs, LLM-as-judge |
 | **beagle-testing** | 0 | 2 | Test plan generation and execution |
-| **Total** | **80** | **25** | |
+| **Total** | **82** | **27** | |
 
 ## Commands
 
@@ -104,6 +104,8 @@ Run with `/<plugin-name>:<command>`. See [Slash commands](https://docs.claude.co
 | `draft-docs <prompt>` | beagle-docs | Generate documentation drafts |
 | `improve-doc <path>` | beagle-docs | Improve docs using Diataxis |
 | `ensure-docs` | beagle-docs | Documentation coverage check |
+| `review-ai-writing` | beagle-docs | Detect AI writing patterns |
+| `humanize` | beagle-docs | Fix AI writing with safe/risky classification |
 | `12-factor-apps-analysis` | beagle-analysis | 12-Factor compliance check |
 | `llm-judge` | beagle-analysis | Compare implementations |
 | `write-adr` | beagle-analysis | Generate ADRs from decisions |

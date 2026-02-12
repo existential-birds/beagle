@@ -8,7 +8,7 @@ Detect AI-generated writing patterns across developer text artifacts using paral
 
 ## Usage
 
-```
+```text
 /beagle-docs:review-ai-writing [--all] [--category <name>] [path]
 ```
 
@@ -30,7 +30,7 @@ Extract flags from `$ARGUMENTS`:
 
 Load required skills:
 
-```
+```text
 Skill(skill: "beagle-docs:review-ai-writing")
 Skill(skill: "beagle-core:review-verification-protocol")
 ```

@@ -13,11 +13,11 @@ Inflated claims about code quality or tool capabilities. AI text oversells what 
 **Commit messages**:
 
 Before:
-```
+```text
 feat: add robust and elegant caching layer for seamless data retrieval
 ```
 After:
-```
+```text
 feat: add Redis cache for user profile queries
 ```
 
@@ -74,12 +74,12 @@ See [ADR-0012](../decisions/0012-result-pattern.md) for the tradeoff discussion.
 **PR descriptions**:
 
 Before:
-```
+```text
 Studies have shown that smaller functions lead to better maintainability.
 This refactor follows industry-standard practices.
 ```
 After:
-```
+```text
 Split `process_order` (180 lines) into `validate_order`, `apply_discounts`,
 and `submit_order`. Each function is independently testable.
 ```
@@ -111,7 +111,7 @@ Rigid intro-body-conclusion scaffolding where it adds no value. AI text forces t
 **Over-structured commit messages**:
 
 Before:
-```
+```text
 feat: implement user notification system
 
 Introduction:
@@ -125,7 +125,7 @@ Conclusion:
 Users will now receive email notifications when orders are processed.
 ```
 After:
-```
+```text
 feat: add email notifications on order completion
 
 - Add NotificationService with SendGrid transport
@@ -192,12 +192,12 @@ per API key. Configure via `RATE_LIMIT` in environment.
 **PR descriptions**:
 
 Before:
-```
+```text
 In the world of distributed systems, message queues play a crucial role
 in decoupling services. This PR adds RabbitMQ support to our pipeline.
 ```
 After:
-```
+```text
 Add RabbitMQ consumer for the ingestion pipeline. Replaces the polling
 loop in `ingest_worker.py` (see #287 for latency benchmarks).
 ```

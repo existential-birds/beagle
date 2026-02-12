@@ -78,12 +78,12 @@ This guide covers authentication setup for the API.
 | embark | start, begin |
 
 **Before:**
-```
+```text
 feat: Leverage robust caching paradigm to facilitate seamless data retrieval
 ```
 
 **After:**
-```
+```text
 feat: add response caching for faster reads
 ```
 

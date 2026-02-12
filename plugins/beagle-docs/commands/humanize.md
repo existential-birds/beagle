@@ -8,7 +8,7 @@ Apply fixes from a previous `review-ai-writing` run with automatic safe/risky cl
 
 ## Usage
 
-```
+```text
 /beagle-docs:humanize [--dry-run] [--all] [--category <name>]
 ```
 
@@ -34,14 +34,14 @@ git status --porcelain
 ```
 
 If working directory is dirty, warn:
-```
+```text
 Warning: You have uncommitted changes. Creating a git stash before proceeding.
 Run `git stash pop` to restore if needed.
 ```
 
 Create stash if dirty:
 ```bash
-git stash push -m "beagle-docs: pre-humanize backup"
+git stash push -u -m "beagle-docs: pre-humanize backup"
 ```
 
 ### 3. Load Review Results
@@ -70,7 +70,7 @@ If stale, prompt: "Review results are stale. Re-run review? (y/n)"
 
 ### 4. Load Skills
 
-```
+```text
 Skill(skill: "beagle-docs:humanize")
 ```
 
@@ -142,7 +142,7 @@ If `--dry-run`, list them:
 
 Otherwise, for each fix, prompt interactively:
 
-```
+```text
 [README.md:8] Promotional language: "powerful, enterprise-grade solution"
 Suggested: "authentication library"
 (y)es / (n)o / (e)dit / (s)kip all:
@@ -184,7 +184,7 @@ echo "Reverted $file due to validation failure"
 
 ### 9. Report Results
 
-```markdown
+~~~markdown
 ## Humanize Summary
 
 ### Applied Fixes
@@ -207,7 +207,7 @@ echo "Reverted $file due to validation failure"
 ```bash
 git diff --stat
 ```
-```
+~~~
 
 ### 10. Cleanup
 
@@ -217,7 +217,7 @@ rm .beagle/ai-writing-review.json
 ```
 
 If any validation fails, keep the file and report:
-```
+```text
 Review file preserved at .beagle/ai-writing-review.json
 Fix issues and re-run, or restore with: git stash pop
 ```

@@ -169,7 +169,7 @@ and handles click events.
 ```
 
 **In commit messages**:
-```
+```text
 # BAD
 Refactor auth module, restructure login flow, reorganize session
 handling, and rearchitect token management
@@ -196,7 +196,7 @@ AI turns simple changes into grand narratives. Good commits are terse and specif
 ### Detection Patterns
 
 **Grandiose verbs for small changes**:
-```
+```text
 # BAD                                    # GOOD
 Revolutionize the authentication flow    Fix auth token refresh
 Elevate the user experience              Improve error messages
@@ -204,7 +204,7 @@ Empower the CI pipeline                  Add unit tests for auth
 ```
 
 **Marketing language in commit bodies**:
-```
+```text
 # BAD
 This commit introduces a paradigm shift in how we handle database
 connections, leveraging connection pooling to deliver a seamless
@@ -216,7 +216,7 @@ See #234.
 ```
 
 **Overexplaining obvious changes**:
-```
+```text
 # BAD
 feat: Implement the crucial and fundamental addition of a
 comprehensive user validation layer that ensures data integrity

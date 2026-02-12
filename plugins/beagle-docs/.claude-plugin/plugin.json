@@ -1,7 +1,7 @@
 {
   "name": "beagle-docs",
   "description": "Documentation quality, generation, and improvement using Diataxis principles. Pairs with beagle-core for full workflow.",
-  "version": "1.0.0",
+  "version": "1.1.0",
   "author": {
     "name": "Existential Birds, LLC",
     "email": "tech@existentialbirds.com"
@@ -11,6 +11,9 @@
     "documentation",
     "diataxis",
     "docs",
-    "technical-writing"
+    "technical-writing",
+    "ai-writing",
+    "humanize",
+    "writing-quality"
   ]
 }

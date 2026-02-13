@@ -4,6 +4,12 @@ All notable changes to Beagle are documented here.
 
 Format follows [Keep a Changelog](https://keepachangelog.com/en/1.1.0/). Versioning adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [2.4.0] - 2026-02-12
+
+### Added
+- **beagle-docs:** `review-ai-writing` skill and command — detect AI-generated writing patterns in docs, docstrings, commits, PR descriptions, and code comments using parallel subagents. Includes 6 reference files covering content, vocabulary, formatting, communication, filler, and code docs patterns ([#63](https://github.com/existential-birds/beagle/pull/63))
+- **beagle-docs:** `humanize` skill and command — apply fixes from a prior `review-ai-writing` run to humanize AI-generated developer text with safe/risky classification and developer voice guidelines ([#63](https://github.com/existential-birds/beagle/pull/63))
+
 ## [2.3.1] - 2026-02-11
 
 ### Fixed
@@ -247,6 +253,7 @@ Format follows [Keep a Changelog](https://keepachangelog.com/en/1.1.0/). Version
 - Development commands: `skill-builder`, `ensure-docs`
 - Cursor IDE command equivalents
 
+[2.4.0]: https://github.com/existential-birds/beagle/compare/v2.3.1...v2.4.0
 [2.3.1]: https://github.com/existential-birds/beagle/compare/v2.3.0...v2.3.1
 [2.3.0]: https://github.com/existential-birds/beagle/compare/v2.2.0...v2.3.0
 [2.2.0]: https://github.com/existential-birds/beagle/compare/v2.1.1...v2.2.0

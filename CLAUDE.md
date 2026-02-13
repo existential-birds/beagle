@@ -4,7 +4,7 @@ This file provides guidance to Claude Code (claude.ai/code) when working with co
 
 ## What This Is
 
-Beagle is a Claude Code plugin marketplace providing framework-aware code review skills and verification workflows. Designed to complement [superpowers](https://github.com/obra/superpowers) with pre-push reviews and GitHub bot feedback handling. It contains 10 focused plugins with 80 skills and 25 commands.
+Beagle is a Claude Code plugin marketplace providing framework-aware code review skills and verification workflows. Designed to complement [superpowers](https://github.com/obra/superpowers) with pre-push reviews and GitHub bot feedback handling. It contains 10 focused plugins with 82 skills and 27 commands.
 
 ## Marketplace Architecture
 
@@ -20,7 +20,7 @@ beagle/
     ├── beagle-ios/              # Swift, SwiftUI, SwiftData, iOS frameworks (12 skills, 1 command)
     ├── beagle-react/            # React, React Flow, shadcn/ui, Tailwind, Vitest (15 skills, 1 command)
     ├── beagle-ai/               # Pydantic AI, LangGraph, DeepAgents, Vercel AI SDK (13 skills)
-    ├── beagle-docs/             # Documentation quality using Diataxis (5 skills, 3 commands)
+    ├── beagle-docs/             # Documentation quality, AI writing detection (7 skills, 5 commands)
     ├── beagle-analysis/         # 12-Factor, ADRs, LLM-as-judge (5 skills, 3 commands)
     └── beagle-testing/          # Test plan generation and execution (2 commands)
 ```
@@ -93,6 +93,8 @@ Beagle command patterns:
 | beagle-docs | `draft-docs` | Generate documentation drafts |
 | beagle-docs | `improve-doc` | Improve docs using Diataxis principles |
 | beagle-docs | `ensure-docs` | Documentation coverage check |
+| beagle-docs | `review-ai-writing` | Detect AI writing patterns in docs and code |
+| beagle-docs | `humanize` | Fix AI writing with safe/risky classification |
 | beagle-testing | `gen-test-plan` | Generate YAML test plan from branch changes |
 | beagle-testing | `run-test-plan` | Execute test plan, stop on first failure |
 

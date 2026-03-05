@@ -4,7 +4,7 @@
 
 ### 1. Ignoring Errors
 
-**Problem**: Silent failures are impossible to debug.
+Silent failures are impossible to debug.
 
 ```go
 // BAD
@@ -21,7 +21,7 @@ defer file.Close()
 
 ### 2. Unwrapped Errors
 
-**Problem**: Loses context for debugging.
+Loses context for debugging. When an error bubbles up through multiple layers, each layer should add context about what it was trying to do.
 
 ```go
 // BAD - raw error
@@ -37,11 +37,12 @@ if err != nil {
 
 ### 3. String Errors Instead of Wrapping
 
-**Problem**: Breaks error inspection with `errors.Is/As`.
+Using `%s` or `.Error()` breaks the error chain — callers can no longer use `errors.Is` or `errors.As` to inspect the underlying cause.
 
 ```go
-// BAD
+// BAD - breaks error inspection
 return fmt.Errorf("failed: %s", err.Error())
+return fmt.Errorf("failed: %v", err)
 
 // GOOD - preserves error chain
 return fmt.Errorf("failed: %w", err)
@@ -49,14 +50,14 @@ return fmt.Errorf("failed: %w", err)
 
 ### 4. Panic for Recoverable Errors
 
-**Problem**: Crashes the program unexpectedly.
+Panics crash the program and bypass normal error handling. Reserve them for truly unrecoverable situations (programmer bugs, violated invariants), not for expected failures like I/O errors.
 
 ```go
 // BAD
 func GetConfig(path string) Config {
     data, err := os.ReadFile(path)
     if err != nil {
-        panic(err)  // Never panic for expected errors
+        panic(err)
     }
     ...
 }
@@ -73,7 +74,7 @@ func GetConfig(path string) (Config, error) {
 
 ### 5. Checking Error String Instead of Type
 
-**Problem**: Brittle, breaks with error message changes.
+Error messages can change between releases. Type-based checking is stable.
 
 ```go
 // BAD
@@ -95,13 +96,13 @@ if errors.Is(err, ErrNotFound) {
 
 ### 6. Returning Error and Valid Value
 
-**Problem**: Confuses callers about error semantics.
+Callers expect zero values when errors are returned. Returning a meaningful value alongside an error creates ambiguity about whether the value is usable.
 
 ```go
-// BAD - what does partial result mean?
+// BAD - -1 is a valid integer, confuses callers
 func Parse(s string) (int, error) {
     if s == "" {
-        return -1, errors.New("empty string")  // -1 is valid integer
+        return -1, errors.New("empty string")
     }
     ...
 }
@@ -112,6 +113,47 @@ func Parse(s string) (int, error) {
         return 0, errors.New("empty string")
     }
     ...
+}
+```
+
+## Multi-Error Aggregation (Go 1.20+)
+
+When a function encounters multiple independent errors (cleanup, batch processing, parallel operations), combine them with `errors.Join` instead of dropping all but one.
+
+```go
+// BAD - loses the first error
+func cleanup(db *sql.DB, f *os.File) error {
+    err := db.Close()
+    err = f.Close()  // overwrites db error
+    return err
+}
+
+// GOOD - preserves both errors
+func cleanup(db *sql.DB, f *os.File) error {
+    return errors.Join(db.Close(), f.Close())
+}
+```
+
+`errors.Join` returns `nil` when all errors are `nil`, and the joined error supports `errors.Is`/`errors.As` for each constituent error:
+
+```go
+err := errors.Join(ErrNotFound, ErrTimeout)
+errors.Is(err, ErrNotFound) // true
+errors.Is(err, ErrTimeout)  // true
+```
+
+This is especially useful in defer chains:
+
+```go
+func processFile(path string) (retErr error) {
+    f, err := os.Open(path)
+    if err != nil {
+        return fmt.Errorf("opening %s: %w", path, err)
+    }
+    defer func() {
+        retErr = errors.Join(retErr, f.Close())
+    }()
+    // ... process file
 }
 ```
 
@@ -139,6 +181,27 @@ if errors.Is(err, ErrNotFound) {
 }
 ```
 
+## Custom Error Types
+
+When you need to carry structured data with an error, implement the `error` interface:
+
+```go
+type ValidationError struct {
+    Field   string
+    Message string
+}
+
+func (e *ValidationError) Error() string {
+    return fmt.Sprintf("validation failed on %s: %s", e.Field, e.Message)
+}
+
+// Caller extracts structured data
+var ve *ValidationError
+if errors.As(err, &ve) {
+    log.Printf("field %s: %s", ve.Field, ve.Message)
+}
+```
+
 ## Review Questions
 
 1. Are all error returns checked (no `_`)?
@@ -146,3 +209,4 @@ if errors.Is(err, ErrNotFound) {
 3. Are sentinel errors used for expected error conditions?
 4. Does the code use `errors.Is/As` instead of string matching?
 5. Does it return zero values alongside errors?
+6. Are multiple independent errors aggregated with `errors.Join`?

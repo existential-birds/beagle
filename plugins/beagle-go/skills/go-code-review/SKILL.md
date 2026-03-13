@@ -19,7 +19,7 @@ Follow this sequence to avoid false positives and catch version-specific issues:
 Report findings as:
 
 ```text
-[FILE:LINE] Issue title
+[FILE:LINE] ISSUE_TITLE
 Severity: Critical | Major | Minor | Informational
 Description of the issue and why it matters.
 ```

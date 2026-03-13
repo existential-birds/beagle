@@ -51,7 +51,7 @@
       "name": "beagle-go",
       "source": "./plugins/beagle-go",
       "description": "Go, BubbleTea TUI, Wish SSH, and Prometheus code review",
-      "version": "2.2.0",
+      "version": "2.3.0",
       "category": "backend",
       "tags": [
         "go",

@@ -4,7 +4,7 @@
 
 ### 1. Missing defer for Close
 
-**Problem**: Resources leaked on early return.
+Resources leaked on early return. The `defer` should come immediately after the error check for the open/create call.
 
 ```go
 // BAD
@@ -34,17 +34,17 @@ func readFile(path string) ([]byte, error) {
 
 ### 2. Defer in Loop
 
-**Problem**: Resources accumulate until function returns.
+`defer` runs at function exit, not loop iteration exit. In a loop, resources accumulate until the function returns.
 
 ```go
-// BAD - files stay open until loop ends
+// BAD - files stay open until function returns
 for _, path := range paths {
     f, _ := os.Open(path)
-    defer f.Close()  // deferred until function returns
+    defer f.Close()
     process(f)
 }
 
-// GOOD - close in each iteration or use closure
+// GOOD - wrap in closure for per-iteration cleanup
 for _, path := range paths {
     func() {
         f, _ := os.Open(path)
@@ -56,7 +56,7 @@ for _, path := range paths {
 
 ### 3. HTTP Response Body Not Closed
 
-**Problem**: Connection pool exhaustion.
+Every `http.Client` call that returns a non-nil response has a body that must be closed, even if you don't read it. Failing to close it leaks the underlying TCP connection.
 
 ```go
 // BAD
@@ -64,7 +64,6 @@ resp, err := http.Get(url)
 if err != nil {
     return err
 }
-// body never closed!
 data, _ := io.ReadAll(resp.Body)
 
 // GOOD
@@ -80,7 +79,7 @@ data, _ := io.ReadAll(resp.Body)
 
 ### 4. Stuttering Names
 
-**Problem**: Redundant when used with package name.
+Package names are part of the identifier at the call site. Repeating the package name in the type or function name creates redundancy.
 
 ```go
 // BAD
@@ -94,7 +93,7 @@ type Service struct { ... }  // user.Service
 
 ### 5. Missing Doc Comments on Exports
 
-**Problem**: godoc can't generate documentation.
+Exported names without doc comments can't be documented by `godoc`/`pkgsite`. The comment should start with the name being documented.
 
 ```go
 // BAD
@@ -107,20 +106,18 @@ func NewServer(addr string) *Server { ... }
 
 ### 6. Naked Returns in Long Functions
 
-**Problem**: Hard to track what's being returned.
+Named returns are convenient in short functions, but in longer functions they obscure what's being returned. The threshold is roughly 5 lines — beyond that, be explicit.
 
 ```go
 // BAD
 func process(data []byte) (result string, err error) {
     // 50 lines of code...
-
     return  // what's being returned?
 }
 
 // GOOD - explicit returns
 func process(data []byte) (string, error) {
     // 50 lines of code...
-
     return processedString, nil
 }
 ```
@@ -129,7 +126,7 @@ func process(data []byte) (string, error) {
 
 ### 7. Init Function Overuse
 
-**Problem**: Hidden side effects, hard to test.
+`init()` functions run before `main()`, create hidden dependencies, make testing harder, and can cause subtle ordering issues when multiple packages have init functions.
 
 ```go
 // BAD - global state via init
@@ -159,7 +156,7 @@ func NewApp(dbURL string) (*App, error) {
 
 ### 8. Global Mutable State
 
-**Problem**: Race conditions, hard to test.
+Package-level mutable variables create race conditions in concurrent code and make testing unreliable because tests share state.
 
 ```go
 // BAD
@@ -179,11 +176,41 @@ func NewServer(cfg Config) *Server {
 }
 ```
 
+## Structured Logging (Go 1.21+)
+
+### 9. Using `log` Instead of `slog`
+
+The `log/slog` package (Go 1.21+) provides structured, leveled logging that's far more useful in production than unstructured `log.Println` output.
+
+```go
+// OLD - unstructured, hard to parse
+log.Printf("failed to load user %d: %v", userID, err)
+
+// MODERN - structured, machine-parseable
+slog.Error("failed to load user",
+    "user_id", userID,
+    "error", err,
+)
+
+// With logger groups and attributes
+logger := slog.With("service", "auth")
+logger.Info("user logged in",
+    "user_id", userID,
+    "ip", req.RemoteAddr,
+)
+```
+
+Key `slog` patterns:
+- Use `slog.With()` to add common attributes to a logger
+- Pass `*slog.Logger` as a dependency, don't use the global default in libraries
+- Implement `slog.LogValuer` for custom types that appear frequently in logs
+- Use `slog.Group()` to namespace related attributes
+
 ## Performance
 
-### 9. String Concatenation in Loop
+### 10. String Concatenation in Loop
 
-**Problem**: O(n²) allocation overhead.
+String concatenation with `+` in a loop creates a new string allocation on every iteration, resulting in O(n^2) memory usage.
 
 ```go
 // BAD
@@ -201,9 +228,9 @@ for _, s := range items {
 result := b.String()
 ```
 
-### 10. Slice Preallocation
+### 11. Slice Preallocation
 
-**Problem**: Repeated reallocations.
+When you know the final size, preallocate to avoid repeated backing array copies as the slice grows.
 
 ```go
 // BAD - grows dynamically
@@ -219,11 +246,72 @@ for _, item := range items {
 }
 ```
 
+### 12. Range Over Integer (Go 1.22+)
+
+Go 1.22 added `range` over integers, replacing the classic C-style for loop for simple counting:
+
+```go
+// OLD
+for i := 0; i < n; i++ {
+    process(i)
+}
+
+// MODERN (Go 1.22+)
+for i := range n {
+    process(i)
+}
+```
+
+## Sync and Performance
+
+### 13. sync.Pool Misuse
+
+Objects returned to a `sync.Pool` must be reset first, otherwise the next consumer gets stale data.
+
+```go
+// BAD - not resetting before Put
+buf := bufPool.Get().(*bytes.Buffer)
+buf.WriteString("data")
+bufPool.Put(buf)  // still has "data"!
+
+// GOOD - reset before returning to pool
+buf := bufPool.Get().(*bytes.Buffer)
+defer func() {
+    buf.Reset()
+    bufPool.Put(buf)
+}()
+buf.WriteString("data")
+```
+
+### 14. Functional Options
+
+Constructors with many parameters are hard to read and painful to extend. The functional options pattern provides a clean API with sensible defaults.
+
+```go
+// BAD - parameter bloat
+func NewServer(addr string, timeout time.Duration, logger *slog.Logger, maxConns int) *Server
+
+// GOOD - functional options
+type Option func(*Server)
+
+func WithTimeout(d time.Duration) Option {
+    return func(s *Server) { s.timeout = d }
+}
+
+func NewServer(addr string, opts ...Option) *Server {
+    s := &Server{addr: addr, timeout: 30 * time.Second}
+    for _, opt := range opts {
+        opt(s)
+    }
+    return s
+}
+```
+
 ## Testing
 
-### 11. Table-Driven Tests Missing
+### 15. Table-Driven Tests Missing
 
-**Problem**: Verbose, repetitive test code.
+Table-driven tests reduce repetition and make it easy to add new cases.
 
 ```go
 // BAD
@@ -254,51 +342,6 @@ func TestAdd(t *testing.T) {
 }
 ```
 
-## Sync and Performance
-
-### 12. sync.Pool Misuse
-
-**Problem**: Using sync.Pool for objects that shouldn't be pooled, or not resetting objects.
-
-```go
-// BAD - not resetting before Put
-buf := bufPool.Get().(*bytes.Buffer)
-buf.WriteString("data")
-bufPool.Put(buf)  // still has "data"!
-
-// GOOD - reset before returning to pool
-buf := bufPool.Get().(*bytes.Buffer)
-defer func() {
-    buf.Reset()
-    bufPool.Put(buf)
-}()
-buf.WriteString("data")
-```
-
-### 13. Missing Functional Options
-
-**Problem**: Constructor with many parameters, hard to extend.
-
-```go
-// BAD - parameter bloat
-func NewServer(addr string, timeout time.Duration, logger *slog.Logger, maxConns int) *Server
-
-// GOOD - functional options
-type Option func(*Server)
-
-func WithTimeout(d time.Duration) Option {
-    return func(s *Server) { s.timeout = d }
-}
-
-func NewServer(addr string, opts ...Option) *Server {
-    s := &Server{addr: addr, timeout: 30 * time.Second}  // defaults
-    for _, opt := range opts {
-        opt(s)
-    }
-    return s
-}
-```
-
 ## Review Questions
 
 1. Is `defer Close()` called immediately after opening resources?
@@ -307,3 +350,4 @@ func NewServer(addr string, opts ...Option) *Server {
 4. Do exported symbols have doc comments?
 5. Is mutable global state avoided?
 6. Are slices preallocated when size is known?
+7. Is `slog` used instead of `log` for structured output (Go 1.21+)?

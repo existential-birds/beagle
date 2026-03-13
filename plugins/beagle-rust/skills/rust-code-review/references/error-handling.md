@@ -121,6 +121,99 @@ if let Err(e) = save_to_disk(&data) {
 
 The exception: some errors are genuinely unactionable (e.g., `write!` to stderr, `close()` on a file you're done with). In those cases, `let _ =` with a brief comment is acceptable.
 
+## Let-Else for Early Returns
+
+Rust's `let-else` pattern (stable since 1.65) is cleaner than `match` for early returns on failure:
+
+```rust
+// GOOD - flat, readable early return
+let Ok(json) = serde_json::from_str(&input) else {
+    return Err(MyError::InvalidJson);
+};
+
+// GOOD - continue/break in loops
+for item in items {
+    let Some(value) = item.value() else {
+        continue;
+    };
+    process(value);
+}
+
+// Use if-let when the else branch needs computation
+if let Some(result) = cache.get(&key) {
+    return Ok(result.clone());
+} else {
+    let computed = expensive_compute(&key)?;
+    cache.insert(key, computed.clone());
+    return Ok(computed);
+}
+```
+
+## Prevent Early Allocation
+
+Use `_else` variants when the fallback involves allocation or computation:
+
+```rust
+// BAD - format! runs even when x is Some
+let val = x.ok_or(ParseError::Missing(format!("key {key}")));
+
+// GOOD - closure only runs on None
+let val = x.ok_or_else(|| ParseError::Missing(format!("key {key}")));
+
+// BAD - Vec::new() allocates even on Ok path
+let items = result.unwrap_or(Vec::new());
+
+// GOOD - use unwrap_or_default for Default types
+let items = result.unwrap_or_default();
+```
+
+## Logging and Transforming Errors
+
+Use `inspect_err` to log and `map_err` to transform errors in a chain:
+
+```rust
+let result = do_something()
+    .inspect_err(|err| tracing::error!("do_something failed: {err}"))
+    .map_err(|err| AppError::from(("do_something", err)))?;
+```
+
+## Custom Error Structs
+
+When a module has only one error type, a struct is simpler than an enum:
+
+```rust
+#[derive(Debug, thiserror::Error, PartialEq)]
+#[error("Request failed with code `{code}`: {message}")]
+struct HttpError {
+    code: u16,
+    message: String,
+}
+```
+
+## Async Error Bounds
+
+Errors in async code must be `Send + Sync + 'static` for spawned tasks:
+
+```rust
+// Ensure error types work across await boundaries
+#[tokio::main]
+async fn main() -> Result<(), Box<dyn std::error::Error + Send + Sync>> {
+    Ok(())
+}
+```
+
+Avoid `Box<dyn std::error::Error>` (without Send + Sync) in libraries.
+
+## Panic Alternatives
+
+Prefer these over `panic!` for expected incomplete code:
+
+| Macro | Use When |
+|-------|----------|
+| `todo!()` | Code not yet written — alerts compiler of missing implementation |
+| `unreachable!()` | Logic guarantees this branch can't execute |
+| `unimplemented!()` | Feature intentionally not implemented, with reason |
+
 ## thiserror Patterns
 
 `thiserror` generates `Display` and `Error` implementations from derive macros. It's the standard choice for library error types.
@@ -192,7 +285,10 @@ let user = users.get(id).ok_or_else(|| Error::NotFound(id))?;
 
 1. Are all `unwrap()` / `expect()` calls in production code justified?
 2. Do errors carry context about what operation failed?
-3. Are error types structured (enums) rather than stringly-typed?
+3. Are error types structured (enums/structs) rather than stringly-typed?
 4. Is `panic!` reserved for unrecoverable invariant violations?
 5. Are errors propagated or logged, not silently swallowed?
 6. Is `thiserror` used for library errors, `anyhow` for application errors?
+7. Are `_else` variants used when fallbacks involve allocation?
+8. Do async error types satisfy `Send + Sync + 'static` bounds?
+9. Is `inspect_err` used for error logging instead of match arms?

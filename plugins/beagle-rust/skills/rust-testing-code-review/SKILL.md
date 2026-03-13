@@ -40,6 +40,7 @@ description: Reviews Rust test code for unit test patterns, integration test str
 - [ ] Custom messages on assertions that aren't self-documenting
 - [ ] `matches!` macro used for enum variant checking
 - [ ] Error types checked with `matches!` or pattern matching, not string comparison
+- [ ] One assertion per test where practical (easier to diagnose failures)
 
 ### Mocking and Test Doubles
 - [ ] Traits used as seams for dependency injection (not concrete types)
@@ -51,6 +52,24 @@ description: Reviews Rust test code for unit test patterns, integration test str
 - [ ] `Result::Err` variants tested, not just happy paths
 - [ ] Specific error variants checked (not just "is error")
 - [ ] `#[should_panic]` used sparingly — prefer `Result`-returning tests
+
+### Test Naming
+- [ ] Test names read like sentences describing behavior (not `test_happy_path`)
+- [ ] Related tests grouped in nested `mod` blocks for organization
+- [ ] Test names follow pattern: `<function>_should_<behavior>_when_<condition>`
+
+### Snapshot Testing
+- [ ] `cargo insta` used for complex structural output (JSON, YAML, HTML, CLI output)
+- [ ] Snapshots are small and focused (not huge objects)
+- [ ] Redactions used for unstable fields (timestamps, UUIDs)
+- [ ] Snapshots committed to git in `snapshots/` directory
+- [ ] Simple values use `assert_eq!`, not snapshots
+
+### Doc Tests
+- [ ] Public API functions have `/// # Examples` with runnable code
+- [ ] Doc tests serve as both documentation and correctness checks
+- [ ] Hidden setup lines prefixed with `#` to keep examples clean
+- [ ] `cargo test --doc` passes (nextest doesn't run doc tests)
 
 ## Severity Calibration
 
@@ -83,6 +102,8 @@ description: Reviews Rust test code for unit test patterns, integration test str
 - **`clone()` in tests** — Clarity over performance
 - **Large test functions** — Integration tests can be long; extracting helpers isn't always clearer
 - **`assert!` for boolean checks** — Fine when the expression is clearly boolean (`.is_some()`, `.is_empty()`)
+- **Multiple assertions testing one logical behavior** — Sometimes one behavior needs multiple checks
+- **`unwrap()` on `Result`-returning test functions** — Propagating with `?` is also fine but not required
 
 ## Before Submitting Findings
 

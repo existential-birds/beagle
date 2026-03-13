@@ -31,6 +31,7 @@ CRITICAL: Run clippy and check BEFORE flagging style or correctness issues. Do N
 
 ```bash
 cargo clippy --all-targets --all-features -- -D warnings 2>&1 | head -50
+cargo clippy -- -D clippy::perf 2>&1 | head -20
 cargo check --all-targets 2>&1 | head -50
 ```
 

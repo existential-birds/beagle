@@ -43,6 +43,8 @@ Description of the issue and why it matters.
 - [ ] `impl AsRef<T>` or `Into<T>` used for flexible API parameters
 - [ ] No dangling references or use-after-move
 - [ ] Interior mutability (`Cell`, `RefCell`, `Mutex`) used only when shared mutation is genuinely needed
+- [ ] Small types (≤24 bytes) derive `Copy` and are passed by value
+- [ ] `Cow<'_, T>` used when ownership is ambiguous
 
 ### Error Handling
 - [ ] `Result<T, E>` used for recoverable errors, not `panic!`/`unwrap`/`expect`
@@ -51,6 +53,9 @@ Description of the issue and why it matters.
 - [ ] `unwrap()` / `expect()` only in tests, examples, or provably-safe contexts
 - [ ] Error variants are specific enough to be actionable by callers
 - [ ] `anyhow` used in applications, `thiserror` in libraries (or clear rationale for alternatives)
+- [ ] `_or_else` variants used when fallbacks involve allocation (`ok_or_else`, `unwrap_or_else`)
+- [ ] `let-else` used for early returns on failure (`let Ok(x) = expr else { return ... }`)
+- [ ] `inspect_err` used for error logging, `map_err` for error transformation
 
 ### Traits and Types
 - [ ] Traits are minimal and cohesive (single responsibility)
@@ -75,13 +80,24 @@ Description of the issue and why it matters.
 - [ ] Builder pattern methods take and return `self` (not `&mut self`) for chaining
 - [ ] Public items have doc comments (`///`)
 - [ ] `#[must_use]` on functions where ignoring the return value is likely a bug
+- [ ] Imports ordered: std → external crates → workspace → crate/super
+- [ ] `#[expect(clippy::...)]` preferred over `#[allow(...)]` for lint suppression
 
 ### Performance
 - [ ] No unnecessary allocations in hot paths (prefer `&str` over `String`, `&[T]` over `Vec<T>`)
 - [ ] `collect()` type is specified or inferable
-- [ ] Iterators preferred over indexed loops where appropriate
+- [ ] Iterators preferred over indexed loops for collection transforms
 - [ ] `Vec::with_capacity()` used when size is known
 - [ ] No redundant `.to_string()` / `.to_owned()` chains
+- [ ] No intermediate `.collect()` when passing iterators directly works
+- [ ] `.sum()` preferred over `.fold()` for summation
+- [ ] Static dispatch (`impl Trait`) used over dynamic (`dyn Trait`) unless flexibility required
+
+### Linting
+- [ ] `cargo clippy --all-targets --all-features -- -D warnings` passes
+- [ ] Key lints respected: `redundant_clone`, `large_enum_variant`, `needless_collect`
+- [ ] Workspace lint configuration in `Cargo.toml` for consistent enforcement
+- [ ] Doc lints enabled for library crates (`missing_docs`, `broken_intra_doc_links`)
 
 ## Severity Calibration
 
@@ -135,6 +151,10 @@ These are acceptable Rust patterns — reporting them wastes developer time:
 - **`impl Trait` in return position** — Zero-cost abstraction, standard pattern
 - **Turbofish syntax** — `collect::<Vec<_>>()` is idiomatic when type inference needs help
 - **`_` prefix for intentionally unused variables** — Compiler convention
+- **`#[expect(clippy::...)]` with justification** — Self-cleaning lint suppression
+- **`Arc::clone(&arc)`** — Explicit Arc cloning is idiomatic and recommended
+- **`std::sync::Mutex` for short critical sections in async** — Tokio docs recommend this
+- **`for` loops over iterators** — When early exit or side effects are needed
 
 ## Context-Sensitive Rules
 
@@ -149,6 +169,8 @@ Only flag these issues when the specific conditions apply:
 | Missing `Send + Sync` | Type is actually shared across thread/task boundaries |
 | Overly broad lifetime | A shorter lifetime would work AND the API is public |
 | Missing `#[must_use]` | Function returns a value that callers commonly ignore |
+| Stale `#[allow]` suppression | Should be `#[expect]` for self-cleaning lint management |
+| Missing `Copy` derive | Type is ≤24 bytes with all-Copy fields and used frequently |
 
 ## Before Submitting Findings
 

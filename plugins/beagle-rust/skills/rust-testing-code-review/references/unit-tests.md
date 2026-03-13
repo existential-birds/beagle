@@ -158,6 +158,128 @@ fn test_status_serializes_to_expected_string() {
 }
 ```
 
+## Test Naming Convention
+
+Nested modules make test output readable and allow running groups:
+
+```rust
+#[cfg(test)]
+mod tests {
+    use super::*;
+
+    mod parse_config {
+        use super::*;
+
+        #[test]
+        fn returns_config_when_valid_toml() {
+            let config = parse_config(VALID_TOML).unwrap();
+            assert_eq!(config.port, 8080);
+        }
+
+        #[test]
+        fn returns_error_when_empty_input() {
+            let err = parse_config("").unwrap_err();
+            assert!(matches!(err, ParseError::Empty));
+        }
+
+        #[test]
+        fn returns_error_when_missing_required_field() {
+            let err = parse_config("[server]").unwrap_err();
+            assert!(matches!(err, ParseError::MissingField(_)));
+        }
+    }
+}
+```
+
+Output: `tests::parse_config::returns_config_when_valid_toml`, etc.
+
+## One Assertion Per Test
+
+Each test should verify one behavior. This makes failures easier to diagnose:
+
+```rust
+// BAD - which assertion failed?
+#[test]
+fn test_valid_inputs() {
+    assert!(parse("a").is_ok());
+    assert!(parse("ab").is_ok());
+    assert!(parse("abc").is_ok());
+}
+
+// GOOD - descriptive separate tests, or use rstest
+#[rstest]
+#[case::single_char("a")]
+#[case::two_chars("ab")]
+#[case::three_chars("abc")]
+fn parse_accepts_valid_strings(#[case] input: &str) {
+    assert!(parse(input).is_ok(), "parse failed for: {input}");
+}
+```
+
+## Snapshot Testing with `cargo insta`
+
+Use for complex structural output instead of large `assert_eq!` blocks:
+
+```rust
+use insta::assert_yaml_snapshot;
+
+#[test]
+fn test_config_serialization() {
+    let config = Config::default();
+    assert_yaml_snapshot!("default_config", config);
+}
+
+// Use redactions for unstable fields
+#[test]
+fn test_user_response() {
+    let user = create_test_user();
+    insta::assert_json_snapshot!(user, {
+        ".created_at" => "[timestamp]",
+        ".id" => "[uuid]"
+    });
+}
+```
+
+Best practices:
+- Name snapshots descriptively
+- Keep snapshots small and focused
+- Use `assert_eq!` for simple values (numbers, flat enums)
+- Run `cargo insta test` then `cargo insta review`
+
+## Doc Tests
+
+Public API examples that double as tests:
+
+```rust
+/// Adds two numbers together.
+///
+/// # Examples
+///
+/// ```rust
+/// # use my_crate::add;
+/// assert_eq!(add(2, 3), 5);
+/// ```
+pub fn add(a: i32, b: i32) -> i32 {
+    a + b
+}
+```
+
+Doc test attributes: `ignore`, `should_panic`, `no_run`, `compile_fail`.
+
+Note: `cargo test --doc` runs doc tests. `cargo nextest` does NOT — run separately.
+
+## Testing Error Messages
+
+When errors don't implement `PartialEq`, test via `Display`:
+
+```rust
+#[test]
+fn divide_by_zero_error_message() {
+    let err = divide(10.0, 0.0).unwrap_err();
+    assert_eq!(err.to_string(), "division by zero");
+}
+```
+
 ## Review Questions
 
 1. Are unit tests in `#[cfg(test)]` modules within source files?
@@ -166,3 +288,7 @@ fn test_status_serializes_to_expected_string() {
 4. Are test helpers extracted for repeated setup?
 5. Do types that cross thread boundaries have Send/Sync tests?
 6. Do serialized types have round-trip tests?
+7. Are tests named descriptively (not `test_happy_path`)?
+8. Do tests verify one behavior each?
+9. Is snapshot testing used for complex structural output?
+10. Do public API functions have doc test examples?

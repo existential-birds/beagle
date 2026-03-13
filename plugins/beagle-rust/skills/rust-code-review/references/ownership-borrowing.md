@@ -197,7 +197,7 @@ process_name(Cow::Owned("Bob".to_string()));
 | Pointer Type | Description | Send + Sync | Main Use |
 |-------------|-------------|-------------|----------|
 | `&T` | Shared reference | Yes | Shared read access |
-| `&mut T` | Exclusive mutable reference | Not Send | Exclusive mutation |
+| `&mut T` | Exclusive mutable reference | Send (if T: Send), Sync (if T: Sync) | Exclusive mutation |
 | `Box<T>` | Heap-allocated owning pointer | Yes (if T: Send + Sync) | Heap allocation, recursive types |
 | `Rc<T>` | Single-threaded ref count | No | Multiple owners (single-thread) |
 | `Arc<T>` | Atomic ref count | Yes | Multiple owners (multi-thread) |

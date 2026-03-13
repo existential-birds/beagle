@@ -45,7 +45,7 @@ For `Option<T>` fields, use `serialize_with` + `deserialize_with` separately or 
 When deserialized data needs validation, implement `Deserialize` manually or use `#[serde(try_from)]`:
 
 ```rust
-#[derive(Serialize)]
+#[derive(Serialize, Deserialize)]
 #[serde(try_from = "String")]
 struct Email(String);
 

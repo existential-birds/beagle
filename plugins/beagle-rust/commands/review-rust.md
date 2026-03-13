@@ -195,18 +195,6 @@ Ready: Yes | No | With fixes 1-N (Critical/Major only; Minor items are acceptabl
 Rationale: [1-2 sentences]
 ```
 
-## Post-Fix Verification
-
-After fixes are applied, run:
-
-```bash
-cargo check --all-targets
-cargo clippy --all-targets --all-features -- -D warnings
-cargo test --all-targets
-```
-
-All checks must pass before approval.
-
 ## Rules
 
 - Load skills BEFORE reviewing (not after)
@@ -220,3 +208,15 @@ All checks must pass before approval.
 - Re-reviews verify previous fixes ONLY — no new discovery
 - Requests for net-new code (new modules, dependencies, test suites) are Informational, not blocking
 - The Verdict ignores Minor and Informational items — only Critical and Major block approval
+
+## Post-Fix Verification
+
+After fixes are applied, run:
+
+```bash
+cargo check --all-targets
+cargo clippy --all-targets --all-features -- -D warnings
+cargo test --all-targets
+```
+
+All checks must pass before approval.

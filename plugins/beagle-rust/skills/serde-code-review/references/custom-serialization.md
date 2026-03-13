@@ -31,7 +31,7 @@ mod iso_date {
     }
 }
 
-#[derive(Serialize, Deserialize)]
+#[derive(Serialize, Deserialize, PartialEq, Debug)]
 struct Event {
     #[serde(with = "iso_date")]
     created_at: DateTime<Utc>,

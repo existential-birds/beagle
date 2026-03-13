@@ -4,6 +4,13 @@ All notable changes to Beagle are documented here.
 
 Format follows [Keep a Changelog](https://keepachangelog.com/en/1.1.0/). Versioning adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [2.6.0] - 2026-03-13
+
+### Added
+- **beagle-rust:** New plugin with Rust code review skills covering ownership, lifetimes, error handling, async/tokio, serde, sqlx, and axum patterns ([#67](https://github.com/existential-birds/beagle/pull/67))
+  - Skills: `rust-code-review`, `tokio-async-code-review`, `axum-code-review`, `serde-code-review`, `sqlx-code-review`, `rust-testing-code-review`, `review-verification-protocol`
+  - Command: `review-rust` with automatic tech detection for tokio, axum, serde, and sqlx
+
 ## [2.5.0] - 2026-03-13
 
 ### Changed
@@ -258,6 +265,7 @@ Format follows [Keep a Changelog](https://keepachangelog.com/en/1.1.0/). Version
 - Development commands: `skill-builder`, `ensure-docs`
 - Cursor IDE command equivalents
 
+[2.6.0]: https://github.com/existential-birds/beagle/compare/v2.5.0...v2.6.0
 [2.5.0]: https://github.com/existential-birds/beagle/compare/v2.4.0...v2.5.0
 [2.4.0]: https://github.com/existential-birds/beagle/compare/v2.3.1...v2.4.0
 [2.3.1]: https://github.com/existential-birds/beagle/compare/v2.3.0...v2.3.1

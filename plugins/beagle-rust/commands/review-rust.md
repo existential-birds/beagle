@@ -57,7 +57,7 @@ grep -r "thiserror\|anyhow" --include="Cargo.toml" -l | head -3
 grep -r "tracing" --include="Cargo.toml" -l | head -3
 
 # Check for test files in diff
-git diff --name-only $(git merge-base HEAD main)..HEAD | grep -E '(test|tests).*\.rs$\|_test\.rs$'
+git diff --name-only $(git merge-base HEAD main)..HEAD | grep -E '((^|/)(test|tests)/.*\.rs$)|(_test\.rs$)'
 
 # Check for unsafe code in diff
 git diff $(git merge-base HEAD main)..HEAD -- '*.rs' | grep -c 'unsafe'

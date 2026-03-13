@@ -13,6 +13,16 @@ description: Reviews serde serialization code for derive patterns, enum represen
 4. **Check field attributes** — Renaming, defaults, skipping affect API contracts
 5. **Verify round-trip correctness** — Serialized data must deserialize back to the same value
 
+## Output Format
+
+Report findings as:
+
+```text
+[FILE:LINE] ISSUE_TITLE
+Severity: Critical | Major | Minor | Informational
+Description of the issue and why it matters.
+```
+
 ## Quick Reference
 
 | Issue Type | Reference |
@@ -82,4 +92,4 @@ description: Reviews serde serialization code for derive patterns, enum represen
 
 ## Before Submitting Findings
 
-Load and follow [review-verification-protocol](../review-verification-protocol/SKILL.md) before reporting any issue.
+Load and follow `beagle-rust:review-verification-protocol` before reporting any issue.

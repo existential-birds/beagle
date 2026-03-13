@@ -13,6 +13,16 @@ description: Reviews tokio async runtime usage for task management, sync primiti
 4. **Check channel usage** — Match channel type to communication pattern (mpsc, broadcast, oneshot, watch).
 5. **Check sync primitives** — Verify correct mutex type, proper guard lifetimes, no deadlock potential.
 
+## Output Format
+
+Report findings as:
+
+```text
+[FILE:LINE] ISSUE_TITLE
+Severity: Critical | Major | Minor | Informational
+Description of the issue and why it matters.
+```
+
 ## Quick Reference
 
 | Issue Type | Reference |
@@ -91,4 +101,4 @@ description: Reviews tokio async runtime usage for task management, sync primiti
 
 ## Before Submitting Findings
 
-Load and follow [review-verification-protocol](../review-verification-protocol/SKILL.md) before reporting any issue.
+Load and follow `beagle-rust:review-verification-protocol` before reporting any issue.

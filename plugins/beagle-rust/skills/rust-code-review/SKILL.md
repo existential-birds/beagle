@@ -174,4 +174,4 @@ Only flag these issues when the specific conditions apply:
 
 ## Before Submitting Findings
 
-Load and follow [review-verification-protocol](../review-verification-protocol/SKILL.md) before reporting any issue.
+Load and follow `beagle-rust:review-verification-protocol` before reporting any issue.

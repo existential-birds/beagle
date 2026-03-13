@@ -13,6 +13,16 @@ description: Reviews axum web framework code for routing patterns, extractor usa
 4. **Check state** — Shared state via `State<T>`, not global mutable state
 5. **Check error handling** — `IntoResponse` implementations, error types
 
+## Output Format
+
+Report findings as:
+
+```text
+[FILE:LINE] ISSUE_TITLE
+Severity: Critical | Major | Minor | Informational
+Description of the issue and why it matters.
+```
+
 ## Quick Reference
 
 | Issue Type | Reference |
@@ -90,4 +100,4 @@ description: Reviews axum web framework code for routing patterns, extractor usa
 
 ## Before Submitting Findings
 
-Load and follow [review-verification-protocol](../review-verification-protocol/SKILL.md) before reporting any issue.
+Load and follow `beagle-rust:review-verification-protocol` before reporting any issue.

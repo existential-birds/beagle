@@ -13,6 +13,16 @@ description: Reviews sqlx database code for compile-time query checking, connect
 4. **Check migrations** — File naming, reversibility, data migration safety
 5. **Check type mappings** — Rust types align with SQL column types
 
+## Output Format
+
+Report findings as:
+
+```text
+[FILE:LINE] ISSUE_TITLE
+Severity: Critical | Major | Minor | Informational
+Description of the issue and why it matters.
+```
+
 ## Quick Reference
 
 | Issue Type | Reference |
@@ -90,4 +100,4 @@ description: Reviews sqlx database code for compile-time query checking, connect
 
 ## Before Submitting Findings
 
-Load and follow [review-verification-protocol](../review-verification-protocol/SKILL.md) before reporting any issue.
+Load and follow `beagle-rust:review-verification-protocol` before reporting any issue.

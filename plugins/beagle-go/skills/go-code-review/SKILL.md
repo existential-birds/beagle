@@ -1,6 +1,6 @@
 ---
 name: go-code-review
-description: Reviews Go code for idiomatic patterns, error handling, concurrency safety, and common mistakes. Use when reviewing .go files, checking error handling, goroutine usage, or interface design. Covers Go 1.20+ features including errors.Join, slog, generics, and Go 1.22 loop variable semantics.
+description: Reviews Go code for idiomatic patterns, error handling, concurrency safety, and common mistakes. Use when reviewing .go files, checking error handling, goroutine usage, or interface design. Covers generics (Go 1.18+), errors.Join and slog (Go 1.21+), and Go 1.22 loop variable semantics.
 ---
 
 # Go Code Review

@@ -4,6 +4,11 @@ All notable changes to Beagle are documented here.
 
 Format follows [Keep a Changelog](https://keepachangelog.com/en/1.1.0/). Versioning adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [2.5.0] - 2026-03-13
+
+### Changed
+- **beagle-go:** Improved `go-code-review` skill with enhanced guidance for common mistakes, concurrency patterns, error handling, and interface design ([#65](https://github.com/existential-birds/beagle/pull/65))
+
 ## [2.4.0] - 2026-02-12
 
 ### Added

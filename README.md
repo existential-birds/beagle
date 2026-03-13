@@ -12,7 +12,7 @@
 
 *Image: NASA, Public Domain. [Source](https://www.nasa.gov/multimedia/imagegallery/image_feature_572.html)*
 
-A Claude Code plugin marketplace for code review and verification workflows. Catch issues before you push with pre-commit reviews for Python, Go, Elixir, React, iOS/Swift, and AI frameworks.
+A Claude Code plugin marketplace for code review and verification workflows. Catch issues before you push with pre-commit reviews for Python, Go, Rust, Elixir, React, iOS/Swift, and AI frameworks.
 
 Powers the agents in [Amelia](https://github.com/existential-birds/amelia). For automated review-fix-test loops, see [Daydream](https://github.com/existential-birds/daydream).
 
@@ -60,11 +60,12 @@ This downloads the skills and configures them for your agent. Commands are Claud
 | **beagle-elixir** | 10 | 1 | Elixir, Phoenix, LiveView, ExUnit, ExDoc |
 | **beagle-ios** | 12 | 1 | Swift, SwiftUI, SwiftData, iOS frameworks |
 | **beagle-react** | 15 | 1 | React, React Flow, shadcn/ui, Tailwind |
+| **beagle-rust** | 7 | 1 | Rust, tokio, axum, sqlx, serde |
 | **beagle-ai** | 13 | 0 | Pydantic AI, LangGraph, DeepAgents |
 | **beagle-docs** | 7 | 5 | Documentation quality, AI writing detection (Diataxis) |
 | **beagle-analysis** | 5 | 3 | 12-Factor, ADRs, LLM-as-judge |
 | **beagle-testing** | 0 | 2 | Test plan generation and execution |
-| **Total** | **82** | **27** | |
+| **Total** | **89** | **28** | |
 
 ## Commands
 
@@ -96,6 +97,7 @@ Run with `/<plugin-name>:<command>`. See [Slash commands](https://docs.claude.co
 | `review-tui` | beagle-go | BubbleTea TUI code review |
 | `review-ios` | beagle-ios | iOS/SwiftUI code review |
 | `review-elixir` | beagle-elixir | Elixir/Phoenix code review |
+| `review-rust` | beagle-rust | Rust/tokio/axum code review |
 
 ### Documentation & Analysis
 

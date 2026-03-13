@@ -1,0 +1,27 @@
+{
+  "name": "beagle-rust",
+  "description": "Rust code review and development skills covering ownership, lifetimes, error handling, async/tokio, serde, sqlx, axum, and testing patterns.",
+  "version": "1.0.0",
+  "author": {
+    "name": "Existential Birds, LLC",
+    "email": "tech@existentialbirds.com"
+  },
+  "repository": "https://github.com/existential-birds/beagle",
+  "keywords": [
+    "rust",
+    "ownership",
+    "lifetimes",
+    "borrowing",
+    "tokio",
+    "async",
+    "serde",
+    "sqlx",
+    "axum",
+    "thiserror",
+    "tracing",
+    "cargo",
+    "code-review",
+    "concurrency",
+    "type-safety"
+  ]
+}

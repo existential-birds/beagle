@@ -149,6 +149,22 @@
       ]
     },
     {
+      "name": "beagle-rust",
+      "source": "./plugins/beagle-rust",
+      "description": "Rust, tokio, axum, serde, sqlx, and async concurrency code review",
+      "version": "1.0.0",
+      "category": "backend",
+      "tags": [
+        "rust",
+        "tokio",
+        "axum",
+        "serde",
+        "sqlx",
+        "async",
+        "code-review"
+      ]
+    },
+    {
       "name": "beagle-testing",
       "source": "./plugins/beagle-testing",
       "description": "Language-agnostic test plan generation and execution",

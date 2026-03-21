@@ -23,7 +23,7 @@
       "name": "beagle-core",
       "source": "./plugins/beagle-core",
       "description": "Shared code review workflows, verification protocol, git commands, and feedback handling",
-      "version": "1.1.0",
+      "version": "1.1.2",
       "category": "workflow",
       "tags": [
         "code-review",

@@ -26,7 +26,7 @@ Before proposing options, gather context about what needs to animate and why:
 
 For each animation need, present 2-3 distinct approaches. Each option should feel meaningfully different — not minor variations of the same idea. Structure each option as:
 
-```
+```markdown
 ### Option [N]: [Name]
 
 **Approach**: [1-2 sentences describing the motion design]

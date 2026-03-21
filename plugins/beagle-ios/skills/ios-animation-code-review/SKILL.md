@@ -14,6 +14,18 @@ description: Reviews iOS animation code for correctness, performance, accessibil
 | Reduce Motion, VoiceOver, motion sensitivity | [references/accessibility.md](references/accessibility.md) |
 | Transition protocol, matchedGeometryEffect, navigation transitions | [references/transitions.md](references/transitions.md) |
 
+## Output Format
+
+Report each finding as:
+
+```
+[FILE:LINE] ISSUE_TITLE
+```
+
+Example: `[AnimatedCard.swift:42] Missing Reduce Motion fallback for spring animation`
+
+All details, code suggestions, and rationale follow after the header line.
+
 ## Review Checklist
 
 - [ ] `@Environment(\.accessibilityReduceMotion)` checked — animations have Reduce Motion fallback

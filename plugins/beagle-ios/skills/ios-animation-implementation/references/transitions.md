@@ -146,14 +146,9 @@ Automatically handles back-gesture interruption and is continuously interactive.
 
 ## Full-Screen Cover Transitions
 
-Custom presentation for modal full-screen covers.
+`.fullScreenCover` uses system-managed presentation animation. The `.transition()` modifier does **not** affect modal presentation — it only applies to views conditionally inserted/removed within the same hierarchy.
 
-```swift
-.fullScreenCover(isPresented: $showPhoto) {
-    PhotoViewer(photo: selectedPhoto)
-        .transition(.move(edge: .bottom).combined(with: .opacity))
-}
-```
+To customize full-screen cover appearance, animate content **inside** the cover view (e.g., in `.onAppear`), or use `navigationTransition(.zoom)` on iOS 18+.
 
 For zoom-style cover transitions on iOS 18+:
 

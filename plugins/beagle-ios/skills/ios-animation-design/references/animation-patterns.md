@@ -133,7 +133,7 @@ Slowly shifting color field for visual atmosphere.
 **API**: `MeshGradient` with timer-driven point interpolation
 **Spec**:
 - Grid: 3×3 minimum
-- Animation: shift 2-3 control points by small random offsets
+- Animation: shift 2–3 control points by small random offsets
 - Cycle: 3–5s per shift, continuous
 - Reduce Motion: static gradient (no animation)
 

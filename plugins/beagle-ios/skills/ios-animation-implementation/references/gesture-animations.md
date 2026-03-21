@@ -73,9 +73,11 @@ Capture gesture velocity and pass it to the completion spring for natural-feelin
 
 ```swift
 .onEnded { value in
+    let dx = targetOffset - offset.width
+    let dy = targetOffset - offset.height
     let velocity = CGVector(
-        dx: value.velocity.width / (targetOffset - offset.width),
-        dy: value.velocity.height / (targetOffset - offset.height)
+        dx: abs(dx) > 1 ? value.velocity.width / dx : 0,
+        dy: abs(dy) > 1 ? value.velocity.height / dy : 0
     )
 
     withAnimation(.interpolatingSpring(
@@ -136,8 +138,10 @@ struct InteractiveDismiss: View {
                     .onEnded { value in
                         if progress > 0.4 || value.velocity.height > 600 {
                             withAnimation(.spring(duration: 0.3)) {
-                                offset = UIScreen.main.bounds.height
+                                offset = 1000 // large enough to animate offscreen
                             }
+                            // No withAnimation completion API in SwiftUI — asyncAfter
+                            // is the pragmatic approach. Keep duration in sync with spring above.
                             DispatchQueue.main.asyncAfter(deadline: .now() + 0.3) {
                                 dismiss()
                             }

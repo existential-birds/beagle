@@ -6,7 +6,7 @@
 Element from source screen flies to its position in destination screen. Creates spatial continuity between list and detail views.
 
 **When to use**: Tapping a card/cell to open detail. Photo grids. Product listings.
-**API**: `matchedGeometryEffect` (iOS 16+), `.navigationTransition(.zoom)` (iOS 18+)
+**API**: `matchedGeometryEffect` (iOS 14+), `.navigationTransition(.zoom)` (iOS 18+)
 **Timing**: 0.35–0.5s spring (duration: 0.45, bounce: 0.15)
 **Reduce Motion**: Crossfade (0.2s)
 
@@ -130,7 +130,7 @@ Scale content interactively with gesture, settle to discrete zoom levels on rele
 ### Mesh Gradient Background
 Slowly shifting color field for visual atmosphere.
 
-**API**: `MeshGradient` with timer-driven point interpolation
+**API**: `MeshGradient` (iOS 18+) with timer-driven point interpolation
 **Spec**:
 - Grid: 3×3 minimum
 - Animation: shift 2–3 control points by small random offsets

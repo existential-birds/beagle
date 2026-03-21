@@ -55,9 +55,11 @@ Write jq filters to temp files using heredocs with single-quoted delimiters (pre
 ```bash
 cat > /tmp/issue_comments.jq << 'JQEOF'
 def clean_body:
-  gsub("<details>.*?</details>"; ""; "s")
-  | gsub("<!--.*?-->"; ""; "s")
+  gsub("<!--.*?-->"; ""; "s")
   | gsub("\\n?---\\n[\\s\\S]*$"; ""; "s")
+  | gsub("<details>\\s*<summary>Past reviewee.*?</details>"; ""; "s")
+  | gsub("<details>\\s*<summary>Recent review details[\\s\\S]*?</details>"; ""; "s")
+  | gsub("<details>\\s*<summary>\\s*Tips\\b.*?</details>"; ""; "s")
   | gsub("^\\s+|\\s+$"; "")
   | if length > 4000 then .[:4000] + "\n\n[comment truncated]" else . end
 ;
@@ -78,9 +80,11 @@ gh api --paginate "repos/$OWNER/$REPO/issues/$PR_NUMBER/comments" | \
 ```bash
 cat > /tmp/review_comments.jq << 'JQEOF'
 def clean_body:
-  gsub("<details>.*?</details>"; ""; "s")
-  | gsub("<!--.*?-->"; ""; "s")
+  gsub("<!--.*?-->"; ""; "s")
   | gsub("\\n?---\\n[\\s\\S]*$"; ""; "s")
+  | gsub("<details>\\s*<summary>Past reviewee.*?</details>"; ""; "s")
+  | gsub("<details>\\s*<summary>Recent review details[\\s\\S]*?</details>"; ""; "s")
+  | gsub("<details>\\s*<summary>\\s*Tips\\b.*?</details>"; ""; "s")
   | gsub("^\\s+|\\s+$"; "")
   | if length > 4000 then .[:4000] + "\n\n[comment truncated]" else . end
 ;
@@ -111,7 +115,7 @@ If `--include-author` is set, omit the `--arg pr_author` parameter and the `.use
 
 ### 4. Format Feedback Document
 
-**Noise stripping** — handled by the `clean_body` jq function in Step 3. Each comment body is already stripped of `<details>` blocks, HTML comments, and bot footer boilerplate before it reaches this step. Comments exceeding 4000 chars after stripping are truncated with a `[comment truncated]` marker.
+**Noise stripping** — handled by the `clean_body` jq function in Step 3. Each comment body is already stripped of HTML comments, bot footer boilerplate (after `---`), and known bot-noise `<details>` blocks (e.g. "Past reviewee", "Recent review details", "Tips"). Substantive `<details>` blocks with review content are preserved. Comments exceeding 4000 chars after stripping are truncated with a `[comment truncated]` marker.
 
 **Group by reviewer** — organize the formatted output by reviewer username:
 

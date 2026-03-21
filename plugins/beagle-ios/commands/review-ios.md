@@ -63,6 +63,9 @@ grep -r "import HealthKit\|HKHealthStore\|HKQuery" --include="*.swift" -l | head
 
 # WatchKit
 grep -r "import WatchKit\|WKExtension\|WKInterfaceController" --include="*.swift" -l | head -3
+
+# Animations (beyond basic withAnimation)
+grep -r "PhaseAnimator\|KeyframeAnimator\|matchedGeometryEffect\|navigationTransition\|scrollTransition\|CABasicAnimation\|CASpringAnimation\|CAKeyframeAnimation\|UIViewPropertyAnimator\|UIDynamicAnimator\|\.symbolEffect\|\.contentTransition\|CustomAnimation\|MeshGradient" --include="*.swift" -l | head -3
 ```
 
 ## Step 4: Load Verification Protocol
@@ -90,6 +93,7 @@ Use the `Skill` tool to load each applicable skill (e.g., `Skill(skill: "beagle-
 | App Intents detected | `beagle-ios:app-intents-code-review` |
 | HealthKit detected | `beagle-ios:healthkit-code-review` |
 | WatchKit detected | `beagle-ios:watchos-code-review` |
+| Animation code detected | `beagle-ios:ios-animation-code-review` |
 
 ## Step 6: Review
 

@@ -58,6 +58,104 @@ withAnimation(.spring(duration: 0.4, bounce: 0.2)) { }
 withAnimation(.snappy(extraBounce: 0.1)) { }
 ```
 
+## Custom Timing Curves
+
+For precise easing control beyond the built-in presets, define a cubic Bézier curve with two control points.
+
+```swift
+// Cubic Bézier — control points (x1, y1) and (x2, y2)
+withAnimation(.timingCurve(0.68, -0.55, 0.27, 1.55, duration: 0.4)) { }
+
+// Equivalent to CSS ease-in-out
+withAnimation(.timingCurve(0.42, 0, 0.58, 1, duration: 0.3)) { }
+```
+
+The built-in easing functions are shorthand for specific curves:
+
+| Preset | Bézier Approximation |
+|--------|---------------------|
+| `.easeIn` | `(0.42, 0, 1, 1)` |
+| `.easeOut` | `(0, 0, 0.58, 1)` |
+| `.easeInOut` | `(0.42, 0, 0.58, 1)` |
+| `.linear` | `(0, 0, 1, 1)` |
+
+## Repeating Animations
+
+Chain `.repeatCount(_:autoreverses:)` or `.repeatForever(autoreverses:)` onto any animation to loop it.
+
+```swift
+// Pulse 3 times then stop
+withAnimation(.easeInOut(duration: 0.3).repeatCount(3, autoreverses: true)) {
+    isPulsing.toggle()
+}
+
+// Continuous rotation (no autoreverse for smooth loop)
+withAnimation(.linear(duration: 2).repeatForever(autoreverses: false)) {
+    rotationAngle = .degrees(360)
+}
+
+// Bouncy repeat with autoreverse
+.animation(
+    .spring(duration: 0.5, bounce: 0.3).repeatCount(2, autoreverses: true),
+    value: isActive
+)
+```
+
+`autoreverses: true` (default) plays the animation forward then backward per cycle. Set to `false` for one-directional loops like rotation or progress.
+
+## Speed and Delay
+
+Modify animation timing without changing the curve itself.
+
+```swift
+// Half-speed spring (takes twice as long)
+withAnimation(.spring().speed(0.5)) {
+    isExpanded.toggle()
+}
+
+// Delay start by 0.3s (useful for staggered sequences)
+withAnimation(.snappy.delay(0.3)) {
+    showSecondElement = true
+}
+
+// Combined — staggered cards
+ForEach(Array(items.enumerated()), id: \.element.id) { index, item in
+    CardView(item: item)
+        .animation(
+            .spring(duration: 0.4).delay(Double(index) * 0.05),
+            value: isVisible
+        )
+}
+```
+
+## Transaction Control
+
+`Transaction` lets you override or suppress animations at the point of a state change, useful when you need different animation behavior than what the view's `.animation()` modifier provides.
+
+```swift
+// Suppress all animations for a state change
+var transaction = Transaction()
+transaction.disablesAnimations = true
+withTransaction(transaction) {
+    selectedItem = newItem  // updates instantly, no animation
+}
+
+// Override with a custom animation
+var transaction = Transaction(animation: .spring(duration: 0.6, bounce: 0.2))
+withTransaction(transaction) {
+    isExpanded = true
+}
+
+// Inside a view modifier — read and modify the current transaction
+.transaction { transaction in
+    if skipAnimation {
+        transaction.animation = nil
+    }
+}
+```
+
+Use `withTransaction` over `withAnimation` when you need to disable animations or override them for a specific state change without affecting the view's default animation modifiers.
+
 ## PhaseAnimator
 
 Cycles through discrete phases. Each transition between phases is a separate animation. Use for multi-step sequences.

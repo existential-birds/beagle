@@ -4,6 +4,13 @@ All notable changes to Beagle are documented here.
 
 Format follows [Keep a Changelog](https://keepachangelog.com/en/1.1.0/). Versioning adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [2.7.0] - 2026-03-21
+
+### Added
+- **beagle-ios:** iOS animation skills for design, implementation, and code review ([#69](https://github.com/existential-birds/beagle/pull/69))
+  - Skills: `ios-animation-design` (motion patterns, timing guidelines), `ios-animation-implementation` (SwiftUI animations, Core Animation, gesture animations, transitions), `ios-animation-code-review` (performance, accessibility, SwiftUI animation patterns, transitions)
+  - Updated `review-ios` command with animation tech detection
+
 ## [2.6.0] - 2026-03-13
 
 ### Added

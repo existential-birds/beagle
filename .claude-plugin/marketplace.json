@@ -139,7 +139,7 @@
       "name": "beagle-analysis",
       "source": "./plugins/beagle-analysis",
       "description": "Architecture analysis, brainstorming, 12-Factor compliance, ADR generation, and LLM-as-judge",
-      "version": "1.0.0",
+      "version": "1.1.0",
       "category": "analysis",
       "tags": [
         "12-factor",

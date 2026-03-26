@@ -116,7 +116,7 @@ Common types: Tech stack, Timeline, Compatibility, Performance, Security, Regula
 **Reference Points — good content:**
 - "I want the search to feel like Spotlight — instant, forgiving of typos"
 - "The onboarding should be like Linear's — minimal, progressive, no tutorial walls"
-- External docs the user wants followed: `path/to/spec.md` with what it covers
+- External docs the user wants to be followed: `path/to/spec.md` with what it covers
 
 **Future Considerations — the redirect:**
 When an idea is captured here during brainstorming, it was explicitly deferred. Note what it is and why it's deferred (too complex for v1, depends on other work, nice-to-have, etc.).

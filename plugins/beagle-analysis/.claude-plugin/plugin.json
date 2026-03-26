@@ -1,6 +1,6 @@
 {
   "name": "beagle-analysis",
-  "description": "Architecture analysis, 12-Factor compliance, ADR generation, and LLM-as-judge comparison.",
+  "description": "Architecture analysis, brainstorming, 12-Factor compliance, ADR generation, and LLM-as-judge comparison.",
   "version": "1.0.0",
   "author": {
     "name": "Existential Birds, LLC",
@@ -10,6 +10,7 @@
   "keywords": [
     "12-factor",
     "architecture",
+    "brainstorm",
     "adr",
     "llm-judge",
     "analysis"

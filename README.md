@@ -63,9 +63,9 @@ This downloads the skills and configures them for your agent. Commands are Claud
 | **beagle-rust** | 7 | 1 | Rust, tokio, axum, sqlx, serde |
 | **beagle-ai** | 13 | 0 | Pydantic AI, LangGraph, DeepAgents |
 | **beagle-docs** | 7 | 5 | Documentation quality, AI writing detection (Diataxis) |
-| **beagle-analysis** | 5 | 3 | 12-Factor, ADRs, LLM-as-judge |
+| **beagle-analysis** | 6 | 3 | Brainstorming, 12-Factor, ADRs, LLM-as-judge |
 | **beagle-testing** | 0 | 2 | Test plan generation and execution |
-| **Total** | **92** | **28** | |
+| **Total** | **93** | **28** | |
 
 ## Commands
 

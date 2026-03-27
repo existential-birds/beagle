@@ -4,7 +4,7 @@ This file provides guidance to Claude Code (claude.ai/code) when working with co
 
 ## What This Is
 
-Beagle is a Claude Code plugin marketplace providing framework-aware code review skills and verification workflows. Designed to complement [superpowers](https://github.com/obra/superpowers) with pre-push reviews and GitHub bot feedback handling. It contains 10 focused plugins with 82 skills and 27 commands.
+Beagle is a Claude Code plugin marketplace providing framework-aware code review skills and verification workflows for pre-push reviews and GitHub bot feedback handling. It contains 10 focused plugins with 83 skills and 27 commands.
 
 ## Marketplace Architecture
 
@@ -21,7 +21,7 @@ beagle/
     ├── beagle-react/            # React, React Flow, shadcn/ui, Tailwind, Vitest (15 skills, 1 command)
     ├── beagle-ai/               # Pydantic AI, LangGraph, DeepAgents, Vercel AI SDK (13 skills)
     ├── beagle-docs/             # Documentation quality, AI writing detection (7 skills, 5 commands)
-    ├── beagle-analysis/         # 12-Factor, ADRs, LLM-as-judge (5 skills, 3 commands)
+    ├── beagle-analysis/         # Brainstorming, 12-Factor, ADRs, LLM-as-judge (6 skills, 3 commands)
     └── beagle-testing/          # Test plan generation and execution (2 commands)
 ```
 

@@ -23,6 +23,11 @@ __pycache__/
 .venv/
 venv/
 
+# Publishing
+publish-*.sh
+.publish-*-done
+.publish-done
+
 # Build outputs
 dist/
 build/

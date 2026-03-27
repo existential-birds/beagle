@@ -4,6 +4,14 @@ All notable changes to Beagle are documented here.
 
 Format follows [Keep a Changelog](https://keepachangelog.com/en/1.1.0/). Versioning adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [2.8.0] - 2026-03-27
+
+### Added
+- **beagle-analysis:** Brainstorm skill for idea-to-spec workflow with structured spec generation and review ([#74](https://github.com/existential-birds/beagle/pull/74))
+
+### Fixed
+- **beagle-core:** Fix suggestion-block stripping order in `fetch-pr-feedback` — suggestion markers are now removed before blanket HTML comment removal ([#74](https://github.com/existential-birds/beagle/pull/74))
+
 ## [2.7.1] - 2026-03-21
 
 ### Fixed

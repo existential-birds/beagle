@@ -56,10 +56,14 @@ Write jq filters to temp files using heredocs with single-quoted delimiters (pre
 cat > /tmp/issue_comments.jq << 'JQEOF'
 def clean_body:
   gsub("<!--.*?-->"; ""; "s")
-  | gsub("\\n?---\\n[\\s\\S]*$"; ""; "s")
+  | gsub("<details>\\s*<summary>\\s*🧩 Analysis chain[\\s\\S]*?</details>"; ""; "s")
+  | gsub("<details>\\s*<summary>\\s*🤖 Prompt for AI Agents[\\s\\S]*?</details>"; ""; "s")
+  | gsub("<details>\\s*<summary>\\s*📝 Committable suggestion[\\s\\S]*?</details>"; ""; "s")
   | gsub("<details>\\s*<summary>Past reviewee.*?</details>"; ""; "s")
   | gsub("<details>\\s*<summary>Recent review details[\\s\\S]*?</details>"; ""; "s")
   | gsub("<details>\\s*<summary>\\s*Tips\\b.*?</details>"; ""; "s")
+  | gsub("<!-- suggestion_start -->.*?<!-- suggestion_end -->"; ""; "s")
+  | gsub("\\n?---\\n[\\s\\S]*$"; ""; "s")
   | gsub("^\\s+|\\s+$"; "")
   | if length > 4000 then .[:4000] + "\n\n[comment truncated]" else . end
 ;
@@ -81,10 +85,14 @@ gh api --paginate "repos/$OWNER/$REPO/issues/$PR_NUMBER/comments" | \
 cat > /tmp/review_comments.jq << 'JQEOF'
 def clean_body:
   gsub("<!--.*?-->"; ""; "s")
-  | gsub("\\n?---\\n[\\s\\S]*$"; ""; "s")
+  | gsub("<details>\\s*<summary>\\s*🧩 Analysis chain[\\s\\S]*?</details>"; ""; "s")
+  | gsub("<details>\\s*<summary>\\s*🤖 Prompt for AI Agents[\\s\\S]*?</details>"; ""; "s")
+  | gsub("<details>\\s*<summary>\\s*📝 Committable suggestion[\\s\\S]*?</details>"; ""; "s")
   | gsub("<details>\\s*<summary>Past reviewee.*?</details>"; ""; "s")
   | gsub("<details>\\s*<summary>Recent review details[\\s\\S]*?</details>"; ""; "s")
   | gsub("<details>\\s*<summary>\\s*Tips\\b.*?</details>"; ""; "s")
+  | gsub("<!-- suggestion_start -->.*?<!-- suggestion_end -->"; ""; "s")
+  | gsub("\\n?---\\n[\\s\\S]*$"; ""; "s")
   | gsub("^\\s+|\\s+$"; "")
   | if length > 4000 then .[:4000] + "\n\n[comment truncated]" else . end
 ;
@@ -115,7 +123,7 @@ If `--include-author` is set, omit the `--arg pr_author` parameter and the `.use
 
 ### 4. Format Feedback Document
 
-**Noise stripping** — handled by the `clean_body` jq function in Step 3. Each comment body is already stripped of HTML comments, bot footer boilerplate (after `---`), and known bot-noise `<details>` blocks (e.g. "Past reviewee", "Recent review details", "Tips"). Substantive `<details>` blocks with review content are preserved. Comments exceeding 4000 chars after stripping are truncated with a `[comment truncated]` marker.
+**Noise stripping** — handled by the `clean_body` jq function in Step 3. Order matters: HTML comments are stripped first, then known-noise `<details>` blocks (Analysis chain, Prompt for AI Agents, Committable suggestion, Past reviewee, Recent review details, Tips), then `<!-- suggestion -->` markers, and finally the `---` footer boilerplate. The `<details>` blocks must be stripped **before** the `---` footer pattern because bot analysis chains contain `---` separators that would otherwise truncate the actual finding. Substantive `<details>` blocks (e.g. "Suggested fix", "Proposed fix") are preserved. Comments exceeding 4000 chars after stripping are truncated with a `[comment truncated]` marker.
 
 **Group by reviewer** — organize the formatted output by reviewer username:
 

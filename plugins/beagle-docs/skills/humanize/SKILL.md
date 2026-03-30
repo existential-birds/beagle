@@ -189,7 +189,7 @@ echo "Reverted $file due to validation failure"
 
 ### 9. Report Results
 
-~~~markdown
+```markdown
 ## Humanize Summary
 
 ### Applied Fixes
@@ -209,10 +209,11 @@ echo "Reverted $file due to validation failure"
 - src/auth.py: OK
 
 ### Diff Summary
+```
+
 ```bash
 git diff --stat
 ```
-~~~
 
 ### 10. Cleanup
 

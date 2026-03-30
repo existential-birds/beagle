@@ -277,9 +277,13 @@ If any verification fails, report the error and do not proceed.
 ## Output Format for Each Finding
 
 ```text
-[FILE:LINE] **ISSUE_TYPE** (Risk, Fix Safety)
-- Description
-- Suggestion: Specific fix recommendation
+[FILE:LINE] ISSUE_TITLE
+- Category: content | vocabulary | formatting | communication | filler | code_docs
+- Type: specific_pattern_name
+- Original: "the problematic text"
+- Suggestion: "the improved text" or "delete"
+- Risk: Low | Medium
+- Fix Safety: Safe | Needs review
 ```
 
 ## Rules

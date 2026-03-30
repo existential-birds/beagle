@@ -22,7 +22,7 @@ Compare code implementations across multiple repositories using structured evalu
 | `repos` | Yes | 2+ paths to repositories to compare |
 | `--labels` | No | Comma-separated labels (default: directory names) |
 | `--weights` | No | Override weights, e.g. `functionality:40,security:30` |
-| `--branch` | No | Branch to compare against main (default: current) |
+| `--branch` | No | Branch to compare against main (default: `main`) |
 
 ## Workflow
 

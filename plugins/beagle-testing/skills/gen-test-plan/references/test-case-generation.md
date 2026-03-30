@@ -45,11 +45,11 @@ Generate tests in this order:
     - run: agent-browser wait --url "**/<expected-path>"
     - run: agent-browser snapshot -i
       note: Verify final state
-    - run: agent-browser screenshot evidence/tc-XX.png
+    - run: agent-browser screenshot docs/testing/evidence/tc-XX.png
   expected: |
     <Natural language description of expected behavior>
   evidence:
-    screenshot: evidence/tc-XX.png
+    screenshot: docs/testing/evidence/tc-XX.png
 ```
 
 ### Test Case Guidelines

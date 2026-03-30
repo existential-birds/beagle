@@ -66,7 +66,7 @@ Freeform prose is also acceptable; extract actionable items from the text.
 
 ## Example
 
-```
+```bash
 /receive-feedback reviews/pr-123-feedback.md
 ```
 

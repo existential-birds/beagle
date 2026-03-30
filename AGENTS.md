@@ -8,7 +8,7 @@ Beagle is a Claude Code plugin marketplace providing framework-aware code review
 
 ## Marketplace Architecture
 
-```
+```text
 beagle/
 ├── .claude-plugin/
 │   └── marketplace.json         # Marketplace manifest (11 plugins)

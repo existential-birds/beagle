@@ -23,7 +23,7 @@
       "name": "beagle-core",
       "source": "./plugins/beagle-core",
       "description": "Shared code review workflows, verification protocol, git commands, and feedback handling",
-      "version": "1.1.2",
+      "version": "1.1.4",
       "category": "workflow",
       "tags": [
         "code-review",
@@ -36,7 +36,7 @@
       "name": "beagle-python",
       "source": "./plugins/beagle-python",
       "description": "Python, FastAPI, SQLAlchemy, PostgreSQL, and pytest code review",
-      "version": "1.1.0",
+      "version": "1.1.1",
       "category": "backend",
       "tags": [
         "python",
@@ -51,7 +51,7 @@
       "name": "beagle-go",
       "source": "./plugins/beagle-go",
       "description": "Go, BubbleTea TUI, Wish SSH, and Prometheus code review",
-      "version": "2.3.0",
+      "version": "2.3.1",
       "category": "backend",
       "tags": [
         "go",
@@ -66,7 +66,7 @@
       "name": "beagle-elixir",
       "source": "./plugins/beagle-elixir",
       "description": "Elixir, Phoenix, LiveView, and ExUnit code review",
-      "version": "1.2.0",
+      "version": "1.2.1",
       "category": "backend",
       "tags": [
         "elixir",
@@ -80,7 +80,7 @@
       "name": "beagle-ios",
       "source": "./plugins/beagle-ios",
       "description": "Swift, SwiftUI, SwiftData, and iOS framework code review",
-      "version": "1.1.0",
+      "version": "1.2.1",
       "category": "mobile",
       "tags": [
         "swift",
@@ -96,7 +96,7 @@
       "name": "beagle-react",
       "source": "./plugins/beagle-react",
       "description": "React, React Flow, React Router, shadcn/ui, Tailwind, Vitest, and Zustand code review",
-      "version": "1.1.0",
+      "version": "1.1.1",
       "category": "frontend",
       "tags": [
         "react",
@@ -125,7 +125,7 @@
       "name": "beagle-docs",
       "source": "./plugins/beagle-docs",
       "description": "Documentation quality, AI writing detection, and humanization using Diataxis principles",
-      "version": "1.1.0",
+      "version": "1.1.1",
       "category": "documentation",
       "tags": [
         "documentation",
@@ -139,7 +139,7 @@
       "name": "beagle-analysis",
       "source": "./plugins/beagle-analysis",
       "description": "Architecture analysis, brainstorming, 12-Factor compliance, ADR generation, and LLM-as-judge",
-      "version": "1.1.0",
+      "version": "1.1.1",
       "category": "analysis",
       "tags": [
         "12-factor",
@@ -153,7 +153,7 @@
       "name": "beagle-rust",
       "source": "./plugins/beagle-rust",
       "description": "Rust, tokio, axum, serde, sqlx, and async concurrency code review",
-      "version": "1.0.0",
+      "version": "1.0.1",
       "category": "backend",
       "tags": [
         "rust",
@@ -169,7 +169,7 @@
       "name": "beagle-testing",
       "source": "./plugins/beagle-testing",
       "description": "Language-agnostic test plan generation and execution",
-      "version": "1.0.1",
+      "version": "1.0.2",
       "category": "testing",
       "tags": [
         "testing",

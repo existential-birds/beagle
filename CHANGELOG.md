@@ -6,10 +6,14 @@ Format follows [Keep a Changelog](https://keepachangelog.com/en/1.1.0/). Version
 
 ## [Unreleased]
 
+## [2.9.0] - 2026-03-30
+
+### Added
+- **codex:** Add OpenAI Codex support with install guide and skill linking instructions ([#77](https://github.com/existential-birds/beagle/pull/77))
+- **codex:** Add `AGENTS.md` for Codex agent discovery ([#77](https://github.com/existential-birds/beagle/pull/77))
+
 ### Changed
-- Unified the marketplace's command-style workflows into skills across all plugins, bringing the repository to 122 skills total and making skills the canonical format.
-- Added Codex support docs at `.codex/INSTALL.md` and `docs/README.codex.md` for linking Beagle skills into Codex's skill path.
-- Marked workflow skills with `disable-model-invocation: true` and internal-only reference skills with `user-invocable: false`.
+- Unify all command workflows into skills format across all plugins, making skills the canonical format ([#77](https://github.com/existential-birds/beagle/pull/77))
 
 ## [2.8.0] - 2026-03-27
 
@@ -295,6 +299,9 @@ Format follows [Keep a Changelog](https://keepachangelog.com/en/1.1.0/). Version
 - Development commands: `skill-builder`, `ensure-docs`
 - Cursor IDE command equivalents
 
+[2.9.0]: https://github.com/existential-birds/beagle/compare/v2.8.0...v2.9.0
+[2.8.0]: https://github.com/existential-birds/beagle/compare/v2.7.1...v2.8.0
+[2.7.0]: https://github.com/existential-birds/beagle/compare/v2.6.0...v2.7.0
 [2.6.0]: https://github.com/existential-birds/beagle/compare/v2.5.0...v2.6.0
 [2.5.0]: https://github.com/existential-birds/beagle/compare/v2.4.0...v2.5.0
 [2.4.0]: https://github.com/existential-birds/beagle/compare/v2.3.1...v2.4.0

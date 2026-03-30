@@ -1,6 +1,7 @@
 ---
 name: llm-artifacts-detection
 description: Detects common LLM coding agent artifacts in codebases. Identifies test quality issues, dead code, over-abstraction, and verbose LLM style patterns. Use when cleaning up AI-generated code or reviewing for agent-introduced cruft.
+user-invocable: false
 ---
 
 # LLM Artifacts Detection

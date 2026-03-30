@@ -1,6 +1,7 @@
 ---
 name: explanation-docs
 description: Explanation documentation patterns for understanding-oriented content - conceptual guides that explain why things work the way they do
+user-invocable: false
 autoContext:
   whenUserAsks:
     - explanation doc

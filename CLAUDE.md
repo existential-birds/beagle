@@ -4,28 +4,29 @@ This file provides guidance to Claude Code (claude.ai/code) when working with co
 
 ## What This Is
 
-Beagle is a Claude Code plugin marketplace providing framework-aware code review skills and verification workflows for pre-push reviews and GitHub bot feedback handling. It contains 10 focused plugins with 83 skills and 27 commands.
+Beagle is a Claude Code plugin marketplace providing framework-aware code review skills and verification workflows for pre-push reviews and GitHub bot feedback handling. It contains 11 focused plugins with 122 skills.
 
 ## Marketplace Architecture
 
 ```
 beagle/
 ├── .claude-plugin/
-│   └── marketplace.json         # Marketplace manifest (10 plugins)
+│   └── marketplace.json         # Marketplace manifest (11 plugins)
 └── plugins/
-    ├── beagle-core/             # Shared workflows, verification, git commands (8 skills, 11 commands)
-    ├── beagle-python/           # Python, FastAPI, SQLAlchemy, PostgreSQL, pytest (6 skills, 1 command)
-    ├── beagle-go/               # Go, BubbleTea, Wish SSH, Prometheus (6 skills, 2 commands)
-    ├── beagle-elixir/           # Elixir, Phoenix, LiveView, ExUnit, ExDoc (10 skills, 1 command)
-    ├── beagle-ios/              # Swift, SwiftUI, SwiftData, iOS frameworks (12 skills, 1 command)
-    ├── beagle-react/            # React, React Flow, shadcn/ui, Tailwind, Vitest (15 skills, 1 command)
+    ├── beagle-core/             # Shared workflows, verification, git workflows (18 skills)
+    ├── beagle-python/           # Python, FastAPI, SQLAlchemy, PostgreSQL, pytest (7 skills)
+    ├── beagle-go/               # Go, BubbleTea, Wish SSH, Prometheus (13 skills)
+    ├── beagle-elixir/           # Elixir, Phoenix, LiveView, ExUnit, ExDoc (11 skills)
+    ├── beagle-ios/              # Swift, SwiftUI, SwiftData, iOS frameworks (16 skills)
+    ├── beagle-react/           # React, React Flow, shadcn/ui, Tailwind, Vitest (16 skills)
+    ├── beagle-rust/            # Rust, tokio, axum, sqlx, serde (8 skills)
     ├── beagle-ai/               # Pydantic AI, LangGraph, DeepAgents, Vercel AI SDK (13 skills)
-    ├── beagle-docs/             # Documentation quality, AI writing detection (7 skills, 5 commands)
-    ├── beagle-analysis/         # Brainstorming, 12-Factor, ADRs, LLM-as-judge (6 skills, 3 commands)
-    └── beagle-testing/          # Test plan generation and execution (2 commands)
+    ├── beagle-docs/             # Documentation quality, AI writing detection (10 skills)
+    ├── beagle-analysis/         # Brainstorming, 12-Factor, ADRs, LLM-as-judge (8 skills)
+    └── beagle-testing/          # Test plan generation and execution (2 skills)
 ```
 
-Each plugin is self-contained with its own `plugin.json`, `skills/`, and `commands/` directories.
+Each plugin is self-contained with its own `plugin.json` and `skills/` directory.
 
 ## Local Development
 
@@ -38,15 +39,17 @@ Test the marketplace during development:
 }
 ```
 
-Restart Claude Code after changes to reload. For skills, start a conversation using trigger keywords. For commands, run `/<plugin-name>:<command-name>` (e.g., `/beagle-core:commit-push`).
+Restart Claude Code after changes to reload. Skills are discovered from plugin `skills/` directories and trigger keywords in skill frontmatter. Codex users can install the same skills by linking each plugin into `~/.agents/skills/` (see [.codex/INSTALL.md](.codex/INSTALL.md)).
 
 ## Skills vs Commands
 
-See [Agent Skills](https://docs.claude.com/en/docs/agents-and-tools/agent-skills/overview) and [Slash commands](https://docs.claude.com/en/docs/claude-code/slash-commands) for general concepts.
+See [Agent Skills](https://docs.claude.com/en/docs/agents-and-tools/agent-skills/overview) for the canonical format.
 
-**Skills** (`plugins/<name>/skills/` folders): Auto-loaded by Claude when relevant. Structure: `skill-name/SKILL.md` with optional `references/` folder.
+Beagle now treats skills as the canonical format. Former command workflows were unified into `SKILL.md` files under each plugin's `skills/` directory, where frontmatter controls user exposure and behavior.
 
-**Commands** (`plugins/<name>/commands/` folders): User-invoked with `/<plugin-name>:<command>`. Single markdown file per command.
+**Skills** (`plugins/<name>/skills/` folders): Auto-loaded by Claude when relevant. Structure: `skill-name/SKILL.md` with optional `references/` folder and frontmatter such as `disable-model-invocation` and `user-invocable`.
+
+Legacy command workflows were merged into skills and are no longer stored separately.
 
 ## Creating New Skills
 
@@ -57,18 +60,12 @@ Beagle-specific:
 - Some skills use multiple root-level .md files (e.g., react-router-v7)
 - Code review skills: use format `[FILE:LINE] ISSUE_TITLE`
 - Place new skills in the appropriate plugin directory
+- Mark workflow skills with `disable-model-invocation: true`
+- Mark internal-only reference skills with `user-invocable: false`
 
-## Creating New Commands
+## Key Skills
 
-Beagle command patterns:
-- Start with context gathering (git diff, tech detection)
-- Load relevant skills dynamically using `<plugin-name>:<skill-name>` format
-- Include output format templates
-- End with verification steps
-
-## Key Commands
-
-| Plugin | Command | Purpose |
+| Plugin | Skill | Purpose |
 |--------|---------|---------|
 | beagle-python | `review-python` | Python/FastAPI code review with tech detection |
 | beagle-react | `review-frontend` | React/TypeScript code review with tech detection |
@@ -120,5 +117,5 @@ This is a pure markdown plugin marketplace. No npm, no build, no tests. Validati
 
 Version bumping:
 - **Patch** (x.y.Z): Bug fixes, documentation
-- **Minor** (x.Y.0): New commands, skills, or features
-- **Major** (X.0.0): Breaking changes to existing commands/skills
+- **Minor** (x.Y.0): New skills or features
+- **Major** (X.0.0): Breaking changes to existing skills

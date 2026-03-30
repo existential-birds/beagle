@@ -1,6 +1,7 @@
 ---
 name: review-feedback-schema
 description: Schema for tracking code review outcomes to enable feedback-driven skill improvement. Use when logging review results or analyzing review quality.
+user-invocable: false
 ---
 
 # Review Feedback Schema

@@ -1,6 +1,7 @@
 ---
 name: docs-style
 description: Core technical documentation writing principles for voice, tone, structure, and LLM-friendly patterns. Use when writing or reviewing any documentation.
+user-invocable: false
 ---
 
 # Documentation Style Guide

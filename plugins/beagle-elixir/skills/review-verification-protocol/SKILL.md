@@ -1,6 +1,7 @@
 ---
 name: review-verification-protocol
 description: Mandatory verification steps for all code reviews to reduce false positives. Load this skill before reporting ANY code review findings.
+user-invocable: false
 ---
 
 # Review Verification Protocol

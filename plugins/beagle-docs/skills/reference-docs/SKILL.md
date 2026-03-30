@@ -1,6 +1,7 @@
 ---
 name: reference-docs
 description: Reference documentation patterns for API and symbol documentation. Use when writing reference docs, API docs, parameter tables, or technical specifications. Triggers on reference docs, API reference, function reference, parameters table, symbol documentation.
+user-invocable: false
 ---
 
 # Reference Documentation Patterns

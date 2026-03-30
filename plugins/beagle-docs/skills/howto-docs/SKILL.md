@@ -1,6 +1,7 @@
 ---
 name: howto-docs
 description: How-To guide patterns for documentation - task-oriented guides for users with specific goals
+user-invocable: false
 autoContext:
   whenUserAsks:
     - how to guide

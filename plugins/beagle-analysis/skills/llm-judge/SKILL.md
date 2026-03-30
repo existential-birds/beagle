@@ -110,7 +110,7 @@ Collect all repo outputs into `ALL_FACTS`.
 ### Step 6: Validate Phase 1 Results
 
 ```bash
-echo "$FACTS" | python3 -c "import json,sys; json.load(sys.stdin)" 2>/dev/null || echo "Invalid JSON from $LABEL"
+echo "$FACTS" | python3 -c "import json,sys; json.load(sys.stdin)" 2>/dev/null || { echo "Error: Invalid JSON from $LABEL"; exit 1; }
 ```
 
 ### Step 7: Phase 2 - Spawn Judge Agents

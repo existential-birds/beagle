@@ -16,8 +16,6 @@ Beagle has two version locations:
 1. **marketplace.json metadata.version** (`.claude-plugin/marketplace.json`) - Main release version, matches repo tags
 2. **Per-plugin plugin.json version** (`plugins/<name>/.claude-plugin/plugin.json`) - Individual plugin versions, bumped when that plugin's files change
 
-The `marketplace.json plugins[].version` entries are synced from each plugin's `plugin.json` during release (plugin.json is the source of truth).
-
 ## Prerequisites
 
 Verify we're on main and it's clean:

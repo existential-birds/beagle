@@ -12,12 +12,9 @@ No arguments required - automatically detects the previous tag.
 
 ## Versioning Overview
 
-Beagle has three version locations:
+Beagle has two version locations:
 1. **marketplace.json metadata.version** (`.claude-plugin/marketplace.json`) - Main release version, matches repo tags
 2. **Per-plugin plugin.json version** (`plugins/<name>/.claude-plugin/plugin.json`) - Individual plugin versions, bumped when that plugin's files change
-3. **marketplace.json plugins[].version** - Plugin version in marketplace listing (only update when marketplace structure changes)
-
-This command updates **marketplace.json metadata.version** and **affected plugin.json versions**. The marketplace `plugins[].version` entries are updated manually when the marketplace structure changes.
 
 ## Prerequisites
 

@@ -4,6 +4,13 @@ All notable changes to Beagle are documented here.
 
 Format follows [Keep a Changelog](https://keepachangelog.com/en/1.1.0/). Versioning adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [Unreleased]
+
+### Changed
+- Unified the marketplace's command-style workflows into skills across all plugins, bringing the repository to 122 skills total and making skills the canonical format.
+- Added Codex support docs at `.codex/INSTALL.md` and `docs/README.codex.md` for linking Beagle skills into Codex's skill path.
+- Marked workflow skills with `disable-model-invocation: true` and internal-only reference skills with `user-invocable: false`.
+
 ## [2.8.0] - 2026-03-27
 
 ### Added

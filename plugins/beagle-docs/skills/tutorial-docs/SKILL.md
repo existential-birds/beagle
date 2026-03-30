@@ -1,6 +1,7 @@
 ---
 name: tutorial-docs
 description: Tutorial patterns for documentation - learning-oriented guides that teach through guided doing
+user-invocable: false
 autoContext:
   whenUserAsks:
     - tutorial

@@ -1,18 +1,186 @@
 ---
 name: llm-judge
-description: LLM-as-judge methodology for comparing code implementations across repositories. Scores implementations on functionality, security, test quality, overengineering, and dead code using weighted rubrics. Used by /beagle:llm-judge command.
+description: Compare code implementations across 2+ repos using LLM-as-judge methodology with weighted scoring
+disable-model-invocation: true
 ---
 
-# LLM Judge Skill
+# LLM Judge
 
-Compare code implementations across 2+ repositories using structured evaluation.
+Compare code implementations across multiple repositories using structured evaluation.
 
-## Overview
+## Usage
 
-This skill implements a two-phase LLM-as-judge evaluation:
+```bash
+/beagle-analysis:llm-judge <spec> <repo1> <repo2> [repo3...] [--labels=...] [--weights=...] [--branch=...]
+```
 
-1. **Phase 1: Fact Gathering** - Parallel agents explore each repo and extract structured facts
-2. **Phase 2: Judging** - Parallel judges score each dimension using consistent rubrics
+## Arguments
+
+| Argument | Required | Description |
+|----------|----------|-------------|
+| `spec` | Yes | Path to spec/requirements document |
+| `repos` | Yes | 2+ paths to repositories to compare |
+| `--labels` | No | Comma-separated labels (default: directory names) |
+| `--weights` | No | Override weights, e.g. `functionality:40,security:30` |
+| `--branch` | No | Branch to compare against main (default: `main`) |
+
+## Workflow
+
+1. Parse `$ARGUMENTS` into `spec_path`, `repo_paths`, `labels`, `weights`, and `branch`.
+2. Validate the spec file, each repo path, and the minimum repo count.
+3. Read the spec document into memory.
+4. Load this skill and the supporting reference files.
+5. Spawn one Phase 1 repo agent per repository to gather facts only.
+6. Validate the repo-agent JSON results before proceeding.
+7. Spawn one Phase 2 judge agent per dimension.
+8. Aggregate scores, compute weighted totals, rank repos, and write the report.
+9. Display the markdown summary and verify the JSON report.
+
+## Command Workflow
+
+### Step 1: Parse Arguments
+
+Parse `$ARGUMENTS` to extract:
+- `spec_path`: first positional argument
+- `repo_paths`: remaining positional arguments (must be 2+)
+- `labels`: from `--labels` or derived from directory names
+- `weights`: from `--weights` or defaults
+- `branch`: from `--branch` or `main`
+
+**Default Weights:**
+
+```json
+{
+  "functionality": 30,
+  "security": 25,
+  "tests": 20,
+  "overengineering": 15,
+  "dead_code": 10
+}
+```
+
+### Step 2: Validate Inputs
+
+```bash
+[ -f "$SPEC_PATH" ] || { echo "Error: Spec file not found: $SPEC_PATH"; exit 1; }
+
+for repo in "${REPO_PATHS[@]}"; do
+  [ -d "$repo/.git" ] || { echo "Error: Not a git repository: $repo"; exit 1; }
+done
+
+[ ${#REPO_PATHS[@]} -ge 2 ] || { echo "Error: Need at least 2 repositories to compare"; exit 1; }
+```
+
+### Step 3: Read Spec Document
+
+```bash
+SPEC_CONTENT=$(cat "$SPEC_PATH") || { echo "Error: Failed to read spec file: $SPEC_PATH"; exit 1; }
+[ -z "$SPEC_CONTENT" ] && { echo "Error: Spec file is empty: $SPEC_PATH"; exit 1; }
+```
+
+### Step 4: Load the Skill
+
+Load the llm-judge skill: `Skill(skill: "beagle-analysis:llm-judge")`
+
+### Step 5: Phase 1 - Spawn Repo Agents
+
+Spawn one Task per repo:
+
+```text
+You are a Phase 1 Repo Agent for the LLM Judge evaluation.
+
+**Your Repo:** $LABEL at $REPO_PATH
+
+**Spec Document:**
+$SPEC_CONTENT
+
+**Instructions:**
+1. Load skill: Skill(skill: "beagle-analysis:llm-judge")
+2. Read references/repo-agent.md for detailed instructions
+3. Read references/fact-schema.md for the output format
+4. Load Skill(skill: "beagle-core:llm-artifacts-detection") for analysis
+
+Explore the repository and gather facts. Return ONLY valid JSON following the fact schema.
+
+Do NOT score or judge. Only gather facts.
+```
+
+Collect all repo outputs into `ALL_FACTS`.
+
+### Step 6: Validate Phase 1 Results
+
+```bash
+echo "$FACTS" | python3 -c "import json,sys; json.load(sys.stdin)" 2>/dev/null || { echo "Error: Invalid JSON from $LABEL"; exit 1; }
+```
+
+### Step 7: Phase 2 - Spawn Judge Agents
+
+Spawn five judge agents, one per dimension:
+
+```text
+You are the $DIMENSION Judge for the LLM Judge evaluation.
+
+**Spec Document:**
+$SPEC_CONTENT
+
+**Facts from all repos:**
+$ALL_FACTS_JSON
+
+**Instructions:**
+1. Load skill: Skill(skill: "beagle-analysis:llm-judge")
+2. Read references/judge-agents.md for detailed instructions
+3. Read references/scoring-rubrics.md for the $DIMENSION rubric
+
+Score each repo on $DIMENSION. Return ONLY valid JSON with scores and justifications.
+```
+
+### Step 8: Aggregate Scores
+
+```python
+for repo_label in labels:
+    scores[repo_label] = {}
+    for dimension in dimensions:
+        scores[repo_label][dimension] = judge_outputs[dimension]['scores'][repo_label]
+
+    weighted_total = sum(
+        scores[repo_label][dim]['score'] * weights[dim] / 100
+        for dim in dimensions
+    )
+    scores[repo_label]['weighted_total'] = round(weighted_total, 2)
+
+ranking = sorted(labels, key=lambda l: scores[l]['weighted_total'], reverse=True)
+```
+
+### Step 9: Generate Verdict
+
+Name the winner, explain why they won, and note any close calls or trade-offs.
+
+### Step 10: Write JSON Report
+
+```bash
+mkdir -p .beagle
+```
+
+Write `.beagle/llm-judge-report.json` with version, timestamp, repo metadata, weights, scores, ranking, and verdict.
+
+### Step 11: Display Summary
+
+Render a markdown summary with the scores table, ranking, verdict, and detailed justifications.
+
+### Step 12: Verification
+
+```bash
+python3 -c "import json; json.load(open('.beagle/llm-judge-report.json'))" && echo "Valid report"
+```
+
+### Output Shape
+
+The generated report should include:
+
+- repo labels and paths
+- per-dimension scores and justifications
+- weighted totals and ranking
+- a verdict explaining the winner
 
 ## Reference Files
 
@@ -23,7 +191,7 @@ This skill implements a two-phase LLM-as-judge evaluation:
 | [references/repo-agent.md](references/repo-agent.md) | Instructions for Phase 1 agents |
 | [references/judge-agents.md](references/judge-agents.md) | Instructions for Phase 2 judges |
 
-## Scoring Dimensions
+## Scoring Model
 
 | Dimension | Default Weight | Evaluates |
 |-----------|----------------|-----------|
@@ -47,7 +215,7 @@ This skill implements a two-phase LLM-as-judge evaluation:
 
 For each repository, spawn a Task agent with:
 
-```
+```text
 You are a Phase 1 Repo Agent for the LLM Judge evaluation.
 
 **Your Repo:** $REPO_LABEL at $REPO_PATH
@@ -63,11 +231,13 @@ Load @beagle:llm-artifacts-detection for dead code and overengineering analysis.
 Return ONLY valid JSON, no markdown or explanations.
 ```
 
+Collect all repo-agent outputs into `ALL_FACTS`.
+
 ## Phase 2: Spawning Judge Agents
 
-After all Phase 1 agents complete, spawn 5 judge agents (one per dimension):
+After all Phase 1 agents complete, spawn 5 judge agents, one per dimension:
 
-```
+```text
 You are the $DIMENSION Judge for the LLM Judge evaluation.
 
 **Spec Document:**
@@ -85,20 +255,28 @@ Return ONLY valid JSON following the judge output schema.
 
 ## Aggregation
 
-After Phase 2 completes:
-
-1. Collect scores from all 5 judges
-2. For each repo, compute weighted total:
-   ```
-   weighted_total = sum(score[dim] * weight[dim]) / 100
-   ```
-3. Rank repos by weighted total (descending)
-4. Generate verdict explaining the ranking
+1. Collect the five judge outputs.
+2. Compute each repo's weighted total with the configured weights.
+3. Rank repos by weighted total in descending order.
+4. Generate a verdict that explains the result and any close calls.
+5. Write `.beagle/llm-judge-report.json`.
 
 ## Output
 
-Write results to `.beagle/llm-judge-report.json` and display markdown summary.
+Display a markdown summary with scores, ranking, verdict, and detailed justifications.
 
-## Dependencies
+## Verification
 
-- `@beagle:llm-artifacts-detection` - Reused by repo agents for dead code/overengineering
+Before completing:
+
+1. Verify `.beagle/llm-judge-report.json` exists and is valid JSON.
+2. Verify all repos have scores for all dimensions.
+3. Verify weighted totals sum correctly.
+
+## Rules
+
+- Always validate inputs before proceeding
+- Spawn Phase 1 agents in parallel, then wait before Phase 2
+- Spawn Phase 2 agents in parallel, one per dimension
+- Every score must have a justification
+- Write the JSON report before displaying the summary

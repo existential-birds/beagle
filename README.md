@@ -2,12 +2,6 @@
 
 [![Ask DeepWiki](https://deepwiki.com/badge.svg)](https://deepwiki.com/existential-birds/beagle)
 
-> **Upgrading from beagle v1?** The monolithic `beagle` plugin was split into individual plugins in v2.0.0. If you still have `beagle@existential-birds` enabled in `~/.claude/settings.json`, it now loads as a no-op stub. You can remove it with:
-> ```
-> claude plugin uninstall beagle@existential-birds
-> ```
-> Then install the individual plugins you need (see [Installation](#installation) below).
-
 ![Apollo 10 astronaut Thomas P. Stafford pats the nose of a stuffed Snoopy](assets/Stafford_and_Snoopy.jpg)
 
 *Image: NASA, Public Domain. [Source](https://www.nasa.gov/multimedia/imagegallery/image_feature_572.html)*
@@ -20,7 +14,7 @@ Powers the agents in [Amelia](https://github.com/existential-birds/amelia). For 
 
 **Prerequisites:**
 - [Claude Code](https://claude.ai/code) CLI installed
-- [agent-browser](https://github.com/vercel-labs/agent-browser) for `run-test-plan` command (optional)
+- [agent-browser](https://github.com/vercel-labs/agent-browser) for the `run-test-plan` skill (optional)
 
 ```bash
 # Add the marketplace
@@ -32,7 +26,7 @@ claude plugin install beagle-python@existential-birds
 claude plugin install beagle-react@existential-birds
 ```
 
-Verify installation by running `/<plugin-name>:` in Claude Code (e.g., `/beagle-core:`)—you should see the command list.
+Verify installation by opening a new Claude Code session and confirming the plugin's skills appear.
 
 To update: `claude plugin marketplace update existential-birds && claude plugin update <plugin-name>`
 
@@ -48,32 +42,32 @@ Use the [skills CLI](https://skills.sh/docs/cli) to install beagle skills for ot
 npx skills add existential-birds/beagle
 ```
 
-This downloads the skills and configures them for your agent. Commands are Claude Code specific and not available through the skills CLI.
+This downloads the skills and configures them for your agent. Codex users can install the same skills by linking each plugin into `~/.agents/skills/` (see [.codex/INSTALL.md](.codex/INSTALL.md)).
 
 ## Plugins
 
-| Plugin | Skills | Commands | Category |
-|--------|--------|----------|----------|
-| **beagle-core** | 8 | 11 | Shared workflows, verification, git |
-| **beagle-python** | 6 | 1 | Python, FastAPI, SQLAlchemy, pytest |
-| **beagle-go** | 6 | 2 | Go, BubbleTea, Wish SSH, Prometheus |
-| **beagle-elixir** | 10 | 1 | Elixir, Phoenix, LiveView, ExUnit, ExDoc |
-| **beagle-ios** | 15 | 1 | Swift, SwiftUI, SwiftData, iOS frameworks |
-| **beagle-react** | 15 | 1 | React, React Flow, shadcn/ui, Tailwind |
-| **beagle-rust** | 7 | 1 | Rust, tokio, axum, sqlx, serde |
-| **beagle-ai** | 13 | 0 | Pydantic AI, LangGraph, DeepAgents |
-| **beagle-docs** | 7 | 5 | Documentation quality, AI writing detection (Diataxis) |
-| **beagle-analysis** | 6 | 3 | Brainstorming, 12-Factor, ADRs, LLM-as-judge |
-| **beagle-testing** | 0 | 2 | Test plan generation and execution |
-| **Total** | **93** | **28** | |
+| Plugin | Skills | Category |
+|--------|--------|----------|
+| **beagle-core** | 18 | Shared workflows, verification, git |
+| **beagle-python** | 7 | Python, FastAPI, SQLAlchemy, pytest |
+| **beagle-go** | 13 | Go, BubbleTea, Wish SSH, Prometheus |
+| **beagle-elixir** | 11 | Elixir, Phoenix, LiveView, ExUnit, ExDoc |
+| **beagle-ios** | 16 | Swift, SwiftUI, SwiftData, iOS frameworks |
+| **beagle-react** | 16 | React, React Flow, shadcn/ui, Tailwind |
+| **beagle-rust** | 8 | Rust, tokio, axum, sqlx, serde |
+| **beagle-ai** | 13 | Pydantic AI, LangGraph, DeepAgents |
+| **beagle-docs** | 10 | Documentation quality, AI writing detection (Diataxis) |
+| **beagle-analysis** | 8 | Brainstorming, 12-Factor, ADRs, LLM-as-judge |
+| **beagle-testing** | 2 | Test plan generation and execution |
+| **Total** | **122** | |
 
-## Commands
+## Skills
 
-Run with `/<plugin-name>:<command>`. See [Slash commands](https://docs.claude.com/en/docs/claude-code/slash-commands).
+These are the canonical skill entry points for Beagle. Former command workflows now live as skills.
 
 ### beagle-core
 
-| Command | Description |
+| Skill | Description |
 |---------|-------------|
 | `review-plan <path>` | Review implementation plans |
 | `review-llm-artifacts` | Detect LLM coding artifacts |
@@ -87,9 +81,9 @@ Run with `/<plugin-name>:<command>`. See [Slash commands](https://docs.claude.co
 | `skill-builder` | Create new skills |
 | `prompt-improver` | Optimize prompts |
 
-### Code Review
+### Code Review Skills
 
-| Command | Plugin | Description |
+| Skill | Plugin | Description |
 |---------|--------|-------------|
 | `review-python` | beagle-python | Python/FastAPI code review |
 | `review-frontend` | beagle-react | React/TypeScript code review |
@@ -99,9 +93,9 @@ Run with `/<plugin-name>:<command>`. See [Slash commands](https://docs.claude.co
 | `review-elixir` | beagle-elixir | Elixir/Phoenix code review |
 | `review-rust` | beagle-rust | Rust/tokio/axum code review |
 
-### Documentation & Analysis
+### Documentation & Analysis Skills
 
-| Command | Plugin | Description |
+| Skill | Plugin | Description |
 |---------|--------|-------------|
 | `draft-docs <prompt>` | beagle-docs | Generate documentation drafts |
 | `improve-doc <path>` | beagle-docs | Improve docs using Diataxis |
@@ -112,9 +106,9 @@ Run with `/<plugin-name>:<command>`. See [Slash commands](https://docs.claude.co
 | `llm-judge` | beagle-analysis | Compare implementations |
 | `write-adr` | beagle-analysis | Generate ADRs from decisions |
 
-### Testing
+### Testing Skills
 
-| Command | Plugin | Description |
+| Skill | Plugin | Description |
 |---------|--------|-------------|
 | `gen-test-plan` | beagle-testing | Generate YAML test plan |
 | `run-test-plan` | beagle-testing | Execute test plan |

@@ -34,34 +34,50 @@ Extract from the YAML:
 - `setup.health_checks`: List of URLs to poll
 - `tests`: Array of test cases
 
-## Step 2: Run Setup Commands (unless --skip-setup)
+## Step 2: Run Setup (unless --skip-setup)
 
-Execute setup commands sequentially:
+### 2a. Check Prerequisites
+
+If `setup.prerequisites` exists, verify each one:
 
 ```bash
-# For each command in setup.commands
-<command> || { echo "Setup failed: <command>"; exit 1; }
+# For each prerequisite in setup.prerequisites
+<prerequisite.check> || { echo "Prerequisite not met: <prerequisite.name>"; exit 1; }
 ```
 
-For commands that start services (e.g., `pnpm run dev`, `docker-compose up -d`):
-- Run in background
-- Capture PID for cleanup
-- Continue to health checks
+### 2b. Set Environment Variables
+
+If `setup.env` exists, export each variable. Variables using `${VAR}` syntax should be resolved from the current environment:
 
 ```bash
-# Start dev servers in background
-nohup <dev_command> > .beagle/dev-server.log 2>&1 &
-echo $! > .beagle/dev-server.pid
+# For each key/value in setup.env
+export <key>="<value>"
 ```
 
-## Step 3: Run Health Checks
+### 2c. Build
 
-Poll each health check URL until healthy or timeout:
+If `setup.build` exists, execute build commands sequentially:
 
 ```bash
-# For each health_check
-timeout=<health_check.timeout or 30>
-url=<health_check.url>
+# For each command in setup.build
+<command> || { echo "Build failed: <command>"; exit 1; }
+```
+
+### 2d. Start Services
+
+If `setup.services` exists, start long-running processes and wait for health checks:
+
+```bash
+# For each service in setup.services
+nohup <service.command> > .beagle/service-<index>.log 2>&1 &
+echo $! > .beagle/service-<index>.pid
+```
+
+For each service with a `health_check`, poll until ready:
+
+```bash
+timeout=<service.health_check.timeout or 30>
+url=<service.health_check.url>
 elapsed=0
 
 while [ $elapsed -lt $timeout ]; do
@@ -79,6 +95,10 @@ if [ $elapsed -ge $timeout ]; then
 fi
 ```
 
+### 2e. Legacy Setup Format
+
+If the plan uses the older flat format (`setup.commands` + `setup.health_checks` instead of `prerequisites`/`build`/`services`), fall back to executing `setup.commands` sequentially and polling `setup.health_checks` as before.
+
 ## Step 4: Execute Tests Sequentially
 
 For each test in the plan:
@@ -93,9 +113,27 @@ Context: <test.context>
 
 ### 4b. Execute Steps
 
-For each step in `test.steps`:
+For each step in `test.steps`, determine the step type and execute accordingly:
 
-**curl actions:**
+**Shell commands (`run:` steps):**
+
+The most common step type. Execute the command via Bash and capture stdout, stderr, and exit code:
+
+```bash
+# Execute the command, capture output and exit code
+<command> 2>&1
+echo "EXIT_CODE: $?"
+```
+
+Capture all output for evaluation in step 4c. Shell steps cover:
+- CLI binary invocations (e.g., `./target/debug/myapp status --all`)
+- Database queries (e.g., `psql "${DATABASE_URL}" -c "SELECT ..."`)
+- File inspection (e.g., `ls -la /path/to/expected/output`)
+- Process lifecycle checks (e.g., `timeout 5 ./myapp 2>&1 || true`)
+- Any other command a human would type in a terminal
+
+**curl actions (`action: curl` steps):**
+
 ```bash
 curl -X <method> \
   -H "Content-Type: application/json" \
@@ -112,7 +150,7 @@ cat status_code.txt
 
 **agent-browser CLI actions:**
 
-Execute browser steps as `agent-browser` CLI commands via Bash. Each `run:` step in the test plan is a CLI command:
+Steps starting with `agent-browser` are browser automation commands:
 
 ```bash
 # Navigate
@@ -182,11 +220,13 @@ Stopping background services...
 
 Clean up:
 ```bash
-# Kill dev servers
-if [ -f .beagle/dev-server.pid ]; then
-  kill $(cat .beagle/dev-server.pid) 2>/dev/null
-  rm .beagle/dev-server.pid
-fi
+# Kill background services
+for pidfile in .beagle/service-*.pid .beagle/dev-server.pid; do
+  if [ -f "$pidfile" ]; then
+    kill $(cat "$pidfile") 2>/dev/null
+    rm "$pidfile"
+  fi
+done
 ```
 
 ## Step 6: On Failure - Generate Debug Prompt
@@ -284,11 +324,13 @@ EOF
 ### 6d. Cleanup and Exit
 
 ```bash
-# Kill dev servers
-if [ -f .beagle/dev-server.pid ]; then
-  kill $(cat .beagle/dev-server.pid) 2>/dev/null
-  rm .beagle/dev-server.pid
-fi
+# Kill background services
+for pidfile in .beagle/service-*.pid .beagle/dev-server.pid; do
+  if [ -f "$pidfile" ]; then
+    kill $(cat "$pidfile") 2>/dev/null
+    rm "$pidfile"
+  fi
+done
 ```
 
 ## Test Results Summary Table

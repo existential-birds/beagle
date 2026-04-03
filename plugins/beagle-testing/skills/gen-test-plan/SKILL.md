@@ -1,5 +1,5 @@
 ---
-description: Analyze repo, detect stack, trace changes to user-facing entry points, generate YAML test plan
+description: Analyze repo, detect stack, trace changes to user-facing entry points, generate E2E YAML test plan
 name: gen-test-plan
 disable-model-invocation: true
 ---
@@ -7,6 +7,24 @@ disable-model-invocation: true
 # Generate Test Plan
 
 Analyze the repository's tech stack, branch changes vs default, and generate an executable YAML test plan focused on user-facing impact.
+
+**This is an E2E test plan — not an automated test wrapper.** The generated plan will be executed by an autonomous agent acting exactly as a human QA tester would: launching real binaries, hitting real endpoints, interacting with real databases, and verifying real observable behavior.
+
+## Critical Rule: No Automated Test Duplication
+
+**NEVER generate test steps that re-run the project's existing automated test suite.** This means:
+- No `cargo test`, `pytest`, `npm test`, `go test`, `mix test`, or equivalent commands as test steps
+- No wrapping unit/integration test modules in a test case
+- No "run the tests and check they pass" — that's CI's job, not QA's
+
+If you find yourself writing a test step that invokes the project's test runner, **stop and rethink**. Ask: "What would a human tester do to verify this feature works?" The answer is never "run the unit tests."
+
+**What E2E test steps look like:**
+- Build the binary and run it with real arguments, check stdout/stderr/exit code
+- Start a server and hit it with curl
+- Run a CLI command that writes to a real database, then query the database to verify
+- Launch the TUI and verify it renders (via screenshot or process lifecycle)
+- Chain multiple commands that exercise a full user workflow end-to-end
 
 ## Arguments
 
@@ -41,7 +59,27 @@ See [references/stack-discovery.md](references/stack-discovery.md) for stack det
 
 ## Step 3: Discover User-Facing Entry Points
 
-Grep for route definitions based on detected stack:
+A "user-facing entry point" is anything a human interacts with: CLI subcommands, HTTP endpoints, UI routes, TUI screens, gRPC services, database migrations, or configuration files that affect runtime behavior.
+
+### CLI Applications (Rust/clap, Python/argparse/click, Go/cobra)
+
+```bash
+# Rust (clap) — look for Subcommand derives and command enums
+grep -rn "Subcommand\|#\[command\]" --include="*.rs" | head -20
+
+# Python (click/typer/argparse)
+grep -rn "@click.command\|@app.command\|add_parser\|add_subparser" --include="*.py" | head -20
+
+# Go (cobra)
+grep -rn "cobra.Command\|AddCommand" --include="*.go" | head -20
+```
+
+Build a map of:
+- CLI subcommands: command name + description + file:line
+- Required arguments and flags per subcommand
+- Environment variables the binary reads (grep for `env`, `std::env::var`, `os.Getenv`, `os.environ`)
+
+### HTTP/API Services
 
 **Python (FastAPI/Flask):**
 ```bash
@@ -55,9 +93,9 @@ grep -rn "app\.\(get\|post\|put\|delete\)" --include="*.ts" --include="*.js" | h
 grep -rn "router\.\(get\|post\|put\|delete\)" --include="*.ts" --include="*.js" | head -20
 ```
 
-**React Router:**
+**Rust (axum/actix/rocket):**
 ```bash
-grep -rn "createBrowserRouter\|<Route\|path=" --include="*.tsx" --include="*.jsx" | head -20
+grep -rn "Router::new\|\.route(\|#\[get\]\|#\[post\]\|HttpServer" --include="*.rs" | head -20
 ```
 
 **Go (net/http, gin, chi):**
@@ -65,9 +103,32 @@ grep -rn "createBrowserRouter\|<Route\|path=" --include="*.tsx" --include="*.jsx
 grep -rn "http.HandleFunc\|r.GET\|r.POST\|router.Get\|router.Post" --include="*.go" | head -20
 ```
 
-Build a map of:
+**Elixir (Phoenix):**
+```bash
+grep -rn "get \"/\|post \"/\|pipe_through\|live \"/\|scope \"/\"" --include="*.ex" | head -20
+```
+
+### Browser UI Routes
+
+```bash
+grep -rn "createBrowserRouter\|<Route\|path=" --include="*.tsx" --include="*.jsx" | head -20
+```
+
+### Database and Migrations
+
+```bash
+# SQL migrations
+ls migrations/ db/migrate/ priv/repo/migrations/ 2>/dev/null
+# Schema files
+ls schema.sql schema.prisma 2>/dev/null
+```
+
+### Build a consolidated map of:
+- CLI subcommands: name + args + file:line
 - API endpoints: method + path + file:line
 - UI routes: path + component + file:line
+- Database migrations: filename + what they create/alter
+- Configuration: env vars and config files that affect behavior
 
 ## Step 4: Trace Changes to Entry Points
 
@@ -81,6 +142,10 @@ For each changed file, determine if it affects user-facing functionality:
 ### Import Chain Analysis by Ecosystem
 
 ```bash
+# Rust — use/mod/crate references and workspace deps
+grep -rn "use.*<crate>\|mod <module>" --include="*.rs"
+grep -rn "<crate-name>" --include="Cargo.toml"
+
 # Python — from/import
 grep -rn "from.*<module>\|import.*<module>" --include="*.py"
 
@@ -144,20 +209,40 @@ metadata:
 
 setup:
   stack:
-    - type: <node|python|go|docker>
-      package_manager: <pnpm|npm|yarn|uv|poetry|none>
-  commands:
-    - <install command>
-    - <run command>
-  health_checks:
-    - url: http://localhost:<port>/health
-      timeout: 30
-    - url: http://localhost:<frontend_port>
-      timeout: 30
+    - type: <rust|node|python|go|elixir|docker>
+      package_manager: <cargo|pnpm|npm|yarn|uv|poetry|mix|none>
+  prerequisites:
+    # Services or infrastructure the tests need running
+    - name: <e.g., PostgreSQL>
+      check: <command to verify it's available, e.g., "pg_isready -h localhost">
+  build:
+    # Commands to build the project artifacts (binaries, assets, etc.)
+    - <build command, e.g., "cargo build --workspace">
+  services:
+    # Long-running processes to start before tests (servers, watchers, etc.)
+    # Omit if the project is a CLI tool or library with no server component
+    - command: <start command>
+      health_check:
+        url: http://localhost:<port>/health
+        timeout: 30
+  env:
+    # Environment variables needed by tests (use ${VAR} for secrets)
+    DATABASE_URL: "${DATABASE_URL}"
 
 tests:
-  # API test example:
+  # CLI test example — run the built binary with real arguments:
   - id: TC-01
+    name: <CLI test name>
+    context: |
+      <Why this test exists, which changes affect it>
+    steps:
+      - run: <command that a human would type in their terminal>
+      - run: <follow-up command to verify the effect>
+    expected: |
+      <Expected behavior: exit code, stdout content, side effects>
+
+  # API test example:
+  - id: TC-02
     name: <API test name>
     context: |
       <Why this test exists, which changes affect it>
@@ -168,8 +253,19 @@ tests:
     expected: |
       <Expected behavior in natural language>
 
+  # Database verification example:
+  - id: TC-03
+    name: <Database test name>
+    context: |
+      <Why this test exists, which changes affect it>
+    steps:
+      - run: <command that writes to the database>
+      - run: psql "${DATABASE_URL}" -c "SELECT ... FROM ... WHERE ..."
+    expected: |
+      <Expected rows, schema state, or migration effect>
+
   # Browser test example (always use agent-browser CLI commands):
-  - id: TC-02
+  - id: TC-04
     name: <UI test name>
     context: |
       <Why this test exists, which changes affect it>
@@ -178,11 +274,11 @@ tests:
       - run: agent-browser snapshot -i
       - run: agent-browser click @<ref>
       - run: agent-browser snapshot -i
-      - run: agent-browser screenshot evidence/tc-02.png
+      - run: agent-browser screenshot evidence/tc-04.png
     expected: |
       <Expected behavior in natural language>
     evidence:
-      screenshot: evidence/tc-02.png
+      screenshot: evidence/tc-04.png
 ```
 
 ## Step 7: Report Summary
@@ -242,17 +338,21 @@ grep -E "^version:|^metadata:|^setup:|^tests:" docs/testing/test-plan.yaml
 - [ ] YAML is syntactically valid
 - [ ] At least one test case generated
 - [ ] Setup commands match detected stack
-- [ ] Health checks point to valid endpoints
 - [ ] Each test has id, name, steps, and expected fields
+- [ ] **No automated test duplication:** Grep every `run:` and `command:` step in the plan for test runner invocations (`cargo test`, `pytest`, `npm test`, `go test`, `mix test`, `jest`, `vitest`, `mocha`, etc.). If ANY step invokes the project's test runner, the plan **fails verification**. Remove those steps and replace them with real E2E actions.
 - [ ] **Behavioral coverage:** At least one test exercises the primary behavioral change described in `changes_summary`. Re-read the `changes_summary` and commit messages — if they describe a capability (e.g., "adds Claude Code as a new LLM provider") but no test invokes that capability (e.g., sends a message through the provider), the plan fails verification. Add the missing core functionality test before completing.
 - [ ] **No config-only plans:** If all tests target configuration/admin entry points and zero tests target core functionality entry points, the plan is incomplete. Go back to Step 4, identify the core functionality entry points, and add tests for them.
 
 ## Rules
 
+- **E2E only** — every test step must exercise the real built artifact (binary, server, UI) as a human would. Never wrap automated test suites.
 - Always create `docs/testing/` directory if it doesn't exist
 - Generate at least one test per affected entry point
 - Include context explaining why each test matters (trace from changes)
 - Use natural language for `expected` field (agent will interpret)
+- **CLI projects:** Test steps should invoke the actual binary with real arguments and verify stdout, stderr, exit codes, and side effects (files created, database rows written, processes spawned)
+- **Server projects:** Start the server in setup, test via curl/agent-browser
+- **Library-only projects with no binary or server:** If the change is purely internal library code with no user-facing entry point (no CLI, no server, no UI), state this explicitly and generate tests that exercise the library through its public API via a small driver script — not by running the test suite
 - Default to conservative port detection (8000 for API, 5173/3000 for frontend)
 - **Browser automation steps MUST use `agent-browser` CLI commands** (e.g., `agent-browser open`, `agent-browser snapshot -i`, `agent-browser click @ref`) — never use abstract action syntax
 - Always `agent-browser snapshot -i` before interacting with elements and after navigation/DOM changes

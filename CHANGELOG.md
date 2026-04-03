@@ -6,6 +6,15 @@ Format follows [Keep a Changelog](https://keepachangelog.com/en/1.1.0/). Version
 
 ## [Unreleased]
 
+## [2.10.0] - 2026-04-03
+
+### Added
+- **beagle-testing:** Enforce E2E-only test plans — prohibit wrapping automated test suites (cargo test, pytest, npm test) and require real user-facing actions ([#79](https://github.com/existential-birds/beagle/pull/79))
+- **beagle-testing:** Add Rust and Elixir stack detection, CLI/database test templates, and structured setup format ([#79](https://github.com/existential-birds/beagle/pull/79))
+
+### Changed
+- **beagle-testing:** `run-test-plan` updated to handle both new and legacy setup formats ([#79](https://github.com/existential-birds/beagle/pull/79))
+
 ## [2.9.0] - 2026-03-30
 
 ### Added

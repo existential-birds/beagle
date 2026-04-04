@@ -6,9 +6,9 @@
 
 *Image: NASA, Public Domain. [Source](https://www.nasa.gov/multimedia/imagegallery/image_feature_572.html)*
 
-A Claude Code plugin marketplace for code review and verification workflows. Catch issues before you push with pre-commit reviews for Python, Go, Rust, Elixir, React, iOS/Swift, and AI frameworks.
+Beagle is a Claude Code plugin marketplace with 124 skills across code review, documentation, testing, architectural analysis, and git workflows. Use it to review before you push, detect AI-generated artifacts, draft and improve docs, generate test plans, and analyze codebases — across Python, Go, Rust, Elixir, React, iOS/Swift, and AI frameworks.
 
-Powers the agents in [Amelia](https://github.com/existential-birds/amelia). For automated review-fix-test loops, see [Daydream](https://github.com/existential-birds/daydream).
+Used with [Amelia](https://github.com/existential-birds/amelia) for agent-based workflows and [Daydream](https://github.com/existential-birds/daydream) for automated review-fix-test loops.
 
 ## Installation
 
@@ -26,9 +26,12 @@ claude plugin install beagle-python@existential-birds
 claude plugin install beagle-react@existential-birds
 ```
 
-Verify installation by opening a new Claude Code session and confirming the plugin's skills appear.
+Verify installation by opening a new Claude Code session and running `/beagle-core:commit-push` — if the skill loads, the plugin is active.
 
-To update: `claude plugin marketplace update existential-birds && claude plugin update <plugin-name>`
+To update:
+```bash
+claude plugin marketplace update existential-birds && claude plugin update <plugin-name>
+```
 
 **Troubleshooting:**
 - "Marketplace file not found": Remove stale entries from `~/.claude/plugins/known_marketplaces.json` and restart Claude Code.
@@ -42,7 +45,9 @@ Use the [skills CLI](https://skills.sh/docs/cli) to install beagle skills for ot
 npx skills add existential-birds/beagle
 ```
 
-This downloads the skills and configures them for your agent. Codex users can install the same skills by linking each plugin into `~/.agents/skills/` (see [.codex/INSTALL.md](.codex/INSTALL.md)).
+This downloads the skills and configures them for your agent.
+
+**Codex users:** Link each plugin into `~/.agents/skills/` — see [.codex/INSTALL.md](.codex/INSTALL.md) for setup instructions.
 
 ## Plugins
 
@@ -54,16 +59,16 @@ This downloads the skills and configures them for your agent. Codex users can in
 | **beagle-elixir** | 11 | Elixir, Phoenix, LiveView, ExUnit, ExDoc |
 | **beagle-ios** | 16 | Swift, SwiftUI, SwiftData, iOS frameworks |
 | **beagle-react** | 16 | React, React Flow, shadcn/ui, Tailwind |
-| **beagle-rust** | 8 | Rust, tokio, axum, sqlx, serde |
+| **beagle-rust** | 10 | Rust, tokio, axum, sqlx, serde |
 | **beagle-ai** | 13 | Pydantic AI, LangGraph, DeepAgents |
 | **beagle-docs** | 10 | Documentation quality, AI writing detection (Diataxis) |
 | **beagle-analysis** | 8 | Brainstorming, 12-Factor, ADRs, LLM-as-judge |
 | **beagle-testing** | 2 | Test plan generation and execution |
-| **Total** | **122** | |
+| **Total** | **124** | — |
 
 ## Skills
 
-These are the canonical skill entry points for Beagle. Former command workflows now live as skills.
+These are the canonical skill entry points for Beagle.
 
 ### beagle-core
 

@@ -1,7 +1,7 @@
 ---
 name: receive-feedback
 description: Process external code review feedback with technical rigor. Use when receiving feedback from another LLM, human reviewer, or CI tool. Verifies claims before implementing, tracks disposition.
-disable-model-invocation: true
+disable-model-invocation: false
 ---
 
 # Receive Feedback

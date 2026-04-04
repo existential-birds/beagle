@@ -29,22 +29,28 @@ Description of the issue and why it matters.
 
 | Issue Type | Reference |
 |------------|-----------|
-| Ownership transfers, borrowing conflicts, lifetime issues | [references/ownership-borrowing.md](references/ownership-borrowing.md) |
+| Ownership transfers, borrowing, lifetimes, clone traps, iterators | [references/ownership-borrowing.md](references/ownership-borrowing.md) |
 | Result/Option handling, thiserror, anyhow, error context | [references/error-handling.md](references/error-handling.md) |
 | Async pitfalls, Send/Sync bounds, runtime blocking | [references/async-concurrency.md](references/async-concurrency.md) |
-| Unsafe usage, clippy patterns, API design, performance | [references/common-mistakes.md](references/common-mistakes.md) |
+| Unsafe, clippy config, type state, pointer types, performance | [references/common-mistakes.md](references/common-mistakes.md) |
 
 ## Review Checklist
 
 ### Ownership and Borrowing
 - [ ] No unnecessary `.clone()` to silence the borrow checker (hiding design issues)
+- [ ] No `.clone()` inside loops — prefer `.cloned()` or `.copied()` on iterators
+- [ ] No cloning to avoid lifetime annotations (take ownership explicitly or restructure)
 - [ ] References have appropriate lifetimes (not overly broad `'static` when shorter lifetime works)
-- [ ] `&str` preferred over `String` in function parameters when ownership isn't needed
+- [ ] `&str` preferred over `String`, `&[T]` over `Vec<T>` in function parameters
 - [ ] `impl AsRef<T>` or `Into<T>` used for flexible API parameters
 - [ ] No dangling references or use-after-move
 - [ ] Interior mutability (`Cell`, `RefCell`, `Mutex`) used only when shared mutation is genuinely needed
 - [ ] Small types (≤24 bytes) derive `Copy` and are passed by value
 - [ ] `Cow<'_, T>` used when ownership is ambiguous
+- [ ] Iterator chains preferred over index-based loops for collection transforms
+- [ ] No premature `.collect()` — pass iterators directly when the consumer accepts them
+- [ ] `.sum()` preferred over `.fold()` for summation (compiler optimizes better)
+- [ ] `_or_else` variants used when fallbacks involve allocation
 
 ### Error Handling
 - [ ] `Result<T, E>` used for recoverable errors, not `panic!`/`unwrap`/`expect`
@@ -93,11 +99,20 @@ Description of the issue and why it matters.
 - [ ] `.sum()` preferred over `.fold()` for summation
 - [ ] Static dispatch (`impl Trait`) used over dynamic (`dyn Trait`) unless flexibility required
 
-### Linting
+### Clippy Configuration
+- [ ] Workspace-level lints configured in `Cargo.toml` (`[workspace.lints.clippy]` or `[lints.clippy]`)
+- [ ] `#[expect(clippy::lint)]` used over `#[allow(...)]` — warns when suppression becomes stale
+- [ ] Justification comment present when suppressing any lint
+- [ ] Key lints enforced: `redundant_clone`, `large_enum_variant`, `needless_collect`, `perf` group
 - [ ] `cargo clippy --all-targets --all-features -- -D warnings` passes
-- [ ] Key lints respected: `redundant_clone`, `large_enum_variant`, `needless_collect`
-- [ ] Workspace lint configuration in `Cargo.toml` for consistent enforcement
 - [ ] Doc lints enabled for library crates (`missing_docs`, `broken_intra_doc_links`)
+
+### Type State Pattern
+- [ ] `PhantomData<State>` used for zero-cost compile-time state machines (not runtime enums/booleans)
+- [ ] State transitions consume `self` and return new state type (prevents reuse of old state)
+- [ ] Only applicable methods available per state (invalid operations are compile errors)
+- [ ] Pattern used where it adds safety value (builders with required fields, connection states, workflows)
+- [ ] Not overused for trivial state (simple enums are fine when runtime flexibility needed)
 
 ## Severity Calibration
 
@@ -130,10 +145,10 @@ Description of the issue and why it matters.
 
 ## When to Load References
 
-- Reviewing ownership transfers, borrows, or lifetimes → ownership-borrowing.md
+- Reviewing ownership, borrows, lifetimes, clone traps, iterators → ownership-borrowing.md
 - Reviewing Result/Option handling or error types → error-handling.md
 - Reviewing async code, tokio usage, or Send/Sync bounds → async-concurrency.md
-- General review (unsafe, performance, API design, clippy) → common-mistakes.md
+- Reviewing unsafe, clippy config, type state, pointer types, performance → common-mistakes.md
 
 ## Valid Patterns (Do NOT Flag)
 

@@ -209,6 +209,95 @@ process_name(Cow::Owned("Bob".to_string()));
 | `LazyCell<T>` / `LazyLock<T>` | Lazy init with closure | `LazyLock`: Yes | Complex lazy initialization |
 | `*const T` / `*mut T` | Raw pointers | No (manual) | FFI, raw memory |
 
+## Clone Traps
+
+Cloning is sometimes necessary, but these patterns are code smells:
+
+### Cloning to Avoid Lifetime Annotations
+
+When `.clone()` appears just to sidestep the borrow checker, the real fix is restructuring ownership.
+
+```rust
+// BAD - cloning because the function signature doesn't express lifetimes
+fn take_a_borrow(thing: &Thing) {
+    let owned = thing.clone(); // caller should pass ownership instead
+    process(owned);
+}
+
+// GOOD - if you need ownership, take it
+fn take_ownership(thing: Thing) {
+    process(thing);
+}
+```
+
+### Cloning Inside Loops
+
+Cloning per-iteration is expensive and usually avoidable.
+
+```rust
+// BAD - clones on every iteration
+items.iter().map(|x| x.clone()).collect::<Vec<_>>();
+
+// GOOD - use .cloned() or .copied() for Copy types
+items.iter().cloned().collect::<Vec<_>>();
+items.iter().copied().collect::<Vec<_>>(); // for Copy types
+```
+
+### When Clone is Appropriate
+
+- Shared ownership via `Arc::clone(&arc)` (cheap reference count bump)
+- Immutable snapshots where the original must be preserved
+- Small types where restructuring adds more complexity than the clone costs
+- Caching results that will be returned multiple times
+
+## Iterator Best Practices
+
+### When to Prefer Iterator Chains
+
+- Transforming collections: `.filter().map().collect()`
+- Composing steps: `.enumerate()`, `.windows()`, `.chunks()`, `.chain()`
+- Combining sources without intermediate allocations
+- When the consumer accepts `impl Iterator<Item = T>`
+
+```rust
+// BAD - unnecessary intermediate collection
+let doubled: Vec<_> = items.iter().map(|x| x * 2).collect();
+process(doubled.into_iter());
+
+// GOOD - pass the iterator directly
+let doubled = items.iter().map(|x| x * 2);
+process(doubled);
+```
+
+### When to Prefer `for` Loops
+
+- Early exits: `break`, `continue`, `return`
+- Simple iteration with side effects (logging, I/O)
+- Readability matters more than chaining elegance
+- Iterators and `for` can combine: `for x in items.iter().filter(|x| x.is_valid()) { ... }`
+
+### Common Anti-Patterns
+
+- **Premature `.collect()`**: Avoid allocating a `Vec` just to pass it to another iterator
+- **`.into_iter()` on Copy types**: Use `.iter()` — no need to consume the collection
+- **`.fold()` for sums**: Use `.sum()` which the compiler optimizes better
+- **Unchained formatting**: Put each chained call on its own line for readability
+- **Ignoring laziness**: Iterator chains do nothing until consumed (`.collect()`, `.sum()`, `.for_each()`)
+
+### Prevent Early Allocation
+
+Use `_or_else` variants when the fallback involves allocation:
+
+```rust
+// BAD - allocates the format string even when x is Some
+x.ok_or(ParseError::Detail(format!("missing {x}")));
+
+// GOOD - only allocates on the error path
+x.ok_or_else(|| ParseError::Detail(format!("missing {x}")));
+```
+
+Same applies to `unwrap_or` vs `unwrap_or_else`, `map_or` vs `map_or_else`.
+
 ## Review Questions
 
 1. Are `.clone()` calls necessary, or do they mask ownership design issues?
@@ -218,3 +307,6 @@ process_name(Cow::Owned("Bob".to_string()));
 5. Are smart pointers chosen appropriately for the sharing and threading model?
 6. Are `Copy` types passed by value rather than by reference?
 7. Is `Cow<'_, T>` used where ownership is ambiguous?
+8. Are iterators preferred over index-based loops for collection transforms?
+9. Are intermediate `.collect()` calls avoided when passing iterators directly works?
+10. Are `_or_else` variants used when fallbacks allocate?

@@ -172,6 +172,107 @@ for item in &items {
 let results: Vec<_> = items.iter().map(transform).collect();
 ```
 
+## Pointer Types Quick Reference
+
+| Type | When to Use | Thread Safe | Notes |
+|------|-------------|-------------|-------|
+| `Box<T>` | Heap allocation, recursive types, trait objects | Yes (if T: Send) | Single owner |
+| `Rc<T>` | Multiple owners, single thread | No | Use `Arc` for multi-thread |
+| `Arc<T>` | Multiple owners, multi-thread | Yes | Atomic ref counting overhead |
+| `Cell<T>` | Interior mutability for Copy types | Not Sync | No runtime borrow checking |
+| `RefCell<T>` | Interior mutability, runtime borrow checking | Not Sync | Panics on double borrow |
+| `Mutex<T>` | Shared mutation across threads | Yes | Exclusive access, can deadlock |
+| `RwLock<T>` | Shared read OR exclusive write across threads | Yes | Better read throughput than Mutex |
+| `OnceCell<T>` | One-time init, single thread | Not Sync | Use `OnceLock` for multi-thread |
+| `OnceLock<T>` | One-time init, multi-thread (static values) | Yes | Replaces `lazy_static!` |
+| `LazyCell<T>` | Deferred init with closure, single thread | Not Sync | Use `LazyLock` for multi-thread |
+| `LazyLock<T>` | Deferred init with closure, multi-thread | Yes | Complex static initialization |
+| `*const T` / `*mut T` | FFI, raw memory | No (manual) | Requires `unsafe` to dereference |
+
+Decision guide:
+- Need heap? `Box<T>`. Need shared ownership? `Rc`/`Arc`. Need interior mutability? `Cell`/`RefCell`/`Mutex`.
+- Single thread? `Rc`, `Cell`, `RefCell`, `OnceCell`. Multi-thread? `Arc`, `Mutex`, `RwLock`, `OnceLock`.
+- Common mistake: `Arc<Mutex<T>>` when data is single-threaded — use `Rc<RefCell<T>>` instead.
+
+## Type State Pattern
+
+Encode states as zero-sized types so invalid operations are compile errors, not runtime bugs.
+
+```rust
+struct Disconnected;
+struct Connected;
+
+struct Client<State> {
+    addr: String,
+    _state: std::marker::PhantomData<State>,
+}
+
+impl Client<Disconnected> {
+    fn connect(self) -> Result<Client<Connected>, Error> {
+        // ... connect logic ...
+        Ok(Client { addr: self.addr, _state: PhantomData })
+    }
+}
+
+impl Client<Connected> {
+    fn send(&self, msg: &[u8]) -> Result<(), Error> { /* ... */ }
+}
+
+// client.send(b"hello"); // Won't compile — must connect first
+```
+
+### When to Use
+
+- Builders with required fields (name and age must be set before `.build()`)
+- Connection/session state machines (connect before send)
+- Workflow pipelines (validate before process)
+- Replacing runtime booleans/enums with compile-time guarantees
+
+### When to Avoid
+
+- Trivial state (simple enums are clearer)
+- Runtime flexibility needed (state determined at runtime)
+- Complex generics make the API harder to understand than the safety it provides
+
+## Clippy Configuration
+
+### Workspace-Level Lint Config
+
+Configure in `Cargo.toml` for consistent enforcement across all crates:
+
+```toml
+[workspace.lints.clippy]
+all = { level = "deny", priority = 10 }
+redundant_clone = { level = "deny", priority = 9 }
+pedantic = { level = "warn", priority = 3 }
+
+[workspace.lints.rust]
+future-incompatible = "warn"
+nonstandard_style = "deny"
+```
+
+Individual crates inherit with:
+
+```toml
+[lints]
+workspace = true
+```
+
+### `#[expect]` Over `#[allow]`
+
+`#[expect(clippy::lint)]` warns when the suppression is no longer needed. `#[allow]` stays forever unnoticed:
+
+```rust
+// BAD - stale suppression goes undetected
+#[allow(clippy::large_enum_variant)]
+enum Message { /* ... */ }
+
+// GOOD - compiler warns when lint no longer triggers
+// Justification: Content variant intentionally large for fast matching
+#[expect(clippy::large_enum_variant)]
+enum Message { /* ... */ }
+```
+
 ## Clippy Patterns Worth Flagging
 
 These are patterns that `clippy` warns about but are easy to miss:
@@ -374,3 +475,6 @@ Enable these lints for library crates:
 9. Are iterators preferred over manual loops for collection transforms?
 10. Is static dispatch used where performance matters?
 11. Are doc lints enabled for library crates?
+12. Are pointer types appropriate for the threading model (Rc vs Arc, RefCell vs Mutex)?
+13. Could type state pattern replace runtime state checks for compile-time safety?
+14. Are workspace-level clippy lints configured in Cargo.toml?

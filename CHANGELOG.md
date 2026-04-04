@@ -6,6 +6,11 @@ Format follows [Keep a Changelog](https://keepachangelog.com/en/1.1.0/). Version
 
 ## [Unreleased]
 
+## [2.10.1] - 2026-04-04
+
+### Fixed
+- **beagle-core:** Allow `receive-feedback` skill to be invoked by other skills ([#81](https://github.com/existential-birds/beagle/pull/81))
+
 ## [2.10.0] - 2026-04-03
 
 ### Added

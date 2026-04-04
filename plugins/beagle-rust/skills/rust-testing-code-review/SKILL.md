@@ -27,7 +27,7 @@ Description of the issue and why it matters.
 
 | Issue Type | Reference |
 |------------|-----------|
-| Unit test structure, assertions, test organization | [references/unit-tests.md](references/unit-tests.md) |
+| Unit tests, assertions, naming, snapshots, rstest, doc tests | [references/unit-tests.md](references/unit-tests.md) |
 | Integration tests, async testing, fixtures, test databases | [references/integration-tests.md](references/integration-tests.md) |
 
 ## Review Checklist
@@ -74,6 +74,13 @@ Description of the issue and why it matters.
 - [ ] Redactions used for unstable fields (timestamps, UUIDs)
 - [ ] Snapshots committed to git in `snapshots/` directory
 - [ ] Simple values use `assert_eq!`, not snapshots
+
+### Parametrized Testing
+- [ ] `rstest` used to avoid duplicated test functions for similar inputs
+- [ ] `#[rstest]` with `#[case::name]` attributes for descriptive parametrized tests
+- [ ] `#[fixture]` used for shared test setup when multiple tests need same construction
+- [ ] Parametrized tests still have descriptive case names (not just `#[case(1)]`)
+- [ ] Combined with async: `#[rstest] #[tokio::test]` for async parametrized tests
 
 ### Doc Tests
 - [ ] Public API functions have `/// # Examples` with runnable code

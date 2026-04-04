@@ -1,0 +1,60 @@
+---
+name: rust-best-practices
+description: >
+  Development guidance for writing idiomatic Rust. Use when:
+  (1) writing new Rust functions or modules,
+  (2) choosing between borrowing, cloning, or ownership patterns,
+  (3) implementing error handling with Result types,
+  (4) optimizing Rust code for performance,
+  (5) configuring clippy and linting for a project,
+  (6) deciding between static and dynamic dispatch,
+  (7) writing documentation or doc tests.
+---
+
+# Rust Best Practices
+
+Guidance for writing idiomatic, performant, and safe Rust code. This is a development skill, not a review skill -- use it when building, not reviewing.
+
+## Quick Reference
+
+| Topic | Key Rule | Reference |
+|-------|----------|-----------|
+| Ownership | Borrow by default, clone only when you need a separate owned copy | [references/coding-idioms.md](references/coding-idioms.md) |
+| Clippy | Run `cargo clippy -- -D warnings` on every commit; configure workspace lints | [references/clippy-config.md](references/clippy-config.md) |
+| Performance | Don't guess, measure. Profile with `--release` first | [references/performance.md](references/performance.md) |
+| Generics | Static dispatch by default, dynamic dispatch when you need mixed types | [references/generics-dispatch.md](references/generics-dispatch.md) |
+| Type State | Encode state in the type system when invalid operations should be compile errors | [references/type-state-pattern.md](references/type-state-pattern.md) |
+| Documentation | `//` for why, `///` for what and how, `//!` for module/crate purpose | [references/documentation.md](references/documentation.md) |
+| Pointers | Choose pointer types based on ownership needs and threading model | [references/pointer-types.md](references/pointer-types.md) |
+
+## Coding Idioms
+
+Prefer `&T` over `.clone()`, use `&str`/`&[T]` in parameters, and chain iterators instead of index-based loops. For Option/Result, use `let Ok(x) = expr else { return }` for early returns and `?` for propagation. See [references/coding-idioms.md](references/coding-idioms.md) for ownership, iterator, and import patterns.
+
+## Error Handling
+
+Return `Result<T, E>` for fallible operations. Use `thiserror` for library error types, `anyhow` for binaries. Propagate with `?`, never `unwrap()` outside tests. See [references/coding-idioms.md](references/coding-idioms.md) for Option/Result patterns.
+
+## Clippy Discipline
+
+Run `cargo clippy --all-targets --all-features -- -D warnings` on every commit. Configure workspace lints in `Cargo.toml` and prefer `#[expect(clippy::lint)]` over `#[allow]` for self-cleaning suppression. See [references/clippy-config.md](references/clippy-config.md) for lint configuration and key lints.
+
+## Performance Mindset
+
+Always benchmark with `--release`, profile before optimizing, and avoid cloning in loops or premature `.collect()` calls. Keep small types on the stack and heap-allocate only recursive structures and large buffers. See [references/performance.md](references/performance.md) for profiling tools and allocation guidance.
+
+## Generics and Dispatch
+
+Use static dispatch (`impl Trait` / `<T: Trait>`) by default for zero-cost monomorphization. Switch to `dyn Trait` only for heterogeneous collections or plugin architectures, preferring `&dyn Trait` over `Box<dyn Trait>` when ownership isn't needed. See [references/generics-dispatch.md](references/generics-dispatch.md) for dispatch trade-offs and examples.
+
+## Type State Pattern
+
+Encode valid states in the type system so invalid operations become compile errors. Use for builders with required fields, protocol state machines, and workflow pipelines. See [references/type-state-pattern.md](references/type-state-pattern.md) for implementation patterns and when to avoid.
+
+## Documentation
+
+Use `//` for why, `///` for what/how on public APIs, and `//!` for module purpose. Every `TODO` needs a linked issue and library crates should enable `#![deny(missing_docs)]`. See [references/documentation.md](references/documentation.md) for doc test patterns and comment conventions.
+
+## Pointer Types
+
+Choose pointer types based on ownership and threading: `Box<T>` for single-owner heap allocation, `Rc<T>`/`Arc<T>` for shared ownership, `Cell`/`RefCell`/`Mutex`/`RwLock` for interior mutability. See [references/pointer-types.md](references/pointer-types.md) for the full single-thread vs multi-thread decision table.

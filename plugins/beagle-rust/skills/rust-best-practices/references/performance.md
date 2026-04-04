@@ -115,7 +115,7 @@ let buffer: Box<[u8]> = vec![0u8; 65536].into_boxed_slice();
 
 - `#[inline]` -- only use when benchmarks prove benefit. Rust already inlines well.
 - Large stack arrays -- consider `smallvec` for arrays that might grow.
-- Massive const arrays -- they live on the stack and can overflow it.
+- Large stack-allocated arrays (`let buf: [u8; 65536]`) -- they live on the stack and can overflow it. Use `Box<[T; N]>` or `Vec<T>` for large data.
 
 ## Iterator Optimization
 

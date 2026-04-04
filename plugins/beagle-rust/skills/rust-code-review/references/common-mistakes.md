@@ -1,6 +1,6 @@
 # Unsafe Code, API Design, and Derive Patterns
 
-> For performance, pointer types, clippy config, iterators, generics, and documentation guidance, see the `rust-best-practices` skill.
+> For performance, pointer types, clippy config, iterators, generics, and documentation guidance, see the `beagle-rust:rust-best-practices` skill.
 
 ## Unsafe Code
 

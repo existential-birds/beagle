@@ -10,7 +10,7 @@ cargo clippy --all-targets --all-features --locked -- -D warnings
 
 - `--all-targets`: checks library, tests, benches, examples
 - `--all-features`: enables all feature flags to catch conditional code
-- `--locked`: requires Cargo.lock to be up-to-date
+- `--locked`: requires Cargo.lock to be up-to-date (omit for library crates that don't commit `Cargo.lock`)
 - `-D warnings`: treats warnings as errors
 
 Add to your Makefile, Justfile, xtask, or CI pipeline.
@@ -96,9 +96,13 @@ enum Packet {
 Add clippy to your CI pipeline:
 
 ```yaml
-# GitHub Actions
+# GitHub Actions (application/binary crates that commit Cargo.lock)
 - name: Clippy
   run: cargo clippy --all-targets --all-features --locked -- -D warnings
+
+# Library crates (Cargo.lock not committed — omit --locked)
+- name: Clippy
+  run: cargo clippy --all-targets --all-features -- -D warnings
 ```
 
 Consider adding pedantic and nursery for stricter checks:

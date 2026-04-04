@@ -34,7 +34,7 @@ let tls_store = cached_root_store();
 
 ```rust
 // BAD - restates the obvious
-*counter += 1; // increment counter by 1
+counter += 1; // increment counter by 1
 
 // BAD - wall of text that should be a doc comment or ADR
 // This function was originally written in 2023 for the legacy API...

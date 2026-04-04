@@ -1,6 +1,6 @@
 # Ownership and Borrowing
 
-For pointer type selection, Copy trait guidance, Cow patterns, and iterator idioms, see the `rust-best-practices` skill.
+For pointer type selection, Copy trait guidance, Cow patterns, and iterator idioms, see the `beagle-rust:rust-best-practices` skill.
 
 ## Critical Anti-Patterns
 

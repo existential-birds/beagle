@@ -13,15 +13,15 @@ A pointer is thread-safe only if the data behind it is.
 
 | Type | Description | Send + Sync | Use When |
 |------|-------------|-------------|----------|
-| `&T` | Shared reference | Yes | Multiple readers, no mutation |
-| `&mut T` | Exclusive mutable reference | Send only | Single writer |
-| `Box<T>` | Heap-allocated, single owner | Yes (if T: Send) | Recursive types, large data, trait objects |
+| `&T` | Shared reference | Yes (if `T: Sync`) | Multiple readers, no mutation |
+| `&mut T` | Exclusive mutable reference | Send (if `T: Send`), Sync (if `T: Sync`) | Single writer |
+| `Box<T>` | Heap-allocated, single owner | Send (if `T: Send`), Sync (if `T: Sync`) | Recursive types, large data, trait objects |
 | `Rc<T>` | Reference counted, single thread | Neither | Multiple owners, same thread |
-| `Arc<T>` | Atomic reference counted | Yes | Multiple owners, across threads |
+| `Arc<T>` | Atomic reference counted | Yes (if `T: Send + Sync`) | Multiple owners, across threads |
 | `Cell<T>` | Interior mutability, Copy types | Not Sync | Shared mutable state, single thread |
 | `RefCell<T>` | Interior mutability, runtime checks | Not Sync | Shared mutable state, single thread |
-| `Mutex<T>` | Thread-safe exclusive access | Yes | Shared mutable state, across threads |
-| `RwLock<T>` | Thread-safe read-many/write-one | Yes | Read-heavy shared state, across threads |
+| `Mutex<T>` | Thread-safe exclusive access | Yes (if `T: Send`) | Shared mutable state, across threads |
+| `RwLock<T>` | Thread-safe read-many/write-one | Send (if `T: Send`), Sync (if `T: Send + Sync`) | Read-heavy shared state, across threads |
 | `OnceCell<T>` | One-time init, single thread | Not Sync | Lazy initialization |
 | `OnceLock<T>` | One-time init, thread-safe | Yes | Static lazy values (replaces `lazy_static!`) |
 | `LazyCell<T>` | Deferred init with closure | Not Sync | Complex lazy init, single thread |

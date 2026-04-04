@@ -6,6 +6,12 @@ Format follows [Keep a Changelog](https://keepachangelog.com/en/1.1.0/). Version
 
 ## [Unreleased]
 
+## [2.11.0] - 2026-04-04
+
+### Added
+- **beagle-rust:** Add `rust-best-practices` skill for idiomatic Rust patterns, ownership guidelines, and error handling conventions ([#83](https://github.com/existential-birds/beagle/pull/83))
+- **beagle-rust:** Add `rust-project-setup` skill for project scaffolding, Cargo workspace configuration, and toolchain setup ([#83](https://github.com/existential-birds/beagle/pull/83))
+
 ## [2.10.1] - 2026-04-04
 
 ### Fixed

@@ -218,33 +218,141 @@ fn parse_accepts_valid_strings(#[case] input: &str) {
 
 ## Snapshot Testing with `cargo insta`
 
-Use for complex structural output instead of large `assert_eq!` blocks:
+Snapshot testing compares output against a saved "golden" version. On future runs, the test fails if output changes unless explicitly approved.
+
+### Setup
+
+```toml
+# Cargo.toml
+[dev-dependencies]
+insta = { version = "1", features = ["yaml"] }
+```
+
+Install the CLI for better review workflow: `cargo install cargo-insta`
+
+### Assert Macros
 
 ```rust
-use insta::assert_yaml_snapshot;
+use insta::{assert_snapshot, assert_yaml_snapshot, assert_json_snapshot};
 
+// Plain text snapshots
+#[test]
+fn test_error_display() {
+    let err = MyError::NotFound("user-123".into());
+    assert_snapshot!("error_not_found", err.to_string());
+}
+
+// YAML snapshots (best for version control diffs)
 #[test]
 fn test_config_serialization() {
     let config = Config::default();
     assert_yaml_snapshot!("default_config", config);
 }
 
-// Use redactions for unstable fields
+// JSON snapshots with redactions for unstable fields
 #[test]
 fn test_user_response() {
     let user = create_test_user();
-    insta::assert_json_snapshot!(user, {
+    assert_json_snapshot!(user, {
         ".created_at" => "[timestamp]",
         ".id" => "[uuid]"
     });
 }
 ```
 
-Best practices:
-- Name snapshots descriptively
-- Keep snapshots small and focused
-- Use `assert_eq!` for simple values (numbers, flat enums)
-- Run `cargo insta test` then `cargo insta review`
+### Review Workflow
+
+1. Write test with `assert_snapshot!` / `assert_yaml_snapshot!` / `assert_json_snapshot!`
+2. Run `cargo insta test` — creates pending snapshots
+3. Run `cargo insta review` — interactively accept or reject changes
+4. Commit the `.snap` files in `snapshots/` alongside your tests
+
+### When to Use Snapshots
+
+- Serialized output (JSON, YAML, TOML)
+- Error message formatting (`Display` impls)
+- CLI output, rendered HTML, generated code
+- Complex nested structures where `assert_eq!` is unwieldy
+
+### When NOT to Use Snapshots
+
+- Simple values — use `assert_eq!(x, 42)` instead
+- Critical path logic — precise unit tests catch regressions faster
+- Flaky/random output — use redactions or avoid snapshots entirely
+- Huge objects — keep snapshots small and focused for easier review
+
+## Parametrized Testing with `rstest`
+
+`rstest` eliminates duplicated test functions when testing the same behavior with different inputs.
+
+### Setup
+
+```toml
+# Cargo.toml
+[dev-dependencies]
+rstest = "0.23"
+```
+
+### Basic Parametrized Tests
+
+```rust
+use rstest::rstest;
+
+#[rstest]
+#[case::empty("", true)]
+#[case::whitespace("  ", true)]
+#[case::content("hello", false)]
+fn is_blank_returns_expected(#[case] input: &str, #[case] expected: bool) {
+    assert_eq!(is_blank(input), expected);
+}
+```
+
+Each `#[case]` generates a separate test with a descriptive name: `is_blank_returns_expected::empty`, etc.
+
+### Fixtures
+
+Share setup logic across tests with `#[fixture]`:
+
+```rust
+use rstest::{fixture, rstest};
+
+#[fixture]
+fn test_db() -> TestDb {
+    TestDb::new("sqlite::memory:")
+}
+
+#[rstest]
+fn insert_user_succeeds(test_db: TestDb) {
+    let user = User::new("Alice");
+    assert!(test_db.insert(&user).is_ok());
+}
+
+#[rstest]
+fn query_missing_user_returns_none(test_db: TestDb) {
+    assert!(test_db.find_user("nonexistent").is_none());
+}
+```
+
+### Async Parametrized Tests
+
+Combine `rstest` with `tokio::test`:
+
+```rust
+#[rstest]
+#[case::valid_url("https://example.com", true)]
+#[case::invalid_url("not-a-url", false)]
+#[tokio::test]
+async fn fetch_url_validates(#[case] url: &str, #[case] should_succeed: bool) {
+    let result = fetch(url).await;
+    assert_eq!(result.is_ok(), should_succeed);
+}
+```
+
+### Considerations
+
+- Descriptive case names are important — `#[case::empty_input("")]` beats `#[case("")]`
+- It is harder for IDEs to run/locate specific parametrized tests
+- For complex per-case setup, separate test functions may be clearer
 
 ## Doc Tests
 

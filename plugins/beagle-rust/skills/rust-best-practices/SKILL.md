@@ -29,121 +29,32 @@ Guidance for writing idiomatic, performant, and safe Rust code. This is a develo
 
 ## Coding Idioms
 
-### Borrowing and Ownership
-
-- Prefer `&T` over `.clone()` unless you need a separate owned copy
-- Use `&str` over `String`, `&[T]` over `Vec<T>` in function parameters
-- Small `Copy` types (<=24 bytes, all-Copy fields) should be passed by value
-- Use `Cow<'_, T>` when ownership is ambiguous at the call site
-- Take ownership only when the function needs to store or move the data
-
-### Option and Result
-
-- Use `let Ok(x) = expr else { return ... }` for early returns on failure
-- Use `match` when pattern matching inner variants (`Ok(Direction::North)`)
-- Use `if let` when the else branch needs computation
-- Prefer `?` to propagate errors the caller should handle
-- Use `_or_else` variants when fallbacks involve allocation
-
-### Iterators
-
-- Prefer iterator chains (`.filter().map().collect()`) over index-based loops
-- Use `for` loops when you need `break`/`continue`/`return` or side effects
-- Avoid premature `.collect()` -- pass iterators directly when possible
-- Use `.sum()` over `.fold()` for summation
-- Iterators are lazy: nothing happens until consumed
-
-### Imports
-
-Order: `std` -> external crates -> workspace crates -> `super::`/`crate::`. Configure in `rustfmt.toml`:
-
-```toml
-reorder_imports = true
-imports_granularity = "Crate"
-group_imports = "StdExternalCrate"
-```
+Prefer `&T` over `.clone()`, use `&str`/`&[T]` in parameters, and chain iterators instead of index-based loops. For Option/Result, use `let Ok(x) = expr else { return }` for early returns and `?` for propagation. See [references/coding-idioms.md](references/coding-idioms.md) for ownership, iterator, and import patterns.
 
 ## Error Handling
 
-- Return `Result<T, E>` for fallible operations; reserve `panic!` for unrecoverable bugs
-- Never use `unwrap()`/`expect()` outside tests and provably-safe contexts
-- Use `thiserror` for library error types, `anyhow` for binaries only
-- Use `?` for error propagation; `inspect_err` for logging, `map_err` for transformation
-- Test error paths: check specific variants, not just `.is_err()`
-
-```rust
-#[derive(Debug, thiserror::Error)]
-pub enum AppError {
-    #[error("Network timeout")]
-    Timeout,
-    #[error("Invalid data: {0}")]
-    InvalidData(String),
-    #[error(transparent)]
-    Serialization(#[from] serde_json::Error),
-}
-```
+Return `Result<T, E>` for fallible operations. Use `thiserror` for library error types, `anyhow` for binaries. Propagate with `?`, never `unwrap()` outside tests. See [references/coding-idioms.md](references/coding-idioms.md) for Option/Result patterns.
 
 ## Clippy Discipline
 
-- Run: `cargo clippy --all-targets --all-features -- -D warnings`
-- Configure workspace lints in `Cargo.toml` (`[workspace.lints.clippy]`)
-- Use `#[expect(clippy::lint)]` over `#[allow]` -- self-cleaning suppression
-- Key lints: `redundant_clone`, `large_enum_variant`, `needless_collect`, `perf` group
+Run `cargo clippy --all-targets --all-features -- -D warnings` on every commit. Configure workspace lints in `Cargo.toml` and prefer `#[expect(clippy::lint)]` over `#[allow]` for self-cleaning suppression. See [references/clippy-config.md](references/clippy-config.md) for lint configuration and key lints.
 
 ## Performance Mindset
 
-- Always benchmark with `--release` (debug builds lack optimizations)
-- Use `cargo bench` for micro-benchmarks, `cargo flamegraph` or `samply` for profiling
-- Avoid cloning in loops; use `.iter()` for Copy types, `.cloned()` for non-Copy
-- Avoid intermediate `.collect()` calls; pass iterators directly
-- Keep small types on the stack; heap-allocate recursive structures and large buffers
+Always benchmark with `--release`, profile before optimizing, and avoid cloning in loops or premature `.collect()` calls. Keep small types on the stack and heap-allocate only recursive structures and large buffers. See [references/performance.md](references/performance.md) for profiling tools and allocation guidance.
 
 ## Generics and Dispatch
 
-- **Static dispatch** (`impl Trait` / `<T: Trait>`): zero-cost, monomorphized at compile time. Use by default.
-- **Dynamic dispatch** (`dyn Trait`): vtable indirection at runtime. Use for heterogeneous collections and plugin architectures.
-- Start with generics. Switch to `dyn Trait` when flexibility outweighs the performance cost.
-- Prefer `&dyn Trait` over `Box<dyn Trait>` when you don't need ownership.
-- Don't box inside structs unless required (recursive types, API boundaries).
+Use static dispatch (`impl Trait` / `<T: Trait>`) by default for zero-cost monomorphization. Switch to `dyn Trait` only for heterogeneous collections or plugin architectures, preferring `&dyn Trait` over `Box<dyn Trait>` when ownership isn't needed. See [references/generics-dispatch.md](references/generics-dispatch.md) for dispatch trade-offs and examples.
 
 ## Type State Pattern
 
-Encode valid states in the type system so invalid operations are compile errors:
-
-```rust
-struct Disconnected;
-struct Connected;
-
-struct Client<State> {
-    addr: String,
-    _state: PhantomData<State>,
-}
-
-impl Client<Connected> {
-    fn send(&self, data: &[u8]) -> Result<(), Error> { /* ... */ }
-}
-```
-
-Use when: builders with required fields, protocol state machines, workflow pipelines.
-Avoid when: trivial states, runtime flexibility needed, generics complexity outweighs benefit.
+Encode valid states in the type system so invalid operations become compile errors. Use for builders with required fields, protocol state machines, and workflow pipelines. See [references/type-state-pattern.md](references/type-state-pattern.md) for implementation patterns and when to avoid.
 
 ## Documentation
 
-- `//` comments explain *why* (safety, workarounds, design rationale)
-- `///` doc comments explain *what* and *how* for public APIs
-- `//!` doc comments describe module/crate purpose
-- Every `TODO` needs a linked issue: `// TODO(#42): ...`
-- Enable `#![deny(missing_docs)]` for library crates
-- Use `# Examples` sections with runnable doc tests
+Use `//` for why, `///` for what/how on public APIs, and `//!` for module purpose. Every `TODO` needs a linked issue and library crates should enable `#![deny(missing_docs)]`. See [references/documentation.md](references/documentation.md) for doc test patterns and comment conventions.
 
 ## Pointer Types
 
-Choose based on ownership and threading needs:
-
-| Need | Single Thread | Multi-Thread |
-|------|--------------|--------------|
-| Single owner, heap | `Box<T>` | `Box<T>` |
-| Shared ownership | `Rc<T>` | `Arc<T>` |
-| Interior mutability | `Cell<T>` / `RefCell<T>` | `Mutex<T>` / `RwLock<T>` |
-| One-time init | `OnceCell<T>` | `OnceLock<T>` |
-| Lazy init with closure | `LazyCell<T>` | `LazyLock<T>` |
+Choose pointer types based on ownership and threading: `Box<T>` for single-owner heap allocation, `Rc<T>`/`Arc<T>` for shared ownership, `Cell`/`RefCell`/`Mutex`/`RwLock` for interior mutability. See [references/pointer-types.md](references/pointer-types.md) for the full single-thread vs multi-thread decision table.

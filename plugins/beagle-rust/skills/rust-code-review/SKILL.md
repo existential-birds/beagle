@@ -32,7 +32,9 @@ Description of the issue and why it matters.
 | Ownership transfers, borrowing, lifetimes, clone traps, iterators | [references/ownership-borrowing.md](references/ownership-borrowing.md) |
 | Result/Option handling, thiserror, anyhow, error context | [references/error-handling.md](references/error-handling.md) |
 | Async pitfalls, Send/Sync bounds, runtime blocking | [references/async-concurrency.md](references/async-concurrency.md) |
-| Unsafe, clippy config, type state, pointer types, performance | [references/common-mistakes.md](references/common-mistakes.md) |
+| Unsafe code, API design, derive patterns, clippy patterns | [references/common-mistakes.md](references/common-mistakes.md) |
+
+> For development guidance on performance, pointer types, type state, clippy config, iterators, generics, and documentation, use the `rust-best-practices` skill.
 
 ## Review Checklist
 
@@ -90,6 +92,7 @@ Description of the issue and why it matters.
 - [ ] `#[expect(clippy::...)]` preferred over `#[allow(...)]` for lint suppression
 
 ### Performance
+> Detailed guidance: `rust-best-practices` skill (references/performance.md)
 - [ ] No unnecessary allocations in hot paths (prefer `&str` over `String`, `&[T]` over `Vec<T>`)
 - [ ] `collect()` type is specified or inferable
 - [ ] Iterators preferred over indexed loops for collection transforms
@@ -100,6 +103,7 @@ Description of the issue and why it matters.
 - [ ] Static dispatch (`impl Trait`) used over dynamic (`dyn Trait`) unless flexibility required
 
 ### Clippy Configuration
+> Detailed guidance: `rust-best-practices` skill (references/clippy-config.md)
 - [ ] Workspace-level lints configured in `Cargo.toml` (`[workspace.lints.clippy]` or `[lints.clippy]`)
 - [ ] `#[expect(clippy::lint)]` used over `#[allow(...)]` — warns when suppression becomes stale
 - [ ] Justification comment present when suppressing any lint
@@ -108,6 +112,7 @@ Description of the issue and why it matters.
 - [ ] Doc lints enabled for library crates (`missing_docs`, `broken_intra_doc_links`)
 
 ### Type State Pattern
+> Detailed guidance: `rust-best-practices` skill (references/type-state-pattern.md)
 - [ ] `PhantomData<State>` used for zero-cost compile-time state machines (not runtime enums/booleans)
 - [ ] State transitions consume `self` and return new state type (prevents reuse of old state)
 - [ ] Only applicable methods available per state (invalid operations are compile errors)
@@ -145,10 +150,11 @@ Description of the issue and why it matters.
 
 ## When to Load References
 
-- Reviewing ownership, borrows, lifetimes, clone traps, iterators → ownership-borrowing.md
+- Reviewing ownership, borrows, lifetimes, clone traps → ownership-borrowing.md
 - Reviewing Result/Option handling or error types → error-handling.md
 - Reviewing async code, tokio usage, or Send/Sync bounds → async-concurrency.md
-- Reviewing unsafe, clippy config, type state, pointer types, performance → common-mistakes.md
+- Reviewing unsafe code, API design, derive macros, clippy patterns → common-mistakes.md
+- Reviewing performance, pointer types, type state, generics, iterators, documentation → `rust-best-practices` skill
 
 ## Valid Patterns (Do NOT Flag)
 

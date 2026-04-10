@@ -106,7 +106,7 @@ These are the canonical skill entry points for Beagle.
 | `improve-doc <path>` | beagle-docs | Improve docs using Diataxis |
 | `ensure-docs` | beagle-docs | Documentation coverage check |
 | `review-ai-writing` | beagle-docs | Detect AI writing patterns |
-| `humanize` | beagle-docs | Fix AI writing with safe/risky classification |
+| `humanize-ai-writing` | beagle-docs | Fix AI writing with safe/risky classification |
 | `12-factor-apps-analysis` | beagle-analysis | 12-Factor compliance check |
 | `llm-judge` | beagle-analysis | Compare implementations |
 | `write-adr` | beagle-analysis | Generate ADRs from decisions |

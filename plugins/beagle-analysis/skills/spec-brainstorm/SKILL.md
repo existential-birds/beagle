@@ -1,5 +1,5 @@
 ---
-name: brainstorm
+name: spec-brainstorm
 description: "Turn ideas into comprehensive project specs through collaborative dialogue. Use BEFORE any planning or implementation — for new projects, features, or significant changes. Produces a system-agnostic spec document that can feed into any agentic workflow."
 ---
 

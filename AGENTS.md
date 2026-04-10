@@ -89,7 +89,7 @@ Beagle-specific:
 | beagle-docs | `improve-doc` | Improve docs using Diataxis principles |
 | beagle-docs | `ensure-docs` | Documentation coverage check |
 | beagle-docs | `review-ai-writing` | Detect AI writing patterns in docs and code |
-| beagle-docs | `humanize` | Fix AI writing with safe/risky classification |
+| beagle-docs | `humanize-ai-writing` | Fix AI writing with safe/risky classification |
 | beagle-testing | `gen-test-plan` | Generate YAML test plan from branch changes |
 | beagle-testing | `run-test-plan` | Execute test plan, stop on first failure |
 

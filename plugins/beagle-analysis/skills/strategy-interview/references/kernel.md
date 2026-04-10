@@ -1,0 +1,82 @@
+# The Kernel of Good Strategy
+
+A strategy's kernel contains three elements — **diagnosis**, **guiding policy**, and **coherent action**. Everything else (vision, mission, values, goals, OKRs) is scaffolding around this or, more often, a distraction from it.
+
+## 1. Diagnosis
+
+**What it is:** A judgment about the nature of the situation. It names the challenge and simplifies an overwhelming reality into something the decision-maker can grip and act on.
+
+**What makes it good:**
+- Specific enough that you could imagine being wrong about it.
+- Often uses a metaphor, analogy, or reference to a previously understood situation ("this is a classic commoditization problem," "we're in the position IBM was in around 1990").
+- Reduces complexity by identifying the *one or two* things that matter most, not by listing everything.
+- Uncomfortable. A diagnosis that makes everyone nod happily is probably not a real diagnosis — it's a restatement of the ambition.
+
+**What makes it bad:**
+- "We need to grow faster." (Goal, not diagnosis.)
+- "The market is changing." (Vague. Changing *how*, and *why does that matter for us specifically*?)
+- "We have execution problems." (Where? On what? Caused by what?)
+- Long lists of challenges with no weighting. A good diagnosis picks.
+
+**Interview prompts to sharpen a diagnosis:**
+- "If you had to describe this situation to a smart outsider in three sentences, what would you say?"
+- "What is the *one* thing that, if it were different, would change everything?"
+- "What are people inside the org afraid to say out loud about this?"
+- "Is there an analogy — another company, another industry, a historical moment — that this reminds you of?"
+
+## 2. Guiding Policy
+
+**What it is:** The overall approach chosen to cope with or overcome the obstacles identified in the diagnosis. A directional choice — a way of channeling action — not a specific plan and not a goal.
+
+A useful test: a guiding policy **rules things out**. If it doesn't exclude any reasonable option, it isn't doing work.
+
+**What makes it good:**
+- Creates advantage by anticipating actions and reactions, reducing ambiguity, exploiting asymmetries, or creating coherent policies.
+- Short. One or two sentences.
+- A *choice* — there was a plausible alternative that was rejected.
+- Focuses force on a pivot point where concentrated effort can break something loose.
+
+**What makes it bad:**
+- "Be the best in class." (Best at what? Via what mechanism?)
+- "Focus on the customer." (Who isn't claiming this?)
+- Anything a direct competitor could adopt verbatim without contradiction.
+
+**Examples of real guiding policies:**
+- "Compete on service depth in the segment the incumbents find unprofitable to serve well, and refuse work outside it."
+- "Rebuild the platform around a single primary workflow before adding any new feature surface."
+- "Trade near-term margin for distribution lock-in in the two geographies where the competitor is weakest."
+
+**Interview prompts:**
+- "What does this approach explicitly *not* do?"
+- "If a competitor copied this word-for-word tomorrow, would it still be a good plan for us?"
+- "What's the asymmetry we're exploiting? What do we have, or know, or can tolerate, that they can't?"
+
+## 3. Coherent Action
+
+**What it is:** The concrete, resourced, mutually reinforcing steps that carry out the guiding policy.
+
+The operative word is **coherent**. Individual actions can be fine; a set of actions that pull in different directions is not a strategy, it's a to-do list with ambitions.
+
+**What makes it good:**
+- Each action is concrete enough to tell next quarter whether it happened.
+- Actions reinforce each other: doing A makes B easier, B makes C cheaper, C protects A.
+- The set has focus — usually 3 to 6 things, not 15.
+- Resources (money, people, attention) are actually redirected to match. If the action list doesn't change how the budget or calendar looks, it isn't real.
+
+**What makes it bad:**
+- The "dog's dinner" — a long undifferentiated list of everything everyone wants.
+- Actions that quietly contradict each other (e.g., "move upmarket" and "cut prices to win SMB deals").
+- Actions with no owner, no resourcing, and no way to tell if they happened.
+- Things that would have happened anyway, relabeled as strategic.
+
+**Interview prompts:**
+- "Of these actions, which one is load-bearing? If that one fails, does the rest still work?"
+- "Does action B make action A easier or harder? Walk me through it."
+- "What are we going to stop doing to make room for these?"
+- "Who owns each of these, and what changes on their calendar on Monday?"
+
+## The kernel as a whole
+
+The three parts have to fit. A sharp diagnosis with a vague guiding policy is useless. A clever guiding policy with incoherent actions dies in execution. Coherent actions in service of no diagnosis is a well-run busywork factory.
+
+When reviewing a draft kernel, ask: **does the guiding policy actually address the diagnosis, and do the actions actually carry out the guiding policy?** If you can't trace the line from action back to diagnosis, something is broken — go back and fix it before writing the document.

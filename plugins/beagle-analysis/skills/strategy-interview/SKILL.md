@@ -11,7 +11,9 @@ Turn Claude into a strategy interviewer who helps the user produce a strategy do
 The user runs this expecting a conversation, not a form. Behave like a thoughtful consultant: ask, listen, push back when something sounds like fluff or wishful thinking, and only produce written artifacts at the end.
 
 <hard_gate>
-Do NOT produce strategy-draft.md or strategy-notes.md until Phase 3 is genuinely complete and the user has confirmed the kernel elements. Premature document generation is the single most common failure mode — it produces confident-sounding strategy that hasn't been pressure-tested. Every interview goes through all four phases regardless of how clear the user thinks their strategy already is. "Clear" strategies are where unexamined assumptions do the most damage.
+Do NOT produce `strategy-draft.md` until the kernel is confirmed in Phase 3 — unless the user explicitly requests a provisional draft, in which case prefix the title with `[PROVISIONAL]` and note which kernel elements are unconfirmed. Premature document generation is the single most common failure mode — it produces confident-sounding strategy that hasn't been pressure-tested. Every interview goes through all four phases regardless of how clear the user thinks their strategy already is. "Clear" strategies are where unexamined assumptions do the most damage.
+
+In-progress working notes under `.beagle/strategy/<subject-slug>/` may be written at any point during the interview — these are working state, not deliverables. Final `strategy-notes.md` is normally written at interview end. If the user stops mid-interview, update `.beagle/strategy/<subject-slug>/state.md` and optionally produce `strategy-notes.md` as a resume artifact, but do not write `strategy-draft.md`.
 </hard_gate>
 
 ## What the framework requires
@@ -48,16 +50,21 @@ If multiple lenses are active, focus on the sections relevant to the current pha
 
 Run the interview in four phases. **Do not skip to Phase 4.** The value is in Phases 1-3.
 
-When moving between phases, say so out loud: "We've covered enough ground on discovery — I'm going to start pressure-testing what you've told me." This serves double duty: it signals the user what's coming and anchors your own context if the conversation is long.
+When moving between phases, say so out loud: "We've covered enough ground on discovery — I'm going to start pressure-testing what you've told me." At each transition, include a brief recap of the current read and ask the user to correct it before moving on (see phase transition rules). This anchors context and catches misunderstandings early.
 
 ### Phase 0 — Check for prior work
 
-Before starting a new interview, check if `strategy-notes.md` already exists in the working directory. If it does:
+Before starting a new interview, check for prior state in two places:
 
-1. Read it silently.
+- **Durable state**: Look for `.beagle/strategy/` directories. If one or more exist, list them and ask the user which interview to resume — `state.md` inside each directory has the full interview ledger.
+- **Final artifacts**: Check if `strategy-notes.md` already exists in the working directory.
+
+If prior state is found:
+
+1. Read `state.md` (preferred) or `strategy-notes.md` silently.
 2. Summarize where the interview left off: "Last time we got through [phase] — here's where we landed: [one-sentence kernel summary]. Want to pick up from there, or start fresh?"
-3. If continuing, jump to the appropriate phase with the prior context loaded.
-4. If no file is found but the user references a prior interview, ask them to point to the notes file — it may live in a different directory or under a different name.
+3. If continuing and the `.beagle/strategy/<subject-slug>/` directory has substantial content, prefer spawning a subagent to read all files and produce a concise briefing — this preserves main-context budget. If subagents are not available, read `state.md` directly and skim other files for key entries. Jump to the appropriate phase with the context loaded.
+4. If no files are found but the user references a prior interview, ask them to point to the notes file or `.beagle/strategy/` directory.
 5. If both `strategy-notes.md` and `strategy-draft.md` exist, check whether they're from the same interview by comparing the subject lines. If they don't match, ask the user which interview they want to continue (or whether to start fresh).
 
 This matters because strategy interviews frequently span sessions. Don't make the user re-explain what they already told you.
@@ -86,7 +93,7 @@ If the subject spans multiple entities (portfolio of products, multi-sided platf
 
 #### Conflicting stakeholders
 
-When the user represents multiple internal factions or is synthesizing input from several people, surface the disagreement explicitly rather than averaging it away. Capture both views in strategy-notes.md under a "Contested points" section. Help the user see where the real fork in thinking is — often the disagreement *is* the diagnosis.
+When the user represents multiple internal factions or is synthesizing input from several people, surface the disagreement explicitly rather than averaging it away. When `.beagle/strategy/<subject-slug>/` exists, capture both views in `evidence.md` with `contested` tags so the disagreement is preserved in durable state; otherwise note it for inclusion when final files are written. Either way, summarize contested points in the final `strategy-notes.md`. Help the user see where the real fork in thinking is — often the disagreement *is* the diagnosis.
 
 #### Landscape mapping (when warranted)
 
@@ -157,6 +164,12 @@ Then check the guiding policy's *exclusions* against the coherent actions. If th
 
 Before writing files, confirm the user wants file output: "I'd like to write two files — a strategy draft and reasoning notes. Want me to write those, or would you prefer I summarize in chat?" If chat-only, deliver the "At a glance" block inline and offer to write files later. Confirm the output path — don't assume the working directory is correct.
 
+**Compose from artifacts, not memory.** If `.beagle/strategy/<subject-slug>/` exists, use its files as the primary source for document composition rather than reconstructing from the chat transcript:
+
+1. Update `state.md` and `evidence.md` with any final-phase findings.
+2. Write or update `composition.md` with the confirmed kernel, explicit exclusions, success signals, unresolved assumptions, and selected evidence with source tags.
+3. Compose `strategy-draft.md` and `strategy-notes.md` from the `.beagle/strategy/<subject-slug>/` artifacts. If subagents are available, prefer spawning one — a fresh context reading persisted files produces better documents than the main context reconstructing from a long transcript. Without subagents, re-read each artifact file before composing.
+
 When — and only when — the kernel feels solid, produce **two files** in the user's working directory (or wherever they indicate):
 
 1. **`strategy-draft.md`** — the draft strategy document, following `references/output-template.md`. The artifact they share, revise, and eventually publish.
@@ -184,6 +197,84 @@ Strategy lenses can invite confident claims about markets, competitors, and tren
 - Mark unsourced competitive or market claims as `[assumption — verify]` in both output files.
 - If the user wants research-backed claims, suggest they provide sources or ask Claude to research specific questions separately.
 
+## Durable interview state
+
+Long interviews lose fidelity — facts blur, contested points get averaged away, the final document drifts from what the user actually said. For interviews that grow beyond a few substantive turns, maintain working state in `.beagle/strategy/<subject-slug>/`.
+
+### When to start
+
+Create the directory when any of these appear:
+
+- The interview exceeds roughly 5-7 substantive user replies.
+- Multiple stakeholders or contested views surface.
+- Multiple possible strategies or scopes appear.
+- Any complementary lens is activated.
+- Phase 4 is approaching and no state files exist yet.
+
+`<subject-slug>` is kebab-case from the strategy subject — e.g., `platform-team-h1-2026`.
+
+### Working files
+
+| File | Purpose | Created when |
+|------|---------|-------------|
+| `state.md` | Compact interview ledger | Always, once directory exists |
+| `evidence.md` | User quotes, facts, assumptions, contested points | When notable evidence appears |
+| `lens-notes.md` | Wardley / cascade / value innovation findings | When a lens is used |
+| `composition.md` | Pre-draft outline for Phase 4 | Before final document writing |
+
+### State ledger (`state.md`)
+
+A ledger, not a transcript. Update at phase boundaries and every 5-7 substantive user replies.
+
+```yaml
+subject: [what the strategy is for]
+audience: [who reads the final document]
+timeframe: [planning horizon]
+current_phase: [0-4]
+last_completed_phase: [0-4 or none]
+trigger: [why now]
+current_next_question: [question that would resume the interview]
+diagnosis_candidate: [one sentence, or "none yet"]
+guiding_policy_candidate: [one sentence, or "none yet"]
+coherent_actions_candidate: [action names, or "none yet"]
+explicit_exclusions: [what the strategy will not do]
+lenses_used: [landscape-mapping, choice-cascade, value-innovation, or none]
+decisions_made:
+  - [decision and rationale]
+open_questions:
+  - [question]
+unresolved_weak_spots:
+  - [weak spot and why it matters]
+```
+
+### Evidence tagging (`evidence.md`)
+
+Tag each entry to prevent unsourced assumptions from becoming confident claims:
+
+- **`user said`** — direct statement or close paraphrase.
+- **`inference`** — derived from what the user said, not stated explicitly.
+- **`assumption — verify`** — claim the strategy depends on, unconfirmed.
+- **`contested`** — stakeholders or evidence disagree.
+- **`decision`** — choice made during the interview, with rationale.
+
+```markdown
+- [user said] "We lose deals to X on onboarding time, not features." (Phase 1)
+- [inference] Onboarding problem is downstream of product complexity. (Phase 2)
+- [assumption — verify] Competitor X's onboarding is faster — unverified. (Phase 1)
+- [contested] Engineering: platform scales. Sales: customers hit limits at 10k. (Phase 2)
+- [decision] Scoped to platform team; parking enterprise expansion. (Phase 1)
+```
+
+### Using fresh context for artifact-heavy operations
+
+The `.beagle/strategy/<subject-slug>/` directory exists so that fresh context can read it — not just the degraded main conversation thread. When the environment supports subagents, prefer using them for operations that need the full artifact set. When subagents are not available, re-read the artifact files directly before each operation — the structured persisted state is still a better source than raw chat memory, even without the fresh-context benefit.
+
+**Phase 4 composition**: If subagents are available, spawn one to compose the final deliverables — it reads `state.md`, `evidence.md`, `lens-notes.md`, and `composition.md` with fresh context, then writes `strategy-draft.md` and `strategy-notes.md`. The main context provides the confirmed kernel and last-minute adjustments; the subagent does the document assembly. Without subagents, re-read each artifact file before composing.
+
+**Evidence audit before composition**: Before entering Phase 4, optionally audit `evidence.md` — flag unresolved `assumption — verify` entries, surface `contested` points that were never resolved, and identify evidence gaps. A subagent is ideal for this; without one, scan the file directly and note findings before composing.
+
+**Resumption briefing**: When resuming a long interview in Phase 0 and the `.beagle/strategy/<subject-slug>/` directory has substantial content, a subagent can read all files and produce a concise briefing (current phase, kernel candidates, open questions, unresolved weak spots). Without subagents, read `state.md` first (it has the ledger), then skim other files for key entries rather than loading everything into the main context.
+
 ## Phase transition rules
 
 These gates prevent the most common failure mode: producing a strategy document before the thinking is done.
@@ -192,9 +283,11 @@ These gates prevent the most common failure mode: producing a strategy document 
 - **Phase 2 -> 3**: Move on when major bad-strategy patterns have been surfaced and addressed (or explicitly noted as unresolved). If the user's description of the problem is still mostly goals and aspirations, stay in Phase 2.
 - **Phase 3 -> 4**: Move on when all three kernel elements exist and the user has confirmed each one. If the guiding policy doesn't clearly address the diagnosis, or the actions don't carry out the guiding policy, loop back.
 
+**Recap checkpoints**: At each phase gate, briefly summarize the current read — diagnosis candidate, emerging policy direction, key facts — and ask the user to correct it before moving on. If `.beagle/strategy/<subject-slug>/` exists, update `state.md` at the same time.
+
 **Incomplete or early exit:**
 
-- If the user stops mid-interview, write only `strategy-notes.md` with everything gathered so far, a clear marker of where the interview stopped, and the next question to resume with. Do not write `strategy-draft.md`.
+- If the user stops mid-interview, update `.beagle/strategy/<subject-slug>/state.md` (if it exists) with the current interview state and next question. Optionally produce `strategy-notes.md` as a resume artifact. Do not write `strategy-draft.md`.
 - If the user explicitly asks for a provisional draft before the kernel is confirmed, write it but prefix the title with `[PROVISIONAL]` and note which kernel elements are unconfirmed. This is the only case where a partial draft is acceptable.
 
 ## Variant: critiquing an existing strategy

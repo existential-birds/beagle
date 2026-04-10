@@ -1,6 +1,6 @@
 ---
 name: strategy-review
-description: "Review and pressure-test strategy documents for kernel integrity, bad-strategy patterns, coherence gaps, and untested assumptions. Use when the user asks to review, critique, evaluate, or stress-test a strategy document, strategy-draft.md, strategy-notes.md, strategic plan, or any document claiming to be a strategy. Also triggers on: 'is this strategy any good', 'what's weak in this strategy', 'poke holes in this', 'red team this strategy', 'second opinion on our strategy'. Complements the strategy-interview skill — use strategy-interview to build a strategy through conversation, use strategy-review to evaluate one that already exists."
+description: "Pressure-test strategy documents using seven evaluation dimensions with optional McKinsey 7S, Porter's Five Forces, Balanced Scorecard, and Hoshin Kanri lenses. Finds structural gaps, hidden failure paths, untested assumptions, and bad-strategy patterns. Use when reviewing, critiquing, auditing, or stress-testing any strategic plan. Triggers on: review strategy, evaluate strategy, strategy audit, red team this strategy, poke holes in this, what's weak in this strategy, second opinion on strategy."
 user-invocable: true
 ---
 

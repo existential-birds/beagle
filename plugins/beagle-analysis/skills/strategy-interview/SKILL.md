@@ -1,6 +1,6 @@
 ---
 name: strategy-interview
-description: "Use when developing or refining a strategy through guided conversation for a company, product, team, career, or initiative. Triggers on: strategic planning, building a strategy, where-to-play/how-to-win choices, competitive positioning, market mapping, value innovation, blue ocean, uncontested market space, diagnosing goals masquerading as strategy. For reviewing or critiquing an existing strategy document, use beagle-analysis:strategy-review instead."
+description: "Build strategies through guided conversation using the kernel framework (diagnosis, guiding policy, coherent action) with Wardley mapping, Playing to Win cascade, and Blue Ocean value innovation lenses. For companies, products, teams, careers, or initiatives. Detects bad-strategy patterns: fluff, goals masquerading as strategy, laundry-list objectives, strategy-by-analogy. Triggers on: strategic planning, business strategy, product strategy, competitive positioning, go-to-market strategy, market mapping, where-to-play/how-to-win, value innovation, blue ocean, uncontested market space."
 user-invocable: true
 ---
 

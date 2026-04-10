@@ -1,6 +1,6 @@
 ---
 name: strategy-interview
-description: "Use when developing, critiquing, or pressure-testing a strategy for a company, product, team, career, or initiative. Triggers on: strategic planning, strategy doc, where-to-play/how-to-win choices, competitive positioning, market mapping, value innovation, blue ocean, uncontested market space, diagnosing goals masquerading as strategy."
+description: "Use when developing or refining a strategy through guided conversation for a company, product, team, career, or initiative. Triggers on: strategic planning, building a strategy, where-to-play/how-to-win choices, competitive positioning, market mapping, value innovation, blue ocean, uncontested market space, diagnosing goals masquerading as strategy. For reviewing or critiquing an existing strategy document, use strategy-review instead."
 user-invocable: true
 ---
 
@@ -290,9 +290,11 @@ These gates prevent the most common failure mode: producing a strategy document 
 - If the user stops mid-interview, update `.beagle/strategy/<subject-slug>/state.md` (if it exists) with the current interview state and next question. Optionally produce `strategy-notes.md` as a resume artifact. Do not write `strategy-draft.md`.
 - If the user explicitly asks for a provisional draft before the kernel is confirmed, write it but prefix the title with `[PROVISIONAL]` and note which kernel elements are unconfirmed. This is the only case where a partial draft is acceptable.
 
-## Variant: critiquing an existing strategy
+## Variant: improving an existing strategy through conversation
 
-If the user brings an existing strategy document and wants it critiqued or improved:
+If the user brings an existing strategy document and wants to *improve* it through guided conversation:
+
+> **Routing note:** If the user wants a standalone critique or evaluation of an existing strategy document — without an interactive interview to improve it — use the `strategy-review` skill instead. This variant is for when the user wants to use the document as a starting point for a collaborative improvement conversation.
 
 1. Read the document first. If the document is in a format Claude can't read (PDF, slides, Figma), ask the user to paste the relevant sections as text.
 2. Run the bad-strategy filter on it before any discovery questions — this is the primary value the user is looking for.

@@ -1,6 +1,6 @@
 # Review Output Template
 
-Produce one file: `strategy-review.md`. Write it in the user's working directory unless they specify otherwise.
+For formal or file-output reviews, produce one file: `strategy-review.md`. Write it in the user's working directory unless they specify otherwise. If the user asked for quick feedback or a chat-only take, deliver findings inline instead — see the chat-only branch in SKILL.md Step 5. This template applies only when file output is confirmed.
 
 The tone is direct and specific. Every finding must point to evidence in the document. Every recommendation must be concrete enough that the author can act on it without asking "but what specifically should I do?"
 
@@ -21,7 +21,28 @@ _Review of [document name(s)]. Reviewed on [date]._
 
 - **[Strength]**: [Why it works, with reference to the specific passage.]
 
+## Critical Findings
+
+_The 2-4 issues that most undermine the strategy's integrity. These should be addressed before the strategy is shared or acted on. Ordered by severity — most critical first. Lead with these because they are the highest-value part of the review._
+
+### Finding 1: [Title — short, specific]
+
+**Severity:** [Critical / Serious / Moderate]
+
+**What's wrong:** [Specific description of the gap, risk, or failure path.]
+
+**Why it matters:** [What goes wrong in execution if this isn't addressed.]
+
+**Evidence:** [Passage from the document that demonstrates the issue.]
+
+**Recommended fix:** [Concrete action to address it.]
+
+### Finding 2: [Title]
+...
+
 ## Dimension Ratings
+
+_Supporting detail behind the critical findings. Each dimension evaluates one aspect of the strategy's structural integrity._
 
 ### 1. Diagnosis Quality — [Strong / Adequate / Weak / Missing]
 
@@ -78,25 +99,6 @@ _Review of [document name(s)]. Reviewed on [date]._
 **Evidence:** [Point to specific vague or unfalsifiable claims.]
 
 **Recommendation:** [If needed.]
-
-## Critical Findings
-
-_The 2-4 issues that most undermine the strategy's integrity. These should be addressed before the strategy is shared or acted on. Ordered by severity — most critical first._
-
-### Finding 1: [Title — short, specific]
-
-**Severity:** [Critical / Serious / Moderate]
-
-**What's wrong:** [Specific description of the gap, risk, or failure path.]
-
-**Why it matters:** [What goes wrong in execution if this isn't addressed.]
-
-**Evidence:** [Passage from the document that demonstrates the issue.]
-
-**Recommended fix:** [Concrete action to address it.]
-
-### Finding 2: [Title]
-...
 
 ## Failure Path Analysis
 
@@ -163,6 +165,7 @@ _Ordered by impact. What should the author do with this review?_
 - Write the review file in the user's working directory unless they specify another location.
 - Quote the document. Don't make assertions about what it says — point to the passages. "The diagnosis states: '[quoted text]'" is credible. "The diagnosis is vague" without evidence is not.
 - Keep the review proportional to the document. A short strategy memo doesn't need a 2000-word review. Match depth to depth.
+- Critical Findings come before Dimension Ratings because they are the highest-value section. A reader who stops after Critical Findings should still walk away with the most important feedback. Dimension Ratings provide the supporting evidence and complete picture.
 - The Failure Path Analysis section is where the most unique value lives. Most reviewers tell you what's wrong with the document; this section tells you what could go wrong in the *real world* because of what's in (or missing from) the document. Invest thought here.
 - If the notes cross-reference reveals that the interview produced better thinking than the draft contains, say so directly. Drafts often smooth away the edges that made the thinking sharp.
 - After writing, summarize in chat: overall assessment in one sentence, the single most important finding, and the recommended next action. Then stop.

@@ -136,7 +136,8 @@
         "architecture",
         "brainstorm",
         "adr",
-        "llm-judge"
+        "llm-judge",
+        "strategy"
       ]
     },
     {

@@ -104,16 +104,20 @@ If `strategy-notes.md` or equivalent reasoning notes are available, cross-refere
 
 ### Step 5 — Produce the review
 
+Before writing files, check the user's intent. If they asked for quick feedback, a chat-only take, or to "poke holes in this" conversationally, deliver the findings inline — lead with Critical Findings, then the top failure path, then recommendations. Offer to write the full review file afterward. If the user asked for a formal review or didn't specify, confirm the output path before writing.
+
 Write `strategy-review.md` following `references/review-template.md`. The structure:
 
 1. **Review summary** — 3-4 sentences: what this strategy is trying to do, the overall assessment, and the one thing that most needs attention.
 2. **Strengths** — What works well and why. Be specific. Start here so the author knows what to protect.
-3. **Dimension ratings** — The seven dimensions with ratings, evidence, and recommendations.
-4. **Critical findings** — The 2-4 things that most undermine the strategy's integrity, ordered by severity. These are the items that should be fixed before the strategy is shared or acted on.
+3. **Critical findings** — The 2-4 things that most undermine the strategy's integrity, ordered by severity. These are the items that should be fixed before the strategy is shared or acted on. Lead with these — they are the highest-value part of the review.
+4. **Dimension ratings** — The seven dimensions with ratings, evidence, and recommendations. These provide the supporting detail behind the critical findings.
 5. **Failure path analysis** — How this strategy could fail in the real world. See "Thinking about failure paths" below.
 6. **Assumption risk map** — Load-bearing assumptions ranked by impact x uncertainty. Which ones, if wrong, would break the strategy entirely?
 7. **Lens findings** — If any review lenses were applied, what they revealed that the core dimensions alone didn't catch. Omit this section if no lenses were triggered.
 8. **Recommended next steps** — Concrete actions to strengthen the document, ordered by impact.
+
+**Compose from artifacts, not memory.** If durable review state exists (see below), use those files as the primary source for the final review rather than reconstructing from the conversation. Update `review-composition.md` with the overall assessment and structure decisions, then compose `strategy-review.md` from the artifacts. If subagents are available, spawn one for document assembly — a fresh context reading structured files produces more accurate reviews.
 
 After writing the file, give a brief chat summary: overall assessment in one sentence, the single most important finding, and the recommended next action.
 
@@ -189,8 +193,75 @@ If the user provides two strategy documents (e.g., competing proposals, before/a
 2. Then compare: where do they agree on the diagnosis? Where do they diverge? Is one more specific, more coherent, or more falsifiable?
 3. Don't declare a winner unless the structural quality is clearly different. Two strategies can be equally rigorous and still disagree — that's a judgment call for the decision-maker, not the reviewer.
 
+## Durable review state
+
+Long or complex reviews lose fidelity — evidence citations drift, dimension assessments reference passages from memory instead of the document, and the final review sounds more certain than the source material supports. For reviews that warrant it, maintain working state in a `.beagle/` directory.
+
+### When to start
+
+Create the directory when any of these appear:
+
+- The input document exceeds roughly 2,000 words or spans multiple files.
+- The review is comparative (two or more strategy documents).
+- The strategy is near-final or about to be shared with stakeholders.
+- Two or more review lenses are activated.
+- The document includes sourced market claims that need separate tracking.
+
+### Directory location
+
+- **For interview-produced artifacts**: `.beagle/strategy/<subject-slug>/reviews/<date-or-slug>/` — nests the review alongside the interview state.
+- **For standalone reviews**: `.beagle/strategy-review/<subject-slug>/reviews/<date-or-doc-slug>/` — supports re-reviewing the same subject or reviewing v1/v2 documents without mixing evidence.
+
+### Working files
+
+| File | Purpose | Created when |
+|------|---------|-------------|
+| `review-state.md` | Review ledger — document metadata, lenses triggered, current step | Always, once directory exists |
+| `source-evidence.md` | Document quotes and claims with provenance tags | When the document is read (Step 2) |
+| `kernel-extraction.md` | Extracted kernel elements with evidence | After Step 2 |
+| `dimension-ratings.md` | Per-dimension assessment, evidence, and ratings | During Step 3 |
+| `assumption-risk-map.md` | Load-bearing assumptions with impact × uncertainty | During Step 3/4 |
+| `failure-paths.md` | Failure scenarios with likelihood and mitigation | After dimension evaluation |
+| `lens-notes.md` | Lens-specific findings | When a lens is used |
+| `review-composition.md` | Pre-composition outline for the final review | Before Step 5 |
+
+### Evidence tagging (`source-evidence.md`)
+
+Tag each entry to prevent the final review from sounding more certain than the source material supports:
+
+- **`doc quote`** — direct quote from the strategy document, with section reference.
+- **`reviewer inference`** — derived from the document, not directly stated.
+- **`unverified assumption`** — claim the strategy depends on, not confirmed in the document.
+- **`source-backed`** — claim in the document that cites a source.
+- **`notes cross-ref`** — finding from strategy-notes.md or interview artifacts.
+
+```markdown
+- [doc quote] "We will focus exclusively on mid-market SaaS" (Guiding Policy, p.3)
+- [reviewer inference] Mid-market focus implies exiting current enterprise contracts. (Dim 2)
+- [unverified assumption] TAM estimate of $2B appears unsourced. (Dim 6)
+- [source-backed] "Mobile inspection usage grew 68% YoY (Gartner 2025)" (Diagnosis, p.1)
+- [notes cross-ref] Interview notes flagged enterprise exit as contested. (Notes)
+```
+
+### Review state ledger (`review-state.md`)
+
+```yaml
+document: [filename(s) being reviewed]
+subject: [what the strategy is for]
+maturity: [early-draft / near-final / post-hoc]
+audience: [who reads the strategy]
+current_step: [1-5]
+lenses_triggered: [7S, scorecard, five-forces, hoshin-kanri, or none]
+kernel_found: [yes / partial / no]
+diagnosis_summary: [one sentence]
+policy_summary: [one sentence]
+critical_findings_count: [number]
+top_risk: [one sentence]
+```
+
 ## Reference files
 
 - `references/review-dimensions.md` — The seven evaluation dimensions with detailed criteria, examples, and common failure patterns.
 - `references/review-lenses.md` — Four complementary review lenses (7S, Scorecard, Five Forces, Hoshin Kanri) with triggers, questions, and common gaps.
 - `references/review-template.md` — Exact structure of the `strategy-review.md` output file.
+- `references/pressure-tests.md` — Expected behaviors for common review scenarios. For skill validation.

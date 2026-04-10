@@ -305,7 +305,7 @@ This is a 1–4 scale, not 1–5. The strategy-review skill has four levels; the
 | `assumption_risk_map` | array | yes | Load-bearing assumptions. May be empty if none found (unusual). |
 | `failure_paths` | array | yes | Failure scenarios. Minimum 2, typically 3–5. |
 | `review_lenses_applied` | array | no | Omit if no review lenses triggered. |
-| `interview_lens_audit` | array | no | Omit if no interview lenses were used during the strategy-interview. |
+| `interview_lens_audit` | array | no | Omit if no interview lenses were used during the `beagle-analysis:strategy-interview`. |
 | `critical_findings` | array | yes | The 2–4 highest-severity findings. |
 | `blocking_findings` | array | yes | Titles of findings that should block the strategy from being finalized. May be empty. |
 | `unresolved_questions` | array | yes | Questions the review couldn't answer. May be empty. |

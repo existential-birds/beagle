@@ -1,0 +1,196 @@
+---
+name: strategy-review
+description: "Review and pressure-test strategy documents for kernel integrity, bad-strategy patterns, coherence gaps, and untested assumptions. Use when the user asks to review, critique, evaluate, or stress-test a strategy document, strategy-draft.md, strategy-notes.md, strategic plan, or any document claiming to be a strategy. Also triggers on: 'is this strategy any good', 'what's weak in this strategy', 'poke holes in this', 'red team this strategy', 'second opinion on our strategy'. Complements the strategy-interview skill — use strategy-interview to build a strategy through conversation, use strategy-review to evaluate one that already exists."
+user-invocable: true
+---
+
+# Strategy Review
+
+Pressure-test strategy documents to find where they'll break before reality does it for you. The primary job isn't to evaluate prose quality or check formatting — it's to find the gaps, hidden failure paths, and under-accounted risks that will kill the strategy in execution. A strategy that survives this review has a meaningfully better chance of surviving contact with the real world.
+
+This skill complements the `strategy-interview` skill. Strategy-interview helps *build* a strategy through guided conversation; strategy-review subjects an existing strategy to rigorous adversarial evaluation using the same kernel framework (diagnosis, guiding policy, coherent actions) and bad-strategy filter.
+
+## What makes this different from generic feedback
+
+Most strategy feedback falls into two useless categories: vague praise ("this is really thoughtful") or surface-level nitpicking ("consider adding a timeline"). Neither helps the author see whether their thinking actually holds up under stress.
+
+This review does three things that generic feedback doesn't:
+
+1. **Tests structural integrity** — whether the logical chain from diagnosis through guiding policy to coherent actions actually holds together, or whether the "therefore" between them is secretly an "and also."
+2. **Hunts for failure paths** — not just what's wrong with the document, but what goes wrong in the *real world* because of what's missing. The slow drift scenario, the capability gap that stalls the load-bearing action, the competitor response nobody modeled, the political resistance the strategy pretends doesn't exist.
+3. **Surfaces invisible assumptions** — every strategy is a bet, but most strategies don't name their bets. This review finds the load-bearing assumptions the author hasn't stated and maps the risk of each one being wrong.
+
+## Before you start
+
+Read `references/review-dimensions.md` — it contains the seven evaluation dimensions and their criteria. This is the backbone of the review. Keep it in working memory throughout.
+
+## Complementary review lenses
+
+The kernel evaluation (diagnosis, guiding policy, coherent actions) is always the backbone. Four additional lenses load conditionally when the strategy document warrants them. **Do not force them.** Most reviews use one or two; some use none. A lens loads when the document's content triggers it — not as a mandatory checklist.
+
+Lenses sharpen the existing seven dimensions rather than adding new ones. When a lens reveals a gap, the finding belongs under the relevant dimension. The lens is the tool that found the gap; the dimension is where it lives.
+
+| Lens | When it loads | What it adds | Primary dimensions |
+|------|--------------|-------------|-------------------|
+| **McKinsey 7S** (Execution Alignment) | Strategy requires organizational change — new structure, processes, cultural shift, or cross-functional coordination | Checks whether the strategy accounts for alignment across structure, systems, shared values, style, staff, and skills. The most common gap: the strategy changes direction but assumes the organization will follow. | Dim 3, Dim 6 |
+| **Balanced Scorecard** (Objective Translation) | Success criteria are one-dimensional (usually financial only) or vague | Checks whether success is measurable across financial, customer, process, and learning perspectives. Financial metrics are lagging — the strategy needs leading indicators that signal problems before revenue confirms them. | Dim 7 |
+| **Porter's Five Forces** (Competitive Pressure Audit) | Diagnosis addresses competitive dynamics — market position, pricing pressure, new entrants, substitution risk | Checks whether the diagnosis saw the full competitive picture, not just direct rivalry. Many strategies diagnose one force while ignoring the others. | Dim 1 |
+| **Hoshin Kanri** (Strategy Deployment) | Strategy involves multiple organizational levels — actions need to cascade from executive intent to team execution | Checks whether actions survive translation from strategy to operations. Strategy fails at the translation layers — each level of the org loses fidelity. | Dim 3 |
+
+**Lens selection happens during Step 2** (reading and extracting the kernel). After identifying the kernel elements, mentally check each lens trigger. Load `references/review-lenses.md` for the relevant lenses and weave their pressure-test questions into the Step 3 dimension evaluation.
+
+The reviewer uses lens *thinking* to find gaps — not lens *vocabulary* to lecture the user. A finding that says "the strategy changes direction but doesn't address whether the current org structure supports the new approach" is a 7S-informed finding. The user doesn't need to know it came from McKinsey's framework.
+
+## Review workflow
+
+### Step 1 — Gather the documents
+
+Ask the user what they want reviewed. Typical inputs:
+
+- **`strategy-draft.md` + `strategy-notes.md`** — the pair produced by strategy-interview. The notes file dramatically enriches the review because it contains assumptions, open questions, and the reasoning journey. Always ask for both if only one is provided.
+- **A standalone strategy document** — any doc that claims to be a strategy. Could be a Google Doc paste, a PDF, a deck summary, or a markdown file.
+- **A slide deck or brief** — extract the strategic claims and evaluate those. Don't critique slide design.
+
+If the document is ambiguous about what it's trying to be (strategy? plan? vision? goals?), name it: "This reads more like a goals document than a strategy — it describes what you want to achieve but not the theory of how. Want me to review it as-is, or should we first identify the missing strategic elements?"
+
+Check the working directory for existing strategy files before asking the user to provide them — they may have already been produced by a previous strategy-interview session.
+
+### Step 2 — Read and extract the kernel
+
+Read the full document. Identify (or note the absence of) the three kernel elements:
+
+1. **Diagnosis** — What does the document say is actually going on? Is there a clear statement of the challenge?
+2. **Guiding policy** — What overall approach has been chosen? Does it make a directional choice?
+3. **Coherent actions** — What concrete steps carry out the policy? Do they reinforce each other?
+
+If the document uses different terminology (OKRs, pillars, strategic priorities, initiatives), map their concepts to the kernel. Don't force a vocabulary change — evaluate the thinking underneath the labels. A "strategic priority" that functions as a guiding policy should be evaluated as one.
+
+Also note:
+- Whether any complementary lenses were applied (landscape mapping, choice cascade, value innovation)
+- The stated scope and timeframe
+- The intended audience
+- Any assumptions listed (or conspicuously absent)
+
+### Step 3 — Evaluate against the seven dimensions
+
+Work through each dimension from `references/review-dimensions.md`. For each:
+
+1. **Assess** — What does the document do well or poorly on this dimension?
+2. **Find evidence** — Quote or cite specific passages. Don't make claims you can't point to.
+3. **Rate** — Assign a rating (Strong / Adequate / Weak / Missing).
+4. **Recommend** — If Weak or Missing, what specifically should the author do? Not "improve the diagnosis" — rather, "the diagnosis names 'market shift' as the challenge but doesn't specify *which* shift or *why it matters for this company specifically*. A stronger version would identify the one or two structural changes that create the opening or threat."
+
+The seven dimensions (summarized here, detailed in the reference):
+
+| # | Dimension | Core question |
+|---|-----------|--------------|
+| 1 | **Diagnosis quality** | Does it name the actual challenge with enough specificity to be wrong? |
+| 2 | **Guiding policy strength** | Does it make a real choice that rules things out? |
+| 3 | **Action coherence** | Do the actions reinforce each other and carry out the policy? |
+| 4 | **Kernel chain** | Does the logical chain from diagnosis -> policy -> actions hold? |
+| 5 | **Bad-strategy patterns** | Are any of the five hallmarks present? |
+| 6 | **Assumption exposure** | Are load-bearing assumptions identified and testable? |
+| 7 | **Specificity and falsifiability** | Could you tell in 12 months whether this strategy worked or failed? |
+
+### Step 4 — Cross-check with notes (if available)
+
+If `strategy-notes.md` or equivalent reasoning notes are available, cross-reference:
+
+- **Open questions**: Are any of these actually show-stoppers that should block the draft from being finalized?
+- **Assumptions**: Does the draft rest on assumptions the notes flagged as unverified? If so, how severe is the exposure?
+- **Bad-strategy patterns caught during interview**: Were they actually resolved in the final draft, or did they creep back in softer language?
+- **Thinking evolution**: Did the draft preserve the sharpest version of the diagnosis, or did it soften during writing?
+- **Lens findings**: If landscape mapping, choice cascade, or value innovation analysis was done, did those findings actually make it into the draft?
+
+### Step 5 — Produce the review
+
+Write `strategy-review.md` following `references/review-template.md`. The structure:
+
+1. **Review summary** — 3-4 sentences: what this strategy is trying to do, the overall assessment, and the one thing that most needs attention.
+2. **Strengths** — What works well and why. Be specific. Start here so the author knows what to protect.
+3. **Dimension ratings** — The seven dimensions with ratings, evidence, and recommendations.
+4. **Critical findings** — The 2-4 things that most undermine the strategy's integrity, ordered by severity. These are the items that should be fixed before the strategy is shared or acted on.
+5. **Failure path analysis** — How this strategy could fail in the real world. See "Thinking about failure paths" below.
+6. **Assumption risk map** — Load-bearing assumptions ranked by impact x uncertainty. Which ones, if wrong, would break the strategy entirely?
+7. **Lens findings** — If any review lenses were applied, what they revealed that the core dimensions alone didn't catch. Omit this section if no lenses were triggered.
+8. **Recommended next steps** — Concrete actions to strengthen the document, ordered by impact.
+
+After writing the file, give a brief chat summary: overall assessment in one sentence, the single most important finding, and the recommended next action.
+
+## Thinking about failure paths
+
+This is where the review delivers the most value that the author can't easily get elsewhere. Most people reviewing a strategy will tell you what's wrong with the *document*. Failure path analysis tells you what could go wrong in the *real world* because of what's in (or missing from) the document.
+
+Strategies rarely fail through dramatic, visible crisis. They fail through predictable, quiet patterns:
+
+**The capability gap**: The load-bearing action requires a capability the organization doesn't have and underestimates the cost of building. "Ship a native mobile app by Q3" sounds like an action item; if the team has never built native mobile, it's a six-month research project dressed up as a deliverable.
+
+**The slow drift**: Nothing forces adherence to the guiding policy's exclusions. Quarter by quarter, exceptions creep in. "We said no enterprise, but this one deal is really big." Within a year, the strategy has been silently reversed by a thousand small yeses.
+
+**The unmodeled response**: The strategy assumes the competitive environment is static. But the competitor reads the same market signals. If the strategy's diagnosis is correct, others will reach similar conclusions — what happens when they respond?
+
+**The political veto**: The strategy requires stopping something that a powerful stakeholder owns. The strategy document doesn't mention this because the author assumes buy-in will materialize. It usually doesn't.
+
+**The assumption cascade**: One key assumption turns out to be wrong, and because the actions are tightly coupled, the failure propagates. The market doesn't grow as expected, so the unit economics don't work, so the funding case falls apart, so the capability never gets built.
+
+**The execution bottleneck**: Multiple actions depend on the same scarce resource (a key team, a specific leader, a budget line) but the strategy treats them as independent. When the bottleneck binds, the author must choose which actions to delay — and the strategy didn't provide guidance on that priority call.
+
+**The measurement void**: No leading indicators were defined, so the organization can't tell whether the strategy is working until lagging indicators arrive (revenue, market share) — by which time it's too late to course-correct.
+
+For each failure path you identify, describe: the scenario in concrete terms, the likelihood, what the strategy currently does to mitigate it (often nothing), and what the author could do to reduce the risk. These are the findings authors most often say changed their thinking — because they expose risks the author knew existed but hadn't made explicit.
+
+## Posture and calibration
+
+### Be honest, not hostile
+
+The author spent real thinking effort on this. Acknowledge what works — genuinely, not as a softener before the bad news. But don't pull punches on structural problems. A strategy that goes to the board with a flawed diagnosis will do more damage than a reviewer who was too direct.
+
+Frame findings as structural observations, not personal criticism: "The diagnosis addresses market dynamics but doesn't identify why this company is specifically exposed" — not "you didn't think hard enough about the diagnosis."
+
+### Calibrate to the document's maturity
+
+- **Early draft / working document**: Focus on the big structural issues. Don't nitpick prose or completeness — the author knows it's rough. Emphasize what's promising and what needs the most work.
+- **Near-final / about to be shared**: Higher bar. Flag everything that could undermine credibility with the audience. Check that the "At a glance" section accurately represents the full document. Verify that claimed exclusions in the guiding policy aren't quietly reintroduced in the actions.
+- **Post-hoc / strategy already in execution**: Focus on assumption validation. Which assumptions can now be checked against reality? Flag any that have already been falsified by events.
+
+### Don't rewrite the strategy
+
+The review identifies problems and recommends fixes. It does not produce an alternative strategy. If the diagnosis is fundamentally wrong, say so and explain why — but the user needs to rethink it themselves (ideally using the strategy-interview skill). A reviewer who rewrites the strategy is doing the author's thinking for them, which means the author won't own it.
+
+Exception: if the document has a *missing* element (no diagnosis at all, no stated exclusions), offer a concrete example of what a good version might look like, clearly marked as illustrative, to help the author see the gap.
+
+### Respect different frameworks
+
+If the document uses OKRs, V2MOM, SWOT, Porter's Five Forces, or any other framework — evaluate the *thinking*, not the *format*. The kernel question is always the same: is there a diagnosis, a directional choice, and coherent actions? These may appear under different labels. Map concepts, don't force vocabulary.
+
+Flag genuine structural gaps ("this V2MOM has methods and obstacles but no diagnosis of which obstacle matters most") rather than framework translation ("you should use the kernel format instead").
+
+## Source discipline
+
+When the document makes claims about markets, competitors, or trends:
+- Note which claims are sourced and which are asserted without evidence.
+- Flag market claims that feel like conventional wisdom rather than verified data.
+- If the review depends on external facts you can't verify, say so: "The diagnosis rests on the claim that [X] — I can't verify this, but if it's wrong, the entire strategy changes."
+
+## Variant: reviewing a strategy-interview in progress
+
+If the user is mid-interview (they have `strategy-notes.md` but no `strategy-draft.md`, or the draft is marked `[PROVISIONAL]`):
+
+1. Review what exists so far — the notes capture the thinking even before the draft crystallizes.
+2. Focus on the strongest and weakest elements of the emerging kernel.
+3. Suggest questions the user should pressure-test before finalizing.
+4. Don't produce a full review — produce a "mid-interview check" with the 3-5 most important observations.
+
+## Variant: comparative review
+
+If the user provides two strategy documents (e.g., competing proposals, before/after versions, or strategies from different teams):
+
+1. Review each independently first using the seven dimensions.
+2. Then compare: where do they agree on the diagnosis? Where do they diverge? Is one more specific, more coherent, or more falsifiable?
+3. Don't declare a winner unless the structural quality is clearly different. Two strategies can be equally rigorous and still disagree — that's a judgment call for the decision-maker, not the reviewer.
+
+## Reference files
+
+- `references/review-dimensions.md` — The seven evaluation dimensions with detailed criteria, examples, and common failure patterns.
+- `references/review-lenses.md` — Four complementary review lenses (7S, Scorecard, Five Forces, Hoshin Kanri) with triggers, questions, and common gaps.
+- `references/review-template.md` — Exact structure of the `strategy-review.md` output file.

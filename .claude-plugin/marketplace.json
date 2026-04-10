@@ -10,15 +10,6 @@
   },
   "plugins": [
     {
-      "name": "beagle",
-      "source": "./plugins/beagle",
-      "description": "Deprecated: split into beagle-core, beagle-react, etc. You can safely disable this plugin.",
-      "category": "deprecated",
-      "tags": [
-        "deprecated"
-      ]
-    },
-    {
       "name": "beagle-core",
       "source": "./plugins/beagle-core",
       "description": "Shared code review workflows, verification protocol, git commands, and feedback handling",

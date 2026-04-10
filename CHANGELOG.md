@@ -6,6 +6,17 @@ Format follows [Keep a Changelog](https://keepachangelog.com/en/1.1.0/). Version
 
 ## [Unreleased]
 
+## [2.12.0] - 2026-04-10
+
+### Added
+- **beagle-analysis:** Add `strategy-interview` skill for structured strategy interviews using kernel framework with landscape mapping, choice cascade, and value innovation lenses ([#85](https://github.com/existential-birds/beagle/pull/85))
+- **beagle-analysis:** Add `strategy-review` skill to pressure-test strategy documents for kernel integrity, bad-strategy patterns, coherence gaps, and untested assumptions ([#85](https://github.com/existential-birds/beagle/pull/85))
+
+### Changed
+- **beagle-docs:** Refactor `humanize` skill to use `references/` directory for vocabulary swaps, fix strategies, and developer voice guidelines ([#85](https://github.com/existential-birds/beagle/pull/85))
+- **beagle-docs:** Add 10 new humanize fix categories: em dash overuse, thematic breaks, title case headings, curly quotes, negative parallelism, challenges-and-prospects formula, rule of three, inline-header lists, unnecessary tables, regression to mean ([#85](https://github.com/existential-birds/beagle/pull/85))
+- Remove deprecated `beagle` plugin entry from marketplace manifest ([#85](https://github.com/existential-birds/beagle/pull/85))
+
 ## [2.11.0] - 2026-04-04
 
 ### Added

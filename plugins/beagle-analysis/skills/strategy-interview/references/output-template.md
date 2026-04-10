@@ -41,6 +41,15 @@ _Draft produced via interview on [date]. Author: [user]. Status: draft for revie
 
 [One short paragraph tracing the coherence: how action 1 makes action 2 easier, how action 3 protects action 1, etc. If you can't write this paragraph, the actions aren't coherent — go back.]
 
+## Required capabilities
+
+_Include this section only when the strategic choice cascade was used during the interview._
+
+[3-5 capabilities the organization must have to execute this strategy. For each: whether the org has it today, and what it takes to build if not. Flag any capability the strategy assumes but hasn't resourced — these are the most common silent points of failure.]
+
+1. **[Capability]** — [status: have it / building / gap]. [One sentence on why it's load-bearing.]
+2. ...
+
 ## What success looks like in [timeframe]
 
 [3-5 observable indicators. Not metrics for their own sake — leading signals that the guiding policy is working.]
@@ -89,6 +98,24 @@ _Companion to strategy-draft.md. Internal thinking, open questions, things that 
 [Capture the paths the guiding policy rules out, so future-them can see why — and revisit if circumstances change.]
 
 - ...
+
+## Landscape analysis
+
+_Include this section only when landscape mapping was used during the interview._
+
+[Summary of the value chain as understood: which components the user controls, which they depend on, and where key components sit on the evolution curve. Note any structural findings — commodity components being built custom, genesis-stage problems treated as procurement decisions, competitors further along the evolution curve, impending disruptions. These findings should already be reflected in the diagnosis; this section preserves the reasoning behind them.]
+
+## Cascade pressure-test
+
+_Include this section only when the strategic choice cascade was used during the interview._
+
+[Findings from the five cascade choices — where to play, how to win, capabilities, management systems. Focus on gaps: which choices were explicit and strong, which were implicit or missing. Especially note capability gaps (things the strategy assumes the org can do but hasn't verified) and management system gaps (nothing in the org's operating rhythm that would keep this strategy alive).]
+
+## Value innovation findings
+
+_Include this section only when the value innovation lens was used during the interview._
+
+[What the competitive convergence analysis revealed: the factors everyone competes on, where offerings converge, the four-actions assessment (eliminate/reduce/raise/create), and any noncustomer tiers explored. Note whether the user accepted the reframe or resisted it, and whether the diagnosis was reshaped as a result.]
 
 ## What I'd sharpen next
 

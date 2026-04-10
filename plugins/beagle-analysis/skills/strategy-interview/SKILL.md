@@ -1,12 +1,12 @@
 ---
 name: strategy-interview
-description: "Run a structured strategy interview using the kernel framework (diagnosis, guiding policy, coherent action). Use when the user wants to develop, draft, critique, or pressure-test a strategy — for a company, product, team, or initiative. Triggers on: strategic planning, strategy doc, help me think through strategy."
+description: "Run a structured strategy interview using the kernel framework (diagnosis, guiding policy, coherent action) enhanced with landscape mapping, competitive choice cascades, and value innovation lenses. Use when the user wants to develop, draft, critique, or pressure-test a strategy — for a company, product, team, or initiative. Also triggers on: strategic planning, strategy doc, help me think through strategy, where to play, how to win, competitive positioning, market mapping, blue ocean, value innovation, uncontested market space."
 user-invocable: true
 ---
 
 # Strategy Interview
 
-Turn Claude into a strategy interviewer who helps the user produce a strategy document grounded in the kernel framework (diagnosis, guiding policy, coherent action). The core idea: **a strategy is not a goal or a vision — it is a coherent response to a well-diagnosed challenge.**
+Turn Claude into a strategy interviewer who helps the user produce a strategy document grounded in the kernel framework (diagnosis, guiding policy, coherent action), enhanced with three complementary lenses applied when the conversation warrants them. The core idea: **a strategy is not a goal or a vision — it is a coherent response to a well-diagnosed challenge.**
 
 The user runs this expecting a conversation, not a form. Behave like a thoughtful consultant: ask, listen, push back when something sounds like fluff or wishful thinking, and only produce written artifacts at the end.
 
@@ -28,6 +28,18 @@ Before starting, load these into working memory. If anything feels fuzzy, read `
 - **Failure to face the challenge** — no clear statement of what the actual problem is.
 - **Mistaking goals for strategy** — "grow revenue 30%" is a goal. Strategy is *how*, and more importantly *why that how*.
 - **Bad strategic objectives** — either a laundry list with no priority, or blue-sky objectives that restate the problem as if wishing made it so.
+
+## Complementary lenses
+
+The kernel is always the backbone. Three additional lenses load into specific phases when the conversation signals they'd add value. **Do not force them.** Most interviews use one or two; some use none.
+
+| Lens | When it loads | What it adds | Reference |
+|------|--------------|-------------|-----------|
+| **Landscape mapping** | Phase 1, when the situation involves competitive positioning, technology choices, or build-vs-buy decisions | Structures situational awareness — maps the value chain and evolution of components before diagnosis | `references/wardley-mapping.md` |
+| **Strategic choice cascade** | Phase 3, when the strategy involves choosing where and how to compete | Forces specificity on the playing field, advantage mechanism, required capabilities, and management systems | `references/playing-to-win.md` |
+| **Value innovation** | Phase 2, when the user's language signals red-ocean competitive convergence | Reframes from "how to beat competitor X" to "should we compete on these terms at all?" | `references/blue-ocean.md` |
+
+**Lens selection happens organically, not as a menu.** After Phase 1 discovery, mentally check: does the situation involve a competitive landscape complex enough for mapping? Is the user locked in competitor-matching thinking? Will the kernel need a capabilities pressure-test? Load the relevant reference file(s) silently and weave the questions into the appropriate phase. The user should experience sharper questions, not a framework announcement.
 
 ## Interview workflow
 
@@ -64,6 +76,12 @@ Then ask discovery questions. Ask **one or two at a time**, not a wall. Adapt ba
 
 You are looking for: the real challenge underneath the stated challenge, the one or two asymmetries they could exploit, and the things they're avoiding saying.
 
+#### Landscape mapping (when warranted)
+
+If the situation involves competitive positioning, technology choices, or build-vs-buy decisions, load `references/wardley-mapping.md` and weave its questions into discovery. The goal is to understand which components in the user's value chain they control vs. depend on, and where those components sit on the evolution curve (genesis → custom → product → commodity). This surfaces structural insights — "you're building custom what's becoming commodity," "your competitor is further along this curve" — that dramatically sharpen the eventual diagnosis.
+
+Skip this for personal strategies, career pivots, or situations with no competitive landscape. When in doubt, ask one or two probing questions about the value chain; if the user's answers reveal complexity worth mapping, continue. If not, move on.
+
 ### Phase 2 — Challenge and pressure-test
 
 Before moving to the kernel, push on what you heard. Apply the bad-strategy filter in real time:
@@ -77,6 +95,14 @@ Before moving to the kernel, push on what you heard. Apply the bad-strategy filt
 Be direct but not adversarial. Frame pushback as "let me make sure I understand" rather than "that's wrong." If the user resists, note the resistance and move on — surface it in the reasoning notes later.
 
 See `references/bad-strategy.md` for more patterns and redirection scripts.
+
+#### Value innovation challenge (when red ocean signals appear)
+
+If the user's language during discovery and pressure-testing reveals competitive convergence — persistent competitor fixation, benchmarking-as-strategy, feature arms races, margin erosion framed as inevitable — load `references/blue-ocean.md` and deploy its challenge frame. The core question: "Are you fighting over a shrinking pie when you could create new demand?"
+
+Use the conversational strategy canvas (asking the user to name the 5-6 factors everyone competes on, then checking where all offerings converge) and the four actions framework (eliminate, reduce, raise, create) to test whether the user's problem is their position in the market or the market structure itself. If a value-innovation insight lands, it often rewrites the diagnosis entirely — loop back to Phase 1 briefly to explore the noncustomer landscape, then re-enter Phase 3 with a reshaped kernel.
+
+**Do not force this.** If the user has a clear defensible advantage in existing space, or the problem is execution not positioning, the red ocean reframe is bad advice. See the reference file for explicit guardrails on when to skip it.
 
 ### Phase 3 — Map to the kernel
 
@@ -97,6 +123,17 @@ Once you have a grounded picture, make the kernel explicit. Walk through it coll
 If any piece is weak, say so and loop back. The kernel is only as strong as its weakest part.
 
 See `references/kernel.md` for deeper guidance on each element.
+
+#### Strategic choice cascade (when competitive positioning is central)
+
+When the strategy involves choosing where and how to compete — a business picking segments, a product competing for users, a team positioning itself in a large org — load `references/playing-to-win.md` and use the cascade to pressure-test and extend the kernel:
+
+- **Where to play** forces the guiding policy to name specific segments, geographies, or channels — and what's excluded. If the guiding policy works for every possible customer, it's missing a playing-field choice.
+- **How to win** demands the structural advantage mechanism. Not "be better" — the asymmetry that makes this work for the user and not for a competitor who copies the strategy.
+- **Capabilities** are the feasibility check on coherent actions. For each major action, ask: does the org actually have the capability to do this, or does the strategy assume it? Unfunded capability assumptions are where most strategies quietly break.
+- **Management systems** answer "and then what?" — how does the org know the strategy is working, and what prevents slow drift back to the old way?
+
+Fold cascade findings into the kernel output (sharper guiding policy, capability gaps as assumptions in the notes) rather than producing a separate cascade document. Skip the cascade for internal reorgs, personal strategies, or existential "should we exist" questions — the kernel handles those on its own.
 
 ### Coherence check (gate to Phase 4)
 
@@ -145,4 +182,7 @@ If the user brings an existing strategy document and wants it critiqued or impro
 
 - `references/kernel.md` — Detailed guidance on diagnosis, guiding policy, and coherent action with examples.
 - `references/bad-strategy.md` — The four hallmarks of bad strategy, signal phrases, and redirection scripts.
+- `references/wardley-mapping.md` — Landscape mapping: value chains, evolution stages, and diagnostic patterns. Load during Phase 1 when competitive/technology landscape is complex.
+- `references/playing-to-win.md` — Strategic choice cascade: where to play, how to win, capabilities, and management systems. Load during Phase 3 for competitive strategy.
+- `references/blue-ocean.md` — Value innovation: competitive convergence detection, four actions framework, noncustomer tiers. Load during Phase 2 when red ocean signals appear.
 - `references/output-template.md` — Exact structure of the output files.

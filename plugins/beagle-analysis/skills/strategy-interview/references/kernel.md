@@ -80,3 +80,19 @@ The operative word is **coherent**. Individual actions can be fine; a set of act
 The three parts have to fit. A sharp diagnosis with a vague guiding policy is useless. A clever guiding policy with incoherent actions dies in execution. Coherent actions in service of no diagnosis is a well-run busywork factory.
 
 When reviewing a draft kernel, ask: **does the guiding policy actually address the diagnosis, and do the actions actually carry out the guiding policy?** If you can't trace the line from action back to diagnosis, something is broken — go back and fix it before writing the document.
+
+## Worked example: a complete kernel
+
+**Company:** Fieldkit — a 90-person B2B SaaS company selling inspection-management software to mid-size commercial property firms. $14M ARR, growing 30% YoY until last year, when growth dropped to 11%.
+
+**Diagnosis:** Fieldkit's growth stalled because its two largest competitors (BuildOps, FacilityIQ) launched mobile-first products while Fieldkit remained desktop-oriented. 68% of inspections happen on-site with a phone, but Fieldkit's mobile experience is a responsive web wrapper that drops offline and loses data. The company has been treating mobile as a feature request rather than the core delivery surface. Meanwhile, the sales team is compensating by moving upmarket to enterprise accounts where desktop workflows still dominate — but Fieldkit lacks SOC 2 certification, SSO, and audit trails that enterprise buyers require. The company is drifting into a segment it cannot win while abandoning the mid-market segment where its domain expertise is strongest.
+
+**Guiding policy:** Dominate mobile-first inspection workflows for mid-market commercial property firms (50–500 properties) and stop pursuing enterprise deals until the core product is defensible. Fieldkit will not build enterprise compliance features this year. It will not try to match BuildOps on breadth of facility management. It will win on reliability and speed of the on-site inspection experience specifically.
+
+**Coherent actions:**
+1. Ship a native mobile app with full offline sync by Q3 — this is the load-bearing action; everything else depends on it.
+2. Kill the enterprise sales motion: reassign the two enterprise AEs to mid-market and cancel the SOC 2 engagement ($180K saved, redirected to mobile engineering).
+3. Build an integration with HappyCo and Yardi (the two property-management systems 70% of mid-market customers already use) to make Fieldkit's inspection data flow automatically into existing workflows.
+4. Launch a "reliability guarantee" — if an inspection is lost due to sync failure, Fieldkit credits the account. This forces engineering accountability and becomes a sales differentiator.
+
+**Why this holds together:** The diagnosis identifies a specific structural mistake — chasing enterprise to escape a mobile gap — not a generic "we need to grow." The guiding policy makes a painful cut (enterprise) to concentrate resources where the company actually has an edge (deep inspection-workflow knowledge in mid-market). Each action reinforces the others: the native app (1) makes the reliability guarantee (4) credible; killing enterprise (2) frees the budget and headcount for the app; the integrations (3) raise switching costs once customers adopt mobile, protecting the position the app creates. A competitor reading this strategy could not copy it without also abandoning their enterprise pipeline, which is exactly the kind of commitment that makes a strategy real.

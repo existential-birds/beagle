@@ -1,6 +1,6 @@
 ---
 name: strategy-interview
-description: "Run a structured interview to help the user develop a strategy document using the kernel framework (diagnosis, guiding policy, coherent action). Use when the user wants to write, draft, critique, or think through a strategy for a company, product, team, initiative, or personal plan. Triggers: strategic planning, strategy doc, write a strategy, strategy for X, OKRs-that-are-really-strategy, help me think through strategy, or phrases like 'help me figure out our strategy.' Produces a draft strategy document and reasoning notes."
+description: "Run a structured strategy interview using the kernel framework (diagnosis, guiding policy, coherent action). Use when the user wants to develop, draft, critique, or pressure-test a strategy — for a company, product, team, or initiative. Triggers on: strategic planning, strategy doc, help me think through strategy."
 user-invocable: true
 ---
 
@@ -33,11 +33,25 @@ Before starting, load these into working memory. If anything feels fuzzy, read `
 
 Run the interview in four phases. **Do not skip to Phase 4.** The value is in Phases 1-3.
 
+When moving between phases, say so out loud: "We've covered enough ground on discovery — I'm going to start pressure-testing what you've told me." This serves double duty: it signals the user what's coming and anchors your own context if the conversation is long.
+
+### Phase 0 — Check for prior work
+
+Before starting a new interview, check if `strategy-notes.md` already exists in the working directory. If it does:
+
+1. Read it silently.
+2. Summarize where the interview left off: "Last time we got through [phase] — here's where we landed: [one-sentence kernel summary]. Want to pick up from there, or start fresh?"
+3. If continuing, jump to the appropriate phase with the prior context loaded.
+
+This matters because strategy interviews frequently span sessions. Don't make the user re-explain what they already told you.
+
 ### Phase 1 — Discovery (broad, no kernel framing yet)
 
 Start by explaining what's about to happen:
 
 > "I'm going to ask you some open questions to understand the situation. I'll push back if things sound vague — that's the point. Once I understand the terrain, we'll shape it into a strategy. Sound good?"
+
+After understanding the subject, calibrate depth. A personal career strategy needs 10-15 minutes of discovery; a business unit strategy for a large org might need 30+. Adjust the number of discovery questions and the rigor of Phase 2 accordingly — don't run a 45-minute interrogation for someone thinking through whether to pivot their side project.
 
 Then ask discovery questions. Ask **one or two at a time**, not a wall. Adapt based on answers. Cover this ground in roughly this order, but let the user lead:
 
@@ -46,7 +60,7 @@ Then ask discovery questions. Ask **one or two at a time**, not a wall. Adapt ba
 - **The situation**: Landscape — competitors, customers, technology shifts, internal constraints, political reality.
 - **Assets and constraints**: What do they actually have — money, people, brand, tech, relationships, time? What can't or won't they do?
 - **What they've tried**: Past attempts and outcomes. Past failures are the most honest data.
-- **What they think the answer is**: Ask this late, not early. The user often has a hunch; useful to hear but dangerous to anchor on.
+- **What they think the answer is**: Ask this late, not early. The user often has a hunch — acknowledge it, then deliberately set it aside: "Good — I'm going to hold onto that but explore the space a bit more before we come back to it." Their intuition is data, not a conclusion.
 
 You are looking for: the real challenge underneath the stated challenge, the one or two asymmetries they could exploit, and the things they're avoiding saying.
 
@@ -84,6 +98,10 @@ If any piece is weak, say so and loop back. The kernel is only as strong as its 
 
 See `references/kernel.md` for deeper guidance on each element.
 
+### Coherence check (gate to Phase 4)
+
+Before producing documents, read the kernel back as a single paragraph: "[Diagnosis]. Therefore, [guiding policy]. Which means we will [actions]." Say it to the user. If it doesn't read as a logical chain — if the "therefore" or "which means" feel forced — something is broken. Loop back to whichever element is weakest.
+
 ### Phase 4 — Produce the deliverables
 
 When — and only when — the kernel feels solid, produce **two files** in the user's working directory (or wherever they indicate):
@@ -101,6 +119,7 @@ After writing both files, give a short chat summary: diagnosis in one sentence, 
 - **Quote the user's own words back** when formalizing the kernel — builds trust and catches misinterpretation early.
 - **Don't name-drop frameworks or sources.** The framework shows up in what you ask, not in citations.
 - **It's okay to end inconclusively.** If the user doesn't have a diagnosis yet, say so in `strategy-notes.md` and recommend what they'd need to learn first. An honest "not yet" is far more valuable than a confident fake strategy.
+- **Resist the urge to soften.** Your natural instinct will be to produce balanced, diplomatic language — exactly wrong for a diagnosis. A diagnosis that everyone is comfortable with isn't specific enough. The user can always soften later; your job is to find the sharp version first.
 
 ## Phase transition rules
 
@@ -111,6 +130,16 @@ These gates prevent the most common failure mode: producing a strategy document 
 - **Phase 3 -> 4**: Move on when all three kernel elements exist and the user has confirmed each one. If the guiding policy doesn't clearly address the diagnosis, or the actions don't carry out the guiding policy, loop back. Mark weak sections as `[DRAFT]` rather than papering over them.
 
 If the conversation is running long and the user wants to stop mid-interview, write `strategy-notes.md` with everything gathered so far and a clear marker of where the interview stopped. They can resume later.
+
+## Variant: critiquing an existing strategy
+
+If the user brings an existing strategy document and wants it critiqued or improved:
+
+1. Read the document first.
+2. Run the bad-strategy filter on it before any discovery questions — this is the primary value the user is looking for.
+3. Lead with what you found: "Here's what I see — [pattern], [pattern]. Want to dig into these?"
+4. Phase 1 becomes filling gaps: what context is missing from the doc that you'd need to evaluate it fairly?
+5. Phases 2-4 proceed as normal, but the existing doc provides the starting kernel to pressure-test rather than building from scratch.
 
 ## Reference files
 

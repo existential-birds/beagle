@@ -13,6 +13,12 @@ Use this exact structure. Fill with the user's own words where possible; paraphr
 
 _Draft produced via interview on [date]. Author: [user]. Status: draft for review._
 
+## At a glance
+
+> **Challenge:** [One sentence — the diagnosis in plain language.]
+> **Approach:** [One sentence — the guiding policy.]
+> **Key moves:** [Top 3 actions, comma-separated, no detail.]
+
 ## Diagnosis
 
 [2-5 sentences. What is actually going on? What is the core challenge — the one or two things that matter most? Be specific enough to be wrong. If there's a useful analogy or metaphor, use it.]
@@ -55,6 +61,10 @@ _Companion to strategy-draft.md. Internal thinking, open questions, things that 
 
 [A short narrative of the situation as the user described it. Use their phrasing where it was vivid. This is the raw material the kernel was built from.]
 
+## How the thinking evolved
+
+[Trace the arc from where the user started to where they ended up. What was their initial framing? Where did it shift? What question or pushback caused the biggest change in thinking? This section is often the most valuable part of the notes — it captures the reasoning journey, not just the destination.]
+
 ## Bad-strategy patterns caught during the interview
 
 [For each: what the pattern was, how it showed up, how it was resolved or whether it's still unresolved. Be honest — if the user resisted a pushback and you let it go, say so here.]
@@ -92,4 +102,5 @@ _Companion to strategy-draft.md. Internal thinking, open questions, things that 
 - Write both files in the user's current working directory unless they've specified another location.
 - Use the user's language where possible; don't over-polish into management-speak.
 - If the kernel is genuinely incomplete — e.g., the diagnosis is still fuzzy — **say so in the draft itself.** Mark the weak section as `[DRAFT — diagnosis still under development, see notes]` rather than papering over it. An honest placeholder is better than fake confidence.
+- The "At a glance" section is for upward communication — a busy stakeholder should be able to read just this block and understand the strategy. Write it last, after the full document is done.
 - After writing, give a short chat summary: diagnosis in one sentence, guiding policy in one sentence, top open question. Then stop.

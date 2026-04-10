@@ -282,7 +282,7 @@ This is a 1–4 scale, not 1–5. The strategy-review skill has four levels; the
 
   "reward_signal": {
     "pass": false,
-    "score": 0.61,
+    "score": 0.82,
     "rationale": "One critical blocking finding (unverified capability assumption on load-bearing action). Strategy is structurally sound but not ready to act on without resolving the capability question."
   }
 }

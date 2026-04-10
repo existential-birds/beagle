@@ -8,7 +8,7 @@ user-invocable: true
 
 Pressure-test strategy documents to find where they'll break before reality does it for you. The primary job isn't to evaluate prose quality or check formatting — it's to find the gaps, hidden failure paths, and under-accounted risks that will kill the strategy in execution. A strategy that survives this review has a meaningfully better chance of surviving contact with the real world.
 
-This skill complements the `strategy-interview` skill. Strategy-interview helps *build* a strategy through guided conversation; strategy-review subjects an existing strategy to rigorous adversarial evaluation using the same kernel framework (diagnosis, guiding policy, coherent actions) and bad-strategy filter.
+This skill complements the `beagle-analysis:strategy-interview` skill. Strategy-interview helps *build* a strategy through guided conversation; strategy-review subjects an existing strategy to rigorous adversarial evaluation using the same kernel framework (diagnosis, guiding policy, coherent actions) and bad-strategy filter.
 
 ## What makes this different from generic feedback
 
@@ -171,7 +171,7 @@ Frame findings as structural observations, not personal criticism: "The diagnosi
 
 ### Don't rewrite the strategy
 
-The review identifies problems and recommends fixes. It does not produce an alternative strategy. If the diagnosis is fundamentally wrong, say so and explain why — but the user needs to rethink it themselves (ideally using the strategy-interview skill). A reviewer who rewrites the strategy is doing the author's thinking for them, which means the author won't own it.
+The review identifies problems and recommends fixes. It does not produce an alternative strategy. If the diagnosis is fundamentally wrong, say so and explain why — but the user needs to rethink it themselves (ideally using the `beagle-analysis:strategy-interview` skill). A reviewer who rewrites the strategy is doing the author's thinking for them, which means the author won't own it.
 
 Exception: if the document has a *missing* element (no diagnosis at all, no stated exclusions), offer a concrete example of what a good version might look like, clearly marked as illustrative, to help the author see the gap.
 

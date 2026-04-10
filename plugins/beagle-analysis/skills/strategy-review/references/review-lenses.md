@@ -71,6 +71,13 @@ Check whether the strategy translates into objectives across four perspectives �
 
 A strategy with only financial success criteria can't course-correct — by the time revenue tells you something's wrong, the underlying causes are 6-12 months old.
 
+Beyond the four perspectives, check for the deeper Balanced Scorecard elements that separate rigorous objective translation from surface-level "balanced KPI coverage":
+
+- **Causal linkage**: Do the objectives across perspectives form a cause-and-effect chain? Learning & Growth improvements should drive Internal Process improvements, which should drive Customer outcomes, which should drive Financial results. If the objectives are just four independent lists, the scorecard thinking is decorative — it hasn't identified the causal theory of how the strategy creates value.
+- **Targets**: Are there specific, time-bound targets for each objective — not just metrics to watch, but thresholds that distinguish success from failure? "Track NPS" is monitoring; "NPS above 45 by Q3" is a target the org can rally around and course-correct against.
+- **Strategic initiatives**: For each objective gap (where-we-are vs. target), is there a funded initiative to close it? Objectives without initiatives are wishes. Check whether the coherent actions map to specific objective gaps or float independently.
+- **Review cadence**: Does the strategy specify how often progress will be reviewed and by whom? The Balanced Scorecard's operational power comes from regular strategy review meetings where leading indicators trigger mid-course corrections. Without a review rhythm, the scorecard degrades into a dashboard nobody checks.
+
 ### Pressure-test questions
 
 1. If the strategy is working as intended, what would you see in 90 days that isn't a financial metric? If there's no answer, the strategy has no early warning system.
@@ -78,6 +85,10 @@ A strategy with only financial success criteria can't course-correct — by the 
 3. Which internal processes are load-bearing for this strategy? How would you know if they're improving or degrading?
 4. What capabilities must the organization build? How would you measure progress on capability-building before end results arrive?
 5. If the financial targets are missed in Q3, what non-financial indicators from Q1-Q2 should have flagged the problem? If none exist, the strategy is flying blind.
+6. Can you trace a causal chain from a Learning & Growth objective through Internal Process and Customer objectives to a Financial outcome? If the objectives don't link causally, they're four independent wish lists.
+7. For each success indicator — is there a specific target with a deadline, or just a metric to "track"? Monitoring without thresholds can't trigger corrective action.
+8. For each gap between current state and target — is there a funded initiative to close it, or is the gap expected to close on its own?
+9. How often will the strategy's leading indicators be reviewed, by whom, and what authority do they have to adjust course? If there's no review cadence, the scorecard is a one-time artifact, not an operating tool.
 
 ### Common gaps this reveals
 

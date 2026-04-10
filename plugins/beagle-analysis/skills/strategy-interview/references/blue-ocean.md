@@ -48,7 +48,7 @@ You won't literally draw this with the user. Instead, build the picture conversa
 - "If I lined up your offering and your two closest competitors on those dimensions, where would a buyer actually see a difference?"
 - "Which of those factors does your industry spend the most time and money competing on — and are customers actually willing to pay more for improvement there, or has it become table stakes?"
 
-What you're listening for: if the user describes 5-6 factors and their offering is roughly similar to competitors on most of them, that's the convergence pattern. The entire industry is fighting over the same shrinking space.
+What you're listening for: if the user describes 5-6 factors and their offering is roughly similar to competitors on most of them, that's the convergence pattern. The entire industry is fighting over the same saturated, convention-bound space.
 
 ### 2. Breaking the value-cost tradeoff — Eliminate, Reduce, Raise, Create
 

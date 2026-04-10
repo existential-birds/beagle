@@ -1,6 +1,6 @@
 # Bad Strategy: Patterns to Catch in Real Time
 
-There are five hallmarks of bad strategy. Listen for them constantly during the interview and redirect when you hear them. The user will often not realize they're doing it — these patterns feel like strategy from the inside.
+There are four hallmarks of bad strategy (Rumelt's canonical set), plus one additional anti-pattern. Listen for all five constantly during the interview and redirect when you hear them. The user will often not realize they're doing it — these patterns feel like strategy from the inside.
 
 ## 1. Fluff
 
@@ -80,7 +80,7 @@ Two sub-flavors:
 - "What's the mechanism? What changes that makes this possible now when it wasn't before?"
 - "If this were easy, it would already be done. What's the thing that has to give?"
 
-## 5. Strategy by Analogy
+## 5. Strategy by Analogy (additional anti-pattern)
 
 **What it sounds like:** References to what successful companies did, presented as self-evident justification. "Spotify did squads, so we should too." "Netflix has a culture deck, let's write one."
 

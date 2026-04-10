@@ -130,15 +130,21 @@ _Load-bearing assumptions ranked by (impact if wrong) x (uncertainty). Focus on 
 
 ## Lens Findings
 
-_Include this section only when one or more complementary review lenses (7S, Scorecard, Five Forces, Hoshin Kanri) were applied during the review. Omit entirely if no lenses were triggered._
+_Include this section when complementary review lenses (7S, Scorecard, Five Forces, Hoshin Kanri) were applied during the review, OR when interview lenses (landscape mapping, choice cascade, value innovation) appear in the strategy document or notes. Omit entirely if neither applies._
 
-**Lenses applied:** [List which lenses were activated and why — the trigger condition observed in the document.]
+**Review lenses applied:** [List which review lenses were activated and why — the trigger condition observed in the document.]
 
-**What the lenses revealed:**
+**What the review lenses revealed:**
 
-[For each applied lens, describe what it found that the core seven dimensions alone would likely have missed. Focus on systemic gaps — the kind that span multiple dimensions or create failure paths the standard review might not catch. 2-4 findings total across all applied lenses.]
+[For each applied review lens, describe what it found that the core seven dimensions alone would likely have missed. Focus on systemic gaps — the kind that span multiple dimensions or create failure paths the standard review might not catch. 2-4 findings total across all applied lenses.]
 
 - **[Lens name] — [Finding title]**: [What the lens revealed. Point to the specific gap, unstated assumption, or misalignment. Reference the dimension where the finding was also recorded.]
+
+**Interview lens audit:** [Include this subsection only when the strategy document or notes show that Wardley mapping, Playing to Win cascade, or Blue Ocean value innovation analysis was done during the interview.]
+
+[For each interview lens that was applied, assess whether its findings survived into the draft. Did landscape mapping insights sharpen the diagnosis? Did cascade capability gaps appear in assumptions? Did ERRC moves shape the coherent actions? Flag interview lens findings that were dropped or softened — these often represent the sharpest strategic thinking that got polished away.]
+
+- **[Interview lens] — [Assessment]**: [Whether the lens findings are reflected in the draft, partially reflected, or missing. If missing, what was lost.]
 
 ## Notes Cross-Reference
 

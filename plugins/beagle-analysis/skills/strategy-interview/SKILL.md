@@ -25,11 +25,13 @@ Before starting, load these into working memory. If anything feels fuzzy, read `
 2. **Guiding policy** — the overall approach chosen to cope with or overcome the obstacles identified in the diagnosis. Not a goal. A direction that rules things in and rules many things out.
 3. **Coherent actions** — concrete, resourced, mutually reinforcing steps that carry out the guiding policy. Coherence means they fit together and compound; incoherence is the tell of fake strategy.
 
-**The five hallmarks of bad strategy** (watch for these constantly):
+**The four hallmarks of bad strategy** (watch for these constantly):
 - **Fluff** — abstract, buzzword-heavy language that sounds sophisticated but says nothing.
 - **Failure to face the challenge** — no clear statement of what the actual problem is.
 - **Mistaking goals for strategy** — "grow revenue 30%" is a goal. Strategy is *how*, and more importantly *why that how*.
 - **Bad strategic objectives** — either a laundry list with no priority, or blue-sky objectives that restate the problem as if wishing made it so.
+
+**Additional anti-pattern** (not a Rumelt hallmark, but equally dangerous in practice):
 - **Strategy by analogy** — copying what worked for another company without examining whether the conditions match. "Spotify did squads" is not a strategy argument.
 
 ## Complementary lenses
@@ -117,7 +119,7 @@ See `references/bad-strategy.md` for more patterns and redirection scripts.
 
 #### Value innovation challenge (when red ocean signals appear)
 
-If the user's language during discovery and pressure-testing reveals competitive convergence — persistent competitor fixation, benchmarking-as-strategy, feature arms races, margin erosion framed as inevitable — load `references/blue-ocean.md` and deploy its challenge frame. The core question: "Are you fighting over a shrinking pie when you could create new demand?"
+If the user's language during discovery and pressure-testing reveals competitive convergence — persistent competitor fixation, benchmarking-as-strategy, feature arms races, margin erosion framed as inevitable — load `references/blue-ocean.md` and deploy its challenge frame. The core question: "Are you fighting over existing, saturated demand when you could create new demand?"
 
 Use the conversational strategy canvas (asking the user to name the 5-6 factors everyone competes on, then checking where all offerings converge) and the four actions framework (eliminate, reduce, raise, create) to test whether the user's problem is their position in the market or the market structure itself. If a value-innovation insight lands, it often rewrites the diagnosis entirely — loop back to Phase 1 briefly to explore the noncustomer landscape, then re-enter Phase 3 with a reshaped kernel.
 

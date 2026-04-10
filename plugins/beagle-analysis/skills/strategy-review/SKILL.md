@@ -66,7 +66,7 @@ Read the full document. Identify (or note the absence of) the three kernel eleme
 If the document uses different terminology (OKRs, pillars, strategic priorities, initiatives), map their concepts to the kernel. Don't force a vocabulary change — evaluate the thinking underneath the labels. A "strategic priority" that functions as a guiding policy should be evaluated as one.
 
 Also note:
-- Whether any complementary lenses were applied (landscape mapping, choice cascade, value innovation)
+- Whether any complementary interview lenses were applied (landscape mapping, choice cascade, value innovation) — if so, note which ones for the interview lens audit in Step 3
 - The stated scope and timeframe
 - The intended audience
 - Any assumptions listed (or conspicuously absent)
@@ -88,9 +88,19 @@ The seven dimensions (summarized here, detailed in the reference):
 | 2 | **Guiding policy strength** | Does it make a real choice that rules things out? |
 | 3 | **Action coherence** | Do the actions reinforce each other and carry out the policy? |
 | 4 | **Kernel chain** | Does the logical chain from diagnosis -> policy -> actions hold? |
-| 5 | **Bad-strategy patterns** | Are any of the five hallmarks present? |
+| 5 | **Bad-strategy patterns** | Are any of the four Rumelt hallmarks (plus one additional anti-pattern) present? |
 | 6 | **Assumption exposure** | Are load-bearing assumptions identified and testable? |
 | 7 | **Specificity and falsifiability** | Could you tell in 12 months whether this strategy worked or failed? |
+
+### Step 3b — Interview lens audit (when interview lenses appear in the document)
+
+If the strategy document or its companion notes show evidence that landscape mapping (Wardley), strategic choice cascade (Playing to Win), or value innovation (Blue Ocean) lenses were applied during the interview, audit whether those lens findings actually made it into the strategy:
+
+- **Landscape mapping**: If Wardley-style value chain or evolution analysis was done, check whether the diagnosis reflects structural positioning insights (commodity vs. custom, evolution stage mismatches, competitor positioning on the curve). Load `references/review-lenses.md` Five Forces questions to pressure-test the competitive landscape claims against the Wardley findings.
+- **Strategic choice cascade**: If Playing to Win cascade analysis was done, check whether where-to-play and how-to-win choices sharpened the guiding policy, whether capability gaps surfaced during the cascade appear in the assumption exposure, and whether management systems were addressed in the coherent actions.
+- **Value innovation**: If Blue Ocean analysis was done (ERRC grid, noncustomer tiers, strategy canvas), check whether the diagnosis was reshaped to address competitive convergence rather than just competitive positioning, and whether coherent actions reflect the eliminate/reduce/raise/create moves rather than incremental competitor-matching.
+
+Record findings under the relevant dimensions (typically Dim 1 for landscape, Dim 2-3 for cascade, Dim 1-4 for value innovation). Also flag any interview lens findings from the notes that were dropped or softened in the draft — these often represent the sharpest thinking that got smoothed away during document polishing.
 
 ### Step 4 — Cross-check with notes (if available)
 

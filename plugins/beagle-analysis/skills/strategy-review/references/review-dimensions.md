@@ -139,11 +139,11 @@ This is the meta-dimension. Dimensions 1-3 evaluate each kernel element individu
 
 ## 5. Bad-Strategy Pattern Detection
 
-**Core question:** Are any of the five hallmarks of bad strategy present in the document?
+**Core question:** Are any of the four hallmarks of bad strategy (plus the additional anti-pattern) present in the document?
 
 Bad strategy isn't the absence of strategy — it's the *presence of specific patterns* that look like strategy but aren't. These patterns are dangerous because they create confidence without substance. A document that contains them will feel "strategic" to casual readers while providing no actual guidance for decisions.
 
-### The five hallmarks
+### The four Rumelt hallmarks (plus one additional anti-pattern)
 
 **1. Fluff** — Buzzword-heavy language that sounds sophisticated but says nothing.
 - Signal phrases: synergy, leverage, ecosystem, platform play, holistic, transformational, best-in-class, next-generation, customer-centric.
@@ -159,7 +159,7 @@ Bad strategy isn't the absence of strategy — it's the *presence of specific pa
 **4. Bad strategic objectives** — Either a laundry list with no prioritization (the "dog's dinner") or blue-sky objectives that assume away the hard part ("we will eliminate tech debt").
 - The test: if every objective is "high priority," none of them are. If the objective restates the problem as if naming it solved it, it's blue-sky.
 
-**5. Strategy by analogy** — "Netflix did X, so we should too" without examining whether the conditions that made it work for Netflix exist here.
+**5. Strategy by analogy** (additional anti-pattern, not a Rumelt hallmark) — "Netflix did X, so we should too" without examining whether the conditions that made it work for Netflix exist here.
 - The test: can the author name three conditions that made the analogy work for the original company, and verify they hold here?
 
 ### Rating criteria

@@ -6,6 +6,11 @@ Format follows [Keep a Changelog](https://keepachangelog.com/en/1.1.0/). Version
 
 ## [Unreleased]
 
+## [2.12.1] - 2026-04-10
+
+### Changed
+- **beagle-analysis:** Improve strategy skill discoverability with expanded marketplace tags and refined trigger phrases ([#88](https://github.com/existential-birds/beagle/pull/88))
+
 ## [2.12.0] - 2026-04-10
 
 ### Added

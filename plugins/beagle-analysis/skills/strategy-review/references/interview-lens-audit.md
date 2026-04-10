@@ -1,6 +1,6 @@
 # Interview Lens Audit
 
-Audit criteria for checking whether interview lens findings survived into the strategy draft. Use this during Step 3b when the strategy document or companion notes show evidence that landscape mapping, strategic choice cascade, or value innovation lenses were applied during the strategy-interview.
+Audit criteria for checking whether interview lens findings survived into the strategy draft. Use this during Step 3b when the strategy document or companion notes show evidence that landscape mapping, strategic choice cascade, or value innovation lenses were applied during the `beagle-analysis:strategy-interview` skill.
 
 The audit is about **fidelity and impact** — did the lens findings make it into the draft, and did they actually sharpen the kernel? A lens finding that appears in the notes but vanishes from the draft is a red flag. A lens finding that appears in the draft but didn't change anything is decorative.
 

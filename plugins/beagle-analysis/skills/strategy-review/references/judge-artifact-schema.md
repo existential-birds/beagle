@@ -32,6 +32,8 @@ This is a 1–4 scale, not 1–5. The strategy-review skill has four levels; the
 
 ## Schema definition
 
+> **Note:** The example below is a partial illustrative fragment. It shows two of seven required `dimension_ratings`, one of the minimum two `failure_paths`, and one of the required 2–4 `critical_findings` to demonstrate the structure without duplicating the pattern for every entry. A valid `strategy-review.json` must include all seven dimensions, at least two failure paths, and 2–4 critical findings per the field reference below.
+
 ```json
 {
   "schema_version": "1.0",

@@ -2,6 +2,7 @@
 name: humanize
 description: Rewrite AI-generated developer text to sound human — fix inflated language, filler, tautological docs, and robotic tone. Use after review-ai-writing identifies issues.
 disable-model-invocation: true
+user-invocable: true
 dependencies:
   - docs-style
   - review-ai-writing

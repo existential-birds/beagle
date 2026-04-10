@@ -13,6 +13,8 @@
     "brainstorm",
     "adr",
     "llm-judge",
-    "analysis"
+    "analysis",
+    "strategy",
+    "strategic-planning"
   ]
 }

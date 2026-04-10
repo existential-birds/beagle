@@ -1,6 +1,6 @@
 # Bad Strategy: Patterns to Catch in Real Time
 
-There are four hallmarks of bad strategy. Listen for them constantly during the interview and redirect when you hear them. The user will often not realize they're doing it — these patterns feel like strategy from the inside.
+There are five hallmarks of bad strategy. Listen for them constantly during the interview and redirect when you hear them. The user will often not realize they're doing it — these patterns feel like strategy from the inside.
 
 ## 1. Fluff
 
@@ -79,6 +79,23 @@ Two sub-flavors:
 **Redirection scripts:**
 - "What's the mechanism? What changes that makes this possible now when it wasn't before?"
 - "If this were easy, it would already be done. What's the thing that has to give?"
+
+## 5. Strategy by Analogy
+
+**What it sounds like:** References to what successful companies did, presented as self-evident justification. "Spotify did squads, so we should too." "Netflix has a culture deck, let's write one."
+
+**Classic tells:**
+- "X did it and it worked"
+- Company names used as strategy arguments
+- Copying visible practices without understanding invisible prerequisites
+- "We should do what [company] does" without examining fit
+
+**Why it's dangerous:** The success conditions of the original strategy are invisible. The adopter copies the *what* without the *why*, and the structural context that made it work. Spotify's squads worked because of Spotify's engineering culture, hiring bar, and product shape — not because someone drew a matrix on a whiteboard.
+
+**Redirection scripts:**
+- "That worked for [company] under specific conditions — what's similar about your situation, and what's different? Which of those differences could break the approach?"
+- "What problem were they solving when they did that? Is that the same problem you have?"
+- "What's the part of their approach you *can't* see from the outside? That's usually where the magic is."
 
 ## Posture when pushing back
 

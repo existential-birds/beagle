@@ -41,6 +41,12 @@ _Draft produced via interview on [date]. Author: [user]. Status: draft for revie
 
 [One short paragraph tracing the coherence: how action 1 makes action 2 easier, how action 3 protects action 1, etc. If you can't write this paragraph, the actions aren't coherent — go back.]
 
+## Decisions required
+
+_Include this section when the strategy depends on approvals, budget reallocation, or organizational changes that someone other than the author must greenlight._
+
+- **[Decision]** — [who needs to decide, by when, what happens if delayed]
+
 ## Required capabilities
 
 _Include this section only when the strategic choice cascade was used during the interview._
@@ -65,6 +71,16 @@ The messy, honest file. For the user's own use — shared thinking, not a polish
 # Strategy Notes — [subject]
 
 _Companion to strategy-draft.md. Internal thinking, open questions, things that were pushed back on. Not for circulation._
+
+## Interview state
+
+- **Subject:** [what the strategy is for]
+- **Last completed phase:** [Phase 1 / 2 / 3 / 4]
+- **Confirmed diagnosis:** [yes/no — if yes, one-sentence summary]
+- **Confirmed guiding policy:** [yes/no — if yes, one-sentence summary]
+- **Confirmed coherent actions:** [yes/no — if yes, count]
+- **Lenses used:** [landscape mapping / value innovation / choice cascade / none]
+- **Next question to ask:** [the question that would resume the interview]
 
 ## What I heard in the interview
 

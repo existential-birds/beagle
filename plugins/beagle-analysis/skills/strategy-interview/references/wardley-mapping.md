@@ -37,6 +37,21 @@ These are the forces that move components rightward:
 - **Componentization** — yesterday's product becomes tomorrow's building block (AWS turned servers into API calls; that enabled a generation of startups that couldn't have existed before).
 - **Co-evolution** — when an underlying component commoditizes, practices built on top of it change. Cheap compute didn't just make the same things cheaper; it made entirely new architectures possible (microservices, serverless, ML training at scale).
 
+### Value capture dynamics
+
+Knowing where components sit on the evolution curve is half the picture. The other half is understanding who captures the economic value at each layer. A company can control every component in its chain and still make no money if value concentrates at a layer controlled by someone else.
+
+**The pattern:** As components commoditize, margin migrates. It moves away from the commodity layer and toward adjacent layers that are still differentiated. If you're operating in the commodity layer and your supplier operates in the product layer, they capture the margin — you compete on price while they compete on features.
+
+**Why this matters for diagnosis:** Many strategies fail not because the company chose the wrong market but because they're positioned at the wrong layer of value capture. They built the best version of something that was becoming interchangeable, while the real margin moved upstream or downstream.
+
+**Interview probes:**
+
+- "Where in your value chain does the margin actually sit today? Who captures it — you, your suppliers, or your customers?"
+- "If your layer commoditizes further, where does the value migrate? Who's positioned to capture it?"
+- "Is your competitive advantage at the layer where value is currently captured, or a different one?"
+- "When you look at how your industry's economics have shifted over the past five years, which layer gained pricing power and which layer lost it?"
+
 ## Interview application
 
 ### Extracting the value chain through conversation

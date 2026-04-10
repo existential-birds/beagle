@@ -29,6 +29,7 @@ claude plugin install beagle-analysis@existential-birds
 | **adr-writing** | Write Architectural Decision Records following the MADR template with Definition of Done criteria |
 | **agent-architecture-analysis** | 12-Factor Agents compliance analysis for evaluating agent architecture and LLM-powered systems |
 | **llm-judge** | LLM-as-judge methodology for comparing code implementations using weighted rubrics across functionality, security, test quality, overengineering, and dead code |
+| **strategy-interview** | Structured strategy interview using kernel framework with landscape mapping, choice cascade, and value innovation lenses |
 
 ### Reference Material
 

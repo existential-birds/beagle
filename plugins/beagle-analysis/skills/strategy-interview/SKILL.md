@@ -1,6 +1,6 @@
 ---
 name: strategy-interview
-description: "Run a structured strategy interview using the kernel framework (diagnosis, guiding policy, coherent action) enhanced with landscape mapping, competitive choice cascades, and value innovation lenses. Use when the user wants to develop, draft, critique, or pressure-test a strategy — for a company, product, team, or initiative. Also triggers on: strategic planning, strategy doc, help me think through strategy, where to play, how to win, competitive positioning, market mapping, blue ocean, value innovation, uncontested market space."
+description: "Use when developing, critiquing, or pressure-testing a strategy for a company, product, team, career, or initiative. Triggers on: strategic planning, strategy doc, where-to-play/how-to-win choices, competitive positioning, market mapping, value innovation, blue ocean, uncontested market space, diagnosing goals masquerading as strategy."
 user-invocable: true
 ---
 
@@ -23,15 +23,16 @@ Before starting, load these into working memory. If anything feels fuzzy, read `
 2. **Guiding policy** — the overall approach chosen to cope with or overcome the obstacles identified in the diagnosis. Not a goal. A direction that rules things in and rules many things out.
 3. **Coherent actions** — concrete, resourced, mutually reinforcing steps that carry out the guiding policy. Coherence means they fit together and compound; incoherence is the tell of fake strategy.
 
-**The four hallmarks of bad strategy** (watch for these constantly):
+**The five hallmarks of bad strategy** (watch for these constantly):
 - **Fluff** — abstract, buzzword-heavy language that sounds sophisticated but says nothing.
 - **Failure to face the challenge** — no clear statement of what the actual problem is.
 - **Mistaking goals for strategy** — "grow revenue 30%" is a goal. Strategy is *how*, and more importantly *why that how*.
 - **Bad strategic objectives** — either a laundry list with no priority, or blue-sky objectives that restate the problem as if wishing made it so.
+- **Strategy by analogy** — copying what worked for another company without examining whether the conditions match. "Spotify did squads" is not a strategy argument.
 
 ## Complementary lenses
 
-The kernel is always the backbone. Three additional lenses load into specific phases when the conversation signals they'd add value. **Do not force them.** Most interviews use one or two; some use none.
+The kernel is always the backbone. Three additional lenses load into specific phases when the conversation signals they'd add value. **Do not force them.** Most interviews use one or two; some use none. Scale lens depth to the situation — a quick competitive positioning check for a startup, a full value-chain walkthrough for a large org.
 
 | Lens | When it loads | What it adds | Reference |
 |------|--------------|-------------|-----------|
@@ -40,6 +41,8 @@ The kernel is always the backbone. Three additional lenses load into specific ph
 | **Value innovation** | Phase 2, when the user's language signals red-ocean competitive convergence | Reframes from "how to beat competitor X" to "should we compete on these terms at all?" | `references/blue-ocean.md` |
 
 **Lens selection happens organically, not as a menu.** After Phase 1 discovery, mentally check: does the situation involve a competitive landscape complex enough for mapping? Is the user locked in competitor-matching thinking? Will the kernel need a capabilities pressure-test? Load the relevant reference file(s) silently and weave the questions into the appropriate phase. The user should experience sharper questions, not a framework announcement.
+
+If multiple lenses are active, focus on the sections relevant to the current phase rather than loading everything. Read the interview prompts and diagnostic patterns; skip the background theory.
 
 ## Interview workflow
 
@@ -54,6 +57,8 @@ Before starting a new interview, check if `strategy-notes.md` already exists in 
 1. Read it silently.
 2. Summarize where the interview left off: "Last time we got through [phase] — here's where we landed: [one-sentence kernel summary]. Want to pick up from there, or start fresh?"
 3. If continuing, jump to the appropriate phase with the prior context loaded.
+4. If no file is found but the user references a prior interview, ask them to point to the notes file — it may live in a different directory or under a different name.
+5. If both `strategy-notes.md` and `strategy-draft.md` exist, check whether they're from the same interview by comparing the subject lines. If they don't match, ask the user which interview they want to continue (or whether to start fresh).
 
 This matters because strategy interviews frequently span sessions. Don't make the user re-explain what they already told you.
 
@@ -68,6 +73,7 @@ After understanding the subject, calibrate depth. A personal career strategy nee
 Then ask discovery questions. Ask **one or two at a time**, not a wall. Adapt based on answers. Cover this ground in roughly this order, but let the user lead:
 
 - **The subject**: What is the strategy *for*? (Company? Product line? Team? Career?) Scope and timeframe.
+- **The audience**: "Who needs to read the final document, and what decision are they making with it?" Board presentation vs. engineering team vs. founder's own thinking — this shapes tone, detail level, and emphasis.
 - **The trigger**: Why now? What changed, what's broken, what opportunity appeared? If "we just do this every year," that's a finding — note it.
 - **The situation**: Landscape — competitors, customers, technology shifts, internal constraints, political reality.
 - **Assets and constraints**: What do they actually have — money, people, brand, tech, relationships, time? What can't or won't they do?
@@ -75,6 +81,12 @@ Then ask discovery questions. Ask **one or two at a time**, not a wall. Adapt ba
 - **What they think the answer is**: Ask this late, not early. The user often has a hunch — acknowledge it, then deliberately set it aside: "Good — I'm going to hold onto that but explore the space a bit more before we come back to it." Their intuition is data, not a conclusion.
 
 You are looking for: the real challenge underneath the stated challenge, the one or two asymmetries they could exploit, and the things they're avoiding saying.
+
+If the subject spans multiple entities (portfolio of products, multi-sided platform, several business units), scope to the one that matters most for this conversation, or agree to produce separate kernels. A single kernel that tries to cover a portfolio will be too vague to be useful.
+
+#### Conflicting stakeholders
+
+When the user represents multiple internal factions or is synthesizing input from several people, surface the disagreement explicitly rather than averaging it away. Capture both views in strategy-notes.md under a "Contested points" section. Help the user see where the real fork in thinking is — often the disagreement *is* the diagnosis.
 
 #### Landscape mapping (when warranted)
 
@@ -139,7 +151,11 @@ Fold cascade findings into the kernel output (sharper guiding policy, capability
 
 Before producing documents, read the kernel back as a single paragraph: "[Diagnosis]. Therefore, [guiding policy]. Which means we will [actions]." Say it to the user. If it doesn't read as a logical chain — if the "therefore" or "which means" feel forced — something is broken. Loop back to whichever element is weakest.
 
+Then check the guiding policy's *exclusions* against the coherent actions. If the policy rules something out but an action quietly reintroduces it ("We said we're not pursuing enterprise, but action 4 is build SSO support"), surface the conflict.
+
 ### Phase 4 — Produce the deliverables
+
+Before writing files, confirm the user wants file output: "I'd like to write two files — a strategy draft and reasoning notes. Want me to write those, or would you prefer I summarize in chat?" If chat-only, deliver the "At a glance" block inline and offer to write files later. Confirm the output path — don't assume the working directory is correct.
 
 When — and only when — the kernel feels solid, produce **two files** in the user's working directory (or wherever they indicate):
 
@@ -157,6 +173,16 @@ After writing both files, give a short chat summary: diagnosis in one sentence, 
 - **Don't name-drop frameworks or sources.** The framework shows up in what you ask, not in citations.
 - **It's okay to end inconclusively.** If the user doesn't have a diagnosis yet, say so in `strategy-notes.md` and recommend what they'd need to learn first. An honest "not yet" is far more valuable than a confident fake strategy.
 - **Resist the urge to soften.** Your natural instinct will be to produce balanced, diplomatic language — exactly wrong for a diagnosis. A diagnosis that everyone is comfortable with isn't specific enough. The user can always soften later; your job is to find the sharp version first.
+- **Lean on domain experts.** When the user is in a highly specialized domain (biotech, defense, regulated industries, deep tech), lean harder on their expertise — ask more "teach me" questions. Flag when a diagnosis rests on domain knowledge you can't verify. Never confidently diagnose in unfamiliar territory; use the user's own framing and push for specificity rather than substituting shallow knowledge.
+
+## Source discipline
+
+Strategy lenses can invite confident claims about markets, competitors, and trends. Guard against this:
+
+- Distinguish user-provided facts from assumptions.
+- Do not invent market data, competitor capabilities, or industry trends.
+- Mark unsourced competitive or market claims as `[assumption — verify]` in both output files.
+- If the user wants research-backed claims, suggest they provide sources or ask Claude to research specific questions separately.
 
 ## Phase transition rules
 
@@ -164,25 +190,31 @@ These gates prevent the most common failure mode: producing a strategy document 
 
 - **Phase 1 -> 2**: Move on when you have a concrete picture of the situation, the trigger, and the landscape. If you can't summarize the situation in a paragraph using the user's own words, you're not ready.
 - **Phase 2 -> 3**: Move on when major bad-strategy patterns have been surfaced and addressed (or explicitly noted as unresolved). If the user's description of the problem is still mostly goals and aspirations, stay in Phase 2.
-- **Phase 3 -> 4**: Move on when all three kernel elements exist and the user has confirmed each one. If the guiding policy doesn't clearly address the diagnosis, or the actions don't carry out the guiding policy, loop back. Mark weak sections as `[DRAFT]` rather than papering over them.
+- **Phase 3 -> 4**: Move on when all three kernel elements exist and the user has confirmed each one. If the guiding policy doesn't clearly address the diagnosis, or the actions don't carry out the guiding policy, loop back.
 
-If the conversation is running long and the user wants to stop mid-interview, write `strategy-notes.md` with everything gathered so far and a clear marker of where the interview stopped. They can resume later.
+**Incomplete or early exit:**
+
+- If the user stops mid-interview, write only `strategy-notes.md` with everything gathered so far, a clear marker of where the interview stopped, and the next question to resume with. Do not write `strategy-draft.md`.
+- If the user explicitly asks for a provisional draft before the kernel is confirmed, write it but prefix the title with `[PROVISIONAL]` and note which kernel elements are unconfirmed. This is the only case where a partial draft is acceptable.
 
 ## Variant: critiquing an existing strategy
 
 If the user brings an existing strategy document and wants it critiqued or improved:
 
-1. Read the document first.
+1. Read the document first. If the document is in a format Claude can't read (PDF, slides, Figma), ask the user to paste the relevant sections as text.
 2. Run the bad-strategy filter on it before any discovery questions — this is the primary value the user is looking for.
-3. Lead with what you found: "Here's what I see — [pattern], [pattern]. Want to dig into these?"
-4. Phase 1 becomes filling gaps: what context is missing from the doc that you'd need to evaluate it fairly?
-5. Phases 2-4 proceed as normal, but the existing doc provides the starting kernel to pressure-test rather than building from scratch.
+3. Lead with strengths before gaps. If the doc is partially good, say so — name what works and why before listing what's missing. Don't trash a document that's 70% solid just because you found problems.
+4. Calibrate pushback intensity. A polished board deck that's about to ship needs precise, high-stakes feedback. A rough internal draft needs directional guidance and encouragement to keep going. Match the energy to the artifact's maturity.
+5. Phase 1 becomes filling gaps: what context is missing from the doc that you'd need to evaluate it fairly?
+6. Phases 2-4 proceed as normal, but the existing doc provides the starting kernel to pressure-test rather than building from scratch.
+7. If the doc uses a different strategic framework (OKRs, V2MOM, SWOT-only), don't force a kernel translation. Work within their frame first — identify what's working in their terms. Then surface what the kernel would add: "Your OKRs name what you want to achieve, but I don't see the diagnosis — what's the challenge these objectives respond to?" Translate only when the user sees value in it.
 
 ## Reference files
 
 - `references/kernel.md` — Detailed guidance on diagnosis, guiding policy, and coherent action with examples.
-- `references/bad-strategy.md` — The four hallmarks of bad strategy, signal phrases, and redirection scripts.
+- `references/bad-strategy.md` — The five hallmarks of bad strategy, signal phrases, and redirection scripts.
 - `references/wardley-mapping.md` — Landscape mapping: value chains, evolution stages, and diagnostic patterns. Load during Phase 1 when competitive/technology landscape is complex.
 - `references/playing-to-win.md` — Strategic choice cascade: where to play, how to win, capabilities, and management systems. Load during Phase 3 for competitive strategy.
 - `references/blue-ocean.md` — Value innovation: competitive convergence detection, four actions framework, noncustomer tiers. Load during Phase 2 when red ocean signals appear.
 - `references/output-template.md` — Exact structure of the output files.
+- `references/pressure-tests.md` — Expected behaviors for common entry points. For skill validation.

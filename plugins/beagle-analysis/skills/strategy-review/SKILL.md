@@ -94,13 +94,15 @@ The seven dimensions (summarized here, detailed in the reference):
 
 ### Step 3b — Interview lens audit (when interview lenses appear in the document)
 
-If the strategy document or its companion notes show evidence that landscape mapping (Wardley), strategic choice cascade (Playing to Win), or value innovation (Blue Ocean) lenses were applied during the interview, audit whether those lens findings actually made it into the strategy:
+If the strategy document or its companion notes show evidence that landscape mapping (Wardley), strategic choice cascade (Playing to Win), or value innovation (Blue Ocean) lenses were applied during the interview, audit whether those lens findings actually made it into the strategy. Load `references/interview-lens-audit.md` for the detailed audit criteria for each lens.
 
-- **Landscape mapping**: If Wardley-style value chain or evolution analysis was done, check whether the diagnosis reflects structural positioning insights (commodity vs. custom, evolution stage mismatches, competitor positioning on the curve). Load `references/review-lenses.md` Five Forces questions to pressure-test the competitive landscape claims against the Wardley findings.
-- **Strategic choice cascade**: If Playing to Win cascade analysis was done, check whether where-to-play and how-to-win choices sharpened the guiding policy, whether capability gaps surfaced during the cascade appear in the assumption exposure, and whether management systems were addressed in the coherent actions.
-- **Value innovation**: If Blue Ocean analysis was done (ERRC grid, noncustomer tiers, strategy canvas), check whether the diagnosis was reshaped to address competitive convergence rather than just competitive positioning, and whether coherent actions reflect the eliminate/reduce/raise/create moves rather than incremental competitor-matching.
+The audit checks two things for each lens:
+1. **Fidelity** — Did the lens's specific findings survive into the draft, or were they dropped or softened?
+2. **Impact** — Did the lens findings actually sharpen the kernel (diagnosis, guiding policy, coherent actions), or were they acknowledged but left decorative?
 
 Record findings under the relevant dimensions (typically Dim 1 for landscape, Dim 2-3 for cascade, Dim 1-4 for value innovation). Also flag any interview lens findings from the notes that were dropped or softened in the draft — these often represent the sharpest thinking that got smoothed away during document polishing.
+
+**Note:** The four *review* lenses (7S, Scorecard, Five Forces, Hoshin Kanri) and the three *interview* lenses serve different purposes. Review lenses are tools the reviewer applies to find gaps. Interview lenses produced findings during the strategy-building conversation — this audit checks whether those findings survived. Don't substitute one for the other: Five Forces can pressure-test competitive claims independently, but it cannot validate whether a Wardley mapping exercise was faithfully represented in the draft.
 
 ### Step 4 — Cross-check with notes (if available)
 
@@ -269,9 +271,66 @@ critical_findings_count: [number]
 top_risk: [one sentence]
 ```
 
+## Optional: judge artifact mode
+
+Normal reviews produce prose (`strategy-review.md`). When the user explicitly requests machine-readable output for evaluation pipelines, RL loops, or LLM-as-judge workflows, produce an additional structured JSON artifact alongside the prose.
+
+### When to activate
+
+Judge artifact mode activates **only** when the user's language signals it. Look for phrases like:
+
+- "machine-readable," "structured output," "JSON report"
+- "LLM judge," "LLM-as-judge," "judge loop," "evaluation artifact"
+- "RL loop," "reward signal," "evaluation pipeline"
+- "produce the JSON," "judge artifact," "structured review"
+
+**Do not activate** for normal reviews, quick takes, or chat-only feedback. If in doubt, ask: "Want me to also produce a machine-readable JSON artifact for evaluation pipelines, or just the prose review?"
+
+### What it produces
+
+In judge artifact mode, produce both files unless the user asks for JSON-only:
+
+1. **`strategy-review.md`** — the standard prose review (written first)
+2. **`strategy-review.json`** — structured JSON following `references/judge-artifact-schema.md`
+
+Write the prose review first, then derive the JSON from it. This ensures scores emerge from careful analysis, not from filling a schema. Every dimension label, critical finding, and evidence quote in the JSON must be consistent with the prose.
+
+### Production rules
+
+1. **Scores are projections, not new judgments.** The dimension ratings in JSON map directly from the prose labels: Strong=4, Adequate=3, Weak=2, Missing=1. Do not invent intermediate scores.
+2. **Every score must cite evidence.** At least one evidence entry per dimension, each tagged with provenance (`doc_quote`, `reviewer_inference`, `unverified_assumption`, `source_backed`, or `notes_cross_ref`).
+3. **Distinguish document facts from reviewer inferences.** A downstream consumer filtering by provenance should be able to separate what the document says from what the reviewer concluded. This is the single most important quality signal for evaluation pipelines.
+4. **All seven dimensions and all five bad-strategy patterns are always present.** Use `detected: false` for absent patterns. This gives consumers stable field counts.
+5. **Blocking findings gate the reward signal.** A strategy passes (`reward_signal.pass: true`) only if the aggregate score is at least Adequate AND no findings are marked blocking.
+6. **Validate before emitting.** JSON must parse, required fields must exist, scores must match labels, weighted total must be arithmetically correct. See the validation checklist in the schema reference.
+
+### Aggregate scoring
+
+The aggregate is a weighted composite of the seven dimension scores:
+
+| Dimension | Weight |
+|-----------|--------|
+| Diagnosis quality | 20% |
+| Guiding policy strength | 20% |
+| Action coherence | 15% |
+| Kernel chain integrity | 15% |
+| Bad-strategy patterns | 10% |
+| Assumption exposure | 10% |
+| Specificity / falsifiability | 10% |
+
+`weighted_total = Σ(score × weight / 100)`. Range: 1.0–4.0. The aggregate label follows: Strong (≥3.5), Adequate (≥2.5), Weak (≥1.5), Missing (<1.5).
+
+The reward signal normalizes to 0.0–1.0: `(weighted_total - 1.0) / 3.0`.
+
+> **Source of truth:** The canonical weight definitions, threshold table, and validation
+> rules live in `references/judge-artifact-schema.md`. If these values are updated,
+> update both locations.
+
 ## Reference files
 
 - `references/review-dimensions.md` — The seven evaluation dimensions with detailed criteria, examples, and common failure patterns.
 - `references/review-lenses.md` — Four complementary review lenses (7S, Scorecard, Five Forces, Hoshin Kanri) with triggers, questions, and common gaps.
+- `references/interview-lens-audit.md` — Audit criteria for checking whether interview lens findings (Wardley, Playing to Win, Blue Ocean) survived into the draft.
 - `references/review-template.md` — Exact structure of the `strategy-review.md` output file.
+- `references/judge-artifact-schema.md` — JSON schema for machine-readable judge artifacts. Defines field structure, score mapping, evidence provenance rules, validation checklist, and relationship to prose output.
 - `references/pressure-tests.md` — Expected behaviors for common review scenarios. For skill validation.

@@ -1,6 +1,6 @@
 ---
 name: agent-architecture-analysis
-description: "Use when auditing an agent codebase against the 12-Factor Agents methodology, reviewing LLM-powered system architecture, or assessing agentic app compliance. Triggers on \"analyze agent architecture\", \"12-factor audit\", \"how compliant is this agent\", or \"evaluate this LLM app\". Also applies when comparing frameworks or planning agent improvements. Not for 12-factor reference docs (use 12-factor-apps) or quick checklists \u2014 this performs deep per-factor codebase analysis with file-level evidence."
+description: "Use when auditing an agent codebase against the 12-Factor Agents methodology, reviewing LLM-powered system architecture, or assessing agentic app compliance. Triggers on \"analyze agent architecture\", \"12-factor audit\", \"how compliant is this agent\", or \"evaluate this LLM app\". Also applies when comparing frameworks or planning agent improvements. Not for quick checklists \u2014 this performs deep per-factor codebase analysis with file-level evidence."
 ---
 
 # 12-Factor Agents Compliance Analysis

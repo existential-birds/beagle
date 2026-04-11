@@ -82,7 +82,6 @@ Beagle-specific:
 | beagle-core | `review-llm-artifacts` | Detect LLM coding artifacts |
 | beagle-core | `fix-llm-artifacts` | Fix detected artifacts |
 | beagle-core | `prompt-improver` | Optimize prompts |
-| beagle-analysis | `12-factor-apps-analysis` | Analyze codebase for 12-Factor compliance |
 | beagle-analysis | `llm-judge` | Compare implementations using LLM-as-judge |
 | beagle-analysis | `write-adr` | Generate ADRs from decisions |
 | beagle-docs | `draft-docs` | Generate documentation drafts |

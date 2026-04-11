@@ -1,6 +1,16 @@
 ---
 name: strategy-interview
-description: "Build strategies through guided conversation using the kernel framework (diagnosis, guiding policy, coherent action) with Wardley mapping, Playing to Win cascade, and Blue Ocean value innovation lenses. For companies, products, teams, careers, or initiatives. Detects bad-strategy patterns: fluff, goals masquerading as strategy, laundry-list objectives, strategy-by-analogy. Triggers on: strategic planning, business strategy, product strategy, competitive positioning, go-to-market strategy, market mapping, where-to-play/how-to-win, value innovation, blue ocean, uncontested market space."
+description: >
+  Use this skill when the user wants to develop, build, or think through
+  a strategy via guided conversation — for a company, product, team,
+  career, or initiative. Runs a structured interview that diagnoses the
+  real challenge, shapes a guiding policy, and defines coherent actions.
+  Catches bad-strategy patterns like fluff, goals-as-strategy, and
+  laundry-list priorities. Also triggers when the user asks about
+  strategic planning, competitive positioning, go-to-market strategy,
+  where-to-play/how-to-win, or says things like "what should we focus
+  on" or "help me figure out our direction." Not for standalone document
+  reviews — use strategy-review for that.
 user-invocable: true
 ---
 

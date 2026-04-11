@@ -8,7 +8,7 @@ autoContext:
     - ai-generated
     - sounds like ai
     - writing quality
-    - humanize-ai-writing
+    - humanize-beagle
     - robotic writing
     - chatgpt
 dependencies:
@@ -253,8 +253,8 @@ Write findings to `.beagle/ai-writing-review.json`:
 
 ### Next Steps
 
-- Run `/beagle-docs:humanize-ai-writing` to apply fixes
-- Run `/beagle-docs:humanize-ai-writing --dry-run` to preview changes first
+- Run `/beagle-docs:humanize-beagle` to apply fixes
+- Run `/beagle-docs:humanize-beagle --dry-run` to preview changes first
 - Review the JSON report at `.beagle/ai-writing-review.json`
 ```
 

@@ -1,5 +1,5 @@
 ---
-name: humanize-ai-writing
+name: humanize-beagle
 description: Rewrite AI-generated developer text to sound human — fix inflated language, filler, tautological docs, and robotic tone. Use after review-ai-writing identifies issues.
 disable-model-invocation: true
 user-invocable: true
@@ -15,7 +15,7 @@ Apply fixes from a previous `review-ai-writing` run with automatic safe/risky cl
 ## Usage
 
 ```text
-/beagle-docs:humanize-ai-writing [--dry-run] [--all] [--category <name>]
+/beagle-docs:humanize-beagle [--dry-run] [--all] [--category <name>]
 ```
 
 **Flags:**
@@ -258,16 +258,16 @@ Fix issues and re-run, or restore with: git stash pop
 
 ```bash
 # Preview all fixes without applying
-/beagle-docs:humanize-ai-writing --dry-run
+/beagle-docs:humanize-beagle --dry-run
 
 # Fix only vocabulary issues
-/beagle-docs:humanize-ai-writing --category vocabulary
+/beagle-docs:humanize-beagle --category vocabulary
 
 # Full codebase scan and fix
-/beagle-docs:humanize-ai-writing --all
+/beagle-docs:humanize-beagle --all
 
 # Preview filler fixes only
-/beagle-docs:humanize-ai-writing --category filler --dry-run
+/beagle-docs:humanize-beagle --category filler --dry-run
 ```
 
 ## Rules

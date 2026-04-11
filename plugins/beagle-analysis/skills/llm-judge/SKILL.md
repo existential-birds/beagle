@@ -1,6 +1,6 @@
 ---
 name: llm-judge
-description: Compare code implementations across 2+ repos using LLM-as-judge methodology with weighted scoring
+description: "Use when comparing two or more code implementations against a spec or requirements doc. Triggers on \"which repo is better\", \"compare these implementations\", \"evaluate both solutions\", \"rank these codebases\", or \"judge which approach wins\". Also covers choosing between competing PRs or vendor submissions solving the same problem. Does NOT review a single codebase for quality \u2014 use code review skills instead. Does NOT evaluate strategy docs \u2014 use strategy-review. Requires a spec file and 2+ repo paths."
 disable-model-invocation: true
 ---
 

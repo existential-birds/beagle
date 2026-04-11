@@ -1,6 +1,6 @@
 ---
 name: brainstorm-beagle
-description: "Turn ideas into comprehensive project specs through collaborative dialogue. Use BEFORE any planning or implementation — for new projects, features, or significant changes. Produces a system-agnostic spec document that can feed into any agentic workflow."
+description: "Use when the user has a fuzzy idea and wants to shape it into a concrete project spec before planning or building. Triggers on: \"brainstorm this\", \"I have an idea for...\", \"help me think through this project\", \"what should I build\", \"spec this out\". Also catches vague feature descriptions needing structured questioning to clarify scope. Does NOT write code, plan implementation, review strategy docs, or run strategy interviews \u2014 produces a WHAT/WHY spec through dialogue, not a HOW plan."
 ---
 
 # Brainstorm: Ideas Into Specs

@@ -1,16 +1,6 @@
 ---
 name: strategy-interview
-description: >
-  Use this skill when the user wants to develop, build, or think through
-  a strategy via guided conversation — for a company, product, team,
-  career, or initiative. Runs a structured interview that diagnoses the
-  real challenge, shapes a guiding policy, and defines coherent actions.
-  Catches bad-strategy patterns like fluff, goals-as-strategy, and
-  laundry-list priorities. Also triggers when the user asks about
-  strategic planning, competitive positioning, go-to-market strategy,
-  where-to-play/how-to-win, or says things like "what should we focus
-  on" or "help me figure out our direction." Not for standalone document
-  reviews — use strategy-review for that.
+description: "Use when the user wants to build or think through a strategy via guided conversation \u2014 for a company, product, team, career, or initiative. Triggers on \"help me figure out our direction\", \"what should we focus on\", strategic planning, competitive positioning, go-to-market strategy. Also catches indirect requests like prioritization struggles or \"we have too many priorities\". Does NOT review existing strategy documents (use strategy-review) or brainstorm project features (use brainstorm-beagle)."
 user-invocable: true
 ---
 

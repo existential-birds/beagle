@@ -1,6 +1,6 @@
 ---
 name: strategy-interview
-description: "Build strategies through guided conversation using the kernel framework (diagnosis, guiding policy, coherent action) with Wardley mapping, Playing to Win cascade, and Blue Ocean value innovation lenses. For companies, products, teams, careers, or initiatives. Detects bad-strategy patterns: fluff, goals masquerading as strategy, laundry-list objectives, strategy-by-analogy. Triggers on: strategic planning, business strategy, product strategy, competitive positioning, go-to-market strategy, market mapping, where-to-play/how-to-win, value innovation, blue ocean, uncontested market space."
+description: "Use when the user wants to build or think through a strategy via guided conversation \u2014 for a company, product, team, career, or initiative. Triggers on \"help me figure out our direction\", \"what should we focus on\", strategic planning, competitive positioning, go-to-market strategy. Also catches indirect requests like prioritization struggles or \"we have too many priorities\". Does NOT review existing strategy documents (use strategy-review) or brainstorm project features (use brainstorm-beagle)."
 user-invocable: true
 ---
 

@@ -16,7 +16,6 @@ claude plugin install beagle-analysis@existential-birds
 
 | Command | Usage | Description |
 |---------|-------|-------------|
-| **12-factor-apps-analysis** | `/beagle-analysis:12-factor-apps-analysis` | Perform 12-Factor App compliance analysis on a codebase |
 | **llm-judge** | `/beagle-analysis:llm-judge` | Compare code implementations across 2+ repos using LLM-as-judge methodology with weighted scoring |
 | **write-adr** | `/beagle-analysis:write-adr` | Generate ADRs from decisions made in the current session |
 
@@ -24,7 +23,6 @@ claude plugin install beagle-analysis@existential-birds
 
 | Skill | Description |
 |-------|-------------|
-| **12-factor-apps** | 12-Factor App compliance analysis for evaluating application architecture and auditing SaaS applications |
 | **adr-decision-extraction** | Extract architectural decisions from conversations, identifying problem-solution pairs and trade-off discussions |
 | **adr-writing** | Write Architectural Decision Records following the MADR template with Definition of Done criteria |
 | **agent-architecture-analysis** | 12-Factor Agents compliance analysis for evaluating agent architecture and LLM-powered systems |

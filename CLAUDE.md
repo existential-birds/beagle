@@ -84,14 +84,13 @@ Beagle-specific:
 | beagle-core | `review-llm-artifacts` | Detect LLM coding artifacts |
 | beagle-core | `fix-llm-artifacts` | Fix detected artifacts |
 | beagle-core | `prompt-improver` | Optimize prompts |
-| beagle-analysis | `12-factor-apps-analysis` | Analyze codebase for 12-Factor compliance |
 | beagle-analysis | `llm-judge` | Compare implementations using LLM-as-judge |
 | beagle-analysis | `write-adr` | Generate ADRs from decisions |
 | beagle-docs | `draft-docs` | Generate documentation drafts |
 | beagle-docs | `improve-doc` | Improve docs using Diataxis principles |
 | beagle-docs | `ensure-docs` | Documentation coverage check |
 | beagle-docs | `review-ai-writing` | Detect AI writing patterns in docs and code |
-| beagle-docs | `humanize` | Fix AI writing with safe/risky classification |
+| beagle-docs | `humanize-beagle` | Fix AI writing with safe/risky classification |
 | beagle-testing | `gen-test-plan` | Generate YAML test plan from branch changes |
 | beagle-testing | `run-test-plan` | Execute test plan, stop on first failure |
 

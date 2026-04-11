@@ -114,7 +114,7 @@
         "diataxis",
         "technical-writing",
         "ai-writing",
-        "humanize"
+        "humanize-beagle"
       ]
     },
     {
@@ -125,7 +125,7 @@
       "tags": [
         "12-factor",
         "architecture",
-        "brainstorm",
+        "brainstorm-beagle",
         "adr",
         "llm-judge",
         "strategy",

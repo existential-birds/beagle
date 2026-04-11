@@ -1,5 +1,5 @@
 ---
-description: Generate ADRs from decisions made in the current session. Extracts decisions, confirms with user, writes MADR-formatted documents.
+description: "Use when you want to generate Architecture Decision Records from this session. Triggers on \"write ADRs\", \"document our decisions\", \"create decision records\", \"record the choices we made\". Also useful after design discussions where decisions were reached but not documented. Does NOT extract decisions alone (use adr-decision-extraction) or provide MADR template (use adr-writing). Orchestrates the full workflow: subagent extraction, user confirmation, parallel generation, and verification."
 name: write-adr
 disable-model-invocation: true
 ---

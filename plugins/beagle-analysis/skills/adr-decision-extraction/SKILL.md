@@ -1,6 +1,6 @@
 ---
 name: adr-decision-extraction
-description: Extract architectural decisions from conversations. Identifies problem-solution pairs, trade-off discussions, and explicit choices. Use when analyzing session transcripts for ADR generation.
+description: "Use when you need to mine a conversation, session transcript, or design discussion for architectural decisions before writing ADRs. Identifies problem-solution pairs, trade-off debates, technology choices, and explicit \"[ADR]\" tags. Triggers on \"what decisions did we make\", \"extract decisions from this chat\", \"find the choices in our discussion\", or \"summarize architectural decisions\". Also useful after long planning sessions to capture decisions that were made implicitly. Does NOT write ADR documents \u2014 use adr-writing or write-adr for that."
 ---
 
 # ADR Decision Extraction

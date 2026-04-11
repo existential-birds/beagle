@@ -1,6 +1,6 @@
 ---
 name: strategy-review
-description: "Pressure-test strategy documents using seven evaluation dimensions with optional McKinsey 7S, Porter's Five Forces, Balanced Scorecard, and Hoshin Kanri lenses. Finds structural gaps, hidden failure paths, untested assumptions, and bad-strategy patterns. Use when reviewing, critiquing, auditing, or stress-testing any strategic plan. Triggers on: review strategy, evaluate strategy, strategy audit, red team this strategy, poke holes in this, what's weak in this strategy, second opinion on strategy."
+description: "Use when reviewing, critiquing, or stress-testing an existing strategy document. Evaluates seven dimensions \u2014 diagnosis quality, guiding policy strength, action coherence, assumption exposure, falsifiability \u2014 with optional 7S, Five Forces, Balanced Scorecard, and Hoshin Kanri lenses. Triggers on: review my strategy, poke holes in this plan, what's weak here, strategy audit, red team this. Does NOT build strategy (use strategy-interview) or brainstorm project ideas (use brainstorm-beagle)."
 user-invocable: true
 ---
 

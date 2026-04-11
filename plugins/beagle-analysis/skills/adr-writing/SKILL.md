@@ -1,6 +1,6 @@
 ---
 name: adr-writing
-description: Write Architectural Decision Records following MADR template. Applies Definition of Done criteria, marks gaps for later completion. Use when generating ADR documents from extracted decisions.
+description: "Use when writing or formatting an ADR document using the MADR template, applying Definition of Done (E.C.A.D.R.) criteria, or verifying ADR completeness. Triggers on \"write the ADR\", \"format as MADR\", \"check ADR quality\", \"mark gaps in ADR\". Also triggers when a decision has been extracted and needs to become a document. Does NOT extract decisions from conversations (use adr-decision-extraction) or orchestrate the full extract-confirm-write workflow (use write-adr)."
 ---
 
 # ADR Writing

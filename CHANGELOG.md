@@ -348,7 +348,8 @@ Format follows [Keep a Changelog](https://keepachangelog.com/en/1.1.0/). Version
 - Development commands: `skill-builder`, `ensure-docs`
 - Cursor IDE command equivalents
 
-[Unreleased]: https://github.com/existential-birds/beagle/compare/v2.12.1...HEAD
+[Unreleased]: https://github.com/existential-birds/beagle/compare/v3.0.0...HEAD
+[3.0.0]: https://github.com/existential-birds/beagle/compare/v2.12.1...v3.0.0
 [2.12.1]: https://github.com/existential-birds/beagle/compare/v2.12.0...v2.12.1
 [2.12.0]: https://github.com/existential-birds/beagle/compare/v2.11.0...v2.12.0
 [2.11.0]: https://github.com/existential-birds/beagle/compare/v2.10.1...v2.11.0

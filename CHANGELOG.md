@@ -6,6 +6,18 @@ Format follows [Keep a Changelog](https://keepachangelog.com/en/1.1.0/). Version
 
 ## [Unreleased]
 
+## [3.1.0] - 2026-04-11
+
+### Added
+- **beagle-rust:** Add `macros-code-review` skill for macro_rules!, proc macros, hygiene, fragment specifiers, and span handling ([#92](https://github.com/existential-birds/beagle/pull/92))
+- **beagle-rust:** Add `ffi-code-review` skill for extern "C", repr(C), CStr/CString, callbacks, and bindgen patterns ([#92](https://github.com/existential-birds/beagle/pull/92))
+- **beagle-rust:** Add 10 new reference files across existing skills: lifetime-variance, types-layout, unsafe-deep, concurrency-primitives, api-design, ecosystem-patterns, advanced-testing, features-conditional, no-std, pinning-cancellation ([#92](https://github.com/existential-birds/beagle/pull/92))
+
+### Changed
+- **beagle-rust:** Update all skills for Rust 2024 edition — RPIT lifetime capture, unsafe_op_in_unsafe_fn, async fn in traits, LazyCell/LazyLock, resolver v3 ([#92](https://github.com/existential-birds/beagle/pull/92))
+- **beagle-rust:** Update `review-rust` orchestrator to detect and route macros/FFI to new skills ([#92](https://github.com/existential-birds/beagle/pull/92))
+- **beagle-rust:** Expand verification protocol with macro, FFI, and concurrency false positive rules ([#92](https://github.com/existential-birds/beagle/pull/92))
+
 ## [3.0.0] - 2026-04-11
 
 ### Removed
@@ -348,7 +360,8 @@ Format follows [Keep a Changelog](https://keepachangelog.com/en/1.1.0/). Version
 - Development commands: `skill-builder`, `ensure-docs`
 - Cursor IDE command equivalents
 
-[Unreleased]: https://github.com/existential-birds/beagle/compare/v3.0.0...HEAD
+[Unreleased]: https://github.com/existential-birds/beagle/compare/v3.1.0...HEAD
+[3.1.0]: https://github.com/existential-birds/beagle/compare/v3.0.0...v3.1.0
 [3.0.0]: https://github.com/existential-birds/beagle/compare/v2.12.1...v3.0.0
 [2.12.1]: https://github.com/existential-birds/beagle/compare/v2.12.0...v2.12.1
 [2.12.0]: https://github.com/existential-birds/beagle/compare/v2.11.0...v2.12.0

@@ -30,6 +30,7 @@ Description of the issue and why it matters.
 | Task spawning, JoinHandle, structured concurrency | [references/task-management.md](references/task-management.md) |
 | Mutex, RwLock, Semaphore, Notify, Barrier | [references/sync-primitives.md](references/sync-primitives.md) |
 | mpsc, broadcast, oneshot, watch channel patterns | [references/channels.md](references/channels.md) |
+| Pin, cancellation, Future internals, select!, blocking bridge | [references/pinning-cancellation.md](references/pinning-cancellation.md) |
 
 ## Review Checklist
 

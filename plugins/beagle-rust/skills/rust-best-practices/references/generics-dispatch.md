@@ -218,3 +218,98 @@ where
     // ...
 }
 ```
+
+## Variance Rules for Generics
+
+Variance determines how subtyping relationships carry through generic types.
+
+| Variance | Rule | Example |
+|----------|------|---------|
+| Covariant | If `'a: 'b`, then `T<'a>: T<'b>` | `&'a T`, `Vec<T>`, `Box<T>` |
+| Contravariant | If `'a: 'b`, then `T<'b>: T<'a>` | `fn(T)` (in argument position) |
+| Invariant | No subtyping relationship | `&'a mut T`, `Cell<T>`, `UnsafeCell<T>` |
+
+**Practical impact:** `&'a mut T` is invariant over `T`, meaning you cannot coerce `&mut Vec<&'static str>` to `&mut Vec<&'a str>`. This prevents unsoundness where a shorter-lived reference could be inserted through the mutable alias.
+
+Prefer `&T` (covariant) over `&mut T` (invariant) in generic contexts when mutation is not needed -- it gives callers more flexibility with lifetimes.
+
+## Trait Object Cost Analysis
+
+Dynamic dispatch via `dyn Trait` introduces two costs:
+
+1. **Vtable indirection** -- each method call goes through a pointer lookup instead of a direct call. Prevents inlining and limits compiler optimizations.
+2. **Loss of monomorphization** -- the compiler cannot specialize code per concrete type, eliminating opportunities for constant folding and layout optimization.
+
+The overhead per call is typically 1-3 ns (vtable pointer chase). Avoid `dyn Trait` in tight loops or hot paths. Use it freely at architectural boundaries where call frequency is low.
+
+## Object Safety Rules
+
+A trait is object-safe (usable as `dyn Trait`) only when all methods satisfy:
+
+- **No generic type parameters** on methods (generic params on the trait itself are fine)
+- **No use of `Self` as a concrete type** in arguments or return position
+- **No `Self: Sized` bound** on the trait itself (individual methods can have it)
+- **Receivers must be dispatchable:** `&self`, `&mut self`, `self`, `Box<Self>`, `Arc<Self>`, `Pin<&Self>`, etc.
+
+```rust
+// NOT object-safe -- generic method prevents vtable construction
+trait Parser {
+    fn parse<T: FromStr>(&self, input: &str) -> T;
+}
+
+// Fix: exempt the generic method, keep the trait object-safe
+trait Searchable {
+    fn search(&self, query: &str) -> Vec<String>;
+    fn search_typed<T>(&self, query: &str) -> Vec<T> where Self: Sized;
+    // ^^ only callable on concrete types; dyn Searchable still works for search()
+}
+```
+
+Prefer keeping traits object-safe. Add `where Self: Sized` to convenience methods that break object safety rather than sacrificing the whole trait.
+
+## Complete Dispatch Decision Tree
+
+```text
+Do you need different concrete types in the same collection or behind one pointer?
+  YES -> dyn Trait (dynamic dispatch)
+    -> Need ownership? Box<dyn Trait>
+    -> Borrowed only? &dyn Trait
+    -> Shared across threads? Arc<dyn Trait>
+  NO -> Do callers need to name the concrete return type?
+    YES -> Generic <T: Trait> (full monomorphization)
+    NO  -> impl Trait (opaque type, still static dispatch)
+```
+
+**`impl Trait` vs `dyn Trait` vs `T: Trait` summary:**
+
+| Feature | `T: Trait` | `impl Trait` | `dyn Trait` |
+|---------|-----------|-------------|-------------|
+| Dispatch | Static | Static | Dynamic |
+| Caller picks type | Yes | Arg: yes, Return: no | No (type-erased) |
+| Turbofish (`::<>`) | Yes | No | N/A |
+| Multiple types in collection | No | No | Yes |
+| Binary size impact | Larger (codegen per type) | Larger | Smaller |
+| Use in trait definitions | Yes | Limited | Yes |
+
+## Blanket Implementation Patterns
+
+Blanket impls provide automatic trait implementations for broad categories of types. Use them to reduce boilerplate, but be aware of their downstream impact.
+
+```rust
+// Common: forward trait through references
+impl<T: MyTrait> MyTrait for &T {
+    fn method(&self) { (**self).method() }
+}
+
+// Common: forward through smart pointers
+impl<T: MyTrait + ?Sized> MyTrait for Box<T> {
+    fn method(&self) { (**self).method() }
+}
+
+// Powerful but constraining: implement for all types meeting a bound
+impl<T: Display> Loggable for T {
+    fn log(&self) { println!("{self}"); }
+}
+```
+
+**Impact on downstream users:** a blanket impl prevents anyone from writing a more specific impl for the same trait. Once `impl<T: Display> Loggable for T` exists, no one can write `impl Loggable for MyType` even if `MyType: Display`. Plan blanket impls carefully -- adding one later is a breaking change due to coherence rules.

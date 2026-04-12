@@ -20,6 +20,8 @@ Step-by-step guidance for setting up new Rust projects with proper configuration
 | Cargo.toml configuration, profiles, dependencies | [references/cargo-config.md](references/cargo-config.md) |
 | Workspace organization, member layout, shared deps | [references/workspace-layout.md](references/workspace-layout.md) |
 | GitHub Actions CI, caching, MSRV checks | [references/ci-setup.md](references/ci-setup.md) |
+| Feature flags, conditional compilation, build scripts | [references/features-conditional.md](references/features-conditional.md) |
+| no_std development, embedded targets, cross-compilation | [references/no-std.md](references/no-std.md) |
 
 ## New Project Checklist
 

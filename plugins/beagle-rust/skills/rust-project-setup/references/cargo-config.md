@@ -73,6 +73,31 @@ tokio = { version = "1", features = ["test-util"] }
 # Only for build.rs scripts
 ```
 
+### Version Specifier Patterns
+
+| Specifier | Meaning | Use When |
+|-----------|---------|----------|
+| `"1"` | `>=1.0.0, <2.0.0` | Library deps (wide compatibility) |
+| `"1.4"` | `>=1.4.0, <2.0.0` | You need features added in 1.4 |
+| `"1.4.3"` (or `"^1.4.3"`) | `>=1.4.3, <2.0.0` | Default caret behavior |
+| `"~1.4.3"` | `>=1.4.3, <1.5.0` | Lock to a specific minor version |
+| `"=1.4.3"` | Exactly `1.4.3` | Binary pinning, reproducibility |
+| `">=1.4, <1.7"` | Range | Avoid known-broken versions |
+
+Set the **minimum version that actually works**, not the latest. Use `cargo +nightly -Zminimal-versions check` to verify your lower bounds are correct. If your code needs something added in 1.6, don't specify `"1"` when `"1.6"` is the honest minimum.
+
+### Patching Dependencies
+
+Override any dependency source temporarily for testing fixes or unreleased changes:
+
+```toml
+[patch.crates-io]
+regex = { path = "/home/dev/regex" }
+serde = { git = "https://github.com/serde-rs/serde.git", branch = "fix" }
+```
+
+Patches apply globally across the dependency graph but are not carried into published crates. Use for development only.
+
 ### Feature Flags
 
 Define optional features to reduce compile time and binary size:
@@ -87,6 +112,37 @@ toml-support = ["dep:toml"]
 ```
 
 Use `dep:` prefix (Rust 1.60+) to avoid implicit feature names from optional dependencies.
+
+### Feature Composability Rules
+
+Features must be **additive**. Enabling a feature should never remove types, modules, or function signatures. Cargo takes the **union** of all requested features when multiple crates depend on the same dependency with different features — mutually exclusive features break downstream builds.
+
+Key gotchas:
+
+- **Conditional public items**: If a public struct field or enum variant is gated by a feature, mark the type `#[non_exhaustive]`. Otherwise, dependents without the feature may stop compiling when another crate enables it.
+- **Feature-gated trait impls**: Adding a trait impl behind a feature is safe. Removing one is breaking.
+- **Test all combinations**: Use `cargo hack check --feature-powerset --no-dev-deps` to verify every combination compiles.
+
+### Workspace Dependency Inheritance
+
+Define dependency versions once at the workspace root, reference in members:
+
+```toml
+# Root Cargo.toml
+[workspace.dependencies]
+serde = { version = "1", features = ["derive"] }
+tokio = { version = "1", features = ["rt-multi-thread", "macros"] }
+tracing = "0.1"
+```
+
+```toml
+# Member Cargo.toml
+[dependencies]
+serde.workspace = true
+tokio = { workspace = true, features = ["test-util"] }  # extend features per-member
+```
+
+Members can add features on top of the workspace baseline. Version and base features stay consistent across the workspace.
 
 ### Deprecated Dependency Replacements
 
@@ -135,6 +191,69 @@ opt-level = 2        # optimize dependencies but not your code
 [profile.test]
 opt-level = 1        # slightly faster test execution
 ```
+
+### Custom Profiles
+
+Define profiles beyond dev/release for specialized builds:
+
+```toml
+[profile.profiling]
+inherits = "release"
+debug = true          # debug symbols for perf/flamegraph
+strip = false
+
+[profile.embedded]
+inherits = "release"
+opt-level = "s"       # optimize for binary size
+lto = true
+codegen-units = 1
+panic = "abort"
+```
+
+Use with `cargo build --profile profiling`. Each profile gets its own `target/<profile-name>/` output directory.
+
+### Per-Dependency Profile Overrides
+
+Optimize specific dependencies differently from your own code:
+
+```toml
+[profile.dev.package.serde]
+opt-level = 3         # full optimization for serde even in debug
+
+[profile.dev.package."*"]
+opt-level = 2         # moderate optimization for all other deps
+```
+
+Useful when a dependency is prohibitively slow in debug mode (compression, video encoding, crypto). Note: generic code monomorphized in your crate uses your crate's profile settings, not the dependency override.
+
+## Supply Chain Auditing with cargo-deny
+
+Configure `cargo-deny` for automated dependency auditing in CI:
+
+```shell
+cargo install cargo-deny
+cargo deny init       # creates deny.toml
+cargo deny check      # run all checks
+```
+
+```toml
+# deny.toml
+[licenses]
+allow = ["MIT", "Apache-2.0", "BSD-2-Clause", "BSD-3-Clause"]
+
+[bans]
+multiple-versions = "warn"
+wildcards = "deny"
+
+[advisories]
+vulnerability = "deny"
+unmaintained = "warn"
+
+[sources]
+allow-git = []
+```
+
+Also run `cargo audit` for security vulnerability checks. Both tools complement each other: `cargo-deny` covers licenses and duplicates, `cargo-audit` focuses on CVEs.
 
 ## Clippy and Lint Configuration
 

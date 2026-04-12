@@ -26,6 +26,8 @@ Guidance for writing idiomatic, performant, and safe Rust code. This is a develo
 | Type State | Encode state in the type system when invalid operations should be compile errors | [references/type-state-pattern.md](references/type-state-pattern.md) |
 | Documentation | `//` for why, `///` for what and how, `//!` for module/crate purpose | [references/documentation.md](references/documentation.md) |
 | Pointers | Choose pointer types based on ownership needs and threading model | [references/pointer-types.md](references/pointer-types.md) |
+| API Design | Unsurprising, flexible, obvious, constrained -- encode invariants in types | [references/api-design.md](references/api-design.md) |
+| Ecosystem | Evaluate crates, pick error handling strategy, stay current | [references/ecosystem-patterns.md](references/ecosystem-patterns.md) |
 
 ## Coding Idioms
 
@@ -54,6 +56,14 @@ Encode valid states in the type system so invalid operations become compile erro
 ## Documentation
 
 Use `//` for why, `///` for what/how on public APIs, and `//!` for module purpose. Every `TODO` needs a linked issue and library crates should enable `#![deny(missing_docs)]`. Use `#[diagnostic::on_unimplemented]` to provide custom compiler errors for your public traits. See [references/documentation.md](references/documentation.md) for doc test patterns, comment conventions, and diagnostic attributes.
+
+## API Design
+
+Follow four principles: unsurprising (reuse standard names and traits), flexible (use generics and `impl Trait` to avoid unnecessary restrictions), obvious (encode invariants in the type system so misuse is a compile error), and constrained (expose only what you can commit to long-term). Use `#[non_exhaustive]` for types that may grow, seal traits you need to extend without breaking changes, and wrap foreign types in newtypes to control your SemVer surface. See [references/api-design.md](references/api-design.md) for builder patterns, sealed traits, and SemVer implications.
+
+## Ecosystem Patterns
+
+Evaluate crates by recent download trends, maintenance activity, documentation quality, and transitive dependency weight. Use `thiserror` for library error types, `anyhow` for binaries, and `eyre` when you need custom error reporters. Prefer vendoring or writing code yourself when a crate pulls heavy dependencies for a small feature. Run `cargo-deny` for license and vulnerability auditing and `cargo-udeps` to trim unused dependencies. See [references/ecosystem-patterns.md](references/ecosystem-patterns.md) for crate evaluation criteria, edition migration, and essential tooling.
 
 ## Pointer Types
 

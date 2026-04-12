@@ -30,9 +30,13 @@ Description of the issue and why it matters.
 | Issue Type | Reference |
 |------------|-----------|
 | Ownership transfers, borrowing, lifetimes, clone traps, iterators | [references/ownership-borrowing.md](references/ownership-borrowing.md) |
-| Result/Option handling, thiserror, anyhow, error context | [references/error-handling.md](references/error-handling.md) |
+| Lifetime variance, covariance/invariance, memory regions | [references/lifetime-variance.md](references/lifetime-variance.md) |
+| Result/Option handling, thiserror, anyhow, error context, Error trait | [references/error-handling.md](references/error-handling.md) |
 | Async pitfalls, Send/Sync bounds, runtime blocking | [references/async-concurrency.md](references/async-concurrency.md) |
+| Send/Sync semantics, atomics, memory ordering, lock patterns | [references/concurrency-primitives.md](references/concurrency-primitives.md) |
+| Type layout, alignment, repr, PhantomData, generics vs dyn Trait | [references/types-layout.md](references/types-layout.md) |
 | Unsafe code, API design, derive patterns, clippy patterns | [references/common-mistakes.md](references/common-mistakes.md) |
+| Safety contracts, raw pointers, MaybeUninit, soundness, Miri | [references/unsafe-deep.md](references/unsafe-deep.md) |
 
 > For development guidance on performance, pointer types, type state, clippy config, iterators, generics, and documentation, use the `beagle-rust:rust-best-practices` skill.
 
@@ -158,9 +162,13 @@ Description of the issue and why it matters.
 ## When to Load References
 
 - Reviewing ownership, borrows, lifetimes, clone traps → ownership-borrowing.md
-- Reviewing Result/Option handling or error types → error-handling.md
-- Reviewing async code, tokio usage, or Send/Sync bounds → async-concurrency.md
+- Reviewing lifetime variance, covariance/invariance, multiple lifetime params → lifetime-variance.md
+- Reviewing Result/Option handling, error types, Error trait impls → error-handling.md
+- Reviewing async code, tokio usage, task management → async-concurrency.md
+- Reviewing Send/Sync, atomics, memory ordering, mutexes, lock patterns → concurrency-primitives.md
+- Reviewing type layout, alignment, repr, PhantomData, generics vs dyn → types-layout.md
 - Reviewing unsafe code, API design, derive macros, clippy patterns → common-mistakes.md
+- Reviewing safety contracts, raw pointers, MaybeUninit, soundness → unsafe-deep.md
 - Reviewing performance, pointer types, type state, generics, iterators, documentation → `beagle-rust:rust-best-practices` skill
 
 ## Valid Patterns (Do NOT Flag)

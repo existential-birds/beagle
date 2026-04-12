@@ -88,6 +88,12 @@ grep -r "once_cell\|lazy_static" --include="Cargo.toml" -l | head -3
 
 # Detect #[expect] lint attribute usage (stable since 1.81)
 git diff $(git merge-base HEAD main)..HEAD -- '*.rs' | grep -c '#\[expect('
+
+# Detect macro definitions in diff
+git diff $(git merge-base HEAD main)..HEAD -- '*.rs' | grep -cE 'macro_rules!|#\[proc_macro|#\[derive\('
+
+# Detect FFI code in diff
+git diff $(git merge-base HEAD main)..HEAD -- '*.rs' | grep -cE 'extern "C"|#\[no_mangle\]|#\[repr\(C\)\]|bindgen|#\[unsafe\(no_mangle\)\]'
 ```
 
 **Modern Rust detection notes:**
@@ -115,6 +121,8 @@ Use the `Skill` tool to load each applicable skill (e.g., `Skill(skill: "beagle-
 | sqlx detected | `beagle-rust:sqlx-code-review` |
 | Serde detected | `beagle-rust:serde-code-review` |
 | Test files changed | `beagle-rust:rust-testing-code-review` |
+| Macro definitions in diff | `beagle-rust:macros-code-review` |
+| FFI code detected (extern, repr(C), bindgen) | `beagle-rust:ffi-code-review` |
 
 ## Step 7: Review
 

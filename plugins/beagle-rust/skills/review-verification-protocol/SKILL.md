@@ -269,6 +269,76 @@ Edition 2024 changes that affect review findings:
 
 **Cross-reference**: The `beagle-rust:rust-code-review` and `beagle-rust:rust-best-practices` skills provide edition-specific code review guidance and idiomatic patterns.
 
+## Macro-Specific Verification
+
+### "Macro Hygiene Issue"
+
+**Before flagging**, you MUST:
+1. Verify the identifier actually leaks — types, modules, and functions are NOT hygienic in `macro_rules!`
+2. Check if `$crate` is used correctly for exported macros (not `crate` or `self`)
+3. Confirm `::core::` / `::alloc::` paths are needed (only for macros used in no_std contexts)
+4. Check whether the macro is internal-only or `#[macro_export]`
+
+**Common false positives:**
+- Non-hygienic type names in internal macros — only matters for exported macros
+- `$crate` not used in macros that are only `pub(crate)` — `$crate` is for cross-crate usage
+- Using `::std::` in macros for std-only crates — only flag if crate supports no_std
+
+### "Procedural Macro Performance"
+
+**Before flagging**, you MUST:
+1. Verify the macro is actually in a proc-macro crate (check `Cargo.toml` for `proc-macro = true`)
+2. Check if `syn` features are minimized (full `syn` with `"full"` feature vs selective features)
+3. Confirm compile-time impact is meaningful (proc macros used across many files vs one-off)
+
+### "Wrong Fragment Type"
+
+**Before flagging**, you MUST:
+1. Verify the suggested fragment type actually works in that position
+2. Check if `:tt` is intentionally used for flexibility (common in TT munching patterns)
+3. Confirm `:expr` greediness issues actually manifest (test with the macro's actual call sites)
+
+## FFI-Specific Verification
+
+### "Missing repr(C)"
+
+**Before flagging**, you MUST:
+1. Confirm the type actually crosses the FFI boundary (passed to/from C code)
+2. Check if the type is only used on the Rust side of the FFI wrapper
+3. Verify there isn't a `#[repr(transparent)]` wrapper instead
+
+**Common false positives:**
+- Internal Rust types that are converted before FFI call — only the FFI-facing type needs `repr(C)`
+- Types used with `repr(transparent)` newtype wrappers — the wrapper handles layout
+- Opaque pointer types (`*mut c_void`) — no layout guarantee needed
+
+### "FFI Safety"
+
+**Before flagging**, you MUST:
+1. Check if the unsafe FFI call has a SAFETY comment documenting invariants
+2. Verify ownership transfer is actually ambiguous (check for `Box::into_raw`/`Box::from_raw` pairs)
+3. Confirm CString lifetime issues are real (the CString must outlive the pointer passed to C)
+4. Check if callback unwinding is actually possible (pure data functions can't panic across FFI)
+
+**Common false positives:**
+- `extern "C" fn` callbacks that never panic — `catch_unwind` not needed
+- `*const c_char` from CStr::as_ptr() held within the same scope — lifetime is fine
+- Bindgen-generated code with `unsafe` — bindgen output is inherently unsafe-heavy by design
+
+## Concurrency-Specific Verification
+
+### "Memory Ordering Too Weak"
+
+**Before flagging**, you MUST:
+1. Verify the atomic is actually shared between threads that need synchronization
+2. Check if `Relaxed` is sufficient (counters, flags with no dependent data)
+3. Confirm `Acquire/Release` vs `SeqCst` choice matters (most code doesn't need SeqCst)
+
+**Common false positives:**
+- `Relaxed` on simple counters/metrics — no ordering needed for independent values
+- `Relaxed` on boolean flags polled in a loop — the loop provides eventual visibility
+- `SeqCst` used "for safety" — not wrong, just potentially over-synchronized
+
 ## Before Submitting Review
 
 Final verification:

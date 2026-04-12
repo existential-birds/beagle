@@ -30,6 +30,7 @@ Description of the issue and why it matters.
 |------------|-----------|
 | Unit tests, assertions, naming, snapshots, rstest, doc tests, `#[expect]`, `LazyLock` fixtures, tail expression scope | [references/unit-tests.md](references/unit-tests.md) |
 | Integration tests, async testing, fixtures, test databases, native `async fn` mocks, `if let` temporary scope | [references/integration-tests.md](references/integration-tests.md) |
+| Fuzzing, property-based testing, Miri, Loom, benchmarking, compile_fail, custom harness, mocking strategies | [references/advanced-testing.md](references/advanced-testing.md) |
 
 ## Review Checklist
 

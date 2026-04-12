@@ -155,7 +155,7 @@ Declare build script dependencies separately:
 ```toml
 [build-dependencies]
 cc = "1"          # compile C/C++ code
-bindgen = "0.71"  # generate FFI bindings
+bindgen = "0.72"  # generate FFI bindings
 ```
 
 ## Project Directory Organization
@@ -189,7 +189,7 @@ name = "throughput"
 harness = false
 
 [dev-dependencies]
-criterion = { version = "0.5", features = ["html_reports"] }
+criterion = { version = "0.8", features = ["html_reports"] }
 ```
 
 ## Dependency Auditing

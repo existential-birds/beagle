@@ -38,8 +38,8 @@ jobs:
       - uses: Swatinem/rust-cache@v2
       - run: cargo clippy --workspace --all-targets --all-features -- -D warnings
 
-  # Edition 2024: unsafe_op_in_unsafe_fn is deny-by-default, so clippy will
-  # catch unsafe blocks inside unsafe fn without extra flags. For projects
+  # Edition 2024: unsafe_op_in_unsafe_fn is warn-by-default (not deny).
+  # With `-D warnings` above, clippy will fail on these. For projects
   # mixing editions, add explicit flags:
   #   -- -D warnings -W unsafe_op_in_unsafe_fn
 

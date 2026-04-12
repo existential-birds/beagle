@@ -137,7 +137,7 @@ std::thread::scope(|s| {
 
 ## OnceLock / LazyLock Patterns
 
-Stable since 1.80. Replace `once_cell` and `lazy_static` for new code.
+`OnceLock` stable since 1.70, `LazyLock` stable since 1.80. Replace `once_cell` and `lazy_static` for new code.
 
 ```rust
 use std::sync::{LazyLock, OnceLock};

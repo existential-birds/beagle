@@ -104,7 +104,7 @@ cfg.port = 8080;
 
 **Watch for writer starvation:** if readers never release, writers wait forever. tokio's `RwLock` is write-preferring by default to mitigate this.
 
-## LazyLock (Rust 2024 Edition)
+## LazyLock (Rust 1.80+)
 
 `std::sync::LazyLock` (stable since 1.80) replaces the `once_cell` and `lazy_static` crates for runtime-initialized global singletons. In async/tokio code, this is commonly used for shared clients, connection info, or regex patterns.
 

@@ -22,7 +22,7 @@ Each fragment type constrains what tokens the matcher will accept. Using the wro
 
 ### Common Fragment Mistakes
 
-**`:expr` is greedy** -- It consumes as much as possible. `$e:expr, $f:expr` will fail on `a + b, c` because `:expr` tries to parse `a + b, c` as one expression. Use `:tt` or restructure the matcher.
+**`:expr` can be broader than intended** -- It matches full expressions, which can make some macro arms too permissive. Prefer narrower fragments like `:tt` when you need stricter syntax boundaries.
 
 **`:ty` cannot be followed by `>`** -- After matching a type, the parser cannot distinguish `>` as closing a generic vs part of an expression. Structure matchers to avoid this ambiguity.
 

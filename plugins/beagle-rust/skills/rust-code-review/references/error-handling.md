@@ -147,6 +147,11 @@ if let Some(result) = cache.get(&key) {
     cache.insert(key, computed.clone());
     return Ok(computed);
 }
+
+// NOTE (Edition 2024): Temporaries in if-let conditions are dropped
+// at the end of the condition, not the end of the block. If the
+// matched value borrows a temporary, bind it explicitly first.
+// See ownership-borrowing.md for details.
 ```
 
 ## Prevent Early Allocation

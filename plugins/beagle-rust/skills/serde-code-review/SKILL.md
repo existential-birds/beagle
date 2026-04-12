@@ -7,11 +7,12 @@ description: Reviews serde serialization code for derive patterns, enum represen
 
 ## Review Workflow
 
-1. **Check Cargo.toml** — Note serde features (`derive`, `rc`) and format crates (`serde_json`, `toml`, `bincode`, etc.)
+1. **Check Cargo.toml** — Note serde features (`derive`, `rc`), format crates (`serde_json`, `toml`, `bincode`, etc.), and Rust edition (2024 has breaking changes affecting serde code)
 2. **Check derive usage** — Verify `Serialize` and `Deserialize` are derived appropriately
 3. **Check enum representations** — Enum tagging affects wire format compatibility and readability
 4. **Check field attributes** — Renaming, defaults, skipping affect API contracts
-5. **Verify round-trip correctness** — Serialized data must deserialize back to the same value
+5. **Check edition 2024 compatibility** — Reserved `gen` keyword, RPIT lifetime capture changes, `never_type_fallback`
+6. **Verify round-trip correctness** — Serialized data must deserialize back to the same value
 
 ## Output Format
 
@@ -36,6 +37,7 @@ Description of the issue and why it matters.
 - [ ] `#[derive(Serialize, Deserialize)]` on types that cross serialization boundaries
 - [ ] `#[derive(Debug)]` alongside serde derives (debugging serialization issues)
 - [ ] Feature-gated derives when serde is optional: `#[cfg_attr(feature = "serde", derive(Serialize, Deserialize))]`
+- [ ] Prefer `#[expect(unused)]` over `#[allow(unused)]` for serde-only fields (self-cleaning lint suppression, stable since 1.81)
 
 ### Enum Representation
 - [ ] Enum tagging is explicit (not relying on serde's default externally-tagged format when another is intended)
@@ -48,10 +50,16 @@ Description of the issue and why it matters.
 - [ ] `#[serde(rename = "...")]` when Rust field names differ from wire format
 - [ ] `#[serde(flatten)]` used judiciously (can cause key collisions)
 - [ ] No `#[serde(deny_unknown_fields)]` on types that need forward compatibility
+- [ ] No fields or variants named `gen` — reserved keyword in edition 2024 (use `r#gen` or rename)
 
 ### Database Integration (sqlx)
 - [ ] `#[derive(sqlx::Type)]` enums use consistent representation with serde
 - [ ] Enum variant casing matches between serde (`rename_all`) and sqlx (`rename_all`)
+
+### Edition 2024 Compatibility
+- [ ] No fields or enum variants named `gen` (reserved keyword — use `r#gen` with `#[serde(rename = "gen")]` or choose a different name)
+- [ ] Custom `Serialize`/`Deserialize` impls returning `impl Trait` account for RPIT lifetime capture changes (all in-scope lifetimes captured by default; use `+ use<'a>` for precise control)
+- [ ] Deserialization error paths handle `never_type_fallback` — `!` falls back to `!` instead of `()`, which affects match exhaustiveness on `Result<T, !>` patterns
 
 ### Correctness
 - [ ] Round-trip tests exist for complex types (serialize → deserialize → assert_eq)
@@ -72,11 +80,13 @@ Description of the issue and why it matters.
 - Missing `skip_serializing_if` causing null/empty noise in output
 - `deny_unknown_fields` on types consumed by evolving APIs (breaks forward compatibility)
 - Missing round-trip tests for complex enum representations
+- Field or variant named `gen` without `r#gen` escape (edition 2024 compile failure)
 
 ### Minor
 - Unnecessary `#[serde(default)]` on required fields
 - Using string representation for enums when numeric would be more efficient
 - Verbose custom implementations where derive + attributes suffice
+- Using `#[allow(unused)]` instead of `#[expect(unused)]` for serde-only fields (prefer self-cleaning lint suppression)
 
 ### Informational
 - Suggestions to switch enum representation for cleaner wire format
@@ -89,6 +99,8 @@ Description of the issue and why it matters.
 - **`serde_json::Value` for dynamic data** — Appropriate for truly schema-less fields
 - **`#[serde(skip)]` on computed fields** — Correct for derived/cached values
 - **`#[serde(with = "...")]` for custom formats** — Standard for dates, UUIDs, etc.
+- **`r#gen` with `#[serde(rename = "gen")]`** — Correct edition 2024 workaround for `gen` fields in wire formats
+- **`+ use<'a>` on custom serializer return types** — Precise RPIT lifetime capture (edition 2024)
 
 ## Before Submitting Findings
 

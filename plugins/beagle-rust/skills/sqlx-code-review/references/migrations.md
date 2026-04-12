@@ -17,6 +17,40 @@ let pool = PgPoolOptions::new()
     .await?;
 ```
 
+### Edition 2024: Static Pool with `LazyLock`
+
+For applications that initialize a global pool once, use `std::sync::LazyLock` instead of `once_cell::sync::Lazy` or `lazy_static!`. `LazyLock` is in std since Rust 1.80.
+
+```rust
+// BAD — third-party crate, unnecessary dependency
+use once_cell::sync::Lazy;
+
+static POOL: Lazy<PgPool> = Lazy::new(|| {
+    tokio::runtime::Handle::current().block_on(async {
+        PgPoolOptions::new()
+            .max_connections(20)
+            .connect(&std::env::var("DATABASE_URL").unwrap())
+            .await
+            .unwrap()
+    })
+});
+
+// GOOD — std library, no extra dependency
+use std::sync::LazyLock;
+
+static POOL: LazyLock<PgPool> = LazyLock::new(|| {
+    tokio::runtime::Handle::current().block_on(async {
+        PgPoolOptions::new()
+            .max_connections(20)
+            .connect(&std::env::var("DATABASE_URL").unwrap())
+            .await
+            .unwrap()
+    })
+});
+```
+
+Note: Framework-managed state (e.g., axum `State<PgPool>`) is still preferred over global statics. Use `LazyLock` only when a static singleton is genuinely needed.
+
 ### Pool Sizing Guidelines
 
 - **Web servers:** 2-4× the number of async worker threads
@@ -151,3 +185,4 @@ ALTER TABLE users ADD COLUMN IF NOT EXISTS email TEXT;
 4. Are transactions committed explicitly?
 5. Are migrations safe (no data loss, idempotent, separate DDL/DML)?
 6. Is `sqlx::migrate!()` called at startup?
+7. (Edition 2024) Does static pool initialization use `std::sync::LazyLock` instead of `once_cell` or `lazy_static!`?

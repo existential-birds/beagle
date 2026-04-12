@@ -36,7 +36,7 @@ my-workspace/
 
 ```toml
 [workspace]
-resolver = "2"                    # required for edition 2021+
+resolver = "2"                    # default for edition 2021+; explicit for clarity
 members = [
     "crates/core",
     "crates/api",
@@ -83,6 +83,29 @@ axum = "0.8"                         # member-specific dependency
 
 [lints]
 workspace = true                      # inherit lint config
+```
+
+## Edition Inheritance in Workspaces
+
+Edition 2024 introduces important workspace-level behaviors:
+
+- **Edition inherits from workspace**: Members using `edition.workspace = true` inherit the workspace edition. All members get edition 2024 semantics (unsafe block requirements, lifetime capture rules, etc.)
+- **Mixed editions**: Members can override with a local `edition = "2021"` if needed, but this creates inconsistent behavior across crates — avoid when possible
+- **Resolver**: Edition 2021+ defaults to resolver `"2"`. Setting it explicitly in the workspace root is good practice for clarity
+- **Lint inheritance**: `[workspace.lints.rust]` applies uniformly, but edition 2024 deny-by-default lints (like `unsafe_op_in_unsafe_fn`) activate per-member based on that member's edition
+
+```toml
+# Root Cargo.toml — all members inherit edition 2024
+[workspace.package]
+edition = "2024"
+rust-version = "1.85"
+
+# Member Cargo.toml — inherits edition 2024 and MSRV
+[package]
+name = "my-crate"
+version = "0.1.0"
+edition.workspace = true
+rust-version.workspace = true
 ```
 
 ## Shared Dependencies

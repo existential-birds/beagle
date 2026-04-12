@@ -91,6 +91,48 @@ let app = Router::new()
     .with_state(state);
 ```
 
+## Tower Service Trait and `async fn` in Traits (Edition 2024)
+
+Custom Tower `Service` implementations that previously required `#[async_trait]` can now use native `async fn`. However, the Tower `Service` trait itself uses `poll_ready`/`call` (not async fn), so this primarily applies to higher-level abstractions built on top of Tower.
+
+For axum middleware specifically, `axum::middleware::from_fn` already uses plain async functions and is unaffected. The benefit appears when implementing custom `FromRequestParts` extractors used within middleware:
+
+```rust
+// GOOD (edition 2024) - no #[async_trait] needed
+impl<S> FromRequestParts<S> for RateLimitInfo
+where
+    S: Send + Sync,
+{
+    type Rejection = AppError;
+
+    async fn from_request_parts(parts: &mut Parts, _state: &S) -> Result<Self, Self::Rejection> {
+        let ip = parts.headers
+            .get("x-forwarded-for")
+            .and_then(|v| v.to_str().ok())
+            .unwrap_or("unknown");
+        Ok(RateLimitInfo { client_ip: ip.to_string() })
+    }
+}
+```
+
+## FFI and `unsafe extern` (Edition 2024)
+
+If middleware integrates with C libraries (e.g., custom TLS, hardware security modules), edition 2024 requires `unsafe extern`:
+
+```rust
+// BAD (edition 2024 — won't compile)
+extern "C" {
+    fn custom_tls_init() -> i32;
+}
+
+// GOOD (edition 2024)
+unsafe extern "C" {
+    fn custom_tls_init() -> i32;
+}
+```
+
+Also, `#[no_mangle]` on exported FFI functions must become `#[unsafe(no_mangle)]`.
+
 ## Graceful Shutdown
 
 ```rust
@@ -113,3 +155,6 @@ async fn shutdown_signal() {
 3. Is request timeout configured for production?
 4. Does custom middleware use `from_fn_with_state` for state access?
 5. Is graceful shutdown implemented?
+6. Are extractors used in middleware using native `async fn` instead of `#[async_trait]`?
+7. Are FFI blocks in middleware written as `unsafe extern "C"` (edition 2024)?
+8. Are `#[no_mangle]` attributes on exported functions written as `#[unsafe(no_mangle)]` (edition 2024)?

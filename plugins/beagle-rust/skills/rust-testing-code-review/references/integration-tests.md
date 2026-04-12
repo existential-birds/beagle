@@ -163,18 +163,35 @@ Prefer `#[sqlx::test]` over manual pool setup with `#[tokio::test]` for database
 
 Define traits as seams for testing. Implement mock versions for tests.
 
+Since Rust 1.75, `async fn` works directly in trait definitions without the `async-trait` crate. Prefer native syntax for new code.
+
 ```rust
-// Production trait
+// BAD (edition 2024) - unnecessary async-trait dependency
 #[async_trait]
 pub trait UserRepository: Send + Sync {
     async fn find(&self, id: Uuid) -> Result<Option<User>>;
     async fn create(&self, input: CreateUser) -> Result<User>;
 }
 
+// GOOD (edition 2024) - native async fn in traits
+pub trait UserRepository: Send + Sync {
+    fn find(&self, id: Uuid) -> impl Future<Output = Result<Option<User>>> + Send;
+    fn create(&self, input: CreateUser) -> impl Future<Output = Result<User>> + Send;
+}
+
+// Also valid - async fn directly (simpler, but caller can't name the future type)
+pub trait UserRepository: Send + Sync {
+    async fn find(&self, id: Uuid) -> Result<Option<User>>;
+    async fn create(&self, input: CreateUser) -> Result<User>;
+}
+```
+
+Production and mock implementations:
+
+```rust
 // Production implementation
 pub struct PgUserRepository { pool: PgPool }
 
-#[async_trait]
 impl UserRepository for PgUserRepository {
     async fn find(&self, id: Uuid) -> Result<Option<User>> {
         sqlx::query_as!(User, "SELECT ... WHERE id = $1", id)
@@ -190,7 +207,6 @@ struct MockUserRepository {
     users: Vec<User>,
 }
 
-#[async_trait]
 impl UserRepository for MockUserRepository {
     async fn find(&self, id: Uuid) -> Result<Option<User>> {
         Ok(self.users.iter().find(|u| u.id == id).cloned())
@@ -198,6 +214,51 @@ impl UserRepository for MockUserRepository {
     // ...
 }
 ```
+
+**When `async-trait` is still needed:** Native `async fn` in traits does not support `dyn Trait` dispatch. If your code requires `Box<dyn UserRepository>`, keep using `async-trait` for that trait. See `beagle-rust:tokio-async-code-review` for async trait patterns in detail.
+
+## `if let` Temporary Scope in Test Assertions (Edition 2024)
+
+In edition 2024, temporaries in `if let` conditions are dropped at the end of the **condition**, not at the end of the block. This affects test patterns that inline method calls in `if let` conditions.
+
+```rust
+// BAD (edition 2024) - temporary lock guard drops after condition evaluates
+// val may be a dangling reference inside the block
+#[tokio::test]
+async fn test_cache_hit() {
+    let cache = setup_cache().await;
+    if let Some(val) = cache.lock().await.get("key") {
+        assert_eq!(val, "expected"); // guard already dropped!
+    }
+}
+
+// GOOD (edition 2024) - bind the guard to extend its lifetime
+#[tokio::test]
+async fn test_cache_hit() {
+    let cache = setup_cache().await;
+    let guard = cache.lock().await;
+    if let Some(val) = guard.get("key") {
+        assert_eq!(val, "expected"); // guard lives through the block
+    }
+}
+```
+
+This also affects non-async patterns with `RefCell`, `Mutex`, or any method returning a temporary with borrowed data:
+
+```rust
+// BAD (edition 2024) - RefCell borrow drops after condition
+if let Some(item) = state.borrow().items.first() {
+    assert_eq!(item.name, "test"); // borrow already dropped
+}
+
+// GOOD - bind the borrow
+let borrowed = state.borrow();
+if let Some(item) = borrowed.items.first() {
+    assert_eq!(item.name, "test");
+}
+```
+
+See `beagle-rust:tokio-async-code-review` for more `if let` temporary scope patterns with async lock guards.
 
 ## Test Configuration
 
@@ -233,3 +294,6 @@ async fn test_with_logging() {
 5. Is `#[tokio::test]` used for async tests?
 6. Are multi-threaded tests using `flavor = "multi_thread"`?
 7. Are database tests using `#[sqlx::test]` instead of manual pool setup?
+8. Are mock traits using native `async fn` instead of `async-trait` where possible?
+9. Do `if let` assertions with inline temporaries (lock guards, borrows) account for edition 2024 temporary scoping?
+10. Is `#[expect]` used instead of `#[allow]` for test-specific lint suppressions?

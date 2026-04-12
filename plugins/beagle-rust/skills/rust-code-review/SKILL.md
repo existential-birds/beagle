@@ -1,6 +1,6 @@
 ---
 name: rust-code-review
-description: Reviews Rust code for ownership, borrowing, lifetime, error handling, trait design, unsafe usage, and common mistakes. Use when reviewing .rs files, checking borrow checker issues, error handling patterns, or trait implementations. Covers Rust 2021 edition patterns and modern idioms.
+description: Reviews Rust code for ownership, borrowing, lifetime, error handling, trait design, unsafe usage, and common mistakes. Use when reviewing .rs files, checking borrow checker issues, error handling patterns, or trait implementations. Covers Rust 2024 edition patterns and modern idioms.
 ---
 
 # Rust Code Review
@@ -9,7 +9,7 @@ description: Reviews Rust code for ownership, borrowing, lifetime, error handlin
 
 Follow this sequence to avoid false positives and catch edition-specific issues:
 
-1. **Check `Cargo.toml`** — Note the Rust edition (2018, 2021, 2024) and MSRV if set. This determines which patterns apply. Check workspace structure if present.
+1. **Check `Cargo.toml`** — Note the Rust edition (2018, 2021, 2024) and MSRV if set. Edition 2024 introduces breaking changes to unsafe semantics, RPIT lifetime capture, temporary scoping, and `!` type fallback. This determines which patterns apply. Check workspace structure if present.
 2. **Check dependencies** — Note key crates (thiserror vs anyhow, tokio features, serde features). These inform which patterns are expected.
 3. **Scan changed files** — Read full functions, not just diffs. Many Rust bugs hide in ownership flow across a function.
 4. **Check each category** — Work through the checklist below, loading references as needed.
@@ -43,6 +43,7 @@ Description of the issue and why it matters.
 - [ ] No `.clone()` inside loops — prefer `.cloned()` or `.copied()` on iterators
 - [ ] No cloning to avoid lifetime annotations (take ownership explicitly or restructure)
 - [ ] References have appropriate lifetimes (not overly broad `'static` when shorter lifetime works)
+- [ ] **Edition 2024**: RPIT (`-> impl Trait`) captures all in-scope lifetimes by default; use `+ use<'a>` for precise capture control
 - [ ] `&str` preferred over `String`, `&[T]` over `Vec<T>` in function parameters
 - [ ] `impl AsRef<T>` or `Into<T>` used for flexible API parameters
 - [ ] No dangling references or use-after-move
@@ -53,6 +54,8 @@ Description of the issue and why it matters.
 - [ ] No premature `.collect()` — pass iterators directly when the consumer accepts them
 - [ ] `.sum()` preferred over `.fold()` for summation (compiler optimizes better)
 - [ ] `_or_else` variants used when fallbacks involve allocation
+- [ ] **Edition 2024**: `if let` temporaries drop at end of the `if let` — code relying on temporaries living through the else branch needs restructuring
+- [ ] **Edition 2024**: `Box<[T]>` implements `IntoIterator` — prefer direct iteration over `into_vec()` first
 
 ### Error Handling
 - [ ] `Result<T, E>` used for recoverable errors, not `panic!`/`unwrap`/`expect`
@@ -73,6 +76,7 @@ Description of the issue and why it matters.
 - [ ] Sealed traits used when external implementations shouldn't be allowed
 - [ ] Default implementations provided where they make sense
 - [ ] `Send + Sync` bounds verified for types shared across threads
+- [ ] `#[diagnostic::on_unimplemented]` used on public traits to provide clear error messages when users forget to implement them
 
 ### Unsafe Code
 - [ ] `unsafe` blocks have safety comments explaining invariants
@@ -80,6 +84,9 @@ Description of the issue and why it matters.
 - [ ] Safety invariants are documented and upheld by surrounding safe code
 - [ ] No undefined behavior (null pointer deref, data races, invalid memory access)
 - [ ] `unsafe` trait implementations justify why the contract is upheld
+- [ ] **Edition 2024**: `unsafe fn` bodies use explicit `unsafe {}` blocks around unsafe ops (`unsafe_op_in_unsafe_fn` is deny)
+- [ ] **Edition 2024**: `extern "C" {}` blocks written as `unsafe extern "C" {}`
+- [ ] **Edition 2024**: `#[no_mangle]` and `#[export_name]` written as `#[unsafe(no_mangle)]` and `#[unsafe(export_name)]`
 
 ### Naming and Style
 - [ ] Types are `PascalCase`, functions/methods `snake_case`, constants `SCREAMING_SNAKE_CASE`
@@ -176,6 +183,9 @@ These are acceptable Rust patterns — reporting them wastes developer time:
 - **`Arc::clone(&arc)`** — Explicit Arc cloning is idiomatic and recommended
 - **`std::sync::Mutex` for short critical sections in async** — Tokio docs recommend this
 - **`for` loops over iterators** — When early exit or side effects are needed
+- **`async fn` in trait definitions** — Stable since 1.75; `async-trait` crate only needed for `dyn Trait` or pre-1.75 MSRV
+- **`LazyCell` / `LazyLock` from std** — Stable since 1.80; replaces `once_cell` and `lazy_static` for new code
+- **`+ use<'a, T>` precise capture syntax** — Edition 2024 syntax for controlling RPIT lifetime capture
 
 ## Context-Sensitive Rules
 
@@ -192,6 +202,8 @@ Only flag these issues when the specific conditions apply:
 | Missing `#[must_use]` | Function returns a value that callers commonly ignore |
 | Stale `#[allow]` suppression | Should be `#[expect]` for self-cleaning lint management |
 | Missing `Copy` derive | Type is ≤24 bytes with all-Copy fields and used frequently |
+| **Edition 2024**: `!` type fallback | Match on `Result<T, !>` or diverging expressions where `()` fallback was assumed — `!` now falls back to `!` not `()` |
+| **Edition 2024**: `r#gen` identifier | Code uses `gen` as an identifier — must be `r#gen` in edition 2024 (reserved keyword) |
 
 ## Before Submitting Findings
 

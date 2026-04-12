@@ -37,7 +37,7 @@ Return `Result<T, E>` for fallible operations. Use `thiserror` for library error
 
 ## Clippy Discipline
 
-Run `cargo clippy --all-targets --all-features -- -D warnings` on every commit. Configure workspace lints in `Cargo.toml` and prefer `#[expect(clippy::lint)]` over `#[allow]` for self-cleaning suppression. See [references/clippy-config.md](references/clippy-config.md) for lint configuration and key lints.
+Run `cargo clippy --all-targets --all-features -- -D warnings` on every commit. Configure workspace lints in `Cargo.toml` and use `#[expect(clippy::lint)]` (not `#[allow]`) as the standard for lint suppression -- it warns when the suppression becomes stale. See [references/clippy-config.md](references/clippy-config.md) for lint configuration and key lints.
 
 ## Performance Mindset
 
@@ -45,7 +45,7 @@ Always benchmark with `--release`, profile before optimizing, and avoid cloning 
 
 ## Generics and Dispatch
 
-Use static dispatch (`impl Trait` / `<T: Trait>`) by default for zero-cost monomorphization. Switch to `dyn Trait` only for heterogeneous collections or plugin architectures, preferring `&dyn Trait` over `Box<dyn Trait>` when ownership isn't needed. See [references/generics-dispatch.md](references/generics-dispatch.md) for dispatch trade-offs and examples.
+Use static dispatch (`impl Trait` / `<T: Trait>`) by default for zero-cost monomorphization. Switch to `dyn Trait` only for heterogeneous collections or plugin architectures, preferring `&dyn Trait` over `Box<dyn Trait>` when ownership isn't needed. In edition 2024, `-> impl Trait` captures all in-scope lifetimes by default -- use `+ use<'a, T>` for precise capture control. Prefer native `async fn` in traits over the `async-trait` crate for static dispatch. See [references/generics-dispatch.md](references/generics-dispatch.md) for dispatch trade-offs, RPIT capture rules, and async trait guidance.
 
 ## Type State Pattern
 
@@ -53,8 +53,8 @@ Encode valid states in the type system so invalid operations become compile erro
 
 ## Documentation
 
-Use `//` for why, `///` for what/how on public APIs, and `//!` for module purpose. Every `TODO` needs a linked issue and library crates should enable `#![deny(missing_docs)]`. See [references/documentation.md](references/documentation.md) for doc test patterns and comment conventions.
+Use `//` for why, `///` for what/how on public APIs, and `//!` for module purpose. Every `TODO` needs a linked issue and library crates should enable `#![deny(missing_docs)]`. Use `#[diagnostic::on_unimplemented]` to provide custom compiler errors for your public traits. See [references/documentation.md](references/documentation.md) for doc test patterns, comment conventions, and diagnostic attributes.
 
 ## Pointer Types
 
-Choose pointer types based on ownership and threading: `Box<T>` for single-owner heap allocation, `Rc<T>`/`Arc<T>` for shared ownership, `Cell`/`RefCell`/`Mutex`/`RwLock` for interior mutability. See [references/pointer-types.md](references/pointer-types.md) for the full single-thread vs multi-thread decision table.
+Choose pointer types based on ownership and threading: `Box<T>` for single-owner heap allocation, `Rc<T>`/`Arc<T>` for shared ownership, `Cell`/`RefCell`/`Mutex`/`RwLock` for interior mutability. Use `LazyLock`/`LazyCell` (stable since 1.80) instead of `lazy_static` or `once_cell`. See [references/pointer-types.md](references/pointer-types.md) for the full single-thread vs multi-thread decision table and migration guidance.

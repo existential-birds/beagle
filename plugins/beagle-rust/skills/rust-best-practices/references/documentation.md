@@ -127,6 +127,28 @@ Place at the top of `lib.rs` or `mod.rs`:
 //! ```
 ```
 
+## Custom Error Messages with `#[diagnostic::on_unimplemented]`
+
+Since Rust 1.78, you can provide custom compiler error messages when a trait is not implemented. This dramatically improves developer experience for library traits:
+
+```rust
+#[diagnostic::on_unimplemented(
+    message = "`{Self}` is not a valid handler function",
+    label = "this type does not implement `Handler`",
+    note = "Handler functions must accept a `Request` and return `impl IntoResponse`"
+)]
+trait Handler {
+    fn call(&self, req: Request) -> Response;
+}
+```
+
+When someone tries to use a type that doesn't implement `Handler`, they see your custom message instead of the generic "trait bound not satisfied" error.
+
+Use this for:
+- Public library traits where users frequently hit confusing errors
+- Trait bounds with non-obvious requirements (e.g., axum handlers, tower services)
+- Domain-specific traits where the fix is not obvious from the trait name
+
 ## Documentation Lints
 
 Enable for library crates:

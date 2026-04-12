@@ -16,6 +16,7 @@ Before flagging ANY issue, verify:
 - [ ] **I searched for usages** - Before claiming "unused", searched all references
 - [ ] **I checked surrounding code** - The issue may be handled elsewhere (trait impls, error propagation)
 - [ ] **I verified syntax against current docs** - Rust edition, crate versions, and API changes
+- [ ] **I checked the project's Rust edition** - Edition 2021 vs 2024 changes what is required vs optional (see [Edition-Aware Review](#edition-aware-review))
 - [ ] **I distinguished "wrong" from "different style"** - Both approaches may be valid
 - [ ] **I considered intentional design** - Checked comments, CLAUDE.md, architectural context
 
@@ -47,6 +48,31 @@ Before flagging ANY issue, verify:
 - `expect("reason")` after validation (e.g., `regex::Regex::new` on a literal)
 - Error propagation via `?` (the caller handles it)
 - `let _ = tx.send(...)` — intentional when receiver may have dropped
+
+### "Unnecessary Lifetime" / RPIT Capture (Edition 2024)
+
+**Before flagging**, you MUST:
+1. Check the project's Rust edition in `Cargo.toml`
+2. In edition 2024, `-> impl Trait` captures ALL in-scope lifetimes by default
+3. A lifetime that appears "unnecessary" may be implicitly captured — the code is correct
+4. If the author uses `+ use<'a>` syntax, this is precise capture control, not a mistake
+
+**Common false positives:**
+- Lifetime parameters on functions returning `impl Trait` — edition 2024 captures them implicitly
+- `+ use<'a, T>` syntax — this is the new precise capturing syntax, not an error
+- Removing an explicit lifetime bound that edition 2024 now provides automatically
+
+### "Missing Unsafe Block" (Edition 2024)
+
+**Before flagging**, you MUST:
+1. Check if the code is inside an `unsafe fn`
+2. In edition 2024, `unsafe_op_in_unsafe_fn` is deny-by-default — unsafe operations inside `unsafe fn` REQUIRE explicit `unsafe {}` blocks
+3. This is edition-required behavior, not unnecessary verbosity
+
+**Common false positives:**
+- `unsafe {}` blocks inside `unsafe fn` — REQUIRED in edition 2024, not redundant
+- `unsafe extern "C" {}` — REQUIRED in edition 2024, not optional
+- `#[unsafe(no_mangle)]` / `#[unsafe(export_name)]` — REQUIRED in edition 2024
 
 ### "Unnecessary Clone"
 
@@ -145,6 +171,16 @@ Before flagging ANY issue, verify:
 | `String` fields in structs | Owned data is correct for struct fields |
 | `Arc::clone(&x)` | Explicit Arc cloning is idiomatic and recommended |
 | `#[allow(clippy::...)]` with reason | Intentional suppression is valid |
+| `#[expect(lint)]` instead of `#[allow]` | Self-cleaning suppression (stable since 1.81) — warns when lint no longer triggers |
+| `unsafe {}` inside `unsafe fn` | Required in edition 2024 (`unsafe_op_in_unsafe_fn` = deny) |
+| `unsafe extern "C" {}` | Required in edition 2024 for extern blocks |
+| `#[unsafe(no_mangle)]` | Required in edition 2024 for safety-relevant attributes |
+| `#[unsafe(export_name = "...")]` | Required in edition 2024 for safety-relevant attributes |
+| `+ use<'a, T>` on `impl Trait` returns | Precise capture syntax for edition 2024 RPIT |
+| `r#gen` as identifier | `gen` is reserved in edition 2024 |
+| `LazyLock` / `LazyCell` | Standard library replacements for `once_cell`/`lazy_static` (stable since 1.80) |
+| `async fn` in trait definitions | No longer needs `async-trait` crate (stable since 1.75) |
+| `#[diagnostic::on_unimplemented]` | Custom trait error messages (stable since 1.78) |
 
 ### Async/Tokio
 
@@ -198,6 +234,40 @@ Flag unsafe **ONLY IF**:
 - [ ] The unsafe block is broader than necessary
 - [ ] The invariant is not actually upheld by surrounding code
 - [ ] A safe alternative exists with equivalent performance
+
+**Edition 2024 unsafe changes** — check `Cargo.toml` edition before flagging:
+- `unsafe {}` inside `unsafe fn` is **required** (not style) in edition 2024
+- `unsafe extern "C" {}` is **required** in edition 2024 — bare `extern "C" {}` is a compile error
+- `#[unsafe(no_mangle)]` and `#[unsafe(export_name)]` are **required** in edition 2024
+- In edition 2021, these patterns are optional style choices — do not require them
+
+## Edition-Aware Review
+
+**BEFORE flagging any edition-specific pattern**, check `Cargo.toml` for the project's edition:
+
+```toml
+[package]
+edition = "2024"  # or "2021", "2018"
+```
+
+Edition 2024 changes that affect review findings:
+
+| Change | Edition 2021 | Edition 2024 |
+|--------|--------------|--------------|
+| `unsafe` inside `unsafe fn` | Optional style | Required (`unsafe_op_in_unsafe_fn` = deny) |
+| `extern "C" {}` | Valid | Must be `unsafe extern "C" {}` |
+| `#[no_mangle]` | Valid | Must be `#[unsafe(no_mangle)]` |
+| `#[export_name]` | Valid | Must be `#[unsafe(export_name)]` |
+| `-> impl Trait` lifetime capture | Explicit only | Captures all in-scope lifetimes |
+| `gen` as identifier | Valid | Reserved keyword (use `r#gen`) |
+| `!` type fallback | Falls back to `()` | Falls back to `!` |
+| `if let` temporaries | Dropped at end of block | Dropped earlier (end of `if let`) |
+| Tail expression temporaries | Dropped after locals | Dropped before local variables |
+| `Box<[T]>` iteration | Needs explicit `.iter()` | Has `IntoIterator` impl |
+
+**If edition is not specified**, Rust defaults to edition 2015. Most modern projects use 2021 or later.
+
+**Cross-reference**: The `beagle-rust:rust-code-review` and `beagle-rust:rust-best-practices` skills provide edition-specific code review guidance and idiomatic patterns.
 
 ## Before Submitting Review
 

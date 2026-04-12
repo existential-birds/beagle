@@ -90,6 +90,36 @@ fn items_router() -> MethodRouter<AppState> {
 }
 ```
 
+## LazyLock for Static Route Configuration (Edition 2024)
+
+Static route tables or regex patterns previously initialized with `once_cell::sync::Lazy` or `lazy_static!` should use `std::sync::LazyLock` (stable since Rust 1.80):
+
+```rust
+// BAD (unnecessary dependency)
+use once_cell::sync::Lazy;
+static ROUTE_REGEX: Lazy<Regex> = Lazy::new(|| Regex::new(r"^/api/v\d+/").unwrap());
+
+// GOOD (std library, no extra dependency)
+use std::sync::LazyLock;
+static ROUTE_REGEX: LazyLock<Regex> = LazyLock::new(|| Regex::new(r"^/api/v\d+/").unwrap());
+```
+
+## RPIT Capture in Router Functions (Edition 2024)
+
+Functions returning `Router` are unaffected (concrete type). But helper functions returning `impl IntoResponse` used as fallback handlers or utility responses may over-capture lifetimes in edition 2024:
+
+```rust
+// Edition 2024: captures 'a even though response is owned
+fn not_found_body<'a>(path: &'a str) -> impl IntoResponse {
+    Json(json!({"error": format!("not found: {path}")}))
+}
+
+// Fix with precise capture if needed
+fn not_found_body<'a>(path: &'a str) -> impl IntoResponse + use<> {
+    Json(json!({"error": format!("not found: {path}")}))
+}
+```
+
 ## Review Questions
 
 1. Are routes organized by domain using nested routers?
@@ -97,3 +127,5 @@ fn items_router() -> MethodRouter<AppState> {
 3. Are route methods explicit (`.get()`, `.post()`)?
 4. Are there any route conflicts (overlapping path patterns)?
 5. Is `with_state` called with the correct state type?
+6. Are static route patterns using `std::sync::LazyLock` instead of `once_cell`/`lazy_static`?
+7. Do helper functions returning `impl IntoResponse` with lifetime params need `+ use<>` precise capture?

@@ -109,6 +109,68 @@ trait Factory {
 }
 ```
 
+## RPIT Lifetime Capture (Edition 2024)
+
+In Rust 2024, `-> impl Trait` return types capture ALL in-scope generic parameters and lifetimes by default. Previously (edition 2021), hidden types only captured the generic parameters explicitly mentioned in the opaque type.
+
+### What Changed
+
+```rust
+// Edition 2021: 'a is NOT captured, return type outlives 'a
+fn foo<'a>(x: &'a str) -> impl Display {
+    x.len() // returns usize, no lifetime dependency
+}
+
+// Edition 2024: 'a IS captured by default, return type borrows 'a
+fn foo<'a>(x: &'a str) -> impl Display {
+    x.len() // still returns usize, but type signature now captures 'a
+}
+```
+
+### Precise Capturing with `+ use<>`
+
+When you need to opt out of capturing a lifetime or generic, use the `+ use<>` syntax:
+
+```rust
+// Only capture T, not the lifetime 'a
+fn extract<'a, T: Display>(data: &'a [T]) -> impl Display + use<T> {
+    data.len()
+}
+
+// Capture nothing -- equivalent to edition 2021 behavior
+fn compute<'a>(x: &'a str) -> impl Display + use<> {
+    x.len()
+}
+```
+
+Use `+ use<>` when the return type genuinely does not depend on a lifetime, and callers need the returned value to outlive the borrow.
+
+## Async Functions in Traits
+
+Since Rust 1.75, `async fn` works directly in traits without the `async-trait` crate for many use cases:
+
+```rust
+// GOOD (Rust 1.75+) -- native async fn in trait
+trait DataStore {
+    async fn get(&self, key: &str) -> Option<String>;
+    async fn put(&self, key: &str, value: &str) -> Result<(), StoreError>;
+}
+
+// BAD -- unnecessary async-trait dependency
+#[async_trait::async_trait]
+trait DataStore {
+    async fn get(&self, key: &str) -> Option<String>;
+    async fn put(&self, key: &str, value: &str) -> Result<(), StoreError>;
+}
+```
+
+### When You Still Need `async-trait`
+
+- **`dyn Trait` dispatch** -- native async fn in traits is not yet object-safe. If you need `Box<dyn DataStore>`, you still need `async-trait` or manual boxing.
+- **Older MSRV** -- if your minimum supported Rust version is below 1.75.
+
+For most application code with static dispatch, drop `async-trait` and use native syntax.
+
 ## Patterns
 
 ### Accept Generic, Return Concrete

@@ -101,7 +101,7 @@ fn test_invalid_index_panics() {
 
 ## Test Helpers
 
-Extract common setup into helper functions. Mark them with `#[allow(dead_code)]` if not all tests use them.
+Extract common setup into helper functions. Mark them with `#[expect(dead_code)]` (edition 2024) or `#[allow(dead_code)]` if not all tests use them.
 
 ```rust
 #[cfg(test)]
@@ -388,6 +388,88 @@ fn divide_by_zero_error_message() {
 }
 ```
 
+## `#[expect]` for Test Lint Suppression (Stable Since 1.81)
+
+`#[expect(lint)]` is a self-cleaning alternative to `#[allow(lint)]`. The compiler warns when the suppressed lint no longer triggers, preventing stale suppressions from accumulating in test code.
+
+```rust
+// BAD - stale suppression goes undetected forever
+#[allow(unused_variables)]
+#[test]
+fn test_complex_setup() {
+    let db = setup_db();
+    let _cache = setup_cache(); // if _cache is later removed, #[allow] stays silently
+    assert!(db.is_connected());
+}
+
+// GOOD - compiler warns when suppression is no longer needed
+#[expect(unused_variables, reason = "cache setup needed for side effects")]
+#[test]
+fn test_complex_setup() {
+    let db = setup_db();
+    let _cache = setup_cache();
+    assert!(db.is_connected());
+}
+```
+
+Common test-specific suppressions to migrate:
+
+| `#[allow(...)]` | `#[expect(...)]` | When to use |
+|-----------------|------------------|-------------|
+| `#[allow(dead_code)]` | `#[expect(dead_code)]` | Test helpers not used by every test |
+| `#[allow(unused_variables)]` | `#[expect(unused_variables)]` | Setup vars kept for side effects |
+| `#[allow(clippy::needless_return)]` | `#[expect(clippy::needless_return)]` | Explicit returns for test clarity |
+
+## `LazyLock` for Test Fixtures (Stable Since 1.80)
+
+`std::sync::LazyLock` replaces `lazy_static!` and `once_cell::sync::Lazy` for shared test fixtures that are expensive to construct. Thread-safe by default.
+
+```rust
+// BAD - external dependency for test fixture
+use lazy_static::lazy_static;
+lazy_static! {
+    static ref TEST_CONFIG: Config = Config::load("test.toml").unwrap();
+}
+
+// BAD - also external dependency
+use once_cell::sync::Lazy;
+static TEST_CONFIG: Lazy<Config> = Lazy::new(|| Config::load("test.toml").unwrap());
+
+// GOOD (edition 2024) - std library, no external crate
+use std::sync::LazyLock;
+static TEST_CONFIG: LazyLock<Config> = LazyLock::new(|| Config::load("test.toml").unwrap());
+```
+
+For test fixtures that don't need to cross thread boundaries, use `std::cell::LazyCell` instead.
+
+**Note:** `tokio::sync::OnceCell` is still preferred when fixture initialization requires `.await`.
+
+## Tail Expression Temporary Scope (Edition 2024)
+
+In edition 2024, temporaries in tail expressions are dropped **before** local variables. This can affect test functions that return `Result` and create temporaries in the return expression.
+
+```rust
+// Edition 2021 - temporaries in tail expression outlive locals
+#[test]
+fn test_parse_config() -> Result<(), Error> {
+    let input = "key=value";
+    // temporary String from to_string() lives until end of function
+    Ok(parse(input.to_string().as_str())?)
+}
+
+// Edition 2024 - temporary String drops BEFORE the function returns
+// This may cause "temporary value dropped while borrowed" errors
+// Fix: bind the temporary to a local variable
+#[test]
+fn test_parse_config() -> Result<(), Error> {
+    let input = "key=value";
+    let owned = input.to_string();
+    Ok(parse(owned.as_str())?)
+}
+```
+
+This primarily affects tests that chain method calls in the return position. If the compiler reports "temporary value dropped while borrowed" after an edition migration, bind the temporary to a `let` binding.
+
 ## Review Questions
 
 1. Are unit tests in `#[cfg(test)]` modules within source files?
@@ -400,3 +482,6 @@ fn divide_by_zero_error_message() {
 8. Do tests verify one behavior each?
 9. Is snapshot testing used for complex structural output?
 10. Do public API functions have doc test examples?
+11. Is `#[expect]` used instead of `#[allow]` for test-specific lint suppressions?
+12. Are `lazy_static!` / `once_cell` test fixtures replaced with `std::sync::LazyLock` when MSRV allows?
+13. Do tail expression temporaries in `Result`-returning tests avoid dangling borrows under edition 2024?

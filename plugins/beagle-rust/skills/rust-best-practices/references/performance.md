@@ -129,6 +129,23 @@ let total: i32 = items.iter()
     .sum();
 ```
 
+### `IntoIterator` for `Box<[T]>` (Edition 2024)
+
+Rust 2024 adds `IntoIterator` for `Box<[T]>`, so boxed slices can be iterated directly:
+
+```rust
+// Previously required converting to Vec first
+let boxed: Box<[i32]> = vec![1, 2, 3].into_boxed_slice();
+
+// BAD (pre-2024) -- convert to Vec to iterate by value
+let items: Vec<i32> = boxed.into_vec();
+for item in items { /* ... */ }
+
+// GOOD (edition 2024) -- iterate directly
+let boxed: Box<[i32]> = vec![1, 2, 3].into_boxed_slice();
+for item in boxed { /* ... */ }
+```
+
 ### Avoid Intermediate Collections
 
 ```rust

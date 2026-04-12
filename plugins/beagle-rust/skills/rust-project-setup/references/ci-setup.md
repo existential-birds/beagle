@@ -38,6 +38,11 @@ jobs:
       - uses: Swatinem/rust-cache@v2
       - run: cargo clippy --workspace --all-targets --all-features -- -D warnings
 
+  # Edition 2024: unsafe_op_in_unsafe_fn is deny-by-default, so clippy will
+  # catch unsafe blocks inside unsafe fn without extra flags. For projects
+  # mixing editions, add explicit flags:
+  #   -- -D warnings -W unsafe_op_in_unsafe_fn
+
   test:
     name: Test
     runs-on: ubuntu-latest
@@ -120,6 +125,43 @@ rust-version = "1.85"
 The MSRV job uses that exact version. If it breaks, either:
 - Fix the code to work on the MSRV
 - Bump `rust-version` in Cargo.toml
+
+### Edition 2024 MSRV
+
+Edition 2024 requires Rust 1.85 or later. For projects using edition 2024, the MSRV cannot be lower than `1.85`. If your workspace mixes editions (e.g., a member still on edition 2021), the MSRV job should test against the highest edition's minimum:
+
+```yaml
+  msrv:
+    name: MSRV
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: dtolnay/rust-toolchain@master
+        with:
+          toolchain: "1.85"  # edition 2024 minimum
+      - uses: Swatinem/rust-cache@v2
+      - run: cargo check --workspace
+```
+
+Consider a matrix strategy if you support multiple toolchain versions:
+
+```yaml
+  msrv:
+    name: MSRV
+    strategy:
+      matrix:
+        toolchain: ["1.85", "stable"]
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: dtolnay/rust-toolchain@master
+        with:
+          toolchain: ${{ matrix.toolchain }}
+      - uses: Swatinem/rust-cache@v2
+        with:
+          shared-key: "msrv-${{ matrix.toolchain }}"
+      - run: cargo check --workspace
+```
 
 ## Doc Tests
 

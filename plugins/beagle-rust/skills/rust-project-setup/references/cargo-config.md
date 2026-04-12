@@ -23,6 +23,19 @@ repository = "https://github.com/org/repo"
 
 Each edition enables new language features and changes some defaults. Editions are opt-in and backward compatible.
 
+#### Edition 2024 Key Behavioral Changes
+
+- **`unsafe_op_in_unsafe_fn` = deny**: Unsafe operations inside `unsafe fn` require explicit `unsafe {}` blocks
+- **`unsafe extern` blocks**: `extern "C" {}` must be `unsafe extern "C" {}`
+- **`unsafe` attributes**: `#[no_mangle]` becomes `#[unsafe(no_mangle)]`, same for `#[export_name]`
+- **`gen` keyword reserved**: Use `r#gen` if you have identifiers named `gen`
+- **RPIT lifetime capture**: `-> impl Trait` captures all in-scope lifetimes; use `+ use<'a, T>` for precise control
+- **`never_type_fallback`**: `!` falls back to `!` instead of `()`
+- **Temporary drop scopes**: Temporaries in `if let` conditions and tail expressions drop earlier
+- **`IntoIterator` for `Box<[T]>`**: Now available without explicit conversion
+
+Run `cargo fix --edition` to auto-migrate most mechanical changes when upgrading.
+
 ### MSRV (Minimum Supported Rust Version)
 
 Set `rust-version` to declare the oldest Rust version your crate supports. CI should test against this version.
@@ -75,6 +88,25 @@ toml-support = ["dep:toml"]
 
 Use `dep:` prefix (Rust 1.60+) to avoid implicit feature names from optional dependencies.
 
+### Deprecated Dependency Replacements
+
+With Rust 1.80+ (required for edition 2024), several popular crates have stdlib replacements:
+
+| Crate | Replacement | Since |
+|-------|-------------|-------|
+| `once_cell` | `std::sync::LazyLock`, `std::cell::LazyCell` | 1.80 |
+| `lazy_static` | `std::sync::LazyLock` | 1.80 |
+
+```rust
+// BAD: external dependency for edition 2024 projects
+use once_cell::sync::Lazy;
+static CONFIG: Lazy<Config> = Lazy::new(|| Config::load());
+
+// GOOD: stdlib LazyLock (stable since 1.80)
+use std::sync::LazyLock;
+static CONFIG: LazyLock<Config> = LazyLock::new(|| Config::load());
+```
+
 ## Profiles
 
 ### Release Profile
@@ -118,6 +150,23 @@ pedantic = { level = "warn", priority = 3 }
 future-incompatible = "warn"
 nonstandard_style = "deny"
 unsafe_code = "deny"          # for crates that should never use unsafe
+# unsafe_op_in_unsafe_fn is deny-by-default in edition 2024 — no explicit entry needed
+```
+
+#### Edition 2024 Lint Defaults
+
+These lints are deny-by-default in edition 2024 and do not need explicit configuration:
+
+| Lint | Effect |
+|------|--------|
+| `unsafe_op_in_unsafe_fn` | Unsafe ops in `unsafe fn` require explicit `unsafe {}` blocks |
+| `never_type_fallback_flowing_into_unsafe` | Prevents `!` fallback into unsafe contexts |
+
+Use `#[expect(lint)]` instead of `#[allow(lint)]` for temporary suppressions — it warns when the suppression becomes unnecessary:
+
+```rust
+#[expect(clippy::needless_pass_by_value, reason = "required by framework trait")]
+fn handler(req: Request) -> Response { /* ... */ }
 ```
 
 ### Workspace-Level Lints

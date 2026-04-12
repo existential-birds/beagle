@@ -60,9 +60,9 @@ cargo clippy -- -D clippy::perf
 
 ## Lint Suppression
 
-### Prefer `#[expect]` Over `#[allow]`
+### Use `#[expect]` as the Default
 
-`#[expect]` warns when the lint no longer triggers, preventing stale suppressions:
+`#[expect]` (stable since Rust 1.81) is the standard for lint suppression. It warns when the lint no longer triggers, preventing stale suppressions from accumulating. Always use `#[expect]` instead of `#[allow]`:
 
 ```rust
 // BAD - stale allow stays forever unnoticed
@@ -74,21 +74,27 @@ enum Message { /* ... */ }
 enum Message { /* ... */ }
 ```
 
+When migrating an existing codebase, replace all `#[allow(lint)]` with `#[expect(lint)]`. The compiler will immediately flag any suppressions that are no longer needed, letting you clean up dead lint suppression.
+
+For crate-level suppression where `#![expect(...)]` is not practical (e.g., generated code), `#![allow(...)]` remains acceptable with a comment explaining why.
+
 ### Always Add Justification
 
 ```rust
 // Intentionally large for cache-line alignment
-#[expect(clippy::large_enum_variant)]
+#[expect(clippy::large_enum_variant, reason = "cache-line alignment")]
 enum Packet {
     Header(u8),
     Payload([u8; 1024]),
 }
 ```
 
+The `reason` parameter (stable since 1.81) documents intent inline and shows up in compiler output when the expect becomes unfulfilled.
+
 ### Handling False Positives
 
 1. Try refactoring to satisfy the lint
-2. If the code is genuinely correct, suppress **locally** with `#[expect]` and a comment
+2. If the code is genuinely correct, suppress **locally** with `#[expect]` and a reason
 3. Avoid global suppression unless it is a known framework issue (e.g., Bevy engine patterns)
 
 ## CI Integration

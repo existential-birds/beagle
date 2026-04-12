@@ -139,6 +139,51 @@ struct Metadata {
 
 **Pitfall:** If `Request` and `Metadata` have a field with the same name, one silently wins. Use `#[serde(flatten)]` only when field names are guaranteed not to collide.
 
+## Edition 2024: Reserved `gen` Keyword
+
+In Rust edition 2024, `gen` is a reserved keyword. Any serde field or enum variant named `gen` will fail to compile. Use `r#gen` as the Rust identifier and `#[serde(rename)]` to preserve the wire format name.
+
+```rust
+// BAD — fails to compile on edition 2024
+#[derive(Serialize, Deserialize)]
+struct Model {
+    gen: u32,
+}
+
+// GOOD — compiles on edition 2024, wire format unchanged
+#[derive(Serialize, Deserialize)]
+struct Model {
+    #[serde(rename = "gen")]
+    r#gen: u32,
+}
+
+// GOOD — enum variant
+#[derive(Serialize, Deserialize)]
+enum Phase {
+    #[serde(rename = "gen")]
+    Generation,
+    Evaluation,
+}
+```
+
+This also applies to `#[serde(alias = "gen")]` — the alias string is fine, but the Rust identifier must use `r#gen`.
+
+## Edition 2024: `#[expect]` for Serde-Only Fields
+
+Fields that exist solely for deserialization (e.g., skipped during serialization) may trigger unused warnings. Prefer `#[expect(dead_code)]` over `#[allow(dead_code)]` — it warns you when the suppression becomes unnecessary.
+
+```rust
+// BAD — allow stays forever even if the field becomes used
+#[allow(dead_code)]
+#[serde(skip_serializing)]
+legacy_id: Option<String>,
+
+// GOOD — expect warns when suppression is no longer needed
+#[expect(dead_code)]
+#[serde(skip_serializing)]
+legacy_id: Option<String>,
+```
+
 ## Database Type Alignment
 
 When types are used with both serde and sqlx, keep representations consistent:
@@ -163,3 +208,5 @@ Both serde and sqlx will use `"pending"`, `"in_progress"`, `"complete"`. Mismatc
 3. Are optional fields using `skip_serializing_if` for clean output?
 4. Does `#[serde(flatten)]` risk field name collisions?
 5. Do serde and sqlx enum representations match?
+6. Are any fields or variants named `gen` (edition 2024 reserved keyword)?
+7. Are lint suppressions on serde-only fields using `#[expect]` instead of `#[allow]`?

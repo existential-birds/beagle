@@ -105,6 +105,64 @@ req.extensions_mut().insert(AuthUser { id: user_id });
 async fn handler(Extension(user): Extension<AuthUser>) -> impl IntoResponse { ... }
 ```
 
+## Custom Extractors and `async fn` in Traits (Edition 2024)
+
+Since Rust 1.75, `async fn` is stable in trait definitions and implementations. Custom extractors no longer need `#[async_trait]`.
+
+```rust
+// BAD (pre-1.75 / unnecessary dependency)
+use async_trait::async_trait;
+
+#[async_trait]
+impl<S> FromRequestParts<S> for AuthUser
+where
+    S: Send + Sync,
+{
+    type Rejection = AppError;
+
+    async fn from_request_parts(parts: &mut Parts, state: &S) -> Result<Self, Self::Rejection> {
+        // ...
+    }
+}
+
+// GOOD (Rust 1.75+ / edition 2024)
+impl<S> FromRequestParts<S> for AuthUser
+where
+    S: Send + Sync,
+{
+    type Rejection = AppError;
+
+    async fn from_request_parts(parts: &mut Parts, state: &S) -> Result<Self, Self::Rejection> {
+        let token = parts.headers
+            .get("authorization")
+            .and_then(|v| v.to_str().ok())
+            .ok_or(AppError::Unauthorized)?;
+        // validate token...
+        Ok(AuthUser { id: user_id })
+    }
+}
+```
+
+Note: `#[async_trait]` is still needed when using `dyn Trait` with async extractors (trait objects require the indirection).
+
+## RPIT Lifetime Capture in Handlers (Edition 2024)
+
+In edition 2024, `-> impl Trait` captures ALL in-scope lifetimes by default. For axum handlers returning owned data, this usually doesn't matter. But when a helper function returns `impl IntoResponse` and has lifetime parameters, it may over-capture:
+
+```rust
+// Edition 2024: this captures 'a even though the return is fully owned
+fn render_page<'a>(title: &'a str) -> impl IntoResponse {
+    Html(format!("<h1>{title}</h1>"))
+}
+
+// If over-capture causes lifetime issues, use precise capture syntax
+fn render_page<'a>(title: &'a str) -> impl IntoResponse + use<> {
+    Html(format!("<h1>{title}</h1>"))
+}
+```
+
+Most axum handlers take owned extractors and return owned data, so RPIT capture changes are low-impact. Watch for helper functions with reference parameters returning `impl IntoResponse`.
+
 ## Error Handling Pattern
 
 Handlers should return `Result<impl IntoResponse, AppError>` where `AppError` implements `IntoResponse`.
@@ -150,3 +208,5 @@ impl From<sqlx::Error> for AppError {
 4. Are internal error details hidden from clients?
 5. Are `Path` types aligned with route parameter definitions?
 6. Are `Query` fields optional where the query param is optional?
+7. Are custom `FromRequest`/`FromRequestParts` impls using native `async fn` instead of `#[async_trait]`?
+8. Do helper functions returning `impl IntoResponse` with lifetime params need `+ use<>` precise capture?

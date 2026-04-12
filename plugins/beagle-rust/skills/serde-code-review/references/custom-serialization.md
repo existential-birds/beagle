@@ -62,6 +62,53 @@ impl TryFrom<String> for Email {
 // Deserialization now validates automatically
 ```
 
+## Edition 2024: RPIT Lifetime Capture in Custom Serializers
+
+In edition 2024, `-> impl Trait` captures ALL in-scope lifetimes by default. This affects custom serialization helpers that return `impl Trait` — particularly deserializer combinators and visitor factories.
+
+```rust
+// Edition 2021: only captures lifetimes explicitly in bounds
+// Edition 2024: captures 'de AND 'a by default
+fn make_visitor<'de, 'a>(context: &'a str) -> impl Visitor<'de> {
+    MyVisitor { context }
+}
+```
+
+If you need the returned type NOT to capture a lifetime, use the precise capture syntax:
+
+```rust
+// GOOD — explicitly captures only 'de, excludes 'a
+fn make_visitor<'de, 'a>(context: &'a str) -> impl Visitor<'de> + use<'de> {
+    MyVisitor { context: context.to_owned() }
+}
+```
+
+Most serde `with` modules are unaffected because they return `Result`, not `impl Trait`. This primarily impacts advanced patterns: custom visitor factories, deserializer adapters, and combinator libraries that return opaque types.
+
+## Edition 2024: `never_type_fallback` and Deserialization Errors
+
+In edition 2024, the `!` (never) type falls back to `!` instead of `()`. This can surface in deserialization code that uses infallible patterns or match expressions on `Result<T, !>`:
+
+```rust
+// Edition 2021: ! falls back to (), match is exhaustive
+// Edition 2024: ! falls back to !, may change type inference
+
+// If you have a custom deserializer that returns Result<T, !> for infallible paths,
+// match arms and type inference may behave differently. Prefer explicit error types:
+
+// BAD — relies on never type fallback behavior
+fn infallible_deserialize<T: Default>() -> Result<T, !> {
+    Ok(T::default())
+}
+
+// GOOD — use a concrete error type even for infallible paths
+fn infallible_deserialize<T: Default>() -> Result<T, serde::de::value::Error> {
+    Ok(T::default())
+}
+```
+
+In practice, most serde code uses `serde::de::Error` trait bounds and concrete error types, so this is a low-frequency issue. Flag it when you see explicit `!` in deserialization return types.
+
 ## Common Pitfalls
 
 ### Lossy Numeric Conversions
@@ -151,3 +198,5 @@ mod tests {
 4. Are untagged enums free from variant ambiguity?
 5. Is `deny_unknown_fields` avoided on evolving APIs?
 6. Do custom serializations have round-trip tests?
+7. Do custom serializer/deserializer helpers returning `impl Trait` account for edition 2024 RPIT lifetime capture?
+8. Are deserialization error types concrete (not relying on `!` type fallback)?

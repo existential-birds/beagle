@@ -7,7 +7,7 @@ description: Reviews sqlx database code for compile-time query checking, connect
 
 ## Review Workflow
 
-1. **Check Cargo.toml** — Note sqlx features (`runtime-tokio`, `tls-rustls`/`tls-native-tls`, `postgres`/`mysql`/`sqlite`, `uuid`, `chrono`, `json`, `migrate`)
+1. **Check Cargo.toml** — Note sqlx features (`runtime-tokio`, `tls-rustls`/`tls-native-tls`, `postgres`/`mysql`/`sqlite`, `uuid`, `chrono`, `json`, `migrate`) and Rust edition (2024 changes RPIT lifetime capture and removes need for `async-trait`)
 2. **Check query patterns** — Compile-time checked (`query!`, `query_as!`) vs runtime (`query`, `query_as`)
 3. **Check pool configuration** — Connection limits, timeouts, idle settings
 4. **Check migrations** — File naming, reversibility, data migration safety
@@ -45,6 +45,7 @@ Description of the issue and why it matters.
 - [ ] Pool size configured for the deployment (not left at defaults in production)
 - [ ] Connection acquisition timeout set
 - [ ] Idle connection cleanup configured
+- [ ] **Edition 2024**: Pool initialization uses `std::sync::LazyLock` (not `once_cell::sync::Lazy` or `lazy_static!`) for static pool singletons
 
 ### Transactions
 - [ ] `pool.begin()` used for multi-statement operations
@@ -58,6 +59,13 @@ Description of the issue and why it matters.
 - [ ] `Uuid`, `DateTime<Utc>`, `Decimal` types used (not strings for structured data)
 - [ ] `Option<T>` used for nullable columns
 - [ ] `serde_json::Value` used for JSONB columns
+- [ ] No enum variants or struct fields named `gen` — reserved keyword in edition 2024 (use `r#gen` with `#[sqlx(rename = "gen")]` or choose a different name)
+
+### Edition 2024 Compatibility
+- [ ] Functions returning `-> impl Stream` or `-> impl Future` account for RPIT lifetime capture changes (all in-scope lifetimes captured by default; use `+ use<'a>` for precise control)
+- [ ] Custom `FromRow` or `Type` trait impls use native `async fn` in traits where applicable (no `#[async_trait]` needed, stable since Rust 1.75)
+- [ ] Prefer `#[expect(unused)]` over `#[allow(unused)]` for compile-time query fields only used in some code paths (self-cleaning lint suppression, stable since 1.81)
+- [ ] Static pool initialization uses `std::sync::LazyLock` (not `once_cell` or `lazy_static!`)
 
 ### Migrations
 - [ ] Migration files follow naming convention (`YYYYMMDDHHMMSS_description.sql`)
@@ -78,12 +86,15 @@ Description of the issue and why it matters.
 - Missing transaction rollback on error paths
 - Enum type mismatch between Rust and database
 - Unbounded `.fetch_all()` on potentially large tables
+- Field or variant named `gen` without `r#gen` escape (edition 2024 compile failure)
 
 ### Minor
 - Pool defaults used in production without tuning
 - Missing `.fetch_optional()` (using `.fetch_one()` then handling error for "not found")
 - Overly broad `SELECT *` when only specific columns needed
 - Missing indexes for queried columns (flag only if query pattern is clearly slow)
+- **Edition 2024**: `once_cell::sync::Lazy` or `lazy_static!` used where `std::sync::LazyLock` works
+- Using `#[allow(unused)]` instead of `#[expect(unused)]` for query fields (prefer self-cleaning lint suppression)
 
 ### Informational
 - Suggestions to use `query_as!` for type-safe result mapping
@@ -97,6 +108,10 @@ Description of the issue and why it matters.
 - **`TEXT` columns for enum storage** — Valid with `sqlx::Type` derive, simpler than custom SQL types
 - **`.execute()` ignoring row count** — Acceptable for idempotent operations (upserts, deletes)
 - **Shared DB with other languages** — e.g., Elixir owns migrations, Rust reads. This is a valid architecture.
+- **`r#gen` with `#[sqlx(rename = "gen")]`** — Correct edition 2024 workaround for `gen` columns in database types
+- **`+ use<'a>` on query helper return types** — Precise RPIT lifetime capture (edition 2024)
+- **`std::sync::LazyLock` for static pool initialization** — Replaces `once_cell`/`lazy_static` (stable since Rust 1.80)
+- **Native `async fn` in custom `FromRow`/`Type` trait impls** — `async-trait` crate no longer needed (stable since Rust 1.75)
 
 ## Before Submitting Findings
 

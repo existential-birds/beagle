@@ -140,6 +140,29 @@ tokio::spawn(async move {
 });
 ```
 
+## `async fn` in Traits (Stable Since 1.75)
+
+Native `async fn` in trait definitions is stable since Rust 1.75. The `async-trait` crate is no longer needed for most use cases.
+
+```rust
+// BAD — unnecessary dependency on async-trait (if MSRV >= 1.75)
+#[async_trait::async_trait]
+trait Service {
+    async fn call(&self, req: Request) -> Response;
+}
+
+// GOOD — native async fn in trait
+trait Service {
+    async fn call(&self, req: Request) -> Response;
+}
+```
+
+**When `async-trait` is still needed**:
+- **`dyn Trait`**: Native async traits don't support dynamic dispatch (`dyn Service`). Use `async-trait` or the `trait_variant` crate for object-safe async traits.
+- **MSRV < 1.75**: Projects that must compile on older Rust versions.
+
+When reviewing, check whether `async-trait` usage can be replaced with native syntax. The crate adds a heap allocation per call (`Box::pin`), which native async traits avoid.
+
 ## Channel Patterns
 
 Choose channels based on communication shape: `mpsc` for back-pressure, `broadcast` for fan-out, `oneshot` for request-response, `watch` for latest-value. Ensure bounded channels are sized to avoid OOM risks with unbounded alternatives.
@@ -160,3 +183,4 @@ Use `CancellationToken` from `tokio_util` with child tokens for hierarchical shu
 4. Are spawned tasks tracked via join handles?
 5. Is `select!` used with cancellation-safe futures?
 6. Do types shared across tasks satisfy `Send + Sync` bounds?
+7. Can `async-trait` be replaced with native `async fn` in traits (MSRV >= 1.75, no `dyn Trait` needed)?

@@ -187,6 +187,64 @@ result
     .map_err(|e| AppError::from(e))?;
 ```
 
+## Edition 2024 Awareness
+
+### Reserved Keyword: `gen`
+
+Rust 2024 reserves `gen` as a keyword (for future generator support). Code using `gen` as an identifier must use the raw identifier escape:
+
+```rust
+// BAD (edition 2024) -- gen is a reserved keyword
+let gen = 42;
+fn gen() {}
+
+// GOOD -- use raw identifier
+let r#gen = 42;
+fn r#gen() {}
+
+// BETTER -- just rename to avoid confusion
+let generation = 42;
+fn generate() {}
+```
+
+This affects variable names, function names, module names, and any other identifiers. Prefer renaming over `r#gen` for readability.
+
+### Never Type Fallback
+
+In edition 2024, the `!` (never) type falls back to `!` instead of `()`. This affects diverging expressions in type inference:
+
+```rust
+// This compiles in edition 2021 (! falls back to ())
+// May behave differently in edition 2024
+let value = if condition {
+    42
+} else {
+    panic!("unreachable")
+    // In 2021: inferred as () fallback
+    // In 2024: inferred as ! (never type)
+};
+```
+
+In practice, most well-typed code is unaffected. Watch for cases where diverging branches interact with trait resolution or match exhaustiveness.
+
+### `if let` Temporary Scope
+
+Temporaries in `if let` conditions are now dropped at the end of the `if let` expression (not the enclosing block). This can affect code holding locks or references through temporaries:
+
+```rust
+// Edition 2024: temporary from get_mutex().lock() dropped earlier
+if let Some(val) = get_mutex().lock().unwrap().get("key") {
+    // In edition 2024, the MutexGuard may already be dropped here
+    // if the temporary is not bound to a variable
+}
+
+// GOOD -- bind the guard explicitly
+let guard = get_mutex().lock().unwrap();
+if let Some(val) = guard.get("key") {
+    // guard lives until end of scope
+}
+```
+
 ## Import Ordering
 
 Standard order: `std` -> external crates -> workspace crates -> `super::`/`crate::`

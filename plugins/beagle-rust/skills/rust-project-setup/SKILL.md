@@ -20,6 +20,8 @@ Step-by-step guidance for setting up new Rust projects with proper configuration
 | Cargo.toml configuration, profiles, dependencies | [references/cargo-config.md](references/cargo-config.md) |
 | Workspace organization, member layout, shared deps | [references/workspace-layout.md](references/workspace-layout.md) |
 | GitHub Actions CI, caching, MSRV checks | [references/ci-setup.md](references/ci-setup.md) |
+| Feature flags, conditional compilation, build scripts | [references/features-conditional.md](references/features-conditional.md) |
+| no_std development, embedded targets, cross-compilation | [references/no-std.md](references/no-std.md) |
 
 ## New Project Checklist
 
@@ -61,7 +63,10 @@ pedantic = { level = "warn", priority = 3 }
 [lints.rust]
 future-incompatible = "warn"
 nonstandard_style = "deny"
+# unsafe_op_in_unsafe_fn is deny-by-default in edition 2024 — no need to set it
 ```
+
+> **Edition 2024 lint defaults**: `unsafe_op_in_unsafe_fn` is deny by default. Unsafe operations inside `unsafe fn` require explicit `unsafe {}` blocks. The `gen` keyword is reserved — use `r#gen` if needed as an identifier.
 
 ```toml
 # rustfmt.toml
@@ -97,6 +102,13 @@ For library crates, enable doc lints:
 ```rust
 // src/lib.rs
 #![deny(missing_docs)]
+```
+
+Prefer `#[expect(lint)]` over `#[allow(lint)]` for temporary suppressions — it warns when the suppression becomes unnecessary:
+
+```rust
+#[expect(dead_code, reason = "used in next PR")]
+fn upcoming_feature() {}
 ```
 
 ## Workspace vs Single Crate
@@ -161,3 +173,23 @@ my-workspace/
 - Use `[dev-dependencies]` for test-only crates
 - Review `cargo tree` for duplicate versions
 - Run `cargo audit` for security vulnerabilities
+- Replace `once_cell`/`lazy_static` with `std::sync::LazyLock` (stable since Rust 1.80)
+
+## Edition 2024 Migration Notes
+
+When migrating existing projects to edition 2024:
+
+- `unsafe fn` bodies now require explicit `unsafe {}` blocks around unsafe operations
+- `extern "C" {}` blocks must be written as `unsafe extern "C" {}`
+- `#[no_mangle]` and `#[export_name]` require `#[unsafe(no_mangle)]` and `#[unsafe(export_name)]`
+- `gen` is a reserved keyword — rename any `gen` identifiers to `r#gen` or choose a different name
+- `-> impl Trait` captures all in-scope lifetimes by default; use `+ use<'a>` for precise control
+- `!` (never type) falls back to `!` instead of `()` — review match arms and diverging expressions
+- Temporaries in `if let` and tail expressions drop earlier — review code holding locks or guards in these positions
+
+Run `cargo fix --edition` to auto-fix most mechanical changes.
+
+## Related Skills
+
+- `beagle-rust:rust-best-practices` — idiomatic patterns and edition 2024 coding guidance
+- `beagle-rust:rust-code-review` — code review covering ownership, unsafe, and trait design

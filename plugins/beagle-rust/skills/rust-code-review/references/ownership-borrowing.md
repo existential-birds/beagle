@@ -117,6 +117,91 @@ fn first_word(s: &str) -> &str { ... }
 fn longest<'a>(a: &'a str, b: &'a str) -> &'a str { ... }
 ```
 
+## RPIT Lifetime Capture (Edition 2024)
+
+In edition 2024, `-> impl Trait` return types capture **all** in-scope generic parameters and lifetimes by default. In edition 2021, only type parameters used in the bounds were captured.
+
+```rust
+// Edition 2021: this compiled — 'a is NOT captured by impl Display
+fn foo<'a>(x: &'a str, y: String) -> impl Display {
+    y // fine: returned value doesn't borrow 'a
+}
+
+// Edition 2024: same code captures 'a — returned impl Display now
+// borrows 'a even though it doesn't use it. This can cause
+// unexpected borrow checker errors at call sites.
+
+// GOOD — use precise capturing to opt out of capturing 'a
+fn foo<'a>(x: &'a str, y: String) -> impl Display + use<> {
+    y // explicitly captures nothing
+}
+
+// GOOD — capture only what you need
+fn bar<'a, 'b>(x: &'a str, y: &'b str) -> impl Display + use<'b> {
+    y.to_uppercase() // only captures 'b
+}
+```
+
+**When to flag**: Functions returning `impl Trait` that take multiple lifetime parameters — check whether the edition 2024 default capture causes unintended borrowing at call sites. If callers get unexpected "borrowed value does not live long enough" errors, add `+ use<...>` to narrow the capture.
+
+## `if let` Temporary Scope (Edition 2024)
+
+In edition 2024, temporaries created in `if let` conditions are dropped at the end of the condition, not at the end of the `if` block. This breaks patterns that relied on temporaries living through the `else` branch.
+
+```rust
+// BAD in edition 2024 — MutexGuard dropped before else branch
+if let Some(val) = mutex.lock().unwrap().get("key") {
+    use_val(val);
+} else {
+    // mutex is already unlocked here — was locked in 2021
+}
+
+// GOOD — bind the guard explicitly to control its lifetime
+let guard = mutex.lock().unwrap();
+if let Some(val) = guard.get("key") {
+    use_val(val);
+} else {
+    // guard still alive — explicit control
+}
+```
+
+## Tail Expression Temporary Scope (Edition 2024)
+
+In edition 2024, temporaries in tail expressions (the final expression in a block without a semicolon) are dropped **before** local variables. This can break code where a temporary borrows a local.
+
+```rust
+// BAD in edition 2024 — temporary String dropped before local
+fn example() -> &str {
+    let s = String::from("hello");
+    s.as_str() // temporary borrow dropped before s in 2024
+}
+
+// GOOD — return owned data or bind explicitly
+fn example() -> String {
+    String::from("hello")
+}
+```
+
+**When to flag**: Tail expressions that create temporaries referencing local variables — in edition 2024 the drop order changed and this may cause borrow checker errors that didn't exist in 2021.
+
+## `IntoIterator` for `Box<[T]>` (Edition 2024)
+
+`Box<[T]>` now implements `IntoIterator` directly in edition 2024, yielding owned `T` values without converting to `Vec` first.
+
+```rust
+// BEFORE edition 2024 — had to convert to Vec
+let boxed: Box<[i32]> = vec![1, 2, 3].into_boxed_slice();
+for item in boxed.into_vec() {
+    process(item);
+}
+
+// GOOD in edition 2024 — iterate directly
+let boxed: Box<[i32]> = vec![1, 2, 3].into_boxed_slice();
+for item in boxed {
+    process(item);
+}
+```
+
 ## Review Questions
 
 1. Are `.clone()` calls necessary, or do they mask ownership design issues?
@@ -124,3 +209,6 @@ fn longest<'a>(a: &'a str, b: &'a str) -> &'a str { ... }
 3. Do functions borrow when they don't need ownership?
 4. Is interior mutability (`RefCell`, `Cell`) used only when compile-time borrowing is genuinely insufficient?
 5. Are smart pointers chosen appropriately for the sharing and threading model?
+6. **Edition 2024**: Do `-> impl Trait` returns use `+ use<...>` when default lifetime capture is too broad?
+7. **Edition 2024**: Are `if let` temporaries explicitly bound when their lifetime matters?
+8. **Edition 2024**: Are tail expression temporaries safe given the new drop order?

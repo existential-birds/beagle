@@ -119,6 +119,76 @@ tokio::select! {
 }
 ```
 
+## async fn in Traits (Rust 2024 Edition)
+
+Since Rust 1.75, `async fn` works directly in trait definitions without the `async-trait` crate. This matters for tokio-based service patterns.
+
+```rust
+// BAD (edition 2024) - unnecessary async-trait dependency
+#[async_trait::async_trait]
+trait Handler: Send + Sync {
+    async fn handle(&self, request: Request) -> Response;
+}
+
+// GOOD (edition 2024) - native async fn in traits
+trait Handler: Send + Sync {
+    fn handle(&self, request: Request) -> impl Future<Output = Response> + Send;
+}
+
+// GOOD (edition 2024) - also valid with async fn directly
+trait Handler: Send + Sync {
+    async fn handle(&self, request: Request) -> Response;
+}
+```
+
+**When `async-trait` is still needed:**
+- Trait objects (`dyn Handler`) — native async traits are not yet object-safe
+- When you need `Box<dyn Future>` return types for dynamic dispatch
+
+### RPIT Lifetime Capture in Async Contexts
+
+In edition 2024, `-> impl Trait` captures ALL in-scope lifetimes by default (including elided ones). This can cause unexpected borrow-checker errors in async code that returns `impl Future`.
+
+```rust
+// Edition 2021 - only captures 'a explicitly
+fn process(data: &str) -> impl Future<Output = ()> {
+    async { /* ... */ }
+}
+
+// Edition 2024 - now captures the lifetime of `data` by default
+// This may cause "borrowed value does not live long enough" errors
+fn process(data: &str) -> impl Future<Output = ()> {
+    async { /* ... */ }
+}
+
+// GOOD - use precise capturing to opt out of capturing the borrow
+fn process(data: &str) -> impl Future<Output = ()> + use<> {
+    let owned = data.to_owned();
+    async move { /* use owned */ }
+}
+
+// GOOD - if the future genuinely needs the borrow, capture it explicitly
+fn process<'a>(data: &'a str) -> impl Future<Output = ()> + use<'a> {
+    async { println!("{data}"); }
+}
+```
+
+This is especially relevant for spawned tasks, which require `'static`:
+
+```rust
+// BAD (edition 2024) - impl Future captures the borrow, can't spawn
+fn make_task(config: &Config) -> impl Future<Output = ()> {
+    let value = config.get_value();
+    async move { use_value(value).await; }
+}
+
+// GOOD - precise capture excludes the borrow
+fn make_task(config: &Config) -> impl Future<Output = ()> + use<> {
+    let value = config.get_value();
+    async move { use_value(value).await; }
+}
+```
+
 ## Review Questions
 
 1. Are all `JoinHandle`s either awaited, stored, or deliberately dropped with comment?
@@ -126,3 +196,5 @@ tokio::select! {
 3. Are task groups managed with `JoinSet` instead of manual handle tracking?
 4. Is cancellation implemented via `CancellationToken` or equivalent?
 5. Are `select!` branches cancellation-safe?
+6. Is `async-trait` crate used where native `async fn` in traits would suffice?
+7. Do `-> impl Future` returns have correct lifetime capture behavior for edition 2024?

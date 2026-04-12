@@ -45,7 +45,7 @@ let user = sqlx::query_as!(
 
 ### Offline Mode
 
-For CI/CD where the database isn't available, sqlx caches query metadata in `sqlx-data.json` (or `.sqlx/` directory):
+For CI/CD where the database isn't available, sqlx caches query metadata. In sqlx 0.8+, configuration lives in `sqlx.toml` and cached metadata is stored in the `.sqlx/` directory. Older versions used `sqlx-data.json`.
 
 ```bash
 # Generate cache from live database
@@ -53,6 +53,15 @@ cargo sqlx prepare
 
 # Build uses cached metadata when DATABASE_URL is absent
 cargo build
+```
+
+In sqlx 0.8+, you can configure offline mode and other settings via `sqlx.toml`:
+
+```toml
+# sqlx.toml
+[common]
+offline = true
+column-override = {}
 ```
 
 ## Fetch Methods
@@ -94,6 +103,27 @@ while let Some(event) = stream.try_next().await? {
     process(event).await;
 }
 ```
+
+### Edition 2024: RPIT Lifetime Capture in Query Helpers
+
+In edition 2024, `-> impl Trait` captures all in-scope lifetimes by default. This affects functions that return streams or futures from sqlx queries.
+
+```rust
+// Edition 2021 — worked because `-> impl Stream` didn't capture 'a
+fn get_events<'a>(pool: &'a PgPool, wf_id: Uuid) -> impl Stream<Item = Result<Event, sqlx::Error>> {
+    sqlx::query_as!(Event, "SELECT * FROM events WHERE workflow_id = $1", wf_id)
+        .fetch(pool)
+}
+
+// Edition 2024 — captures 'a by default, which is usually correct here.
+// If you need to NOT capture a lifetime, use precise capture syntax:
+fn get_events<'a>(pool: &'a PgPool, wf_id: Uuid) -> impl Stream<Item = Result<Event, sqlx::Error>> + use<'a> {
+    sqlx::query_as!(Event, "SELECT * FROM events WHERE workflow_id = $1", wf_id)
+        .fetch(pool)
+}
+```
+
+Most sqlx query helpers that borrow the pool *should* capture the pool lifetime, so the edition 2024 default is usually correct. Flag cases where the return type is stored in a struct that outlives the borrow.
 
 ## Bind Parameters
 
@@ -151,6 +181,49 @@ pub enum Status {
 
 Ensure `rename_all` matches between `sqlx::Type` and `serde` — mismatches cause silent bugs where data written by one system can't be read by the other.
 
+### Edition 2024: Reserved `gen` Keyword
+
+In edition 2024, `gen` is a reserved keyword. Any sqlx enum variant or struct field named `gen` will fail to compile. Use `r#gen` as the Rust identifier and `#[sqlx(rename)]` to preserve the database column name.
+
+```rust
+// BAD — fails to compile on edition 2024
+#[derive(sqlx::Type)]
+#[sqlx(type_name = "varchar", rename_all = "snake_case")]
+pub enum GenerationType {
+    Manual,
+    Gen, // compile error: `gen` is a reserved keyword
+}
+
+// GOOD — compiles on edition 2024, database value unchanged
+#[derive(sqlx::Type)]
+#[sqlx(type_name = "varchar", rename_all = "snake_case")]
+pub enum GenerationType {
+    Manual,
+    #[sqlx(rename = "gen")]
+    r#Gen,
+}
+```
+
+### Edition 2024: `#[expect]` for Lint Suppression
+
+Prefer `#[expect(unused)]` over `#[allow(unused)]` for struct fields that exist only for sqlx mapping but aren't read directly. The `#[expect]` attribute warns when the suppression becomes unnecessary, keeping lint overrides self-cleaning.
+
+```rust
+// BAD — silent if the field starts being used elsewhere
+#[allow(dead_code)]
+struct AuditRow {
+    id: i64,
+    raw_payload: serde_json::Value,
+}
+
+// GOOD — warns when suppression is no longer needed
+#[expect(dead_code)]
+struct AuditRow {
+    id: i64,
+    raw_payload: serde_json::Value,
+}
+```
+
 ## Review Questions
 
 1. Are queries compile-time checked where possible?
@@ -159,3 +232,5 @@ Ensure `rename_all` matches between `sqlx::Type` and `serde` — mismatches caus
 4. Is `.fetch()` streaming used for large result sets?
 5. Do Rust types match PostgreSQL column types?
 6. Are enum representations consistent between sqlx and serde?
+7. (Edition 2024) Do any enum variants or fields use `gen` as an identifier without `r#gen`?
+8. (Edition 2024) Do functions returning `-> impl Stream`/`-> impl Future` account for RPIT lifetime capture changes?

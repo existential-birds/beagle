@@ -110,7 +110,7 @@ map.insert("key", "value");
 
 ### `OnceLock<T>` / `LazyLock<T>` -- One-Time Initialization
 
-Replace `lazy_static!` with standard library types:
+Replace `lazy_static!` and `once_cell` with standard library types. `LazyLock` (stable since 1.80) and `OnceLock` make third-party lazy initialization crates unnecessary:
 
 ```rust
 use std::sync::OnceLock;
@@ -129,6 +129,32 @@ static REGEX: LazyLock<Regex> = LazyLock::new(|| {
     Regex::new(r"^\d{4}-\d{2}-\d{2}$").unwrap()
 });
 ```
+
+### Migrating from `lazy_static` / `once_cell`
+
+```rust
+// BAD -- third-party dependency no longer needed
+lazy_static::lazy_static! {
+    static ref CONFIG: Config = load_config();
+}
+
+// BAD -- once_cell also superseded
+static CONFIG: once_cell::sync::Lazy<Config> = once_cell::sync::Lazy::new(|| load_config());
+
+// GOOD -- standard library LazyLock
+static CONFIG: LazyLock<Config> = LazyLock::new(|| load_config());
+```
+
+For single-threaded contexts, use `LazyCell` / `OnceCell` (from `std::cell`) instead of their `sync` counterparts:
+
+```rust
+use std::cell::LazyCell;
+
+// Thread-local lazy value -- no atomic overhead
+let lazy_value = LazyCell::new(|| expensive_computation());
+```
+
+Remove `lazy_static` and `once_cell` from `Cargo.toml` once all usages are migrated.
 
 ## Decision Guide
 

@@ -1,6 +1,6 @@
 ---
 name: tokio-async-code-review
-description: Reviews tokio async runtime usage for task management, sync primitives, channel patterns, and runtime configuration. Use when reviewing Rust code that uses tokio, async/await patterns, spawn, channels, or async synchronization. Also covers tokio-util, tower, and hyper integration patterns.
+description: Reviews tokio async runtime usage for task management, sync primitives, channel patterns, and runtime configuration. Covers Rust 2024 edition changes including async fn in traits, RPIT lifetime capture, LazyLock, and if-let temporary scoping. Use when reviewing Rust code that uses tokio, async/await patterns, spawn, channels, or async synchronization. Also covers tokio-util, tower, and hyper integration patterns.
 ---
 
 # Tokio Async Code Review
@@ -30,6 +30,7 @@ Description of the issue and why it matters.
 | Task spawning, JoinHandle, structured concurrency | [references/task-management.md](references/task-management.md) |
 | Mutex, RwLock, Semaphore, Notify, Barrier | [references/sync-primitives.md](references/sync-primitives.md) |
 | mpsc, broadcast, oneshot, watch channel patterns | [references/channels.md](references/channels.md) |
+| Pin, cancellation, Future internals, select!, blocking bridge | [references/pinning-cancellation.md](references/pinning-cancellation.md) |
 
 ## Review Checklist
 
@@ -45,6 +46,8 @@ Description of the issue and why it matters.
 - [ ] Tasks respect cancellation (via `CancellationToken`, `select!`, or shutdown channels)
 - [ ] `JoinError` (task panic or cancellation) is handled, not just unwrapped
 - [ ] `tokio::select!` branches are cancellation-safe
+- [ ] Native `async fn` in traits used instead of `async-trait` crate where possible (stable since Rust 1.75)
+- [ ] RPIT lifetime capture reviewed in async contexts — `-> impl Future` now captures all in-scope lifetimes in edition 2024
 
 ### Sync Primitives
 - [ ] `tokio::sync::Mutex` used when lock is held across `.await`; `std::sync::Mutex` for short non-async sections
@@ -52,6 +55,8 @@ Description of the issue and why it matters.
 - [ ] `Semaphore` used for limiting concurrent operations (not ad-hoc counters)
 - [ ] `RwLock` used when read-heavy workload (many readers, infrequent writes)
 - [ ] `Notify` used for simple signaling (not channel overhead)
+- [ ] `std::sync::LazyLock` used instead of `once_cell::sync::Lazy` or `lazy_static!` for runtime-initialized singletons (stable since Rust 1.80)
+- [ ] `if let` lock guard patterns reviewed for edition 2024 temporary scoping — temporaries drop earlier, may change borrow validity
 
 ### Channels
 - [ ] Channel type matches pattern: mpsc for back-pressure, broadcast for fan-out, oneshot for request-response, watch for latest-value
@@ -89,6 +94,9 @@ Description of the issue and why it matters.
 - Suggestions to use `tokio-util` utilities (e.g., `CancellationToken`)
 - Tower middleware patterns for service composition
 - Structured concurrency with `JoinSet`
+- Migration from `async-trait` crate to native `async fn` in traits
+- Migration from `once_cell` / `lazy_static` to `std::sync::LazyLock`
+- Using `#[expect(lint)]` instead of `#[allow(lint)]` for self-cleaning suppression
 
 ## Valid Patterns (Do NOT Flag)
 
@@ -98,6 +106,9 @@ Description of the issue and why it matters.
 - **`#[tokio::main(flavor = "current_thread")]` in simple binaries** — Not every app needs multi-thread runtime
 - **`clone()` on `Arc<T>` before `spawn`** — Required for moving into tasks, not unnecessary cloning
 - **Large broadcast channel capacity** — Valid when lagged errors are expensive (event sourcing)
+- **Native `async fn` in traits without `async-trait`** — Stable since 1.75; the crate is still valid for `dyn` dispatch cases
+- **`+ use<'a>` on `-> impl Future` returns** — Correct edition 2024 precise capture syntax to limit lifetime capture
+- **`#[expect(clippy::type_complexity)]` on complex async types** — Self-cleaning alternative to `#[allow]`, warns when suppression is no longer needed
 
 ## Before Submitting Findings
 

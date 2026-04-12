@@ -19,6 +19,62 @@ let value = unsafe { &*ptr };
 let value = unsafe { &*ptr };
 ```
 
+### Unsafe Operations in `unsafe fn` (Edition 2024)
+
+In edition 2024, `unsafe_op_in_unsafe_fn` is deny by default. Being inside an `unsafe fn` no longer implicitly permits unsafe operations — each one needs its own `unsafe {}` block with a safety comment.
+
+```rust
+// BAD in edition 2024 — unsafe ops without explicit blocks
+unsafe fn process_raw(ptr: *const u8, len: usize) -> &[u8] {
+    std::slice::from_raw_parts(ptr, len) // ERROR: requires unsafe block
+}
+
+// GOOD — explicit unsafe block inside unsafe fn
+unsafe fn process_raw(ptr: *const u8, len: usize) -> &[u8] {
+    // SAFETY: caller guarantees ptr is valid for len bytes and
+    // the resulting slice does not outlive the allocation.
+    unsafe { std::slice::from_raw_parts(ptr, len) }
+}
+```
+
+This makes `unsafe fn` bodies auditable at the same granularity as regular functions. Every unsafe operation gets its own safety justification.
+
+### `unsafe extern` Blocks (Edition 2024)
+
+In edition 2024, `extern` blocks must be marked `unsafe` because declaring foreign functions is inherently unsafe (the compiler cannot verify the signatures are correct).
+
+```rust
+// BAD in edition 2024
+extern "C" {
+    fn strlen(s: *const c_char) -> usize;
+}
+
+// GOOD in edition 2024
+unsafe extern "C" {
+    fn strlen(s: *const c_char) -> usize;
+}
+```
+
+### `unsafe` Attributes (Edition 2024)
+
+Attributes that affect ABI or symbol names are now safety-sensitive and must be wrapped in `unsafe(...)`:
+
+```rust
+// BAD in edition 2024
+#[no_mangle]
+pub extern "C" fn my_func() {}
+
+#[export_name = "custom_name"]
+pub fn another_func() {}
+
+// GOOD in edition 2024
+#[unsafe(no_mangle)]
+pub extern "C" fn my_func() {}
+
+#[unsafe(export_name = "custom_name")]
+pub fn another_func() {}
+```
+
 ### Overly Broad Unsafe Blocks
 
 Only the minimum necessary code should be inside `unsafe`. Surrounding safe code makes it harder to audit.
@@ -125,6 +181,31 @@ Always add a justification comment when suppressing lints.
 | `Serialize, Deserialize` | Type crosses serialization boundaries (API, DB, config) |
 | `Send, Sync` | Auto-derived; manually implement ONLY with unsafe justification |
 
+## `LazyCell` / `LazyLock` (Stable Since 1.80)
+
+`std::cell::LazyCell` and `std::sync::LazyLock` replace the `once_cell` and `lazy_static` crates for lazy initialization. Prefer the std types in new code.
+
+```rust
+// BAD — external dependency for something std now provides
+use once_cell::sync::Lazy;
+static CONFIG: Lazy<Config> = Lazy::new(|| load_config());
+
+// BAD — macro-based, no longer needed
+lazy_static::lazy_static! {
+    static ref CONFIG: Config = load_config();
+}
+
+// GOOD — std::sync::LazyLock for thread-safe global lazy init
+use std::sync::LazyLock;
+static CONFIG: LazyLock<Config> = LazyLock::new(|| load_config());
+
+// GOOD — std::cell::LazyCell for single-threaded lazy init
+use std::cell::LazyCell;
+let value: LazyCell<String> = LazyCell::new(|| expensive_compute());
+```
+
+**When to flag**: New code (or code with MSRV >= 1.80) using `once_cell` or `lazy_static` when `LazyCell`/`LazyLock` would work. Existing code using these crates is fine if the MSRV prevents migration.
+
 ## Review Questions
 
 1. Does every `unsafe` block have a safety comment?
@@ -134,3 +215,7 @@ Always add a justification comment when suppressing lints.
 5. Is `#[expect]` used instead of `#[allow]` for lint suppression?
 6. Would clippy flag any of these patterns?
 7. Are builders used for types with many optional fields?
+8. **Edition 2024**: Do `unsafe fn` bodies use explicit `unsafe {}` blocks?
+9. **Edition 2024**: Are `extern` blocks marked `unsafe extern`?
+10. **Edition 2024**: Are `#[no_mangle]` / `#[export_name]` wrapped in `#[unsafe(...)]`?
+11. Is `LazyLock`/`LazyCell` used instead of `once_cell`/`lazy_static` when MSRV allows?

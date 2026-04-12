@@ -147,6 +147,11 @@ if let Some(result) = cache.get(&key) {
     cache.insert(key, computed.clone());
     return Ok(computed);
 }
+
+// NOTE (Edition 2024): Temporaries in if-let conditions are dropped
+// at the end of the condition, not the end of the block. If the
+// matched value borrows a temporary, bind it explicitly first.
+// See ownership-borrowing.md for details.
 ```
 
 ## Prevent Early Allocation
@@ -281,6 +286,161 @@ let user = users.get(id).ok_or(Error::NotFound(id))?;
 let user = users.get(id).ok_or_else(|| Error::NotFound(id))?;
 ```
 
+## Error Trait Implementation Rules
+
+Custom error types should implement the full Error contract for ecosystem compatibility:
+
+1. **`Error` trait**: implement `std::error::Error`
+2. **`Display`**: one-line, lowercase, no trailing punctuation — fits into larger error reports
+3. **`Debug`**: usually `#[derive(Debug)]` is sufficient; include auxiliary info (ports, paths, request IDs)
+4. **`Send + Sync`**: required for multithreaded contexts and `std::io::Error` wrapping
+5. **`'static`**: enables downcasting and easy propagation up the call stack
+
+```rust
+#[derive(Debug)]
+pub struct DecodeError {
+    offset: usize,
+    kind: DecodeErrorKind,
+}
+
+impl std::fmt::Display for DecodeError {
+    fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
+        // lowercase, no trailing punctuation
+        write!(f, "decode failed at offset {}: {}", self.offset, self.kind)
+    }
+}
+
+impl std::error::Error for DecodeError {
+    fn source(&self) -> Option<&(dyn std::error::Error + 'static)> {
+        self.kind.source()
+    }
+}
+```
+
+**Flag when**: a custom error type is missing `Display`, `Debug`, or `Error` implementations. With `thiserror`, these are derived automatically.
+
+## Enumerated vs Opaque Error Strategy
+
+Choose between enumerated and opaque errors based on whether callers need to distinguish error cases:
+
+| Strategy | When to Use | Example |
+|----------|-------------|---------|
+| **Enumerated** (`enum`) | Callers take different actions per error variant | I/O vs parse vs auth errors in a web handler |
+| **Opaque** (`Box<dyn Error>` or struct) | Callers only log/propagate, don't match on variants | Image decoder, internal library errors |
+
+**Flag when**:
+- A library exposes `Box<dyn Error>` when callers demonstrably need to match on specific error cases
+- An error enum has 20+ variants that callers never match on — consider an opaque wrapper to simplify the API
+
+## Error Chain Traversal with `source()`
+
+`Error::source()` provides the underlying cause, enabling error chain traversal for backtraces and diagnostics.
+
+```rust
+fn print_error_chain(err: &dyn std::error::Error) {
+    let mut current = Some(err);
+    while let Some(e) = current {
+        eprintln!("  caused by: {e}");
+        current = e.source();
+    }
+}
+```
+
+**Check for**: error types that wrap an inner error but don't implement `source()` — the chain breaks and root cause is hidden.
+
+With `thiserror`, `#[source]` and `#[from]` attributes handle this automatically:
+
+```rust
+#[derive(Debug, thiserror::Error)]
+pub enum AppError {
+    #[error("database query failed")]
+    Database {
+        #[source]  // wires up Error::source()
+        source: sqlx::Error,
+    },
+}
+```
+
+## Type-Erased Error Composition
+
+`Box<dyn Error + Send + Sync + 'static>` enables heterogeneous error handling in applications:
+
+```rust
+fn process() -> Result<(), Box<dyn std::error::Error + Send + Sync + 'static>> {
+    let data = std::fs::read_to_string("input.txt")?; // io::Error
+    let parsed: Config = toml::from_str(&data)?;       // toml::de::Error
+    Ok(())
+}
+```
+
+**Check for**: `Box<dyn Error>` (without `Send + Sync`) in library code — this prevents use in multithreaded contexts. Always prefer `Box<dyn Error + Send + Sync + 'static>` or a concrete type.
+
+Note: `Box<dyn Error + Send + Sync + 'static>` itself does not implement `Error`. If you need a type-erased error that also implements `Error`, define a wrapper type or use `anyhow::Error`.
+
+## Downcasting with `Error::downcast_ref()`
+
+Downcasting recovers the concrete error type from a `dyn Error`. Requires the `'static` bound.
+
+```rust
+fn handle_error(err: &(dyn std::error::Error + 'static)) {
+    if let Some(io_err) = err.downcast_ref::<std::io::Error>() {
+        if io_err.kind() == std::io::ErrorKind::WouldBlock {
+            // handle non-blocking retry
+            return;
+        }
+    }
+    // generic error handling
+    eprintln!("error: {err}");
+}
+```
+
+**Flag when**: error types are not `'static` — this prevents downcasting and limits composability. Avoid placing non-static references in error types unless strictly necessary.
+
+## `From` Implementations for `?` Ergonomics
+
+The `?` operator uses `From` to convert between error types. Implementing `From<SourceError> for MyError` enables seamless `?` propagation.
+
+```rust
+// Manual From implementation
+impl From<std::io::Error> for AppError {
+    fn from(err: std::io::Error) -> Self {
+        AppError::Io(err)
+    }
+}
+
+// With thiserror — #[from] generates the From impl
+#[derive(Debug, thiserror::Error)]
+pub enum AppError {
+    #[error(transparent)]
+    Io(#[from] std::io::Error),
+}
+```
+
+**Check for**:
+- Missing `From` implementations causing verbose `.map_err()` chains when `?` would suffice
+- Implement `From`, not `Into` — the `?` operator uses `From` internally
+- Conflicting `#[from]` attributes: two variants with `#[from]` for the same source type won't compile
+
+## Try Blocks for Scoped Error Handling
+
+Try blocks (still unstable as of Edition 2024, behind `#![feature(try_blocks)]`) scope `?` to a block instead of the entire function:
+
+```rust
+#![feature(try_blocks)]
+
+fn do_work() -> Result<(), Error> {
+    let resource = Resource::acquire()?;
+    let result: Result<(), Error> = try {
+        step_one(&resource)?;
+        step_two(&resource)?;
+    };
+    resource.cleanup(); // always runs, even if steps failed
+    result
+}
+```
+
+**Check for**: functions that need cleanup before returning errors — `try` blocks avoid the pattern of manually catching and re-raising. Until stabilized, the drop-guard or RAII pattern is the stable alternative.
+
 ## Review Questions
 
 1. Are all `unwrap()` / `expect()` calls in production code justified?
@@ -292,3 +452,7 @@ let user = users.get(id).ok_or_else(|| Error::NotFound(id))?;
 7. Are `_else` variants used when fallbacks involve allocation?
 8. Do async error types satisfy `Send + Sync + 'static` bounds?
 9. Is `inspect_err` used for error logging instead of match arms?
+10. Do custom error types implement the full contract (`Error`, `Display`, `Debug`, `Send + Sync + 'static`)?
+11. Is `Error::source()` implemented for wrapped errors to enable chain traversal?
+12. Are `From` implementations provided for `?` ergonomics instead of verbose `.map_err()` chains?
+13. Is the error strategy (enumerated vs opaque) appropriate for how callers interact with errors?

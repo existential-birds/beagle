@@ -10,6 +10,7 @@
 | Signal one waiter | `Notify` | Lightweight, no data transfer |
 | Signal all waiters | `Notify` + `notify_waiters()` | Broadcast wake-up |
 | One-time initialization | `OnceCell` / `tokio::sync::OnceCell` | Lazy static-like patterns |
+| Lazy static values | `std::sync::LazyLock` | Replaces `once_cell::sync::Lazy` and `lazy_static!` (stable 1.80) |
 
 ## tokio::sync::Mutex vs std::sync::Mutex
 
@@ -103,6 +104,68 @@ cfg.port = 8080;
 
 **Watch for writer starvation:** if readers never release, writers wait forever. tokio's `RwLock` is write-preferring by default to mitigate this.
 
+## LazyLock (Rust 1.80+)
+
+`std::sync::LazyLock` (stable since 1.80) replaces the `once_cell` and `lazy_static` crates for runtime-initialized global singletons. In async/tokio code, this is commonly used for shared clients, connection info, or regex patterns.
+
+```rust
+// BAD - external dependency no longer needed
+use once_cell::sync::Lazy;
+static CLIENT: Lazy<reqwest::Client> = Lazy::new(|| {
+    reqwest::Client::builder().timeout(Duration::from_secs(30)).build().unwrap()
+});
+
+// BAD - macro-based, also superseded
+lazy_static::lazy_static! {
+    static ref CLIENT: reqwest::Client = reqwest::Client::builder()
+        .timeout(Duration::from_secs(30))
+        .build()
+        .unwrap();
+}
+
+// GOOD (edition 2024) - std library, no external crate
+use std::sync::LazyLock;
+static CLIENT: LazyLock<reqwest::Client> = LazyLock::new(|| {
+    reqwest::Client::builder().timeout(Duration::from_secs(30)).build().unwrap()
+});
+```
+
+For single-threaded or non-Sync contexts, use `std::cell::LazyCell` instead.
+
+**Note:** `tokio::sync::OnceCell` is still preferred when the initialization itself is async (requires `.await`), since `LazyLock` only supports synchronous initialization closures.
+
+## if let Temporary Scope Changes (Edition 2024)
+
+In Rust 2024, temporaries in `if let` conditions are dropped at the end of the `if let` **condition**, not at the end of the block. This affects async lock guard patterns.
+
+```rust
+// Edition 2021 - guard lives through the if-let body
+if let Some(val) = state.lock().await.get("key") {
+    // guard is still alive here in edition 2021
+    do_work(val).await; // holding the lock across await — risky but compiles
+}
+
+// Edition 2024 - guard is dropped after the condition evaluates
+// val would be a dangling reference — this may fail to compile
+if let Some(val) = state.lock().await.get("key") {
+    do_work(val).await; // guard already dropped!
+}
+
+// GOOD - explicit binding extends the guard's lifetime
+let guard = state.lock().await;
+if let Some(val) = guard.get("key") {
+    do_work(val).await;
+}
+drop(guard);
+
+// GOOD - clone the value to avoid depending on guard lifetime
+if let Some(val) = state.lock().await.get("key").cloned() {
+    do_work(val).await; // val is owned, guard already dropped — safe
+}
+```
+
+This also applies to `while let` and `match` with temporary-producing expressions. Review any pattern where a lock guard is created inline in a conditional.
+
 ## Common Mistakes
 
 ### Deadlock via Lock Ordering
@@ -138,3 +201,5 @@ do_async_work(value).await;
 3. Is lock ordering consistent to prevent deadlocks?
 4. Is `Semaphore` used instead of ad-hoc concurrency limits?
 5. Are `std::sync` vs `tokio::sync` primitives matched to their context?
+6. Are `once_cell` / `lazy_static` usages replaced with `std::sync::LazyLock` where possible?
+7. Do `if let` / `while let` patterns with inline lock guards account for edition 2024 temporary scoping?

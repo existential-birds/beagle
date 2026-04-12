@@ -27,6 +27,20 @@ grep -E 'edition|rust-version' Cargo.toml
 grep -A 20 '\[workspace\]' Cargo.toml
 ```
 
+**Edition 2024 awareness** (requires MSRV 1.85+):
+
+If `edition = "2024"` is detected, the following behavioral changes apply throughout the review:
+- `unsafe_op_in_unsafe_fn` is deny by default — unsafe operations inside `unsafe fn` MUST use explicit `unsafe {}` blocks
+- `extern "C" {}` blocks must be `unsafe extern "C" {}`
+- `#[no_mangle]` and `#[export_name]` must be `#[unsafe(no_mangle)]` and `#[unsafe(export_name)]`
+- `-> impl Trait` captures ALL in-scope lifetimes by default (RPIT lifetime capture change); use `+ use<'a>` for precise capture
+- `gen` is a reserved keyword — code using it as an identifier must use `r#gen`
+- `!` (never type) falls back to `!` instead of `()` — may change behavior of inferred types
+- Temporaries in `if let` conditions and tail expressions are dropped earlier than in edition 2021
+- `Box<[T]>` now implements `IntoIterator`
+
+Record the detected edition — it affects severity calibration in Steps 3, 8, and the verification protocol.
+
 ## Step 3: Verify Linter Status
 
 CRITICAL: Run clippy and check BEFORE flagging style or correctness issues. Do NOT flag issues that clippy or the compiler already catches.
@@ -36,6 +50,8 @@ cargo clippy --all-targets --all-features -- -D warnings 2>&1 | head -50
 cargo clippy -- -D clippy::perf 2>&1 | head -20
 cargo check --all-targets 2>&1 | head -50
 ```
+
+**Edition 2024 note:** Edition 2024 promotes several previously-warn lints to deny (notably `unsafe_op_in_unsafe_fn`). If clippy or `cargo check` already reports edition-related errors, do not duplicate those as review findings — instead note that the author must fix compiler errors first.
 
 ## Step 4: Detect Technologies
 
@@ -63,7 +79,27 @@ git diff --name-only $(git merge-base HEAD main)..HEAD | grep -E '((^|/)(test|te
 
 # Check for unsafe code in diff
 git diff $(git merge-base HEAD main)..HEAD -- '*.rs' | grep -c 'unsafe'
+
+# Detect async fn in traits (no async-trait crate needed since Rust 1.75)
+grep -r "async-trait" --include="Cargo.toml" -l | head -3
+
+# Detect LazyLock/LazyCell usage (replaces once_cell/lazy_static since 1.80)
+grep -r "once_cell\|lazy_static" --include="Cargo.toml" -l | head -3
+
+# Detect #[expect] lint attribute usage (stable since 1.81)
+git diff $(git merge-base HEAD main)..HEAD -- '*.rs' | grep -c '#\[expect('
+
+# Detect macro definitions in diff
+git diff $(git merge-base HEAD main)..HEAD -- '*.rs' | grep -cE 'macro_rules!|#\[proc_macro|#\[derive\('
+
+# Detect FFI code in diff
+git diff $(git merge-base HEAD main)..HEAD -- '*.rs' | grep -cE 'extern "C"|#\[no_mangle\]|#\[repr\(C\)\]|bindgen|#\[unsafe\(no_mangle\)\]'
 ```
+
+**Modern Rust detection notes:**
+- If `async-trait` is a dependency but the project uses edition 2024 or MSRV >= 1.75, flag as Informational — native `async fn` in traits is available and `async-trait` can likely be removed.
+- If `once_cell` or `lazy_static` is a dependency but MSRV >= 1.80, flag as Informational — `std::sync::LazyLock` and `std::cell::LazyCell` are stable replacements.
+- If `#[allow(...)]` is used where `#[expect(...)]` would be better (MSRV >= 1.81), note as Minor — `#[expect]` warns when the suppressed lint no longer fires, keeping suppressions clean.
 
 ## Step 5: Load Verification Protocol
 
@@ -85,6 +121,8 @@ Use the `Skill` tool to load each applicable skill (e.g., `Skill(skill: "beagle-
 | sqlx detected | `beagle-rust:sqlx-code-review` |
 | Serde detected | `beagle-rust:serde-code-review` |
 | Test files changed | `beagle-rust:rust-testing-code-review` |
+| Macro definitions in diff | `beagle-rust:macros-code-review` |
+| FFI code detected (extern, repr(C), bindgen) | `beagle-rust:ffi-code-review` |
 
 ## Step 7: Review
 
@@ -110,6 +148,14 @@ Before reporting any issue:
 4. For "unnecessary clone" - did you verify the borrow checker allows a reference?
 5. For "unsafe" issues - did you check the safety comments and surrounding invariants?
 6. Remove any findings that are style preferences, not actual issues
+
+**Edition 2024 verification rules:**
+7. Do NOT flag `unsafe {}` blocks inside `unsafe fn` as unnecessary — they are REQUIRED in edition 2024
+8. Do NOT flag `unsafe extern "C"` as unusual syntax — it is REQUIRED in edition 2024
+9. Do NOT flag `#[unsafe(no_mangle)]` or `#[unsafe(export_name)]` as unusual — they are REQUIRED in edition 2024
+10. For `-> impl Trait` returns, verify whether implicit lifetime capture is intentional — in edition 2024 all in-scope lifetimes are captured by default; suggest `+ use<'a>` only when narrower capture is needed
+11. For code using `Box<[T]>` in iterator contexts, remember `IntoIterator` is now available in edition 2024 — do not flag `.iter()` on boxed slices as the only approach
+12. If temporaries in `if let` or tail expressions cause borrow issues, consider whether edition 2024's earlier drop semantics are the root cause
 
 ## Step 9: Review Convergence
 

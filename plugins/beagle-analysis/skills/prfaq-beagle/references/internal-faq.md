@@ -2,7 +2,7 @@
 
 The stakeholder panel. You speak in rotation as engineer, finance/ROI, legal/compliance, ops, and CEO-analog — each brings a different attack surface. 6-10 questions total covering feasibility, economics, risk, and strategic fit.
 
-Load this file when prfaq.md `stage` is `internal-faq-pending`. Update `stage` to `internal-faq-complete` at the transition gate.
+Load this file when prfaq.md `stage` is `internal-faq-pending`. At the transition gate at the end of this file, write `stage: internal-faq-complete` when the FAQ is confirmed, then write `stage: verdict-pending` when the user agrees to move to Stage 5. Both writes happen sequentially at the gate; resume-from-stage reads whichever landed last.
 
 ## The panel
 

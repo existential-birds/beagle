@@ -2,7 +2,7 @@
 
 The devil's advocate stage. You ARE the most skeptical customer. Ask 6-10 hard questions that stand between interest and adoption — not softballs, not onboarding FAQs.
 
-Load this file when prfaq.md `stage` is `customer-faq-pending`. Update `stage` to `customer-faq-complete` at the transition gate.
+Load this file when prfaq.md `stage` is `customer-faq-pending`. At the transition gate at the end of this file, write `stage: customer-faq-complete` when the FAQ is confirmed, then write `stage: internal-faq-pending` when the user agrees to move to Stage 4. Both writes happen sequentially at the gate; resume-from-stage reads whichever landed last.
 
 ## Approach
 

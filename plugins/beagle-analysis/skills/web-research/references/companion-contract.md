@@ -1,6 +1,6 @@
 # Companion Invocation Contract
 
-Other beagle skills invoke `web-research` via this contract. It is small on purpose — one required input, three optional parameters, two return shapes.
+Other beagle skills invoke `web-research` via this contract. It is small on purpose — one required input, three optional parameters, three return shapes.
 
 Callers are expected to honor the contract verbatim rather than invent parallel invocation styles. If a new caller needs behavior that the contract does not support, extend the contract here first, not in the calling skill.
 

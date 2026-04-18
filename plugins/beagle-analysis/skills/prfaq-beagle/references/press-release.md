@@ -2,7 +2,7 @@
 
 The forge. The user drafts the announcement of the finished product — in the voice of the customer's world, not the builder's. If this stage feels easy, it hasn't been pressured enough.
 
-Load this file when prfaq.md `stage` is `press-release-pending`. Update `stage` to `press-release-complete` at the transition gate.
+Load this file when prfaq.md `stage` is `press-release-pending`. At the transition gate at the end of this file, write `stage: press-release-complete` when the draft is confirmed, then write `stage: customer-faq-pending` when the user agrees to move to Stage 3. Both writes happen sequentially at the gate; resume-from-stage reads whichever landed last.
 
 ## Approach — one section at a time
 

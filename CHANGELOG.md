@@ -11,6 +11,10 @@ Format follows [Keep a Changelog](https://keepachangelog.com/en/1.1.0/). Version
 ### Added
 - **beagle-analysis:** Add `resolve-beagle` skill — follow-up to `brainstorm-beagle` that orchestrates parallel research subagents (with sequential inline fallback) to close Open Questions and latent gaps in a spec, presents proposals one at a time for approval, and rewrites the spec in place ([#94](https://github.com/existential-birds/beagle/pull/94))
 
+### Fixed
+- **beagle-core:** Make `gen-release-notes` Step 5 explicit about updating `[Unreleased]` and inserting the new `[VERSION]` footer compare links, with an example diff and a verification grep — prevents the recurring CodeRabbit feedback that release PRs were missing footer reference links ([#95](https://github.com/existential-birds/beagle/pull/95))
+- **release command:** Add Step 3.5 verification gate that fails the release flow if CHANGELOG footer compare links for the new version are missing ([#95](https://github.com/existential-birds/beagle/pull/95))
+
 ## [3.1.0] - 2026-04-11
 
 ### Added
@@ -365,7 +369,8 @@ Format follows [Keep a Changelog](https://keepachangelog.com/en/1.1.0/). Version
 - Development commands: `skill-builder`, `ensure-docs`
 - Cursor IDE command equivalents
 
-[Unreleased]: https://github.com/existential-birds/beagle/compare/v3.1.0...HEAD
+[Unreleased]: https://github.com/existential-birds/beagle/compare/v3.2.0...HEAD
+[3.2.0]: https://github.com/existential-birds/beagle/compare/v3.1.0...v3.2.0
 [3.1.0]: https://github.com/existential-birds/beagle/compare/v3.0.0...v3.1.0
 [3.0.0]: https://github.com/existential-birds/beagle/compare/v2.12.1...v3.0.0
 [2.12.1]: https://github.com/existential-birds/beagle/compare/v2.12.0...v2.12.1

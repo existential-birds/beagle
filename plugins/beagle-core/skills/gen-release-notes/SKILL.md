@@ -175,7 +175,21 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ```
 
-3. Add version comparison links at the bottom of the file using the detected repo URL.
+3. **Update the footer reference links at the bottom of the file.** This step is mandatory — CodeRabbit and other reviewers will flag the changelog as incomplete if these are missing. Two edits are required:
+
+   a. **Advance `[Unreleased]`** so it compares against the new version instead of the previous one.
+   b. **Insert a new `[NEW_VERSION]` line** right below `[Unreleased]`, comparing the previous tag to the new one.
+
+   Example diff (releasing `3.2.0` after `3.1.0`):
+
+   ```diff
+   -[Unreleased]: https://github.com/OWNER/REPO/compare/v3.1.0...HEAD
+   +[Unreleased]: https://github.com/OWNER/REPO/compare/v3.2.0...HEAD
+   +[3.2.0]: https://github.com/OWNER/REPO/compare/v3.1.0...v3.2.0
+    [3.1.0]: https://github.com/OWNER/REPO/compare/v3.0.0...v3.1.0
+   ```
+
+   After editing, verify with: `grep -E '^\[(Unreleased|NEW_VERSION)\]:' CHANGELOG.md` — both lines must be present and `[Unreleased]` must point at the new tag, not the old one.
 
 ## Step 6: Output Summary
 

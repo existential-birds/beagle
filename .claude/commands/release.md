@@ -96,6 +96,29 @@ Run `/beagle:gen-release-notes ${PREV_TAG}` to:
 
 **Do not proceed** until CHANGELOG.md is updated with the new version.
 
+### Step 3.5: Verify CHANGELOG footer reference links
+
+Every prior release PR has been flagged by CodeRabbit for missing footer compare links. This step is the gate that prevents that recurring feedback. After `gen-release-notes` runs, confirm the footer at the bottom of `CHANGELOG.md` contains both:
+
+1. An updated `[Unreleased]` line pointing at the **new** version (not the previous one).
+2. A new `[NEW_VERSION]` line comparing the previous tag to the new tag.
+
+```bash
+NEW_VERSION=$(grep -E '^\#\# \[[0-9]+\.[0-9]+\.[0-9]+\]' CHANGELOG.md | head -1 | sed 's/.*\[\(.*\)\].*/\1/')
+echo "Verifying footer links for v${NEW_VERSION}..."
+
+# Both checks must pass before proceeding.
+grep -qE "^\[Unreleased\]: .*compare/v${NEW_VERSION}\.\.\.HEAD" CHANGELOG.md \
+  || { echo "MISSING: [Unreleased] is not pointing at v${NEW_VERSION}"; exit 1; }
+
+grep -qE "^\[${NEW_VERSION}\]: .*compare/v.*\.\.\.v${NEW_VERSION}" CHANGELOG.md \
+  || { echo "MISSING: [${NEW_VERSION}] footer line not found"; exit 1; }
+
+echo "Footer links verified."
+```
+
+If either check fails, edit `CHANGELOG.md` to add the missing lines using the format documented in `gen-release-notes` Step 5 item 3, then re-run the checks. **Do not proceed to Step 4 until both checks pass.**
+
 ## Step 4: Update Versions
 
 After determining the new version from the changelog analysis:

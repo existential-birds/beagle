@@ -107,11 +107,14 @@ Every prior release PR has been flagged by CodeRabbit for missing footer compare
 NEW_VERSION=$(grep -E '^\#\# \[[0-9]+\.[0-9]+\.[0-9]+\]' CHANGELOG.md | head -1 | sed 's/.*\[\(.*\)\].*/\1/')
 echo "Verifying footer links for v${NEW_VERSION}..."
 
+# Escape dots so they match literally in the ERE patterns below.
+NEW_VERSION_RE=${NEW_VERSION//./\\.}
+
 # Both checks must pass before proceeding.
-grep -qE "^\[Unreleased\]: .*compare/v${NEW_VERSION}\.\.\.HEAD" CHANGELOG.md \
+grep -qE "^\[Unreleased\]: .*compare/v${NEW_VERSION_RE}\.\.\.HEAD" CHANGELOG.md \
   || { echo "MISSING: [Unreleased] is not pointing at v${NEW_VERSION}"; exit 1; }
 
-grep -qE "^\[${NEW_VERSION}\]: .*compare/v.*\.\.\.v${NEW_VERSION}" CHANGELOG.md \
+grep -qE "^\[${NEW_VERSION_RE}\]: .*compare/v.*\.\.\.v${NEW_VERSION_RE}" CHANGELOG.md \
   || { echo "MISSING: [${NEW_VERSION}] footer line not found"; exit 1; }
 
 echo "Footer links verified."

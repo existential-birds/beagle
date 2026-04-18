@@ -42,3 +42,4 @@ build/
 .env*
 !.env.example
 .serena/
+.claude/worktrees/

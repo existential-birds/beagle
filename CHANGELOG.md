@@ -8,6 +8,7 @@ Format follows [Keep a Changelog](https://keepachangelog.com/en/1.1.0/). Version
 
 ### Added
 - **beagle-analysis:** Add `web-research` skill — reusable research primitive that turns a sharp research question into a written plan, parallel-subagent findings, and a cited synthesis report (`TL;DR` / `Findings` / `Gaps & Limitations` / `Sources`) on disk. Dual-mode: directly invocable by users and programmatically invocable by companion skills (`prfaq-beagle`, `brainstorm-beagle`, `strategy-interview`) via a documented contract.
+- **beagle-analysis:** Add `artifact-analysis` skill — sibling primitive to `web-research` that scans local documents and project knowledge (auto-discovering `.beagle/concepts/`, `.planning/`, `docs/`, and root README/brief files by default) via parallel subagents and produces a path-cited synthesis report with fixed sections (`Documents Found` / `Key Insights` / `User / Market Context` / `Technical Context` / `Ideas & Decisions` / `Raw Detail Worth Preserving` / `Gaps & Limitations`). Dual-mode with the same companion contract used by `prfaq-beagle`, `brainstorm-beagle`, and `strategy-interview`.
 
 ## [3.2.0] - 2026-04-18
 

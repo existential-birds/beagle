@@ -87,6 +87,7 @@ Beagle-specific:
 | beagle-analysis | `llm-judge` | Compare implementations using LLM-as-judge |
 | beagle-analysis | `write-adr` | Generate ADRs from decisions |
 | beagle-analysis | `web-research` | Parallel web-search research with cited, gap-flagged synthesis report |
+| beagle-analysis | `artifact-analysis` | Parallel-subagent scan of local docs with cited, structured extraction |
 | beagle-docs | `draft-docs` | Generate documentation drafts |
 | beagle-docs | `improve-doc` | Improve docs using Diataxis principles |
 | beagle-docs | `ensure-docs` | Documentation coverage check |

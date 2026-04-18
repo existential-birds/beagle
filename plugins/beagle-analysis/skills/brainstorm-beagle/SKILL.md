@@ -17,27 +17,41 @@ Do NOT write any code, create implementation plans, scaffold projects, or take a
 
 Complete these steps in order:
 
-1. **Explore context** — read project files, docs, git history, existing specs
-2. **Assess scope** — is this one spec or does it need decomposition?
-3. **Ask clarifying questions** — one at a time, follow the thread
-4. **Propose 2-3 directions** — high-level product approaches with tradeoffs
-5. **Draft spec** — write the structured spec document
-6. **Self-review** — check for completeness, contradictions, implementation leakage (see `references/spec-reviewer.md`)
-7. **User review** — present for approval, iterate if needed
-8. **Write to disk** — save to `docs/specs/YYYY-MM-DD-<topic>.md`
+1. **Check for a concept brief** — if `.beagle/concepts/<slug>/brief.md` exists for this idea, ingest it and skip most of steps 2-4 (see *Concept brief ingestion* below)
+2. **Explore context** — read project files, docs, git history, existing specs (lighter pass if a brief is present)
+3. **Assess scope** — is this one spec or does it need decomposition?
+4. **Ask clarifying questions** — one at a time, follow the thread (few to none if a brief is present)
+5. **Propose 2-3 directions** — high-level product approaches with tradeoffs
+6. **Draft spec** — write the structured spec document
+7. **Self-review** — check for completeness, contradictions, implementation leakage (see `references/spec-reviewer.md`)
+8. **User review** — present for approval, iterate if needed
+9. **Write to disk** — save to `.beagle/concepts/<slug>/spec.md`
 
 ```
-Explore context → Assess scope ──→ Too large? → Decompose into sub-projects
-                                                  → Brainstorm first sub-project
-                                 → Right size? → Clarifying questions
-                                                  → Propose directions
-                                                  → Draft spec
-                                                  → Self-review (fix inline)
-                                                  → User review ──→ Changes? → Revise
-                                                                  → Approved? → Write to disk
+Brief present? ──→ Yes → Ingest brief (skip most discovery) ──┐
+                ──→ No  → Explore context → Assess scope       │
+                                            ├─ Too large? → Decompose → Brainstorm first sub-project
+                                            └─ Right size? → Clarifying questions ─┘
+                                                                                   │
+Both paths converge → Propose directions → Draft spec → Self-review (fix inline) → User review
+                                                                                        ├─ Changes? → Revise
+                                                                                        └─ Approved? → Write to concept folder
 ```
 
 **The terminal state is a written spec.** This skill does not transition to implementation, planning, or any other skill. The user decides what to do with the spec.
+
+## Concept brief ingestion
+
+If the user invokes brainstorm-beagle on a concept that already has `.beagle/concepts/<slug>/brief.md` (produced by `prfaq-beagle` on pass), ingest the brief at step 1 and skip most discovery:
+
+1. **Read the brief.** Customer, problem, solution concept, stakes, forged decisions, and research pointers are already codified. Do not re-interview the user on these.
+2. **Skim the PRFAQ reference.** Open `.beagle/concepts/<slug>/prfaq.md` for the Reasoning blocks — they explain what was challenged and why earlier decisions were made. This is context, not content to re-litigate.
+3. **Open questions become your starting point.** The brief's *Open Questions* section lists what PRFAQ surfaced but did not close. These are what you ask the user about — not customer, problem, or motivation, which are already decided.
+4. **Proceed to Exploring Directions.** Skip Clarifying Questions and Scope Assessment unless the brief is ambiguous about scope itself.
+
+The brief is a context handoff, not a gate. Run your own Self-Review on the spec you produce — brainstorm-beagle remains responsible for implementation-leakage detection, requirement testability, and scope discipline regardless of how much discovery was pre-done upstream.
+
+**When there is no brief:** proceed through steps 2-9 normally. Not every idea comes from PRFAQ.
 
 ## Questioning
 
@@ -183,8 +197,10 @@ See `references/spec-reviewer.md` for the detailed review checklist.
 
 ## Writing the Spec
 
-- Save to `docs/specs/YYYY-MM-DD-<topic>.md` (user preferences override this path)
-- Commit to git with message: `docs: add <topic> project spec`
+- **Default path:** `.beagle/concepts/<slug>/spec.md`
+- **Slug source:** inherit from `brief.md` frontmatter if a brief was ingested; otherwise derive a kebab-case slug from the concept headline (≤40 chars, no dates). User preferences override the default path.
+- **Companion outputs in-session:** if brainstorm-beagle invokes `web-research` or `artifact-analysis` mid-session, pass `output_dir: /abs/path/.beagle/concepts/<slug>/research/` or `/abs/path/.beagle/concepts/<slug>/analysis/` so findings share the concept folder with anything PRFAQ produced upstream. This keeps the whole concept-forging audit trail in one place.
+- Commit to git with message: `docs: add <slug> project spec`
 - After writing, tell the user:
   > "Spec written to `<path>`. Review it and let me know if you want changes."
 - Wait for approval before considering the brainstorm complete.

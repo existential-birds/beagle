@@ -42,3 +42,7 @@ build/
 .env*
 !.env.example
 .serena/
+.claude/worktrees/
+
+.planning/
+.beagle/

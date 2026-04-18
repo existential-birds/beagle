@@ -84,7 +84,7 @@ This section is never empty. If the scan was clean, include at minimum a bullet 
 - **Title line** uses the intent verbatim from `plan.md`. When intent is absent, use `Generic extraction of <slug>`.
 - **`Documents Found`** lists every included path (read or skimmed). Skipped paths go in `Gaps & Limitations`.
 - **`Key Insights`** groups by theme, not by source document. If one theme only came from one document, that is fine — one bullet, one footnote.
-- **`User / Market Context`, `Technical Context`, `Raw Detail Worth Preserving`** — never delete these sections. If the corpus has nothing to say, include a single bullet saying so.
+- **`User / Market Context`, `Technical Context`, `Raw Detail Worth Preserving`** — never delete these sections. If the corpus has nothing to say, include a single bullet saying so. Prefer `"No <section> content surfaced by this scan."` over synthesized content — an empty placeholder is correct when the corpus is thin; fabricated content is not.
 - **`Ideas & Decisions`** preserves rejected ideas with the rationale for rejection, not just accepted ones. This is the feature, not a nice-to-have.
 - **`Gaps & Limitations`** is never empty. At minimum, name what follow-up reading would sharpen the answer.
 - **`Sources`** uses global numbering — `[^1]` through `[^n]` across the whole document, not per-section. Citation shape per `citation-schema.md`.

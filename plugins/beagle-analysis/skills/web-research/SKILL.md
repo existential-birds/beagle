@@ -25,11 +25,12 @@ The deliverable is always on disk: a written plan the caller can review, one fin
 
 ## Workflow
 
-Three steps, in order. No step is skippable.
+Four steps, in order. No step is skippable.
 
 1. **Write `plan.md`** — main question verbatim, 1-5 non-overlapping subtopics, what each subtopic should establish, and how the findings will be synthesized.
 2. **Plan review gate** — show the plan to the user for confirmation. Skipped only when the caller passes `auto_proceed: true`.
 3. **Dispatch subagents and synthesize** — spawn up to 3 concurrent subagents (one per subtopic), wait for all to return, then write `report.md`.
+4. **Verify before returning** — run the verification checklist in `references/failure-modes.md` to confirm all expected artifacts exist and are well-formed. Any check that fails becomes an entry in `Gaps & Limitations`.
 
 ```
 Receive question ──→ Write plan.md ──→ Review gate (unless auto_proceed)
@@ -45,7 +46,7 @@ Receive question ──→ Write plan.md ──→ Review gate (unless auto_proc
                                     Return paths to caller
 ```
 
-Before step 1, verify the environment has `WebSearch` and `WebFetch` (or equivalents). If absent, fail fast per `references/failure-modes.md` — do not create `plan.md`, do not spawn subagents.
+Before step 1, verify the environment has `WebSearch` (or equivalent). `WebFetch` is desirable for subagents that need full-page content beyond search snippets, but not required — `WebSearch`-only environments can still produce useful findings. If `WebSearch` is absent, fail fast per `references/failure-modes.md` — do not create `plan.md`, do not spawn subagents.
 
 ## Inputs
 
@@ -59,6 +60,8 @@ The input contract is small and strict:
 | `refresh`           | bool              | no       | `false` | When true, allow overwriting a prior run in the same `output_dir`.   |
 
 The skill does not parse caller-specific structures. Callers distill their brief into one sharp question string before invoking.
+
+**When to pass `auto_proceed: true` vs `false`.** Pass `false` (the default) when the user will still benefit from seeing the subtopic plan before searches burn — e.g. the caller wants this skill's plan-review gate to serve as that check. Pass `true` when the caller has already satisfied the "is this the right framing" question through its own interaction with the user, and another gate would just be friction — e.g. the user explicitly asked mid-conversation for background research, or the caller runs its own review loop upstream. The rule is about where the review happens, not whether it happens.
 
 ## Output location
 
@@ -74,7 +77,7 @@ If the caller provides `output_dir`, use it verbatim. Otherwise derive the defau
 2. Lowercase.
 3. Strip punctuation (keep letters, digits, spaces, hyphens).
 4. Collapse runs of whitespace to single hyphens.
-5. Truncate to 60 characters on a word boundary (cut at the last hyphen before 60).
+5. Truncate to 60 characters on a word boundary (cut at the last hyphen before 60). If there is no hyphen before position 60, hard-cut at 60.
 6. Prepend `YYYY-MM-DD-`.
 
 **Re-run protection.** Before writing anything, check whether `output_dir` already contains `plan.md` or `report.md`. If it does and `refresh` is not `true`, refuse with a message naming the existing folder. When `refresh: true`, archive the prior contents into `<output_dir>/.archive-<timestamp>/` first, then start fresh. See `references/failure-modes.md` and `references/companion-contract.md`.

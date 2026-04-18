@@ -30,6 +30,12 @@ refresh: false
 
 ## Return shapes
 
+This skill returns one of three shapes. Callers that invoke multiple beagle companions should handle the union of error codes across all companions they call — sibling companions (e.g. `artifact-analysis`) may return different error codes.
+
+- **success** — all artifacts written.
+- **error: `web-tools-unavailable`** — missing `WebSearch`; nothing written.
+- **error: `prior-run-present`** — `output_dir` already holds a prior run and `refresh` is false; nothing written.
+
 ### Success
 
 ```yaml

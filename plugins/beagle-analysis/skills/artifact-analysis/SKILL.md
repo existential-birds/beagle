@@ -27,11 +27,12 @@ The deliverable is always on disk: a written scan plan the caller can audit, one
 
 ## Workflow
 
-Three steps, in order. No step is skippable.
+Four steps, in order. No step is skippable.
 
 1. **Write `plan.md`** — resolved paths (with any auto-discovery applied), intent summary (when provided), per-slice briefs, skip patterns, and how findings will be synthesized.
 2. **Dispatch subagents** — spawn 1-3 parallel subagents over non-overlapping slices of the resolved paths. Each writes `findings/<slice-slug>.md` under `output_dir`.
 3. **Synthesize `report.md`** — fold findings into the seven fixed sections with path-anchored citations.
+4. **Verify before returning** — run the verification checklist in `references/failure-modes.md` to confirm all expected artifacts exist and are well-formed. Any check that fails becomes an entry in `Gaps & Limitations`.
 
 ```
 Receive paths + optional intent ──→ Auto-discover if paths empty
@@ -86,7 +87,7 @@ If the caller passes `output_dir`, use it verbatim. Otherwise derive the default
 
 **Slug derivation** (stable so re-running the same input on the same day lands on the same folder):
 
-1. If `intent` is present, slug from the intent string: lowercase, strip punctuation, collapse whitespace to single hyphens, truncate to 60 characters on a word boundary.
+1. If `intent` is present, slug from the intent string: lowercase, strip punctuation, collapse whitespace to single hyphens, truncate to 60 characters on a word boundary (cut at the last hyphen before 60; if no hyphen exists before position 60, hard-cut at 60).
 2. If `intent` is absent, slug from the first scanned path's basename using the same rules.
 3. Prepend `YYYY-MM-DD-`.
 
@@ -105,6 +106,7 @@ The plan is written before any subagent runs. It is the audit trail, not a revie
 - **Slices** — how the resolved paths are partitioned across 1-3 subagents. Slices are non-overlapping.
 - **Per-slice briefs** — one paragraph per slice summarizing what that subagent is told to extract. Derived mechanically from the spec so a reader of `plan.md` can predict what each subagent was told.
 - **Skip patterns** — the denylist applied to this run (see `references/skip-patterns.md`).
+- **Budgets applied** — subagent count for this run (1-3) and the skim threshold in effect (see Budget defaults below).
 - **Synthesis approach** — how the per-slice findings will combine into `report.md`.
 
 Report: `Wrote plan.md` and proceed to dispatch. No pause, no gate.

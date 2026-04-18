@@ -32,6 +32,11 @@ refresh: false
 
 ## Return shapes
 
+This skill returns one of two shapes. Callers that invoke multiple beagle companions should handle the union of error codes across all companions they call — sibling companions (e.g. `web-research`) may return different error codes (notably `web-tools-unavailable`).
+
+- **success** — artifacts written. An empty-corpus run still returns this shape with a minimal `report.md`; the caller detects empty-corpus by reading the report, not by catching an error.
+- **error: `prior-run-present`** — `output_dir` already holds a prior run and `refresh` is false; nothing written.
+
 ### Success
 
 ```yaml
@@ -42,6 +47,10 @@ findings_dir: "<output_dir>/findings/"
 
 The caller receives absolute paths. All evidence lives on disk — nothing returns inline.
 
+### Success with empty corpus
+
+Empty-corpus is **not** an error. When path resolution yields zero readable documents, the skill still returns the Success shape above: `plan.md` exists (with an empty `Resolved paths` list), `report.md` exists (with every section present plus a `Gaps & Limitations` entry explaining no readable documents were found), and `findings_dir` exists (empty). Callers detect empty-corpus by reading `report.md`, not by catching an error.
+
 ### Refused (prior run present, no refresh)
 
 ```yaml
@@ -50,10 +59,6 @@ detail: "<output_dir> already contains plan.md or report.md. Pass refresh: true 
 ```
 
 The caller decides whether to retry with `refresh: true`, pick a different `output_dir`, or surface the refusal to its user.
-
-### Empty corpus (not an error)
-
-Empty-corpus is **not** returned as an error. The skill writes `plan.md` and a minimal `report.md` with a `Gaps & Limitations` entry explaining that no readable documents were found, and returns the normal Success shape. The caller inspects `report.md` to detect the empty-corpus state and decide what to do.
 
 ## Worked examples
 

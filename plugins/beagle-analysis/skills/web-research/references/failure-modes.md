@@ -24,14 +24,16 @@ Example:
 
 ## Fail-fast on missing web tools
 
-If `WebSearch` or `WebFetch` (or equivalent) is not available in the environment, the skill aborts **before** spawning any subagent. It also does not write `plan.md` — nothing lands on disk.
+`WebSearch` is the core tool for this skill. If `WebSearch` (or equivalent) is not available in the environment, the skill aborts **before** spawning any subagent. It also does not write `plan.md` — nothing lands on disk.
+
+`WebFetch` is desirable for subagents that want full-page content beyond search snippets, but not required. Environments with `WebSearch` only can still produce useful findings; each subagent notes in its findings file any claim it would have strengthened with full-page access.
 
 Return shape (structured so parent skills can detect and branch):
 
 ```json
 {
   "error": "web-tools-unavailable",
-  "detail": "missing: WebSearch, WebFetch"
+  "detail": "missing: WebSearch"
 }
 ```
 

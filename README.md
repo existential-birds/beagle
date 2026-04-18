@@ -6,7 +6,7 @@
 
 *Image: NASA, Public Domain. [Source](https://www.nasa.gov/multimedia/imagegallery/image_feature_572.html)*
 
-Beagle is a Claude Code plugin marketplace with 126 skills across code review, documentation, testing, architectural analysis, and git workflows. Use it to review before you push, detect AI-generated artifacts, draft and improve docs, generate test plans, and analyze codebases — across Python, Go, Rust, Elixir, React, iOS/Swift, and AI frameworks.
+Beagle is a Claude Code plugin marketplace with 127 skills across code review, documentation, testing, architectural analysis, and git workflows. Use it to review before you push, detect AI-generated artifacts, draft and improve docs, generate test plans, and analyze codebases — across Python, Go, Rust, Elixir, React, iOS/Swift, and AI frameworks.
 
 Used with [Amelia](https://github.com/existential-birds/amelia) for agent-based workflows and [Daydream](https://github.com/existential-birds/daydream) for automated review-fix-test loops.
 
@@ -62,9 +62,9 @@ This downloads the skills and configures them for your agent.
 | **beagle-rust** | 10 | Rust, tokio, axum, sqlx, serde |
 | **beagle-ai** | 13 | Pydantic AI, LangGraph, DeepAgents |
 | **beagle-docs** | 10 | Documentation quality, AI writing detection (Diataxis) |
-| **beagle-analysis** | 10 | Brainstorming, 12-Factor, ADRs, strategy, LLM-as-judge |
+| **beagle-analysis** | 11 | Brainstorming, ADRs, strategy, LLM-as-judge, spec gap resolution |
 | **beagle-testing** | 2 | Test plan generation and execution |
-| **Total** | **126** | — |
+| **Total** | **127** | — |
 
 ## Skills
 
@@ -109,6 +109,8 @@ These are the canonical skill entry points for Beagle.
 | `humanize-beagle` | beagle-docs | Fix AI writing with safe/risky classification |
 | `llm-judge` | beagle-analysis | Compare implementations |
 | `write-adr` | beagle-analysis | Generate ADRs from decisions |
+| `brainstorm-beagle` | beagle-analysis | Turn fuzzy ideas into structured project specs |
+| `resolve-beagle` | beagle-analysis | Close Open Questions and latent gaps in a brainstorm-beagle spec |
 | `strategy-interview` | beagle-analysis | Build strategy through guided conversation |
 | `strategy-review` | beagle-analysis | Pressure-test existing strategy documents |
 

@@ -6,6 +6,11 @@ Format follows [Keep a Changelog](https://keepachangelog.com/en/1.1.0/). Version
 
 ## [Unreleased]
 
+## [3.2.0] - 2026-04-18
+
+### Added
+- **beagle-analysis:** Add `resolve-beagle` skill — follow-up to `brainstorm-beagle` that orchestrates parallel research subagents (with sequential inline fallback) to close Open Questions and latent gaps in a spec, presents proposals one at a time for approval, and rewrites the spec in place ([#94](https://github.com/existential-birds/beagle/pull/94))
+
 ## [3.1.0] - 2026-04-11
 
 ### Added

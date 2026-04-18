@@ -84,11 +84,11 @@ intent: "prior decisions and reference points relevant to the current idea"
 paths:
   - docs/
   - .beagle/concepts/
-output_dir: "/abs/path/docs/specs/analysis/task-sub-tasks/"
+output_dir: "/abs/path/.beagle/concepts/task-sub-tasks/analysis/"
 refresh: false
 ```
 
-Explicit `paths` keeps the scan narrow. `output_dir` lands in the docs-specs folder so the brainstorm's reference points can link straight to `report.md`.
+Explicit `paths` keeps the scan narrow. `output_dir` lands inside the brainstorm concept folder so the reference points can link straight to `report.md`.
 
 ### `strategy-interview` — context grounding
 

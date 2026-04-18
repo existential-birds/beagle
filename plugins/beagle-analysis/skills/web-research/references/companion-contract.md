@@ -85,12 +85,12 @@ Mid-brainstorm, the user says "go look up how other tools handle this." Brainsto
 
 ```yaml
 research_question: "How do task-tracking tools handle sub-tasks that span multiple top-level projects?"
-output_dir: "/abs/path/docs/specs/research/task-sub-tasks/"
+output_dir: "/abs/path/.beagle/concepts/task-sub-tasks/research/"
 auto_proceed: true
 refresh: false
 ```
 
-`auto_proceed: true` because the user explicitly asked for background research mid-brainstorm — they want findings, not another review gate. `output_dir` lands in the docs-specs folder so the spec's reference points can link straight to `report.md`.
+`auto_proceed: true` because the user explicitly asked for background research mid-brainstorm — they want findings, not another review gate. `output_dir` lands inside the brainstorm concept folder so the spec's reference points can link straight to `report.md`.
 
 ### `strategy-interview` — context grounding
 

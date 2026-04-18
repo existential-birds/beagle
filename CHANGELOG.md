@@ -6,13 +6,15 @@ Format follows [Keep a Changelog](https://keepachangelog.com/en/1.1.0/). Version
 
 ## [Unreleased]
 
+## [3.3.0] - 2026-04-18
+
 ### Added
-- **beagle-analysis:** Add `web-research` skill — reusable research primitive that turns a sharp research question into a written plan, parallel-subagent findings, and a cited synthesis report (`TL;DR` / `Findings` / `Gaps & Limitations` / `Sources`) on disk. Dual-mode: directly invocable by users and programmatically invocable by companion skills (`prfaq-beagle`, `brainstorm-beagle`, `strategy-interview`) via a documented contract.
-- **beagle-analysis:** Add `artifact-analysis` skill — sibling primitive to `web-research` that scans local documents and project knowledge (auto-discovering `.beagle/concepts/`, `.planning/`, `docs/`, and root README/brief files by default) via parallel subagents and produces a path-cited synthesis report with fixed sections (`Documents Found` / `Key Insights` / `User / Market Context` / `Technical Context` / `Ideas & Decisions` / `Raw Detail Worth Preserving` / `Gaps & Limitations`). Dual-mode with the same companion contract used by `prfaq-beagle`, `brainstorm-beagle`, and `strategy-interview`.
-- **beagle-analysis:** Add `prfaq-beagle` skill — hardcore Working Backwards PRFAQ coach that runs a 5-stage gauntlet (Ignition → Press Release → Customer FAQ → Internal FAQ → Verdict) to filter weak product, internal-tool, or OSS concepts before they consume `brainstorm-beagle` cycles. Detects concept type in Ignition and calibrates later stages; invokes `web-research` and `artifact-analysis` serially for grounding with graceful degradation on `web-tools-unavailable` and resume-by-default on `prior-run-present`. Binary pass/fail verdict — on pass, produces a concept brief at `.beagle/concepts/<slug>/brief.md` that `brainstorm-beagle` auto-ingests; on fail, produces targeted feedback naming exactly what stage to re-enter and what would need to be true.
+- **beagle-analysis:** Add `web-research` skill — reusable research primitive that turns a sharp research question into a written plan, parallel-subagent findings, and a cited synthesis report (`TL;DR` / `Findings` / `Gaps & Limitations` / `Sources`) on disk. Dual-mode: directly invocable by users and programmatically invocable by companion skills (`prfaq-beagle`, `brainstorm-beagle`, `strategy-interview`) via a documented contract ([#96](https://github.com/existential-birds/beagle/pull/96))
+- **beagle-analysis:** Add `artifact-analysis` skill — sibling primitive to `web-research` that scans local documents and project knowledge (auto-discovering `.beagle/concepts/`, `.planning/`, `docs/`, and root README/brief files by default) via parallel subagents and produces a path-cited synthesis report with fixed sections (`Documents Found` / `Key Insights` / `User / Market Context` / `Technical Context` / `Ideas & Decisions` / `Raw Detail Worth Preserving` / `Gaps & Limitations`). Dual-mode with the same companion contract used by `prfaq-beagle`, `brainstorm-beagle`, and `strategy-interview` ([#96](https://github.com/existential-birds/beagle/pull/96))
+- **beagle-analysis:** Add `prfaq-beagle` skill — hardcore Working Backwards PRFAQ coach that runs a 5-stage gauntlet (Ignition → Press Release → Customer FAQ → Internal FAQ → Verdict) to filter weak product, internal-tool, or OSS concepts before they consume `brainstorm-beagle` cycles. Detects concept type in Ignition and calibrates later stages; invokes `web-research` and `artifact-analysis` serially for grounding with graceful degradation on `web-tools-unavailable` and resume-by-default on `prior-run-present`. Binary pass/fail verdict — on pass, produces a concept brief at `.beagle/concepts/<slug>/brief.md` that `brainstorm-beagle` auto-ingests; on fail, produces targeted feedback naming exactly what stage to re-enter and what would need to be true ([#96](https://github.com/existential-birds/beagle/pull/96))
 
 ### Changed
-- **beagle-analysis:** Update `brainstorm-beagle` — relocate spec output from `docs/specs/YYYY-MM-DD-<topic>.md` to `.beagle/concepts/<slug>/spec.md`; auto-detect `brief.md` at startup and ingest it to skip most discovery; when invoking `web-research` or `artifact-analysis` mid-session, land their outputs under the shared `.beagle/concepts/<slug>/research/` and `.beagle/concepts/<slug>/analysis/` folders so the whole concept-forging audit trail lives in one place.
+- **beagle-analysis:** Update `brainstorm-beagle` — relocate spec output from `docs/specs/YYYY-MM-DD-<topic>.md` to `.beagle/concepts/<slug>/spec.md`; auto-detect `brief.md` at startup and ingest it to skip most discovery; when invoking `web-research` or `artifact-analysis` mid-session, land their outputs under the shared `.beagle/concepts/<slug>/research/` and `.beagle/concepts/<slug>/analysis/` folders so the whole concept-forging audit trail lives in one place ([#96](https://github.com/existential-birds/beagle/pull/96))
 
 ## [3.2.0] - 2026-04-18
 
@@ -377,7 +379,8 @@ Format follows [Keep a Changelog](https://keepachangelog.com/en/1.1.0/). Version
 - Development commands: `skill-builder`, `ensure-docs`
 - Cursor IDE command equivalents
 
-[Unreleased]: https://github.com/existential-birds/beagle/compare/v3.2.0...HEAD
+[Unreleased]: https://github.com/existential-birds/beagle/compare/v3.3.0...HEAD
+[3.3.0]: https://github.com/existential-birds/beagle/compare/v3.2.0...v3.3.0
 [3.2.0]: https://github.com/existential-birds/beagle/compare/v3.1.0...v3.2.0
 [3.1.0]: https://github.com/existential-birds/beagle/compare/v3.0.0...v3.1.0
 [3.0.0]: https://github.com/existential-birds/beagle/compare/v2.12.1...v3.0.0

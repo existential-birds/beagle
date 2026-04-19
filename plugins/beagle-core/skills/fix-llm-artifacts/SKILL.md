@@ -1,12 +1,12 @@
 ---
 name: fix-llm-artifacts
-description: Applies fixes from a prior review-llm-artifacts run, with safe/risky classification
+description: Applies fixes from a prior review-llm-artifacts run, with safe/risky classification. Respects verify-llm-artifacts output when present to skip false positives.
 disable-model-invocation: true
 ---
 
 # Fix LLM Artifacts
 
-Apply fixes from a previous `review-llm-artifacts` run with automatic safe/risky classification.
+Apply fixes from a previous `review-llm-artifacts` run with automatic safe/risky classification. If `.beagle/llm-artifacts-verification.json` exists, **skip** findings marked `false_positive` and treat `inconclusive` like risky fixes (prompt or skip per user).
 
 ## Usage
 
@@ -16,7 +16,7 @@ Apply fixes from a previous `review-llm-artifacts` run with automatic safe/risky
 
 **Flags:**
 - `--dry-run` - Show what would be fixed without changing files
-- `--all` - Fix entire codebase (runs review with --all first)
+- `--all` - Fix entire codebase (runs full-project `review-llm-artifacts` first if no review JSON)
 - `--category <name>` - Only fix specific category: `tests|dead-code|abstraction|style`
 
 ## Instructions
@@ -54,8 +54,15 @@ cat .beagle/llm-artifacts-review.json 2>/dev/null
 ```
 
 **If file missing:**
-- If `--all` flag: Run `review-llm-artifacts --all --json` first
+- If `--all` flag: Run full-project review first (default scope of `review-llm-artifacts`; no extra flag required)
 - Otherwise: Fail with: "No review results found. Run `/beagle-core:review-llm-artifacts` first."
+
+**Optional verification overlay** — if `.beagle/llm-artifacts-verification.json` exists:
+- Build a set of finding ids with `status: false_positive` → **exclude** these from all fix lists.
+- Finding ids with `status: inconclusive` → **always** follow risky-fix handling (Section 6), even if `fix_safety` was `Safe` in the review.
+- Finding ids with `status: confirmed_issue` → use review JSON `fix_safety` / `risk` as usual.
+
+If verification is missing, warn when applying deletes or `dead-code` fixes: "For fewer false positives, run `/beagle-core:verify-llm-artifacts` first."
 
 **If file exists, validate freshness:**
 ```bash
@@ -72,7 +79,7 @@ If stale, prompt: "Review results are stale. Re-run review? (y/n)"
 
 ### 4. Partition Findings by Safety
 
-Parse findings from JSON and classify by `fix_safety` field:
+Parse findings from JSON and classify by `fix_safety` field (after applying verification overlay from step 3):
 
 **Safe Fixes** (auto-apply):
 - `unused_import` - Unused imports
@@ -216,10 +223,10 @@ git diff --stat
 
 On successful completion (all verifications pass):
 ```bash
-rm .beagle/llm-artifacts-review.json
+rm -f .beagle/llm-artifacts-review.json .beagle/llm-artifacts-verification.json
 ```
 
-If any verification fails, keep the file and report:
+If any verification fails, keep the files and report:
 ```
 Review file preserved at .beagle/llm-artifacts-review.json
 Fix issues and re-run, or restore with: git stash pop

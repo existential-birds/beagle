@@ -1,6 +1,6 @@
 ---
 name: review-llm-artifacts
-description: Detects common LLM coding agent artifacts by spawning 4 parallel subagents
+description: Detects common LLM coding agent artifacts by spawning four parallel subagents over the project or changed files. Scans full codebase by default; use --since-main for diff-only. Triggers on LLM cruft cleanup, agent-generated code review, dead code sweeps, test-quality passes, or when the user asks to scan the whole repo.
 disable-model-invocation: true
 ---
 
@@ -10,30 +10,59 @@ Detect common artifacts left behind by LLM coding agents: over-abstraction, dead
 
 ## Arguments
 
-- `--all`: Scan entire codebase (default: changed files from main)
-- `--parallel`: Force parallel execution (default when 4+ files)
-- Path: Target directory (default: current working directory)
+Parse `$ARGUMENTS` for flags and optional path:
+
+| Flag | Effect |
+|------|--------|
+| *(default)* | **Full project scan** — all matching source files under the target path |
+| `--since-main` | Only files changed since `git merge-base HEAD main` (PR-style scope) |
+| `--parallel` | Force parallel execution (default when 4+ files in scope) |
+| Path | Root directory to scan (default: current working directory) |
 
 ## Step 1: Determine Scope
 
-Parse `$ARGUMENTS` for flags and path:
+**A. Changed files only (`--since-main`):**
 
 ```bash
-# Default: changed files from main
-git diff --name-only $(git merge-base HEAD main)..HEAD | grep -E '\.(py|ts|tsx|js|jsx|go|rs|java|rb|swift|kt)$'
-
-# If --all flag: scan entire codebase
-find . -type f \( -name "*.py" -o -name "*.ts" -o -name "*.tsx" -o -name "*.js" -o -name "*.jsx" -o -name "*.go" -o -name "*.rs" -o -name "*.java" -o -name "*.rb" -o -name "*.swift" -o -name "*.kt" \) ! -path "*/node_modules/*" ! -path "*/.git/*" ! -path "*/vendor/*" ! -path "*/__pycache__/*"
+git diff --name-only "$(git merge-base HEAD main)"..HEAD | grep -E '\.(py|ts|tsx|js|jsx|go|rs|java|rb|swift|kt)$' || true
 ```
 
-If no files found, exit with: "No files to scan. Check your branch has changes or use --all to scan the entire codebase."
+**B. Full project (default):**
+
+From `TARGET` (default `.`), list source files and exclude common dependency and build outputs:
+
+```bash
+find "$TARGET" -type f \( \
+  -name "*.py" -o -name "*.ts" -o -name "*.tsx" -o -name "*.js" -o -name "*.jsx" -o \
+  -name "*.go" -o -name "*.rs" -o -name "*.java" -o -name "*.rb" -o -name "*.swift" -o -name "*.kt" \
+\) \
+  ! -path "*/node_modules/*" \
+  ! -path "*/.git/*" \
+  ! -path "*/vendor/*" \
+  ! -path "*/__pycache__/*" \
+  ! -path "*/.venv/*" \
+  ! -path "*/venv/*" \
+  ! -path "*/dist/*" \
+  ! -path "*/build/*" \
+  ! -path "*/target/*" \
+  ! -path "*/.next/*" \
+  ! -path "*/coverage/*" \
+  ! -path "*/.turbo/*"
+```
+
+**Large repos:** If file count exceeds **400**, warn and suggest narrowing: pass a subdirectory as `TARGET`, or use `--since-main` for a smaller set. Still proceed unless the user explicitly cancels.
+
+If no files are found, exit with:
+
+`No files to scan. Check the path, branch, or use --since-main if you expected changed-file scope.`
+
+Set `scope` in the report: `"all"` for full project, `"changed"` for `--since-main`.
 
 ## Step 2: Detect Languages
 
 Extract unique file extensions from the file list:
 
 ```bash
-# Get unique extensions
 echo "$FILES" | sed 's/.*\.//' | sort -u
 ```
 
@@ -123,14 +152,14 @@ Write findings to `.beagle/llm-artifacts-review.json`:
   "version": "1.0.0",
   "created_at": "2024-01-15T10:30:00Z",
   "git_head": "abc1234",
-  "scope": "changed" | "all",
+  "scope": "all" | "changed",
   "files_scanned": 42,
   "languages": ["Python", "TypeScript", "Go"],
   "findings": [
     {
       "id": 1,
       "category": "tests" | "dead_code" | "abstraction" | "style",
-      "type": "dry_violation" | "unused_import" | "over_abstraction" | "verbose_comment" | ...,
+      "type": "dry_violation" | "unused_import" | "over_abstraction" | "verbose_comment" | "...",
       "file": "src/utils/helper.py",
       "line": 42,
       "description": "Repeated setup code in 5 test functions",
@@ -166,53 +195,22 @@ Write findings to `.beagle/llm-artifacts-review.json`:
 ```markdown
 ## LLM Artifacts Review
 
-**Scope:** Changed files from main | Entire codebase
+**Scope:** Entire project under `<path>` | Changed files since merge-base with main
 **Files scanned:** 42
 **Languages:** Python, TypeScript, Go
 
 ### Findings by Category
-
-#### Tests (4 issues)
-
-1. [src/tests/test_api.py:15] **DRY violation** (Medium, Safe)
-   - Repeated setup code in 5 test functions
-   - Suggestion: Extract to a pytest fixture
-
-2. [src/tests/test_utils.py:42] **Wrong mock boundary** (High, Needs review)
-   - Mocking internal implementation details
-   - Suggestion: Mock at the adapter boundary instead
-
-#### Dead Code (5 issues)
-
-3. [src/utils/legacy.py:1] **Unused module** (Low, Safe)
-   - Module imported nowhere in codebase
-   - Suggestion: Delete file
-
 ...
-
-#### Abstraction (3 issues)
-...
-
-#### Style (3 issues)
-...
-
 ### Summary Table
-
-| Category | Safe Fixes | Needs Review | Total |
-|----------|------------|--------------|-------|
-| Tests | 3 | 1 | 4 |
-| Dead Code | 4 | 1 | 5 |
-| Abstraction | 2 | 1 | 3 |
-| Style | 1 | 2 | 3 |
-| **Total** | **10** | **5** | **15** |
-
+...
 ### Next Steps
 
-- Run `/beagle-core:review-llm-artifacts --fix` to auto-fix Safe issues (coming soon)
+- Run `/beagle-core:verify-llm-artifacts` to confirm findings and drop false positives before fixing.
+- Run `/beagle-core:fix-llm-artifacts` after verification (or to preview safe-only fixes).
 - Review the JSON report at `.beagle/llm-artifacts-review.json`
 ```
 
-## Step 7: Verification
+## Step 7: Verification (report integrity)
 
 Before completing, verify the review executed correctly:
 
@@ -222,10 +220,8 @@ Before completing, verify the review executed correctly:
 4. **Staleness check:** If a previous report exists, compare stored `git_head` to current HEAD and warn if different
 
 ```bash
-# Verify JSON is valid
 python3 -c "import json; json.load(open('.beagle/llm-artifacts-review.json'))" 2>/dev/null && echo "✓ Valid JSON" || echo "✗ Invalid JSON"
 
-# Check for staleness (if previous report exists)
 STORED_HEAD=$(jq -r '.git_head' .beagle/llm-artifacts-review.json 2>/dev/null)
 CURRENT_HEAD=$(git rev-parse --short HEAD)
 if [ "$STORED_HEAD" != "$CURRENT_HEAD" ]; then
@@ -234,6 +230,8 @@ fi
 ```
 
 If any verification fails, report the error and do not proceed.
+
+**Finding-level verification** (precision, not JSON syntax) is a **separate** skill: `/beagle-core:verify-llm-artifacts` — run it before mass deletes or `--fix` on risky items.
 
 ## Output Format for Each Finding
 
@@ -252,3 +250,4 @@ If any verification fails, report the error and do not proceed.
 - Mark fix safety as "Safe" only if change is mechanical and reversible
 - Create `.beagle` directory if needed
 - Write JSON report before displaying summary
+- Default scope is **full project**; use `--since-main` for diff-only reviews

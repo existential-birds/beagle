@@ -19,8 +19,9 @@ claude plugin install beagle-core@existential-birds
 | **commit-push** | `/beagle-core:commit-push` | Commit and push all local changes using Conventional Commits format |
 | **create-pr** | `/beagle-core:create-pr` | Create a pull request with a standardized description template |
 | **review-plan** | `/beagle-core:review-plan` | Review implementation plans for parallelization, TDD, types, libraries, and security |
-| **review-llm-artifacts** | `/beagle-core:review-llm-artifacts` | Detect common LLM coding agent artifacts by spawning 4 parallel subagents |
-| **fix-llm-artifacts** | `/beagle-core:fix-llm-artifacts` | Apply fixes from a prior review-llm-artifacts run with safe/risky classification |
+| **review-llm-artifacts** | `/beagle-core:review-llm-artifacts` | Full-project (default) or `--since-main` scan for LLM agent artifacts via 4 parallel subagents |
+| **verify-llm-artifacts** | `/beagle-core:verify-llm-artifacts` | Confirm or reject review findings before deletes — reduces false positives |
+| **fix-llm-artifacts** | `/beagle-core:fix-llm-artifacts` | Apply fixes from a prior review (optionally after verification) with safe/risky classification |
 | **receive-feedback** | `/beagle-core:receive-feedback` | Process code review feedback from a file with verification-first discipline |
 | **fetch-pr-feedback** | `/beagle-core:fetch-pr-feedback` | Fetch bot review comments from a PR and evaluate with receive-feedback skill |
 | **respond-pr-feedback** | `/beagle-core:respond-pr-feedback` | Post replies to bot review comments after evaluation and fixes |
@@ -37,6 +38,7 @@ claude plugin install beagle-core@existential-birds
 | **review-feedback-schema** | Schema for tracking code review outcomes to enable feedback-driven skill improvement |
 | **review-skill-improver** | Analyzes feedback logs to identify patterns and suggest improvements to review skills |
 | **llm-artifacts-detection** | Detects common LLM coding agent artifacts: test quality issues, dead code, over-abstraction, and verbose style |
+| **verify-llm-artifacts** | Second-pass adjudication of review-llm-artifacts JSON; marks confirmed vs false positive vs inconclusive |
 | **github-projects** | GitHub Projects (v2) management via gh CLI for items, fields, and workflows |
 | **docling** | Document parser for PDF, DOCX, PPTX, HTML, images, and 15+ formats with RAG chunking support |
 | **sqlite-vec** | sqlite-vec extension for vector similarity search, KNN queries, and semantic search in SQLite |
@@ -46,6 +48,8 @@ claude plugin install beagle-core@existential-birds
 Each skill with a `references/` directory includes detailed reference documents:
 
 **llm-artifacts-detection**: dead code criteria, test quality criteria, abstraction criteria, style criteria
+
+**verify-llm-artifacts**: per-finding verification checklist (false positives vs confirmed issues)
 
 **receive-feedback**: skill integration patterns
 

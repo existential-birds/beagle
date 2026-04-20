@@ -1,6 +1,6 @@
 ---
 name: review-llm-artifacts
-description: Detects common LLM coding agent artifacts by spawning four parallel subagents over the project or changed files. Scans full codebase by default; use --since-main for diff-only. Triggers on LLM cruft cleanup, agent-generated code review, dead code sweeps, test-quality passes, or when the user asks to scan the whole repo.
+description: Detects common LLM coding agent artifacts by spawning four parallel subagents over the project or changed files. Scans files changed since main by default; use --all for full-project scan. Triggers on LLM cruft cleanup, agent-generated code review, dead code sweeps, test-quality passes, or when the user asks to scan the whole repo.
 disable-model-invocation: true
 ---
 
@@ -25,23 +25,23 @@ Parse `$ARGUMENTS` for flags and optional path:
 
 | Flag | Effect |
 |------|--------|
-| *(default)* | **Full project scan** — all matching source files under the target path |
-| `--since-main` | Only files changed since `git merge-base HEAD main` (PR-style scope) |
+| *(default)* | **Changed-files scope** — only files changed since `git merge-base HEAD main` (PR-style scope) |
+| `--all` | Full project scan — all matching source files under the target path |
 | `--parallel` | Force parallel execution (default when 4+ files in scope) |
 | Path | Root directory to scan (default: current working directory) |
 
 ## Step 1: Determine Scope
 
-**A. Changed files only (`--since-main`):**
+**A. Changed files only (default):**
 
-Resolve the base ref explicitly and fail loudly if none exists — **do not** wrap the `git merge-base` call in `|| true`, which would silently swallow a missing `main`/`master` ref and report "no files to scan" on repos that only have `origin/main` or use `master`.
+Resolve the base ref explicitly and fail loudly if none exists — **do not** wrap the `git merge-base` call in `|| true`, which would silently swallow a missing `main`/`master` ref and report "no files to scan" on repos that only have `origin/main` or use `master`. If no base ref is found, suggest the user pass `--all` instead of silently falling back.
 
 ```bash
 BASE=$(for ref in main origin/main master origin/master; do
          git rev-parse --verify "$ref" >/dev/null 2>&1 && { echo "$ref"; break; }
        done)
 if [ -z "$BASE" ]; then
-  echo "error: no main/master ref found (checked main, origin/main, master, origin/master). Pass a path or drop --since-main." >&2
+  echo "error: no main/master ref found (checked main, origin/main, master, origin/master). Pass --all for a full-project scan." >&2
   exit 1
 fi
 MERGE_BASE=$(git merge-base HEAD "$BASE") || {
@@ -53,7 +53,7 @@ git diff --name-only "$MERGE_BASE..HEAD" | grep -E '\.(py|ts|tsx|js|jsx|go|rs|ja
 
 (The trailing `|| true` on the `grep` is intentional — zero source-file matches is a legitimate empty-scope result, distinct from a failed base-ref resolution.)
 
-**B. Full project (default):**
+**B. Full project (`--all`):**
 
 From `TARGET` (default `.`), list source files and **prune** excluded dependency/build trees so `find` never descends into them. `! -path "*/foo/*"` only filters the output; `find` still walks the tree (minutes of wasted I/O on large `node_modules`, `target`, etc.). Use `-prune` instead:
 
@@ -71,13 +71,13 @@ find "$TARGET" \
   \) -print \)
 ```
 
-**Large repos:** If file count exceeds **400**, warn and suggest narrowing: pass a subdirectory as `TARGET`, or use `--since-main` for a smaller set. Still proceed unless the user explicitly cancels.
+**Large repos:** The `--all` path can produce huge file lists. If file count exceeds **400**, warn and suggest narrowing: pass a subdirectory as `TARGET`, or drop `--all` to fall back to the default changed-files scope. Still proceed unless the user explicitly cancels. (This warning does **not** fire on the default changed-files scope, which is already bounded by the PR diff.)
 
 If no files are found, exit with:
 
-`No files to scan. Check the path, branch, or use --since-main if you expected changed-file scope.`
+`No files to scan. Check the path, branch, or pass --all for a full-project scan.`
 
-Set `scope` in the report: `"all"` for full project, `"changed"` for `--since-main`.
+Set `scope` in the report: `"all"` for `--all`, `"changed"` for the default changed-files scope.
 
 ## Step 2: Detect Languages
 
@@ -221,7 +221,7 @@ Write findings to `.beagle/llm-artifacts-review.json`:
 ```markdown
 ## LLM Artifacts Review
 
-**Scope:** Entire project under `<path>` | Changed files since merge-base with main
+**Scope:** Changed files since merge-base with main | Entire project under `<path>` (when `--all`)
 **Files scanned:** 42
 **Languages:** Python, TypeScript, Go
 
@@ -277,4 +277,4 @@ If any verification fails, report the error and do not proceed.
 - Mark fix safety as "Safe" only if change is mechanical and reversible
 - Create `.beagle` directory if needed
 - Write JSON report before displaying summary
-- Default scope is **full project**; use `--since-main` for diff-only reviews
+- Default scope is **changed files since merge-base with main**; pass `--all` for a full-project scan

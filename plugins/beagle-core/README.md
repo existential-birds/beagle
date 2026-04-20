@@ -19,7 +19,7 @@ claude plugin install beagle-core@existential-birds
 | **commit-push** | `/beagle-core:commit-push` | Commit and push all local changes using Conventional Commits format |
 | **create-pr** | `/beagle-core:create-pr` | Create a pull request with a standardized description template |
 | **review-plan** | `/beagle-core:review-plan` | Review implementation plans for parallelization, TDD, types, libraries, and security |
-| **review-llm-artifacts** | `/beagle-core:review-llm-artifacts` | Full-project (default) or `--since-main` scan for LLM agent artifacts via 4 parallel subagents |
+| **review-llm-artifacts** | `/beagle-core:review-llm-artifacts` | Scan for LLM agent artifacts via 4 parallel subagents. Default: files changed since merge-base with main; `--all` opt-in for full-project scan |
 | **verify-llm-artifacts** | `/beagle-core:verify-llm-artifacts` | Confirm or reject review findings before deletes — reduces false positives |
 | **fix-llm-artifacts** | `/beagle-core:fix-llm-artifacts` | Apply fixes from a prior review (optionally after verification) with safe/risky classification |
 | **receive-feedback** | `/beagle-core:receive-feedback` | Process code review feedback from a file with verification-first discipline |

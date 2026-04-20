@@ -16,7 +16,7 @@ Apply fixes from a previous `review-llm-artifacts` run with automatic safe/risky
 
 **Flags:**
 - `--dry-run` - Show what would be fixed without changing files
-- `--all` - Fix entire codebase (runs full-project `review-llm-artifacts` first if no review JSON)
+- `--all` - Fix entire codebase (runs `review-llm-artifacts --all` first if no review JSON)
 - `--category <name>` - Only fix specific category: `tests|dead-code|abstraction|style`
 
 ## Instructions
@@ -66,7 +66,7 @@ cat .beagle/llm-artifacts-review.json 2>/dev/null
 ```
 
 **If file missing:**
-- If `--all` flag: Run full-project review first (default scope of `review-llm-artifacts`; no extra flag required)
+- If `--all` flag: Run `review-llm-artifacts --all` first to produce a full-project review
 - Otherwise: Fail with: "No review results found. Run `/beagle-core:review-llm-artifacts` first."
 
 **Optional verification overlay** — if `.beagle/llm-artifacts-verification.json` exists:
@@ -90,9 +90,9 @@ fi
 ```
 
 If stale, prompt: "Review results are stale. Re-run review? (y/n)".
-- **`y`** → **re-run `review-llm-artifacts` with the original scope and target** read from the stale JSON, then reload. This preserves the user's original intent; do **not** fall back to the default full-project scan, which would widen a `--since-main` or narrowed-path review and apply fixes unrelated to the user's diff. Concretely:
-  - `scope == "changed"` → invoke `review-llm-artifacts --since-main "$stored_target"`.
-  - `scope == "all"`     → invoke `review-llm-artifacts "$stored_target"`.
+- **`y`** → **re-run `review-llm-artifacts` with the original scope and target** read from the stale JSON, then reload. This preserves the user's original intent; do **not** silently widen or narrow the scope, which would apply fixes unrelated to the user's diff (or miss files they cared about). Concretely:
+  - `scope == "changed"` → invoke `review-llm-artifacts "$stored_target"` (default scope is already changed-files).
+  - `scope == "all"`     → invoke `review-llm-artifacts --all "$stored_target"`.
   - If `scope` or `target` is missing from the JSON (pre-schema review), **abort** and ask the user to re-run review explicitly with the scope they want.
 - **`n`** → **abort** (do not apply fixes; stale findings are not trustworthy).
 

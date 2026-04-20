@@ -12,7 +12,7 @@ Use this **before** marking a review finding as `confirmed_issue`. Skipping step
 
 - [ ] **References:** Searched the repo for symbol name, string literals, and re-exports.
 - [ ] **Dynamic use:** Considered reflection, `getattr`, serialization, RPC/CLI registration, DI containers, framework callbacks (e.g. Flask routes by string).
-- [ ] **Cross-package:** If monorepo, checked other packages or apps that might import this module.
+- [ ] **Cross-package:** Detect monorepo by checking for any of: `[workspace]` in the root `Cargo.toml`; a `workspaces` key in the root `package.json`; `pnpm-workspace.yaml`; `lerna.json`; or `turbo.json`. If **any** marker is present, this check is **required** — grep the symbol name across sibling packages (e.g. `rg '<symbol>' packages/ apps/ crates/`) before marking `confirmed_issue`.
 - [ ] **Tests-only usage:** Confirmed whether “only tests use it” is intentional (test helpers, fakes).
 - [ ] **Public API:** If exported, checked `__all__`, package `__init__.py`, and consuming repos (if applicable).
 

@@ -34,7 +34,11 @@ Complete these **in order**. Do not advance to the next gate until its **Pass** 
 
 2. **Trace complete (after Step 4)** — **Pass:** Every affected entry point you will test has a **Core functionality** vs **Configuration/admin** classification, and the Step 4 requirement holds: at least one test targets a core entry point **or** you document why that is impossible and flag manual review.
 
-3. **Plan file valid (after Step 6, before Step 7)** — **Pass:** `docs/testing/test-plan.yaml` exists; `python3 -c "import yaml; yaml.safe_load(open('docs/testing/test-plan.yaml'))"` exits 0; `grep -E "^version:|^metadata:|^setup:|^tests:" docs/testing/test-plan.yaml` matches all four keys.
+3. **Plan file valid (after Step 6, before Step 7)** — **Pass:** `docs/testing/test-plan.yaml` exists and the following command exits 0 (parses the YAML **and** asserts all four top-level keys are present — a single `grep -E` with alternations would pass on any one match, so do not substitute it):
+
+    ```bash
+    python3 -c "import sys, yaml; d = yaml.safe_load(open('docs/testing/test-plan.yaml')) or {}; missing = [k for k in ('version', 'metadata', 'setup', 'tests') if k not in d]; sys.exit('Missing keys: ' + ', '.join(missing) if missing else 0)"
+    ```
 
 4. **No automated-test duplication (Step 8)** — **Pass:** Every `run:` step and every `services:` `command:` is scanned for project test runners (`cargo test`, `pytest`, `npm test`, `go test`, `mix test`, `jest`, `vitest`, `mocha`, etc.); **zero** invocations. If any appear, remove or replace them with real E2E actions and re-run Gate 3.
 

@@ -34,31 +34,41 @@ Parse `$ARGUMENTS` for flags and optional path:
 
 **A. Changed files only (`--since-main`):**
 
+Resolve the base ref explicitly and fail loudly if none exists — **do not** wrap the `git merge-base` call in `|| true`, which would silently swallow a missing `main`/`master` ref and report "no files to scan" on repos that only have `origin/main` or use `master`.
+
 ```bash
-git diff --name-only "$(git merge-base HEAD main)"..HEAD | grep -E '\.(py|ts|tsx|js|jsx|go|rs|java|rb|swift|kt)$' || true
+BASE=$(for ref in main origin/main master origin/master; do
+         git rev-parse --verify "$ref" >/dev/null 2>&1 && { echo "$ref"; break; }
+       done)
+if [ -z "$BASE" ]; then
+  echo "error: no main/master ref found (checked main, origin/main, master, origin/master). Pass a path or drop --since-main." >&2
+  exit 1
+fi
+MERGE_BASE=$(git merge-base HEAD "$BASE") || {
+  echo "error: git merge-base HEAD $BASE failed." >&2
+  exit 1
+}
+git diff --name-only "$MERGE_BASE..HEAD" | grep -E '\.(py|ts|tsx|js|jsx|go|rs|java|rb|swift|kt)$' || true
 ```
+
+(The trailing `|| true` on the `grep` is intentional — zero source-file matches is a legitimate empty-scope result, distinct from a failed base-ref resolution.)
 
 **B. Full project (default):**
 
-From `TARGET` (default `.`), list source files and exclude common dependency and build outputs:
+From `TARGET` (default `.`), list source files and **prune** excluded dependency/build trees so `find` never descends into them. `! -path "*/foo/*"` only filters the output; `find` still walks the tree (minutes of wasted I/O on large `node_modules`, `target`, etc.). Use `-prune` instead:
 
 ```bash
-find "$TARGET" -type f \( \
-  -name "*.py" -o -name "*.ts" -o -name "*.tsx" -o -name "*.js" -o -name "*.jsx" -o \
-  -name "*.go" -o -name "*.rs" -o -name "*.java" -o -name "*.rb" -o -name "*.swift" -o -name "*.kt" \
-\) \
-  ! -path "*/node_modules/*" \
-  ! -path "*/.git/*" \
-  ! -path "*/vendor/*" \
-  ! -path "*/__pycache__/*" \
-  ! -path "*/.venv/*" \
-  ! -path "*/venv/*" \
-  ! -path "*/dist/*" \
-  ! -path "*/build/*" \
-  ! -path "*/target/*" \
-  ! -path "*/.next/*" \
-  ! -path "*/coverage/*" \
-  ! -path "*/.turbo/*"
+find "$TARGET" \
+  \( -type d \( \
+       -name node_modules -o -name .git -o -name vendor -o -name __pycache__ \
+    -o -name .venv        -o -name venv -o -name dist   -o -name build \
+    -o -name target       -o -name .next -o -name coverage -o -name .turbo \
+  \) -prune \) -o \
+  \( -type f \( \
+       -name "*.py" -o -name "*.ts" -o -name "*.tsx" -o -name "*.js" -o -name "*.jsx" \
+    -o -name "*.go" -o -name "*.rs" -o -name "*.java" -o -name "*.rb" \
+    -o -name "*.swift" -o -name "*.kt" \
+  \) -print \)
 ```
 
 **Large repos:** If file count exceeds **400**, warn and suggest narrowing: pass a subdirectory as `TARGET`, or use `--since-main` for a smaller set. Still proceed unless the user explicitly cancels.
@@ -166,6 +176,7 @@ Write findings to `.beagle/llm-artifacts-review.json`:
   "created_at": "2024-01-15T10:30:00Z",
   "git_head": "abc1234",
   "scope": "all" | "changed",
+  "target": ".",
   "files_scanned": 42,
   "languages": ["Python", "TypeScript", "Go"],
   "findings": [

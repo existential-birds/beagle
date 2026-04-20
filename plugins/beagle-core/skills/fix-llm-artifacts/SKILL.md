@@ -78,8 +78,10 @@ If verification is missing, warn when applying deletes or `dead-code` fixes: "Fo
 
 **If file exists, validate freshness:**
 ```bash
-# Get stored git HEAD from JSON
-stored_head=$(jq -r '.git_head' .beagle/llm-artifacts-review.json)
+# Get stored git HEAD, scope, and target from JSON
+stored_head=$(jq -r '.git_head'   .beagle/llm-artifacts-review.json)
+stored_scope=$(jq -r '.scope // "all"'  .beagle/llm-artifacts-review.json)
+stored_target=$(jq -r '.target // "."'  .beagle/llm-artifacts-review.json)
 current_head=$(git rev-parse HEAD)
 
 if [ "$stored_head" != "$current_head" ]; then
@@ -87,7 +89,12 @@ if [ "$stored_head" != "$current_head" ]; then
 fi
 ```
 
-If stale, prompt: "Review results are stale. Re-run review? (y/n)". **`y`** → re-run `review-llm-artifacts`, then reload JSON. **`n`** → **abort** (do not apply fixes; stale findings are not trustworthy).
+If stale, prompt: "Review results are stale. Re-run review? (y/n)".
+- **`y`** → **re-run `review-llm-artifacts` with the original scope and target** read from the stale JSON, then reload. This preserves the user's original intent; do **not** fall back to the default full-project scan, which would widen a `--since-main` or narrowed-path review and apply fixes unrelated to the user's diff. Concretely:
+  - `scope == "changed"` → invoke `review-llm-artifacts --since-main "$stored_target"`.
+  - `scope == "all"`     → invoke `review-llm-artifacts "$stored_target"`.
+  - If `scope` or `target` is missing from the JSON (pre-schema review), **abort** and ask the user to re-run review explicitly with the scope they want.
+- **`n`** → **abort** (do not apply fixes; stale findings are not trustworthy).
 
 ### 4. Partition Findings by Safety
 

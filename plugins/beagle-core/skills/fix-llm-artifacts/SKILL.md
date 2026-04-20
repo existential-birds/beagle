@@ -93,7 +93,9 @@ If stale, prompt: "Review results are stale. Re-run review? (y/n)".
 - **`y`** → **re-run `review-llm-artifacts` with the original scope and target** read from the stale JSON, then reload. This preserves the user's original intent; do **not** silently widen or narrow the scope, which would apply fixes unrelated to the user's diff (or miss files they cared about). Concretely:
   - `scope == "changed"` → invoke `review-llm-artifacts "$stored_target"` (default scope is already changed-files).
   - `scope == "all"`     → invoke `review-llm-artifacts --all "$stored_target"`.
-  - If `scope` or `target` is missing from the JSON (pre-schema review), **abort** and ask the user to re-run review explicitly with the scope they want.
+  - If `scope` or `target` is missing from the JSON (pre-schema review), **do not abort.** Assume `scope = "all"` and `target = "."`, then warn:
+    > "Review JSON predates the scope/target schema; re-running as a full-project scan (`--all`). If you meant a narrower scope (the default changed-files diff, or a subdirectory), cancel now and re-run `/beagle-core:review-llm-artifacts` explicitly."
+    Proceed only if the user does not cancel.
 - **`n`** → **abort** (do not apply fixes; stale findings are not trustworthy).
 
 ### 4. Partition Findings by Safety

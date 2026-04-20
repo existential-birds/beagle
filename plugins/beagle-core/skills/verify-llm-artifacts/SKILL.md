@@ -130,3 +130,4 @@ End with:
 ## Integration
 
 - **`fix-llm-artifacts`:** When this file exists, use it to skip `false_positive` ids and to treat `inconclusive` like risky fixes.
+- **`fix_action` custody:** The `fix_action` field (`refactor`/`delete`/`simplify`/`extract`) is emitted by `review-llm-artifacts` and consumed by `fix-llm-artifacts` as a risk gate; verification carries it through unchanged and does **not** re-validate it.

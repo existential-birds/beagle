@@ -50,6 +50,32 @@ Only flag issues when the context warrants it:
 - **Flag missing error handling** ONLY IF HTTPException isn't raised appropriately for error cases
 - **Flag sync in async** ONLY IF the operation is actually blocking (file I/O, network calls, CPU-bound), not just non-async
 
+## Gates (FastAPI-specific)
+
+Run **once per FastAPI-related finding**, after you can anchor **`file:line`** for the handler (see [review-verification-protocol](../review-verification-protocol/SKILL.md)) and **before** the finding text ships. If a step’s pass condition is not met, **do not** assert the finding as written—gather evidence, withdraw, downgrade severity, or rephrase as a question.
+
+### Gate 1 — Route decorator and response surface
+
+| Step | Action | **Pass condition** |
+|------|--------|---------------------|
+| 1a | Open the handler’s route decorator in the repo (not from memory). | **`file:line`** for `@router.*` / `@app.*` (or the site that registers this handler). |
+| 1b | Record HTTP method, `response_model=`, and `status_code=` on that decorator (or note they are absent). | **Snippet from that line** or **explicit absent** with the same **`file:line`**. |
+
+### Gate 2 — Blocking or “should be async”
+
+| Step | Action | **Pass condition** |
+|------|--------|---------------------|
+| 2a | Read the full handler body. | **`file:line` range** covering the body. |
+| 2b | If claiming blocking I/O: name each blocking call (e.g. `requests.`, `open(`, `time.sleep`, sync DB/ORM). | **Each** call has **`file:line`**, or withdraw the finding if **none** after the read. |
+
+### Gate 3 — Depends, validation, auth
+
+| Step | Action | **Pass condition** |
+|------|--------|---------------------|
+| 3a | List parameters: `Depends` / `Annotated[..., Depends]`, Pydantic models, `Body`/`Query`/`Path`, `Request`/`Response`. | **Names + mechanism** tied to **`file:line`** on the signature. |
+| 3b | If claiming missing auth: search the handler file (and its `APIRouter` module if separate) for `Depends`, `Security`, `HTTPBearer`, or project auth dependencies. | **Citation** to an existing hook, or **search result**: paths searched + **N matches** (zero is allowed). |
+| 3c | If claiming missing validation: confirm the argument is not already a Pydantic model or constrained `Query`/`Path`/`Body`. | **Type/source** with **`file:line`**, or withdraw if validation already applies. |
+
 ## FastAPI Framework Behaviors
 
 FastAPI + Pydantic handle many concerns automatically:
@@ -76,4 +102,5 @@ Before flagging "missing" functionality, verify FastAPI isn't handling it.
 
 ## Before Submitting Findings
 
-Load and follow [review-verification-protocol](../review-verification-protocol/SKILL.md) before reporting any issue.
+1. For each FastAPI-related finding, complete **Gates (FastAPI-specific)** above.
+2. Load and follow [review-verification-protocol](../review-verification-protocol/SKILL.md) (Pre-Report checklist and **Verification by Issue Type**) before reporting any issue.

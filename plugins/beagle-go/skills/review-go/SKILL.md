@@ -17,6 +17,8 @@ disable-model-invocation: true
 git diff --name-only $(git merge-base HEAD main)..HEAD | grep -E '\.go$'
 ```
 
+**Pass condition:** If this prints nothing, state **No Go files in this diff** in the summary and **skip Steps 2–6**; do not invent findings for out-of-scope files.
+
 ## Step 2: Detect Technologies
 
 ```bash
@@ -56,6 +58,8 @@ Use the `Skill` tool to load each applicable skill (e.g., `Skill(skill: "beagle-
 | Wish SSH detected | `beagle-go:wish-ssh-code-review` |
 | Prometheus detected | `beagle-go:prometheus-go-code-review` |
 
+**Pass before Step 5:** You have loaded `beagle-go:go-code-review` (and Step 3 verification protocol). Load a **conditional** skill only when its row applies: `_test.go` in Step 1 diff → testing skill; BubbleTea/Wish/Prometheus skill only if the matching Step 2 `grep` returned at least one path (if `grep` returned nothing, do **not** load that skill).
+
 ## Step 5: Review
 
 **Sequential (default):**
@@ -79,6 +83,12 @@ Before reporting any issue:
 3. For "missing" claims - did you check framework/parent handling?
 4. For syntax issues - did you verify against current version docs?
 5. Remove any findings that are style preferences, not actual issues
+
+**Hard gates before listing any Critical or Major issue** (Informational may be lighter):
+
+1. **Read-depth:** You opened the file on disk and read at least the enclosing function or block (diff-only or excerpt-only reading is not enough).
+2. **Unused / dead code:** You ran a reference search (`rg`/IDE) and noted the result in the finding (e.g. no references outside tests), or you are not claiming unused symbols.
+3. **“Missing” behavior:** You checked callers, framework wiring, or docs for the claimed gap, or you downgraded/dropped the item.
 
 ## Step 7: Review Convergence
 

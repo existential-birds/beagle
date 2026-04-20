@@ -22,6 +22,16 @@ Post replies to review comments after you've evaluated the feedback and made fix
 
 Run `/beagle-core:fetch-pr-feedback` first to evaluate the feedback and make any necessary fixes.
 
+## Hard gates (sequenced)
+
+Advance only after each pass condition is met (objective checks—not assumed completion).
+
+1. **Prerequisite satisfied:** You have already run `/beagle-core:fetch-pr-feedback`, evaluated each thread, and applied fixes or chosen an explicit response strategy per thread (no posting blind).
+2. **Context loaded:** Step 2 commands exit `0`; values parsed from `gh pr view`, `gh repo view`, and `gh api user` are non-empty and assigned to `$PR_NUMBER`, `$PR_AUTHOR`, `$OWNER`, `$REPO`, `$CURRENT_USER`—never invent owner, repo, or PR number.
+3. **Queue decided:** Step 3a `jq` exits `0`. If the filtered list is empty, output exactly `All review comments have been addressed.` and **stop** (do not call reply or GraphQL resolve APIs).
+4. **Reply before resolve:** For each target comment, Step 4 `gh api .../replies` exits `0` before Step 5 attempts resolution for that item (unless `--no-resolve`).
+5. **Resolve with mapping:** Step 5 calls `resolveReviewThread` only when Step 3b provides a `threadId` for that comment’s id; if there is no mapping, skip resolution for that item without treating it as failure.
+
 ## Instructions
 
 ### 1. Parse Arguments

@@ -11,6 +11,15 @@ disable-model-invocation: true
 - `--parallel`: Spawn specialized subagents per technology area
 - Path: Target directory (default: current working directory)
 
+## Hard gates
+
+Complete in order before writing **Issues** in the output (empty scope is allowed; fabricated findings are not).
+
+1. **Scope gate:** You have an explicit list of `.ex`/`.exs`/`.heex` paths under review (from Step 1 or user path). **Pass:** List printed or "No Elixir files in scope" — then stop with no Issues.
+2. **Linter gate (style):** Step 2 commands ran for this Mix project; skipped tools are noted in one line (e.g. no `.credo.exs`). **Pass:** You do not report a style issue that already passes the project's formatter/linter for that line.
+3. **Protocol gate:** `beagle-elixir:review-verification-protocol` is loaded before Step 6. **Pass:** At least one reported finding was checked against that checklist (state which item in the Review Summary or first Critical/Major note).
+4. **Evidence gate (Critical/Major):** For each Critical or Major item, you re-read the file at `FILE:LINE` (full surrounding context, not only the diff hunk). **Pass:** The Issue description matches observable code at that location.
+
 ## Step 1: Identify Changed Files
 
 ```bash
@@ -104,7 +113,7 @@ Use the `Skill` tool to load each applicable skill.
 
 ## Step 7: Verify Findings
 
-Before reporting any issue:
+Satisfy **Hard gates** items 2–4 before finalizing Issues. Before reporting any issue:
 1. Re-read the actual code (not just diff context)
 2. For "unused" claims - did you search all references?
 3. For "missing" claims - did you check framework/parent handling?
@@ -198,16 +207,23 @@ Rationale: [1-2 sentences]
 
 ## Post-Fix Verification
 
-After fixes are applied, run:
+After fixes are applied, run the same checks as Step 2, then tests:
 
 ```bash
 mix format --check-formatted
-mix credo --strict
-mix dialyzer
+
+if [ -f ".credo.exs" ] || grep -q ":credo" mix.exs 2>/dev/null; then
+    mix credo --strict
+fi
+
+if grep -q ":dialyxir" mix.exs 2>/dev/null; then
+    mix dialyzer --format short
+fi
+
 mix test
 ```
 
-All checks must pass before approval.
+All invoked checks must pass before approval.
 
 ## Rules
 

@@ -16,6 +16,18 @@ gh auth status  # Check current scopes
 gh auth refresh -s project  # Add project scope if missing
 ```
 
+## Gates (destructive and high-impact)
+
+Commands like `project close`, `project unlink`, `item-archive`, `item-delete`, and `field-delete` change or remove data. Use a sequenced check, not recall from an earlier turn.
+
+1. **Pass:** Run `gh project view PROJECT_NUM --owner OWNER` (or `gh project list --owner OWNER --format json`) and confirm the **title** (or `title` in JSON) matches the project you intend.
+2. **Pass:** For items and fields, set `ITEM_ID`, `FIELD_ID`, `PROJECT_ID`, and option IDs only from `gh project item-list … --format json` or `gh project field-list … --format json` **in this session**—not guessed, truncated, or copied from unrelated output.
+3. **Then** run the destructive subcommand.
+
+### Bulk add (pipelines)
+
+1. **Pass:** Run `gh project item-add` once for a single `--url` and confirm the item appears in `gh project item-list … --format json` (or the UI) before using `xargs` or loops on many URLs.
+
 ## Quick Reference
 
 ### List & View Projects

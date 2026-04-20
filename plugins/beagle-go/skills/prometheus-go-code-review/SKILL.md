@@ -15,6 +15,18 @@ description: Reviews Prometheus instrumentation in Go code for proper metric typ
 - [ ] Collectors don't panic on race conditions
 - [ ] /metrics endpoint exposed and accessible
 
+## Hard gates (sequenced)
+
+Complete in order before recording a **finding**. Skip gates that clearly do not apply to the diff.
+
+1. **Evidence scope** — Enumerate the files you are reviewing that touch Prometheus (`prometheus/client_golang`, `promauto`, `promhttp`, or `MustRegister`). **Pass:** you have a concrete path list (from the diff or an explicit file set); no repo-wide claim without at least one path.
+
+2. **Label cardinality** — For each `*Vec` or labeled metric in scope, list label names and where values come from (constants, bounded codes, vs request-derived strings). **Pass:** no label uses unbounded values (e.g. raw `user_id`, full URL path, timestamps) unless the code uses a bounded mapping and you cite it.
+
+3. **Registration lifecycle** — For metric definitions in scope, confirm constructors run once (package-level `var`, `init`, or `sync.Once`), not inside per-request handlers. **Pass:** no pattern that allocates/registers a new `Counter`/`Histogram`/`*Vec` on every request for the same logical metric.
+
+4. **Finding shape** — Each finding names a file (and line or symbol where possible), states which gate (2 or 3) would fail if the issue is real, and ties to observed code. **Pass:** no standalone style nit when gates 2–3 are satisfied for that code.
+
 ## Metric Type Selection
 
 | Measurement | Type | Example |

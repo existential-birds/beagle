@@ -23,6 +23,30 @@ The command runs in two phases:
 1. **Analysis Phase:** Parse document, classify sections, identify issues
 2. **Refinement Phase:** Interactive loop to improve each section
 
+## Gates
+
+Hard sequencing — advance only when the **pass condition** is met (artifact or explicit user input, not assumed).
+
+**Before Phase 2 (refinement):**
+
+1. **Read** — Full contents of the file at **Path** are loaded.
+   - **Pass:** Enumerated sections (from `#` / `##` / `###` headings) cover every heading in the file; titles match the source.
+2. **Core skill** — `beagle-docs:docs-style` is loaded (or its path read) before classification.
+   - **Pass:** Analysis output reflects at least one concrete principle from that skill (name it or quote briefly).
+3. **Handoff** — User saw an analysis summary (template in Step 5 or equivalent) and entered **`start`** to begin refinement, or **`abort`** to exit.
+   - **Pass:** If `abort`, no writes to **Path**. If `start`, proceed to Phase 2.
+
+**Before overwriting the file (Phase 2, Step 4):**
+
+1. **Choices** — Every section with open issues has a terminal outcome: applied **`yes`**, unchanged **`skip`**, or **`modify`** loop finished with **`yes`** or **`skip`**.
+   - **Pass:** No section left in a pending `modify` state unless the user aborted the whole session (then do not write).
+2. **Skips** — Content for every **`skip`** matches the original section text (copy preserved, not paraphrased).
+   - **Pass:** Spot-check: first and last line of each skipped block unchanged vs. initial read.
+3. **Write** — Only after the above.
+   - **Pass:** Single save to **Path**; completion report notes backup or major restructure if applicable (Rules).
+
+**Ambiguous Diataxis type** — If classification is uncertain, do not edit that section until the user answers the clarifying fork (Step 2b) or explicitly confirms your stated default.
+
 ## Phase 1: Analysis
 
 ### Step 1: Read Document
@@ -344,9 +368,10 @@ The original file has been updated.
 
 ## Rules
 
+- Follow **Gates** for phase transitions and before saving to **Path**
 - Always load `docs-style` skill before analysis
 - Load type-specific skills lazily as sections are encountered
-- Never modify the file until refinement phase completes
+- Never modify the file until refinement phase completes (see Gates: overwrite)
 - Preserve sections marked "skip" exactly as-is
 - When splitting sections, maintain logical reading order
 - Ask clarifying questions when type classification is ambiguous (confidence < 70%)

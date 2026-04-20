@@ -31,6 +31,22 @@ date,file,line,rule_source,category,severity,issue,verdict,rationale
 | `verdict` | enum | Human decision | `ACCEPT`, `REJECT`, `DEFER`, `ACKNOWLEDGE` |
 | `rationale` | string | Why verdict was chosen | `pydantic-ai docs explicitly support this pattern` |
 
+## Gates (feedback log rows)
+
+Run **in order** before appending a row. Do not skip ahead while a gate fails.
+
+1. **Evidence bound to code**
+   - **Pass when:** `file` is a repo-relative path that exists (or existed at review time), and `line` identifies line number(s) you actually opened—not only a paraphrased summary.
+
+2. **Rule source attributable**
+   - **Pass when:** `rule_source` matches `skill-name[/section]:rule-id` (see [Rule Source Format](#rule-source-format)). If the trigger is unknown, set a best-effort source and state the gap in `rationale` instead of inventing a rule id.
+
+3. **Verdict backed by artifact**
+   - **Pass when:** For `REJECT`, `rationale` cites something checkable (command + output, doc URL, or quoted code). For `ACCEPT`, it states the fix or points to the change. For `DEFER`/`ACKNOWLEDGE`, it names a tracker, timeline, or documented intent per [Verdict Types](#verdict-types).
+
+4. **Row shape valid**
+   - **Pass when:** The line has nine comma-separated fields matching the header row; fields that contain commas or newlines are CSV-quoted so a standard parser preserves columns.
+
 ## Verdict Types
 
 | Verdict | Meaning | Action |

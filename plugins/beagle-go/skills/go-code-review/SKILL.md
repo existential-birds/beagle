@@ -7,12 +7,28 @@ description: Reviews Go code for idiomatic patterns, error handling, concurrency
 
 ## Review Workflow
 
-Follow this sequence to avoid false positives and catch version-specific issues:
+Follow this sequence **in order**. Do not emit findings until every **Pass** below is satisfied.
 
-1. **Check `go.mod`** — Note the Go version. This determines which patterns apply (loop variable capture is only an issue pre-1.22, `slog` is available from 1.21, `errors.Join` from 1.20). Skip version-gated checks that don't apply.
-2. **Scan changed files** — Read full functions, not just diffs. Many Go bugs hide in what surrounds the change.
-3. **Check each category** — Work through the checklist below, loading references as needed.
-4. **Verify before reporting** — Load beagle-go:review-verification-protocol before submitting findings.
+1. **Baseline `go.mod`** — Open `go.mod` and read the `go` directive.  
+   **Pass:** You can state the exact `go X.YY` value (in the review preamble or working notes). Apply version-gated advice only when it matches this baseline (loop capture pre-1.22, `slog`/structured logging from 1.21, `errors.Join` from 1.20).
+
+2. **Read surrounding code** — For each changed `.go` file, read full functions or logical units that contain the edits, not only the diff hunk.  
+   **Pass:** At least one full enclosing function (or package-level `init`/var block) containing the change was read per changed file.
+
+3. **Scope the checklist** — Decide which [Review Checklist](#review-checklist) blocks apply (error handling, concurrency, interfaces/types, resources, naming). Load [references](#quick-reference) for those blocks; skip blocks that are irrelevant to the diff.  
+   **Pass:** The review (or working notes) lists which checklist blocks you applied, or marks blocks N/A with a one-line reason tied to the diff (e.g. “no concurrency in change”).
+
+4. **Pre-report verification** — Load and follow [review-verification-protocol](../review-verification-protocol/SKILL.md).  
+   **Pass:** The protocol’s **Pre-Report Verification Checklist** is satisfied for each finding you will report (actual code read, surrounding context checked, “wrong” vs “different style” distinguished, etc.).
+
+## Hard gates (same sequence, shorter)
+
+| Step | Objective pass condition |
+| --- | --- |
+| 1 | `go X.YY` from `go.mod` is recorded before version-specific advice. |
+| 2 | Full enclosing context read per changed file, not diff-only. |
+| 3 | In-scope checklist blocks listed or N/A with diff-tied reason; references opened as needed. |
+| 4 | `review-verification-protocol` completed for every reported issue. |
 
 ## Output Format
 
@@ -135,4 +151,4 @@ Only flag these issues when the specific conditions apply:
 
 ## Before Submitting Findings
 
-Load and follow [review-verification-protocol](../review-verification-protocol/SKILL.md) before reporting any issue.
+Satisfy **step 4** in [Review Workflow](#review-workflow): load [review-verification-protocol](../review-verification-protocol/SKILL.md) and complete its pre-report checks for each issue.

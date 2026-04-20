@@ -12,6 +12,15 @@ Review implementation plans created by `superpowers:writing-plans` before execut
 
 - Path: Plan file to review (e.g., `docs/plans/2025-01-15-auth-feature.md`)
 
+## Hard gates (sequence)
+
+Do not skip ahead; each step **passes** only when the condition is objectively satisfied (artifact path, tool success, or labeled capture—not “I read it mentally”).
+
+1. **Plan file reachable** — **Pass:** `Read` (or equivalent) succeeds on `Path`; if not, stop and report the missing path. **Pass:** You can quote or point to where `**Goal:**`, `**Architecture:**`, and `**Tech Stack:**` appear, *or* you record “header field X absent” as a finding before Step 2.
+2. **Skills loaded before agents** — **Pass:** For each row you will rely on in Step 2’s table, the corresponding skill is loaded via the `Skill` tool (or you record explicit `N/A` with reason, e.g. stack not present). Do **not** spawn Step 3 `Task` runs until this gate passes.
+3. **Five reviews captured** — **Pass:** You have five labeled artifacts (one per agent): pasted outputs, task transcripts, or saved snippet files. **Pass:** Each of the five INVESTIGATE/CHECK/VERIFY prompts has a corresponding response block before Step 4.
+4. **Review file on disk before user prompt** — **Pass:** The file at `[plan-dir]/[plan-basename]-review.md` exists; **Pass:** `Read` succeeds on that path. Only then run the “Next Steps” / options prompt in Step 5.
+
 ## Step 1: Read and Parse Plan
 
 Read the plan file and extract:
@@ -145,7 +154,7 @@ Return: Security gaps and missing error handling.
 
 ## Step 4: Synthesize Report
 
-After all agents complete, create consolidated report:
+**Gate:** Hard gate 3 must pass (five labeled agent outputs present). After all agents complete, create consolidated report:
 
 ```markdown
 ## Plan Review: [Feature Name from plan]
@@ -198,6 +207,8 @@ After all agents complete, create consolidated report:
 
 ## Step 5: Save Review and Prompt
 
+**Gate:** After writing the review file, satisfy Hard gate 4 (`Read` succeeds on the review path) before prompting the user.
+
 **Save review** to same directory as plan:
 - Plan: `docs/plans/2025-01-15-feature.md`
 - Review: `docs/plans/2025-01-15-feature-review.md`
@@ -236,10 +247,11 @@ Which option?
 
 ## Rules
 
-- Load skills BEFORE launching agents
+- Satisfy Hard gates 1–2 before Step 3; Hard gate 3 before Step 4; Hard gate 4 before the Step 5 options prompt
+- Load skills BEFORE launching agents (Hard gate 2)
 - All 5 agents run in parallel via Task tool
 - Reference Task:Step for each issue
 - Provide copyable suggested edits for Critical/Major issues
-- Save review before prompting user
+- Save review before prompting user (Hard gate 4)
 - Never auto-execute plan; require user choice
 - Number issues sequentially (1, 2, 3...)

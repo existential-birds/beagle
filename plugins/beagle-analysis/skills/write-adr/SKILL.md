@@ -17,6 +17,17 @@ Generate Architecture Decision Records (ADRs) from decisions made during the cur
 5. **Report** - Summarize created files and status
 6. **Verify** - Validate generated ADRs against Definition of Done
 
+### Gates (objective pass conditions)
+
+Advance only when the **pass condition** holds. These are checkable without “I verified internally.”
+
+| After | Pass condition |
+|-------|----------------|
+| Step 2 (extract) | The subagent response is **valid JSON** with a top-level `decisions` **array** (empty is OK). Each non-empty item has `id`, `title`, and at least one of `context`, `decision`, `alternatives`, or `rationale` present as a non-empty string or non-empty array. If parsing fails or the shape is wrong, **re-run extraction or fix the payload** before Step 3. |
+| Step 4 (pre-allocate) | From repo root, `python plugins/beagle-analysis/skills/adr-writing/scripts/next_adr_number.py --count N` prints **exactly `N` lines** (one number per line). You have a **written mapping** (in the reply draft or notes) from each selected decision to one of those lines **before** launching any `run_in_background` ADR writer Task. |
+| Step 5 (report) | Every file path in the summary table is copied from a subagent completion output (not invented). Optionally **spot-check**: `test -f <path>` for each path before marking success. |
+| Step 6 (verify) | For each ADR path, opening the file shows **line 1 is `---`**, frontmatter parses as YAML, `status` and `date` are present, and the body meets the Step 6 bullets below (alternatives count, Good/Bad consequences). |
+
 ## Step 1: Gather Context
 
 ```bash
@@ -68,6 +79,8 @@ Task(
 ```
 
 If the subagent returns an empty `decisions` array, skip to Step 5 with message: "No architectural decisions detected in this session."
+
+**Gate:** Meet the Step 2 row in **Gates (objective pass conditions)** before Step 3.
 
 ## Step 3: Confirm with User
 
@@ -128,9 +141,9 @@ Parse user response:
 **Pre-allocate ADR numbers before launching subagents** to prevent numbering conflicts:
 
 ```bash
-# Pre-allocate numbers for all confirmed decisions
+# Pre-allocate numbers for all confirmed decisions (from repository root)
 # Example: If user selected 3 decisions
-python skills/adr-writing/scripts/next_adr_number.py --count 3
+python plugins/beagle-analysis/skills/adr-writing/scripts/next_adr_number.py --count 3
 # Output:
 # 0003
 # 0004
@@ -138,6 +151,8 @@ python skills/adr-writing/scripts/next_adr_number.py --count 3
 ```
 
 **Assign each pre-allocated number to its corresponding decision** before launching subagents.
+
+**Gate:** Meet the Step 4 row in **Gates (objective pass conditions)** before the first `Task(` launch.
 
 For each confirmed decision, launch an ADR Writer subagent in background with its **pre-assigned number**:
 
@@ -158,7 +173,7 @@ Task(
 
     Instructions:
     1. Explore codebase for additional context
-    2. Write MADR-formatted ADR to docs/adr/
+    2. Write MADR-formatted ADR to docs/adrs/
     3. Use the pre-assigned number {assigned_number} - DO NOT call next_adr_number.py
     4. Filename format: {assigned_number}-slugified-title.md
     5. Return created file path
@@ -171,6 +186,8 @@ All subagents run in parallel. Wait for all to complete before proceeding.
 
 ## Step 5: Report Results
 
+**Gate:** Meet the Step 5 row in **Gates (objective pass conditions)** when building the summary (paths from subagent outputs; optional `test -f`).
+
 Collect outputs from all subagents and present summary:
 
 ```markdown
@@ -178,7 +195,7 @@ Collect outputs from all subagents and present summary:
 
 | File | Decision | Status |
 |------|----------|--------|
-| docs/adr/0003-use-postgresql.md | Use PostgreSQL for primary datastore | Draft |
+| docs/adrs/0003-use-postgresql.md | Use PostgreSQL for primary datastore | Draft |
 
 ### Next Steps
 - Review generated ADRs for accuracy
@@ -207,6 +224,8 @@ For each created ADR, validate against Definition of Done:
 Legend: E=Evidence, C=Criteria, A=Agreement, D=Documentation, R=Realization
 ```
 
+**Gate:** Meet the Step 6 row in **Gates (objective pass conditions)** for every created ADR.
+
 **Verification steps:**
 1. Open each generated ADR file
 2. Confirm filename follows `NNNN-slugified-title.md` pattern
@@ -227,7 +246,7 @@ Legend: E=Evidence, C=Criteria, A=Agreement, D=Documentation, R=Realization
 
 ## Output Location
 
-ADRs are written to `docs/adr/`. If no ADR directory exists, create it with an initial `0000-use-madr.md` template record.
+ADRs are written to `docs/adrs/` (same convention as `beagle-analysis:adr-writing`). If no ADR directory exists, create it with an initial `0000-use-madr.md` template record.
 
 ## MADR Format Reference
 

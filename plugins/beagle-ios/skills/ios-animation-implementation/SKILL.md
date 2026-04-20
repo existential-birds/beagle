@@ -120,3 +120,12 @@ Apple's HIG: "Don't make people wait for an animation to complete before they ca
 - Keep `PhaseAnimator` and looping animations lightweight — they run continuously
 - For frequent interactions, prefer system-provided animation over custom motion — Apple's HIG: "generally avoid adding motion to UI interactions that occur frequently"
 - Profile with Instruments → "Animation Hitches" template to find frame drops
+
+## Gates (before marking work complete)
+
+Run in order; satisfy each **Pass** before treating the task as done.
+
+1. **API fit** — Choose the mechanism from the API Selection table for this task. **Pass:** You can state in one sentence which “Need” row and API you applied (not a different layer “just because”).
+2. **Reduce Motion** — Custom timing must follow Accessibility & Multimodal Feedback. **Pass:** Non-trivial motion branches on `accessibilityReduceMotion` (or you only used system defaults / no custom timing).
+3. **Interruptibility** — Matches Cancellation & Interruptibility. **Pass:** No blanket `allowsHitTesting(false)` for the whole animation unless the task explicitly requires it and a short comment says why.
+4. **Heavy or continuous motion** — Loops, `PhaseAnimator` always-on, per-cell blur/shadow, or other Performance Checklist red flags. **Pass:** You ran Instruments (Animation Hitches) and captured a note or path to the trace, **or** you simplified the pattern first and can point to the change.

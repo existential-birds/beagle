@@ -14,6 +14,17 @@ description: Reviews iOS animation code for correctness, performance, accessibil
 | Reduce Motion, VoiceOver, motion sensitivity | [references/accessibility.md](references/accessibility.md) |
 | Transition protocol, matchedGeometryEffect, navigation transitions | [references/transitions.md](references/transitions.md) |
 
+## Hard gates (sequence)
+
+Complete **in order** for the files in scope. If a step fails, **omit** the finding, **re-anchor**, or **downgrade** to a question—do not ship accusations without meeting the pass condition.
+
+| Step | What you do | Pass condition (objective) |
+|------|-------------|----------------------------|
+| **1. Inventory** | List each file under review and where animation APIs appear (line ranges or symbol names: `withAnimation`, `.animation`, `matchedGeometryEffect`, `PhaseAnimator`, UIKit/CA animators, etc.). | A written list exists; files with **no** animation APIs are explicitly marked out of scope. |
+| **2. Anchor** | Re-read the cited region in the current file or diff hunk before naming an issue. | Each `[FILE:LINE]` still shows the behavior; stale line numbers are fixed or the finding is dropped. |
+| **3. Evidence** | For framework-specific claims (spring curves, `Transition` conformance, Reduce Motion), cross-check the matching row in [Quick Reference](#quick-reference) against `references/*.md`. | The finding’s detail names the reference file used, or states **inline-only** (structural/readability with no framework rule). |
+| **4. Report** | Emit findings using [Output Format](#output-format). | Headers match `[FILE:LINE] ISSUE_TITLE`; checklist items below are applied only where gates 1–2 covered that code. |
+
 ## Output Format
 
 Report each finding as:

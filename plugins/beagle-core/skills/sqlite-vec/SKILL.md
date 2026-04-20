@@ -7,6 +7,14 @@ description: sqlite-vec extension for vector similarity search in SQLite. Use wh
 
 sqlite-vec is a lightweight SQLite extension for vector similarity search. It enables storing and querying vector embeddings directly in SQLite databases without external vector databases.
 
+## Gates
+
+When wiring storage and KNN queries, run these steps in order; each step has an objective pass before you rely on results in production or in review comments.
+
+1. **Dimension lock** — The `N` in `float[N]`, `int8[N]`, or `bit[N]` matches the embedding model’s output length (and any Matryoshka slice you apply). **Pass:** the same `N` appears in the `CREATE VIRTUAL TABLE` DDL and in the serialized vector length (`len(vector)` or the model’s documented dimension).
+2. **Serialization match** — Column type and Python (or other) helpers align: `serialize_float32` for `float[N]`, `serialize_int8` for `int8[N]`, binary rules for `bit[N]`. **Pass:** at least one round-trip insert of a known test vector and a `MATCH` query using the same serializer returns the expected row (e.g. `k = 1` returns that row).
+3. **Doc-backed edge claims** — Distance metric choice, metadata filter operators, partition-key rules, or version-specific behavior are only asserted if they appear in this skill or in the official docs linked under **Resources**. **Pass:** the relevant URL or doc section is cited in the artifact (issue, PR, or note) before the claim is treated as settled.
+
 ## Quick Reference
 
 ### Load Extension

@@ -10,6 +10,15 @@ Create a pull request with a well-structured description based on the branch cha
 
 ## Instructions
 
+### Gates (run in order)
+
+Do not draft or run `gh pr create` until each step passes.
+
+1. **Branch gate:** `git branch --show-current` is not the default branch (`main`, `master`, or the repo’s documented default). **Pass:** branch name is printed and satisfies this.
+2. **Evidence gate:** You have run the commands in [Gather Context](#1-gather-context) for the same `main..HEAD` (or `origin/main..HEAD` if local `main` is missing) range you will summarize. **Pass:** you can name at least one commit subject and one area of files changed without inventing details.
+3. **Template gate:** The final PR title and body contain no unreplaced placeholders (`<...>`, `TODO`, `TBD`). Optional sections with no content are removed, not left as stubs. **Pass:** a quick scan finds no angle-bracket placeholders or filler tokens.
+4. **Create gate:** `gh pr create` exits successfully and prints a PR URL (or the PR number/URL from `gh` output). **Pass:** URL (or id) is recorded; if the command fails, do not claim the PR was created.
+
 ### 1. Gather Context
 
 First, collect information about the changes:

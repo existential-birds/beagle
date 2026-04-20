@@ -11,6 +11,14 @@ Before adding any custom animation, ask: does the system already handle this? Ma
 
 ## Design Process
 
+### Gates (sequenced)
+
+Advance only after each pass condition is met in the working artifact (chat or doc). Do not rationalize compliance without evidence.
+
+1. **Gate — Context captured** — **Pass when** there are written answers for: what triggers the motion, its purpose, where it lives in the app, how often it runs, minimum iOS version, and primary input methods (or explicit **N/A** where not applicable). **Pass when** you have stated whether system-provided motion already covers this or which gap custom animation fills.
+2. **Gate — Options differ meaningfully** — **Pass when** there are 2–3 approaches and each differs in **at least two** of: named API/technique, motion character, complexity band, or iOS floor — not minor timing tweaks of the same idea.
+3. **Gate — Spec is implementation-ready** — **Pass when** the compiled spec includes concrete entries for **Trigger**, **Interruption** (cancel/reverse/queue), **Reduce Motion** fallback, **Haptics** (or explicit none with rationale), and **Recommended API**.
+
 ### Step 1: Understand the Animation Context
 
 Before proposing options, gather context about what needs to animate and why:

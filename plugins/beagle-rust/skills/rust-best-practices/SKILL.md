@@ -29,6 +29,26 @@ Guidance for writing idiomatic, performant, and safe Rust code. This is a develo
 | API Design | Unsurprising, flexible, obvious, constrained -- encode invariants in types | [references/api-design.md](references/api-design.md) |
 | Ecosystem | Evaluate crates, pick error handling strategy, stay current | [references/ecosystem-patterns.md](references/ecosystem-patterns.md) |
 
+## Gates
+
+Short **sequences with pass conditions** before claiming outcomes that need evidence (not an internal “I checked”).
+
+### Clippy clean
+
+1. From the workspace root (or with `-p <crate>`), run: `cargo clippy --all-targets --all-features -- -D warnings`.
+2. **Pass:** exit status is `0` and the invocation finishes without Clippy-deny failures.
+
+### Performance claim
+
+1. Build with `cargo build --release` (or your benchmark harness) under the same profile you ship or measure.
+2. Capture a **before** and **after** number from the same tool and metric (name both), e.g. Criterion `ns/iter`, `heaptrack` allocations, or a flamegraph path on disk.
+3. **Pass:** you can cite both measurements, **or** you explicitly state that only correctness or readability changed and you are **not** claiming a performance delta.
+
+### Docs for symbols you changed
+
+1. Run `cargo doc --no-deps` for the crate you edited (add `-p <crate>` in workspaces).
+2. **Pass:** the doc build succeeds; if `#![deny(missing_docs)]` (or crate policy) applies, there are no new missing-doc errors for those symbols.
+
 ## Coding Idioms
 
 Prefer `&T` over `.clone()`, use `&str`/`&[T]` in parameters, and chain iterators instead of index-based loops. For Option/Result, use `let Ok(x) = expr else { return }` for early returns and `?` for propagation. See [references/coding-idioms.md](references/coding-idioms.md) for ownership, iterator, and import patterns.

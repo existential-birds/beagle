@@ -11,6 +11,15 @@ disable-model-invocation: true
 - `--parallel`: Spawn specialized subagents per technology area
 - Path: Target directory (default: current working directory)
 
+## Hard gates
+
+Complete in order before writing **Issues** in the output (empty scope is allowed; fabricated findings are not).
+
+1. **Scope gate:** You have an explicit list of `.rs` paths under review (from Step 1 or the user-provided path). **Pass:** List printed or "No Rust files in scope" — then stop with no Issues.
+2. **Compiler/linter gate:** Step 3 commands were run from the crate or workspace root (`Cargo.toml` present); if they cannot run, one line states why (e.g. missing toolchain, no `Cargo.toml`, sandbox). **Pass:** You do not report a problem already shown as an error/warning in Step 3 output, and you do not duplicate compiler or clippy diagnostics the author must fix first.
+3. **Protocol gate:** `beagle-rust:review-verification-protocol` is loaded before Step 7. **Pass:** Every Critical/Major finding satisfies Step 8 (and the protocol); if there are zero findings, say "Protocol applied; no issues" in the Review Summary.
+4. **Evidence gate (Critical/Major):** For each Critical or Major item, you re-read the file at `FILE:LINE` with full surrounding context (not only the diff hunk). **Pass:** The Issue description matches observable code at that location.
+
 ## Step 1: Identify Changed Files
 
 ```bash
@@ -245,6 +254,7 @@ Rationale: [1-2 sentences]
 
 ## Rules
 
+- Complete **Hard gates** before writing Issues
 - Load skills BEFORE reviewing (not after)
 - Number every issue sequentially (1, 2, 3...)
 - Include FILE:LINE for each issue

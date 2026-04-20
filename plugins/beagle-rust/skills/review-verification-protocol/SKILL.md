@@ -8,6 +8,16 @@ user-invocable: false
 
 This protocol MUST be followed before reporting any code review finding. Skipping these steps leads to false positives that waste developer time and erode trust in reviews.
 
+## Hard gates (sequenced)
+
+Complete these **in order** before you add a finding. Skip a gate only when it clearly does not apply (e.g. skip the usages gate if the finding is not about dead code or “unused”).
+
+1. **Read scope** — **Pass:** You name the exact file path(s) and the function, `impl`, or `macro_rules!` block you read in full (not only a diff hunk or partial snippet).
+2. **Usages (dead / unused)** — **Pass:** You ran a repo-wide reference search (`rg`, IDE references, or equivalent) and either state zero matches for the symbol you call unused, or list each match and why it still supports the finding.
+3. **Surrounding behavior** — **Pass:** You checked callers, trait impls, `#[cfg]`, or error propagation that could make the pattern intentional; note one concrete checked location (path + rough location) or state “none relevant after search.”
+4. **Edition and API** — **Pass:** You opened the relevant `Cargo.toml` for the crate under review and either quote the `[package] edition = "..."` line or state the default edition applies and name the manifest path you checked.
+5. **Wrong vs style** — **Pass:** In one sentence, you explain why the code is incorrect, unsound, or risky for this project—not merely a different valid style.
+
 ## Pre-Report Verification Checklist
 
 Before flagging ANY issue, verify:
@@ -340,6 +350,8 @@ Edition 2024 changes that affect review findings:
 - `SeqCst` used "for safety" — not wrong, just potentially over-synchronized
 
 ## Before Submitting Review
+
+**Submission gate** — **Pass:** Every finding uses `[FILE:LINE] ISSUE_TITLE` and includes the exact line (or minimal contiguous lines) that demonstrates the issue, so a reader can jump to the proof without trusting memory.
 
 Final verification:
 1. Re-read each finding and ask: "Did I verify this is actually an issue?"

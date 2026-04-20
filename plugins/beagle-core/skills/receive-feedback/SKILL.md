@@ -41,6 +41,31 @@ For each feedback item:
 2. **Evaluate** - Apply decision matrix to determine action
 3. **Execute** - Implement, reject with evidence, or defer
 
+## Hard gates
+
+Do not advance to the next gate until its **pass condition** is true. Details live in `VERIFICATION.md`, `EVALUATION.md`, and `RESPONSE.md`.
+
+**Gate 1 — Verification evidence (per item)**
+
+1. Locate the referenced code or behavior (`Read`, `Grep`, tests, or another check from `VERIFICATION.md` that fits the claim).
+2. Record the outcome: claim **holds**, **fails**, or **unclear**, with an artifact (file path and line range, command/test result, or short quoted tool output—not paraphrase alone).
+
+**Pass when:** That record exists before you choose implement / reject / defer / clarify. **Fail (stop):** Proceeding with only a verbal “I verified” without an artifact.
+
+**Gate 2 — Disposition locked (per item)**
+
+1. Apply the decision matrix in `EVALUATION.md` to the verified facts.
+2. Choose exactly one primary outcome: implement, reject with evidence, defer, or ask for clarification.
+
+**Pass when:** Outcome is explicit. **Fail (stop):** Implementing while the item is still ambiguous—resolve or clarify first per `EVALUATION.md`.
+
+**Gate 3 — Response artifact (batch)**
+
+1. After every item has passed Gates 1–2, fill the structured template in `RESPONSE.md`.
+2. Ensure rejections include verification evidence and implemented rows cite locations.
+
+**Pass when:** Each feedback item appears in the correct section of the response template with required columns satisfied. **Fail (stop):** Shipping a summary that omits an item or lacks evidence on a rejection.
+
 ## Command Workflow
 
 Use this skill from the `/receive-feedback` command or by invoking it directly with a feedback file path.

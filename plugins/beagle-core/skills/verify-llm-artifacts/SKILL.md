@@ -28,11 +28,21 @@ If the review file is missing, exit with: `Run /beagle-core:review-llm-artifacts
 
 ## Instructions
 
+### Hard gates
+
+Objective pass conditions before you claim verification is done:
+
+1. **Input parse:** The JSON load command in step 1 exits 0 (no traceback). **Pass:** valid JSON on disk at `.beagle/llm-artifacts-review.json`.
+2. **Evidence before verdict:** For each finding you adjudicate, you have applied [references/verification-checklist.md](references/verification-checklist.md) for its `category` (or documented why the category is N/A) and recorded matching strings in `checks_performed`. **Pass:** no `status` without at least one checklist-backed check or an explicit N/A note in `notes`.
+3. **Output contract:** After writing `.beagle/llm-artifacts-verification.json`, the validate command in step 4 exits 0; `summary` counts equal the number of `results` entries by `status`; every `id` matches the source report. **Pass:** schema-valid JSON and consistent ids/counts.
+
 ### 1. Load and validate JSON
 
 ```bash
 python3 -c "import json; json.load(open('.beagle/llm-artifacts-review.json'))"
 ```
+
+**Pass:** command exits 0.
 
 Record `git_head` and `scope` from the report. If the working tree no longer matches (optional strict mode: compare to `git rev-parse HEAD`), warn that line numbers may drift.
 
@@ -53,6 +63,8 @@ For each finding, follow [references/verification-checklist.md](references/verif
 
 - Read the **file** at the cited location and enough context to judge (parent symbol, imports).
 - For unused/dead claims: **search** the repo (symbols, exports, string hooks) unless the issue is purely stylistic with no removal.
+
+**Pass:** `checks_performed` lists only checks you actually ran (e.g. `read_symbol`, `ripgrep_symbol`); `notes` cite the decisive observation.
 
 Assign one status:
 
@@ -91,6 +103,14 @@ Create `.beagle` if needed. Write **`.beagle/llm-artifacts-verification.json`**:
   }
 }
 ```
+
+Validate the file you wrote:
+
+```bash
+python3 -c "import json; json.load(open('.beagle/llm-artifacts-verification.json'))"
+```
+
+**Pass:** command exits 0; re-open the file and confirm `summary` matches `results` (count each `status`).
 
 ### 5. Summarize for the user
 

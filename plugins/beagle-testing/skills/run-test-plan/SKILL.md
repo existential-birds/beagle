@@ -99,6 +99,18 @@ fi
 
 If the plan uses the older flat format (`setup.commands` + `setup.health_checks` instead of `prerequisites`/`build`/`services`), fall back to executing `setup.commands` sequentially and polling `setup.health_checks` as before.
 
+## Step 3: Gate — setup ready before tests
+
+Do not start **Step 4** until each condition you can check is true:
+
+1. **Plan load:** The file from `--plan` (default `docs/testing/test-plan.yaml`) exists and parses as YAML (same checks as Step 1).
+2. **Setup branch:**
+   - If **not** using `--skip-setup`: Every `setup.prerequisites` check that exists exited 0; every `setup.build` command succeeded; every service `health_check` reached HTTP 200, 301, or 302 within its timeout **or** legacy `setup.health_checks` passed after `setup.commands`.
+   - If using `--skip-setup`: Before TC-01, confirm anything the plan still needs is alive—at minimum one successful `curl` (or equivalent) to each URL in `setup.health_checks` or each `setup.services[].health_check.url` that the tests depend on.
+3. **Evidence path:** `mkdir -p docs/testing/evidence` succeeds and the directory exists.
+
+If any gate fails, stop, fix setup or flags, and do not execute tests.
+
 ## Step 4: Execute Tests Sequentially
 
 For each test in the plan:
@@ -178,7 +190,13 @@ Save screenshots to `docs/testing/evidence/<test.id>.png`
 
 ### 4c. Evaluate Result
 
-Using agent reasoning, compare actual outcome against `test.expected`:
+**Gate — artifacts before PASS/FAIL:**
+
+- **`run:` steps:** Stdout and stderr captured; exit code recorded (e.g. `EXIT_CODE:` line or equivalent).
+- **`action: curl` steps:** Response body and HTTP status captured to known paths (e.g. `response.json`, `status_code.txt` or paths the plan specifies).
+- **agent-browser steps:** After any navigation or DOM change, a fresh `agent-browser snapshot -i` exists before asserting; if the test records evidence, the screenshot file path is created or failure is explicit.
+
+Then, using agent reasoning, compare actual outcome against `test.expected`:
 
 - Read the expected behavior description
 - Compare with actual response/screenshot
@@ -364,14 +382,29 @@ ls -la docs/testing/evidence/
 ls docs/testing/evidence/*.png docs/testing/evidence/*.md 2>/dev/null
 ```
 
+**Pass conditions (all must be true to call the run complete):**
+
+- **`ls -la docs/testing/evidence/`** exits 0 (directory exists).
+- Every test that ran has an explicit PASS or FAIL (not only “felt right”).
+- If any test failed: a failure artifact exists (`docs/testing/evidence/<test.id>-failure.md` or equivalent) **or** the debug report was emitted with expected vs actual.
+- Cleanup ran: no stale `.beagle/service-*.pid` pointing at live processes you started, unless the plan says to leave them up.
+
 **Verification Checklist:**
-- [ ] Setup commands executed successfully
-- [ ] Health checks passed before test execution
+- [ ] Setup commands executed successfully (or `--skip-setup` with live dependencies confirmed)
+- [ ] Health checks passed before test execution (Step 3 gate)
 - [ ] Each executed test has recorded result
 - [ ] Evidence captured in `docs/testing/evidence/`
 - [ ] On failure: debug prompt includes expected vs actual
 - [ ] On failure: relevant PR changes listed
 - [ ] Background processes cleaned up
+
+## Gates (ordered)
+
+1. **Plan valid:** YAML parses; required keys for your branch (`setup` / `tests`) are present.
+2. **Setup healthy:** Step 3 pass conditions met before TC-01.
+3. **Per-test artifacts:** Step 4c gate satisfied before marking PASS.
+4. **Stop on fail:** First failure → Step 6; later tests = SKIP in the summary table.
+5. **Cleanup:** Step 5 or Step 6d executed so background PIDs from this run are released.
 
 ## Rules
 

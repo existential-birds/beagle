@@ -89,6 +89,13 @@ expect(mockFn).toHaveBeenCalledWith('arg1', 'arg2')
 expect(mockFn).toHaveBeenCalledTimes(2)
 ```
 
+## Verification gates
+
+Use this sequence when you add or change tests; each step has an objective pass condition.
+
+1. **Run the test suite** — From the package or workspace root, run the same command CI uses (check `package.json` scripts; often `vitest run`, `pnpm test`, or `npm test`). **Pass:** exit code is 0 and the report shows zero failing tests.
+2. **Async matchers** — **Pass:** every `expect(…).resolves` and `expect(…).rejects` is prefixed with `await` (`await expect(...)`), as in [Async Testing](#async-testing). A line where `resolves` or `rejects` appears without `await` fails this gate.
+
 ## Additional Documentation
 
 - **Mocking**: See [references/mocking.md](references/mocking.md) for module mocking, spying, cleanup

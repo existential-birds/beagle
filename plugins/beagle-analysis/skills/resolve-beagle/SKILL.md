@@ -13,6 +13,17 @@ The terminal state is a spec with no known open questions and no placeholder req
 This skill does not write code, scaffold projects, design architecture, or create implementation plans. It only edits the spec document. "Answering an open question" means proposing a WHAT/WHY answer with rationale — never a HOW. If a question turns out to require implementation design, defer it with a note and move on.
 </hard_gate>
 
+## Gates (pass before next step)
+
+Objective pass conditions so steps are not skippable by assertion alone:
+
+1. **Spec located** — The target file path is known and `Read` succeeds (or the user supplied a valid path after you listed 3–5 recent `docs/specs/` candidates).
+2. **Gap list published** — One message lists every explicit Open Question bullet **and** each latent gap you will treat as in-scope. **Do not dispatch research** until the user adjusts the list (add/remove/defer) **or** explicitly tells you to proceed with that list.
+3. **Research artifact per gap** — Before you present a proposal for gap *G*, you have a structured note for *G*: recommended answer, 1–2 rejected alternatives with reasons, and evidence (file:line, URL, or in-spec citation). No proposal without that artifact.
+4. **One proposal queue** — Do not open the next gap’s proposal until the current gap has a clear outcome (accepted, revised wording applied, rejected with what happens next, or deferred with reason).
+5. **Rewrite reconciled** — After editing, you read the full spec once and resolve cross-section contradictions; then run the self-review checklist from `../brainstorm-beagle/references/spec-reviewer.md` with failures fixed in-session unless the user opts for a follow-up pass.
+6. **Commit** — No `git commit` unless the user answered yes to the commit prompt in § Committing.
+
 ## Workflow
 
 1. **Locate the spec** — explicit path from the user, or the most recent file in `docs/specs/`

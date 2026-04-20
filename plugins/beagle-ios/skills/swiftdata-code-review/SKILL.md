@@ -14,6 +14,15 @@ description: Reviews SwiftData code for model design, queries, concurrency, and 
 | @ModelActor, ModelContext, background operations | [references/concurrency.md](references/concurrency.md) |
 | VersionedSchema, MigrationStage, lightweight/custom | [references/migrations.md](references/migrations.md) |
 
+## Hard gates (before reporting findings)
+
+Run in order; do not assert an issue until the gate for that issue passes.
+
+1. **Scope — pass when:** You have the target `.swift` path(s) and confirmed SwiftData surface in scope (e.g. `import SwiftData`, `@Model`, `@Query`, `@ModelActor`, `VersionedSchema`, or migration types). If none apply, stop or narrow scope with one sentence.
+2. **Reference — pass when:** For each checklist area you evaluate (models, queries, concurrency, migrations), you opened the matching `references/*.md` from the Quick Reference table **or** wrote `N/A: no <area> in this review` with a one-line reason.
+3. **Evidence — pass when:** Every finding includes a repo cite: `path:line` or line range from the file you read; no finding without a cite.
+4. **Report — pass when:** Findings list cites first (or inline), then severity or checklist grouping—no uncited assertions.
+
 ## Review Checklist
 
 - [ ] Models marked `final` (subclassing crashes)

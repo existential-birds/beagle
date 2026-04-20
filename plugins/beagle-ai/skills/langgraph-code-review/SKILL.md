@@ -7,6 +7,20 @@ description: Reviews LangGraph code for bugs, anti-patterns, and improvements. U
 
 When reviewing LangGraph code, check for these categories of issues.
 
+## Review gates (sequenced)
+
+Complete in order. Each step has an objective pass condition before moving on.
+
+1. **Locate graph code** — Search the review scope for `StateGraph`, `compile(`, `invoke`, `ainvoke`, `add_node`, `add_edge`, `add_conditional_edges`. **Pass:** a short list of file paths (or explicit “none in scope” after searching).
+
+2. **Map state schema** — For each graph state type (`TypedDict`, `BaseModel`, etc.), list fields that hold lists, dicts, or messages and whether `Annotated` + reducers (`add_messages`, `operator.add`, …) are present. **Pass:** every such field is either covered by a reducer pattern below or explicitly flagged as intentional overwrite.
+
+3. **Trace persistence** — If interrupts, `thread_id`, or checkpoint APIs appear, follow them to `compile(..., checkpointer=...)` and invocation `config`. **Pass:** behavior matches the interrupt/checkpointer/thread_id guidance below—or you document a concrete mismatch with file:line.
+
+4. **Report with evidence** — For each finding you will deliver, record **file path and line number(s)** (or a minimal quoted snippet). **Pass:** no critical or high-severity issue is stated without that citation.
+
+5. **Run the checklist** — Use the checklist at the end of this skill; each item is **satisfied**, **not applicable** (with reason), or **open** with evidence. **Pass:** no item left silently unchecked.
+
 ## Critical Issues
 
 ### 1. State Mutation Instead of Return

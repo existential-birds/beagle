@@ -29,6 +29,18 @@ description: Reviews shadcn/ui components for CVA patterns, composition with asC
 - [ ] CSS uses `has()` selectors for state-based styling
 - [ ] No direct className overrides of variant styles
 
+## Hard gates (before writing findings)
+
+Run these in order. **Do not draft user-facing findings until every gate passes** for the batch you are about to report.
+
+1. **Location evidence** — **Pass:** Each issue lists a repo path and either a line range or a short verbatim quote from the file you read (not from memory or diff-only guesswork).
+
+2. **Exemption check** — **Pass:** For each issue, you can state in one line why it is *not* covered by [Valid Patterns (Do NOT Flag)](#valid-patterns-do-not-flag).
+
+3. **Context-sensitive claims** — **Pass:** For accessibility or Radix-related flags, you checked the file for imports/wrappers showing what actually runs (or you cite the concrete gap).
+
+4. **Protocol** — **Pass:** You completed the Pre-Report Verification Checklist in [review-verification-protocol](../review-verification-protocol/SKILL.md) for this review.
+
 ## Valid Patterns (Do NOT Flag)
 
 These are correct patterns that should NOT be flagged as issues:
@@ -79,4 +91,4 @@ Do NOT flag:
 
 ## Before Submitting Findings
 
-Load and follow [review-verification-protocol](../review-verification-protocol/SKILL.md) before reporting any issue.
+Complete [Hard gates](#hard-gates-before-writing-findings) (especially gate 4), then report only issues that still pass the [review-verification-protocol](../review-verification-protocol/SKILL.md) pre-report checks.

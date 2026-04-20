@@ -20,6 +20,15 @@ Fetch review comments from all reviewers on the current PR, format them, and eva
 
 ## Instructions
 
+### Gates (sequence; do not skip)
+
+Advance only after each **Pass when** is satisfied.
+
+1. **PR context** — **Pass when:** `$PR_NUMBER` is set to a positive integer and `gh pr view` / `gh api` for that PR completed with exit code **0**, **or** you stop in **Get PR Context** with only the failure given there (“No PR found for current branch…”).
+2. **Fetch** — **Pass when:** both paginated `gh api … | jq -s -f …` runs (issue comments + review comments) exit **0** and parse as JSON (empty `[]` is valid). On non-zero exit or jq error, stop; surface command stderr—do not invent comments.
+3. **Formatted artifact** — **Pass when:** output is either (a) markdown matching **Format Feedback Document** (header `# PR #$PR_NUMBER Review Feedback`, per-reviewer `## Reviewer: …` with Summary / Line-Specific sections), **or** (b) exactly: `No review comments found on this PR (excluding PR author and current user).`
+4. **Load receive-feedback** — **Pass when:** the Skill tool successfully loads `beagle-core:receive-feedback`; only then run that skill’s verify → evaluate → execute loop on that formatted document.
+
 ### 1. Parse Arguments
 
 Extract flags from `$ARGUMENTS`:

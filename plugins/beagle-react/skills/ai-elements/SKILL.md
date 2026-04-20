@@ -27,6 +27,19 @@ import { PromptInput } from "@/components/ai-elements/prompt-input";
 import { Conversation, Message } from "@/components/ai-elements";
 ```
 
+## Gates (before relying on examples)
+
+Use this sequence when adding or wiring AI Elements so setup is checkable, not assumed.
+
+1. **Install each component** — Run `npx shadcn@latest add https://ai-elements.vercel.app/r/[component-name]` for every component you need.
+   - **Pass:** The command completes successfully and a file for that component exists under your project’s `components/ai-elements/` (or the directory `components.json` uses for those additions).
+
+2. **Align import paths** — Every `import … from "@/components/ai-elements/..."` must match your repo’s actual alias and folder layout.
+   - **Pass:** Each import resolves to a file on disk (IDE navigation or build/`tsc` shows no “cannot find module” for those paths).
+
+3. **Match `Tool` / `Confirmation` states to your AI SDK** — State strings (including approval-related states) depend on the installed `ai` package major/version.
+   - **Pass:** The states you pass to `ToolHeader`, `Tool`, or `Confirmation` are listed in the AI SDK version you have installed (docs or exported types), not copied from memory alone.
+
 ## Component Categories
 
 ### Conversation Components

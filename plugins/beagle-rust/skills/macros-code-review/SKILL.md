@@ -12,7 +12,25 @@ description: "Reviews Rust macro code for hygiene issues, fragment misuse, compi
 3. **Check if a macro is needed** -- If the transformation is type-based, generics are better. Macros are for structural/repetitive code generation that generics cannot express
 4. **Scan macro definitions** -- Read full macro bodies including all match arms, not just the invocation site
 5. **Check each category** -- Work through the checklist below, loading references as needed
-6. **Verify before reporting** -- Load `beagle-rust:review-verification-protocol` before submitting findings
+6. **Gates** -- Complete **Gates** below before reporting; do not substitute informal “I verified.”
+
+## Gates (before reporting findings)
+
+Complete in order. **Do not emit findings** until **Gate 4** passes for each issue.
+
+**Gate 1 — Crate context (on disk)**  
+**PASS when:** You opened the reviewed crate’s `Cargo.toml` (workspace member path if applicable) and recorded Rust `edition`, whether the crate is `proc-macro = true`, and relevant proc-macro dependencies or `syn` / `quote` feature flags.  
+**Blocks rationalization:** Edition 2024 findings (`gen`, `unsafe extern`, generated `unsafe` bodies) and `syn` “full” vs minimal flags require this — do not flag edition-specific macro output without matching `edition` from the file.
+
+**Gate 2 — Macro definitions read**  
+**PASS when:** For every macro you critique, you read the full definition (all `macro_rules!` arms, or the proc-macro entry plus helpers you rely on), not only call sites or partial expansions.  
+**Artifact:** At least one path per macro to the defining `.rs` file(s) you used.
+
+**Gate 3 — Per-finding evidence**  
+**PASS when:** Each planned issue has `[FILE:LINE]` from the current tree for the macro definition, attribute/derive site, or generated code location you are discussing (not from memory, docs-only, or another branch).
+
+**Gate 4 — Pre-report protocol**  
+**PASS when:** You loaded and applied `beagle-rust:review-verification-protocol`, including **Macro-Specific Verification** for hygiene, fragment type, and proc-macro performance claims. **Then** add findings.
 
 ## Output Format
 
@@ -125,7 +143,3 @@ Flag a macro when the same result is achievable with generics or trait bounds. M
 - **`trybuild` tests for proc macros** -- Standard compile-fail testing approach
 - **Attribute macros on test functions** -- Common pattern for test setup/teardown
 - **`compile_error!` in impossible match arms** -- Good practice for catching invalid macro input
-
-## Before Submitting Findings
-
-Load and follow `beagle-rust:review-verification-protocol` before reporting any issue.

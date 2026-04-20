@@ -25,6 +25,16 @@ Apply fixes from a previous `review-ai-writing` run with automatic safe/risky cl
 
 ## Instructions
 
+### Hard gates
+
+Advance past destructive or evidence-bound steps only when each **PASS** is true (commands and artifacts—not “I checked mentally”):
+
+1. **G1 — Safe to edit files** — **PASS:** `git status --porcelain` is empty, **or** `git stash push -u -m "beagle-docs: pre-humanize backup"` exits 0.
+2. **G2 — Review input is real JSON with expected shape** — **PASS:** `.beagle/ai-writing-review.json` exists **and** the file parses as JSON with a `git_head` key and a `findings` value that is an array (possibly empty). Use the `jq -e` command in step 3, or the same checks with `json.load` in Python. If this fails, stop with a parse/validation error—do not apply fixes.
+3. **G3 — References before rewrites** — **PASS:** For each finding you will edit, the `references/*.md` files required by step 4 for that category/type are read in this session before you change text.
+4. **G4 — Per-file validation** — **PASS:** Every modified file passes the step 8 check for its type; otherwise run `git checkout -- "$file"` for that file and do not list it as OK in the summary.
+5. **G5 — Delete review file only on full success** — **PASS:** Run `rm .beagle/ai-writing-review.json` only when G4 holds for all files you are keeping unchanged from validation failures (aligns with step 10).
+
 ### 1. Parse Arguments
 
 Extract flags from `$ARGUMENTS`:
@@ -50,6 +60,8 @@ Create stash if dirty:
 git stash push -u -m "beagle-docs: pre-humanize backup"
 ```
 
+**G1 PASS:** Either the working tree was already clean, or the stash command exited 0.
+
 ### 3. Load Review Results
 
 Check for existing review file:
@@ -61,8 +73,12 @@ cat .beagle/ai-writing-review.json 2>/dev/null
 - If `--all` flag: Run `/beagle-docs:review-ai-writing --all` first
 - Otherwise: Fail with: "No review results found. Run `/beagle-docs:review-ai-writing` first."
 
-**If file exists, validate freshness:**
+**If file exists, validate JSON and freshness (G2):**
 ```bash
+# Required shape: parseable JSON with git_head and findings array (may be empty)
+jq -e 'has("git_head") and ((.findings // []) | type == "array")' .beagle/ai-writing-review.json >/dev/null 2>&1 \
+  || { echo "Invalid or incompatible ai-writing-review.json"; exit 1; }
+
 # Get stored git HEAD from JSON
 stored_head=$(jq -r '.git_head' .beagle/ai-writing-review.json)
 current_head=$(git rev-parse HEAD)
@@ -272,11 +288,11 @@ Fix issues and re-run, or restore with: git stash pop
 
 ## Rules
 
-- Always load reference material before applying fixes (step 4)
-- Never modify files without a stash or clean working directory
+- Always load reference material before applying fixes (step 4); satisfy **G3** per finding
+- Never modify files without a clean working tree or a successful stash (**G1**)
 - Apply safe fixes in reverse line order to avoid offset drift
 - Never auto-fix git artifacts (commits, PRs) — report them for manual action
-- Validate every modified file before considering it done
+- Validate every modified file before considering it done (**G4**)
 - Revert files that fail validation
-- Write JSON report before displaying summary
-- Clean up JSON report only on full success
+- Do not present the step 9 summary as “complete” until step 8 validation has passed for every file you are keeping
+- Remove `.beagle/ai-writing-review.json` only after full success (**G5**); if validation failed partway, keep the file and follow step 10

@@ -15,6 +15,24 @@ LangGraph builds stateful, multi-actor agent applications using a graph-based ar
 - **Channels**: Internal state management (LastValue, BinaryOperatorAggregate)
 - **Checkpointer**: Persistence for pause/resume capabilities
 
+## Implementation gates
+
+Use these **sequenced checks** for persistence and human-in-the-loop flows (avoid “it should work” without evidence):
+
+1. **Checkpointed runs**
+   - Build `config` with `{"configurable": {"thread_id": "<stable-id>"}}` before `invoke` / `ainvoke`.
+   - **Pass:** The same `thread_id` is reused for every turn of one conversation; a new conversation uses a new id.
+
+2. **State after a step**
+   - **Pass:** `graph.get_state(config).values` (or equivalent) contains the keys and reducer outputs your next node or client expects; if not, fix routing, reducers, or node order before continuing.
+
+3. **Interrupt and resume (HITL)**
+   - **Pass:** After a pause, you have inspected pending work (`get_state`, and your LangGraph version’s interrupt listing if you rely on it) so you know **which** node is waiting and **what** resume payload shape to send.
+   - **Pass:** `Command(resume=...)` (or equivalent) includes every field the code path after `interrupt()` reads.
+
+4. **Checkpointer vs environment**
+   - **Pass:** Tests or local dev use `InMemorySaver` or disposable SQLite; production uses a durable checkpointer configured for that deployment (not in-memory).
+
 ## Essential Imports
 
 ```python
@@ -31,6 +49,8 @@ from typing_extensions import TypedDict
 ### Basic State with TypedDict
 
 ```python
+import operator
+
 class State(TypedDict):
     counter: int                                    # LastValue - stores last value
     messages: Annotated[list, operator.add]         # Reducer - appends lists

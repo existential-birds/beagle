@@ -13,7 +13,25 @@ description: "Reviews Rust FFI code for type safety, memory layout compatibility
 4. **Check type layout** -- Every type crossing FFI must be `#[repr(C)]` or a primitive FFI type
 5. **Check string and pointer handling** -- CStr/CString usage, null checks, ownership transfers
 6. **Check callbacks** -- `extern "C" fn` pointers, panic safety across FFI boundary
-7. **Verify before reporting** -- Load `beagle-rust:review-verification-protocol` before submitting findings
+7. **Gates** -- Complete **Gates** below before reporting; do not skip ahead on “internal verification”
+
+## Gates
+
+Complete in order. **Do not emit findings** until **Gate 4** passes for each issue.
+
+**Gate 1 — Crate context (on disk)**  
+**PASS when:** You opened the reviewed crate’s `Cargo.toml` (workspace member path if applicable) and recorded `edition =`, plus any of `links`, `crate-type`, or `build-dependencies` that matter for this FFI.  
+**Blocks rationalization:** Edition-specific findings (`unsafe extern "C" {}`, `#[unsafe(no_mangle)]`, etc.) require this — if `edition` is not 2024, do not flag 2024-only requirements.
+
+**Gate 2 — Linkage and binding sources**  
+**PASS when:** If the crate links native code or uses bindgen/pkg-config, you opened `build.rs` (or the checked-in bindings entry point). If there is no `build.rs`, you stated that bindings are hand-written and reviewed those `extern` / `include!` sites.  
+**Artifact:** At least one path you opened (e.g. `build.rs`, `src/ffi.rs`, or `OUT_DIR` bindings via `include!`).
+
+**Gate 3 — Code evidence**  
+**PASS when:** Every planned finding has a target `[FILE:LINE]` from a full function/block you read, not only diff hunks or partial snippets.
+
+**Gate 4 — Pre-report protocol**  
+**PASS when:** You loaded and applied `beagle-rust:review-verification-protocol`, including **FFI-Specific Verification** for `repr(C)`, safety comments, ownership/callbacks, or bindgen-heavy code.
 
 ## Output Format
 
@@ -136,4 +154,4 @@ Description of the issue and why it matters.
 
 ## Before Submitting Findings
 
-Load and follow `beagle-rust:review-verification-protocol` before reporting any issue.
+Complete **Gates** (at minimum Gate 4) before reporting any issue; Gate 4 incorporates `beagle-rust:review-verification-protocol`.

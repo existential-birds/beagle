@@ -6,6 +6,18 @@ disable-model-invocation: true
 
 # Backend Code Review
 
+## Hard gates (sequence)
+
+Advance only when each **pass condition** is objectively satisfied (prevents linter-owned false positives and ungrounded findings):
+
+| Gate | Pass condition |
+|------|----------------|
+| **G1 — Diff scope** | Step 1 command has been run; the changed `.py` paths are enumerated in writing (list may be empty — if empty, state that explicitly and do not invent Python findings). |
+| **G2 — Linters before manual style/type** | For `ruff` and `mypy`: either no project config exists for that tool, **or** it was run on the changed files and you captured pass/fail (exit code or clear tool output). **Do not** add manual style or type findings for rules those tools already enforce when configured. |
+| **G3 — Protocol and base skills** | `beagle-python:review-verification-protocol`, `beagle-python:python-code-review`, and `beagle-python:fastapi-code-review` are loaded before Step 6 substantive review. |
+| **G4 — Evidence per issue** | Step 7 checks are satisfied for each reported issue before it appears in the final list (re-read source, search references for “unused”, confirm framework handling for “missing”, verify syntax against current docs). |
+| **G5 — Output contract** | Findings use sequential numbering, every issue has `FILE:LINE`, and the **Verdict** follows Step 8 (Critical/Major only block; Minor/Informational do not). |
+
 ## Arguments
 
 - `--parallel`: Spawn specialized subagents per technology area
@@ -13,13 +25,15 @@ disable-model-invocation: true
 
 ## Step 1: Identify Changed Files
 
+**Pass (G1):** Capture the command output (or equivalent) as your authoritative changed-`.py` set before Steps 2–3.
+
 ```bash
 git diff --name-only $(git merge-base HEAD main)..HEAD | grep -E '\.py$'
 ```
 
 ## Step 2: Verify Linter Status
 
-**CRITICAL**: Run project linters BEFORE flagging any style or type issues.
+**CRITICAL**: Run project linters BEFORE flagging any style or type issues. **Pass (G2):** You may only proceed to Step 3 after each configured linter has been run on the changed files or you have recorded why it was skipped (missing config).
 
 ```bash
 # Check if ruff config exists and run it
@@ -104,6 +118,8 @@ Use the `Skill` tool to load each applicable skill (e.g., `Skill(skill: "beagle-
 
 ## Step 7: Verify Findings
 
+**Pass (G4):** No issue ships until all bullets below are true for that issue.
+
 Before reporting any issue:
 1. Re-read the actual code (not just diff context)
 2. For "unused" claims - did you search all references?
@@ -112,6 +128,8 @@ Before reporting any issue:
 5. Remove any findings that are style preferences, not actual issues
 
 ## Step 8: Review Convergence
+
+**Pass (G5):** Final markdown matches the Output Format template; verdict line reflects only Critical/Major blockers per scope rules below.
 
 ### Single-Pass Completeness
 

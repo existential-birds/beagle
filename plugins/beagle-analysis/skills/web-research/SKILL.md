@@ -32,6 +32,19 @@ Four steps, in order. No step is skippable.
 3. **Dispatch subagents and synthesize** — spawn up to 3 concurrent subagents (one per subtopic), wait for all to return, then write `report.md`.
 4. **Verify before returning** — run the verification checklist in `references/failure-modes.md` to confirm all expected artifacts exist and are well-formed. Any check that fails becomes an entry in `Gaps & Limitations`.
 
+### Hard gates (objective pass conditions)
+
+Advance only when the prior gate **passes**. A pass is always evidenced by a file on disk, a caller flag, or a structured error — not an internal “I checked.”
+
+| Gate | Blocks | Pass condition |
+| --- | --- | --- |
+| **G0 — Tools** | Slug derivation, `output_dir`, any write | `WebSearch` (or equivalent) is available. On fail: emit JSON per `references/failure-modes.md` (“Fail-fast on missing web tools”); **do not** create `plan.md` or any other artifact. |
+| **G1 — Re-run** | First write under `output_dir` | `output_dir` has no `plan.md` or `report.md`, **or** `refresh: true` with prior contents archived per “Re-run protection” in `references/failure-modes.md`. |
+| **G2 — Plan artifact** | Subagent dispatch | `plan.md` exists and includes every required bullet under “The research plan (`plan.md`)”. |
+| **G3 — Review** | Dispatch | User has confirmed the plan **or** `auto_proceed: true`. |
+| **G4 — Findings set** | Synthesis | For each subtopic in `plan.md`, `findings/<slug>.md` exists and has `status:` frontmatter (stub allowed). |
+| **G5 — Deliverable** | Success return to caller | `report.md` exists; end-of-run checklist in `references/failure-modes.md` (“Verification checklist”) is satisfied **or** each failed check is recorded under `Gaps & Limitations`. |
+
 ```
 Receive question ──→ Write plan.md ──→ Review gate (unless auto_proceed)
                                       ↓
@@ -136,7 +149,7 @@ The report has a fixed four-section layout, in this order. Every section is requ
 ## Failure modes
 
 - **Partial success** — one or more subagents fail. The skill continues with what succeeded and enumerates each failed subtopic under `Gaps & Limitations`, including the last-known brief and the stub-file reason. The run does not abort.
-- **Fail-fast** — web tools entirely unavailable. The skill verifies `WebSearch` and `WebFetch` before spawning any subagent. If either is absent, it aborts before writing `plan.md` and returns a structured error the caller can catch.
+- **Fail-fast** — `WebSearch` (or equivalent) unavailable. Abort before any disk write (including `plan.md`); return structured JSON per `references/failure-modes.md`. `WebFetch` is optional for subagents and is **not** part of this gate.
 - **Silent-failure detection** — every subagent writes at least a stub `findings/<slug>.md` with `status:` frontmatter (`ok`, `empty`, `failed`) before returning. Missing file after dispatch = silent failure, recorded in `Gaps & Limitations`.
 - **Re-run protection** — covered under "Output location" above; details in `references/failure-modes.md`.
 

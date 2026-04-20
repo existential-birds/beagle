@@ -35,6 +35,16 @@ Generate Architectural Decision Records (ADRs) following the MADR template with 
 
 ## Workflow
 
+### Gates (objective pass conditions)
+
+Advance to the next step only when the **pass condition** holds. These replace “I explored” / “I verified” with checkable artifacts.
+
+| After | Pass condition |
+|-------|----------------|
+| Step 2 | **Pass:** You have a written list (bullets in draft preamble, scratch notes, or the ADR body) of **≥0** paths under `docs/adrs/` you consulted for related/superseded ADRs, **or** you explicitly record that `docs/adrs/` is missing or empty after checking. **And** you list **≥1** repo path for related code **or** `N/A` with one-line reason. |
+| Step 5 | **Pass:** For each E, C, A, D, R in `references/definition-of-done.md`, the draft either meets that letter’s checklist **or** contains an `[INVESTIGATE: …]` marker scoped to that gap. |
+| Step 7 | **Pass:** The ADR file exists at `docs/adrs/NNNN-slugified-title.md`, and a read of the file shows line 1 is `---` and frontmatter parses as YAML. |
+
 ### Step 1: Get Sequence Number
 
 **If a number was pre-assigned** (e.g., when called from `/beagle:write-adr` with parallel writes):
@@ -61,6 +71,8 @@ Before writing, gather additional context:
 1. **Related code** - Find implementations affected by this decision
 2. **Existing ADRs** - Check `docs/adrs/` for related or superseded decisions
 3. **Discussion sources** - PRs, issues, or documents referenced in decision
+
+**Gate:** Meet the Step 2 row in **Gates (objective pass conditions)** before Step 3.
 
 ### Step 3: Load Template
 
@@ -89,6 +101,8 @@ Load `references/definition-of-done.md` and verify E.C.A.D.R. criteria:
 - **A**ctionable decision
 - **D**ocumented consequences
 - **R**eviewable by stakeholders
+
+**Gate:** Meet the Step 5 row in **Gates (objective pass conditions)** before Step 6 (use `[INVESTIGATE: …]` where data is missing).
 
 ### Step 6: Mark Gaps
 
@@ -126,6 +140,8 @@ informed: []
 ```
 
 **Validation:** Before writing the file, verify the content starts with `---` followed by valid YAML frontmatter. If frontmatter is missing, add it before writing.
+
+**Gate:** After write, meet the Step 7 row in **Gates (objective pass conditions)** (file on disk, YAML frontmatter present).
 
 Save to `docs/adrs/NNNN-slugified-title.md`:
 

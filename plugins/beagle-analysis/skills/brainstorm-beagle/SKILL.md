@@ -195,7 +195,19 @@ Fix issues inline. Then present to the user for review.
 
 See `references/spec-reviewer.md` for the detailed review checklist.
 
+**Pass before presenting the draft (user review step):** Advance only when every item is honestly **yes** — not “feels fine.”
+
+1. **Template:** The draft follows the section structure in `references/spec-template.md` (or you note deliberate omissions and why).
+2. **No honor-system completeness:** Steps 1–6 above are satisfied; unresolved placeholders/TODOs are confined to *Open Questions* (not smuggled into must-haves).
+3. **Leakage check:** Every must-have / should-have passes the two-approach test under **Implementation Leakage** in `references/spec-reviewer.md`, except items explicitly listed under *Constraints* with rationale.
+4. **Artifact:** The draft text exists in the conversation (or a single attached buffer) so the user is reviewing concrete prose, not a summary.
+
 ## Writing the Spec
+
+**Pass before creating or overwriting `spec.md`:** Do not write until both are true.
+
+1. **User gate:** The user explicitly approved the draft **or** directed you to save/write the file (vague enthusiasm alone is not approval — confirm if unclear).
+2. **Path gate:** Target path is finalized — default `.beagle/concepts/<slug>/spec.md`, slug resolved (from brief frontmatter or agreed headline).
 
 - **Default path:** `.beagle/concepts/<slug>/spec.md`
 - **Slug source:** inherit from `brief.md` frontmatter if a brief was ingested; otherwise derive a kebab-case slug from the concept headline (≤40 chars, no dates). User preferences override the default path.

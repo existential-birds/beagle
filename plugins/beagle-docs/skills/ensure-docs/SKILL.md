@@ -10,12 +10,25 @@ Verify documentation coverage across a codebase, report gaps, and generate missi
 
 ## Workflow
 
-1. Detect languages present in the target codebase.
-2. Review the detailed workflow and standards in [`references/workflow.md`](references/workflow.md).
-3. Spawn parallel verification agents for each detected language.
-4. Consolidate findings into a single report.
-5. Offer interactive generation for any gaps the user wants to fix.
-6. Verify generated docs with the appropriate linters.
+Complete steps in order. Do not advance until each step’s **Pass** is satisfied.
+
+1. **Language detection** — Follow Phase 1 (language detection) in [`references/workflow.md`](references/workflow.md).
+   - **Pass:** For each language you will verify, you have evidence of at least one matching source file (counts or command output); if none qualify, stop with a short “no applicable languages” message and do not spawn verifiers.
+
+2. **Load standards** — Read the sections for your detected languages (language standards, verifier prompts, consolidation format) in the same reference file.
+   - **Pass:** You can state which standard applies per language (e.g. Google docstrings, JSDoc, GoDoc) before spawning agents.
+
+3. **Parallel verification** — Spawn one verifier per qualifying language using the agent prompts and JSON output shape in the reference (Phase 2).
+   - **Pass:** Each completed agent returns parseable JSON including `language`, `files_scanned`, and `findings` (array, possibly empty).
+
+4. **Consolidated report** — Merge results per Phase 3 (summary table, severity grouping, detailed findings if requested).
+   - **Pass:** The user sees the merged report (inline or written to an agreed path) before you claim the audit is done or propose fixes.
+
+5. **Generation** — Only if `--report-only` is not set: offer choices per Phase 4; apply doc edits only after an explicit user choice to generate.
+   - **Pass:** No documentation edits for gaps until the user selects an option that includes generation; if they decline or choose report-only behavior, end after the report.
+
+6. **Post-edit verification** — After any generation, run or offer the linter commands in Phase 5 of the reference for languages you changed, when those tools exist in the repo.
+   - **Pass:** Linter run completed with output captured, or `N/A` with a one-line reason (e.g. tool not configured); remaining issues are listed or cleared.
 
 ## Notes
 

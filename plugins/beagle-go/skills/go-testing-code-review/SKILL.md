@@ -5,6 +5,41 @@ description: Reviews Go test code for proper table-driven tests, assertions, and
 
 # Go Testing Code Review
 
+## Review Workflow
+
+Follow this sequence **in order**. Do not emit findings until every **Pass** below is satisfied.
+
+1. **Baseline `go.mod`** — Open `go.mod` for the module under review and read the `go` directive.  
+   **Pass:** You can state the exact `go X.YY` value (in the review preamble or working notes). Apply version-gated advice only when it matches this baseline (e.g. fuzz tests Go 1.18+, loop-variable capture pre-Go 1.22).
+
+2. **Read surrounding tests** — For each `*_test.go` (or benchmark/fuzz file) in scope, read full test functions and any table `struct{...}` / helpers they use, not only the diff hunk.  
+   **Pass:** At least one full `func Test...` / `func Benchmark...` / `func Fuzz...` (or helper it calls) containing the change was read per in-scope file.
+
+3. **Scope the checklist** — Decide which [Review Checklist](#review-checklist) rows apply (table-driven structure, parallelism, HTTP, golden files, mocks). Open [references/structure.md](references/structure.md) and/or [references/mocking.md](references/mocking.md) for those topics; skip rows N/A to the diff with a one-line reason (e.g. “no `t.Parallel` in change”).  
+   **Pass:** The review (or working notes) lists which checklist themes you applied, or marks themes N/A with a diff-tied reason.
+
+4. **Pre-report verification** — Load and follow [review-verification-protocol](../review-verification-protocol/SKILL.md).  
+   **Pass:** The protocol’s **Pre-Report Verification Checklist** is satisfied for each finding you will report (actual test code read, surrounding context checked, “wrong” vs “different style” distinguished, etc.).
+
+## Hard gates (same sequence, shorter)
+
+| Step | Objective pass condition |
+| --- | --- |
+| 1 | `go X.YY` from `go.mod` is recorded before version-specific test advice. |
+| 2 | Full enclosing test (or helper it uses) read per in-scope test file, not diff-only. |
+| 3 | In-scope checklist themes listed or N/A with diff-tied reason; references opened as needed. |
+| 4 | `review-verification-protocol` completed for every reported issue. |
+
+## Output Format
+
+Report findings as:
+
+```text
+[FILE:LINE] ISSUE_TITLE
+Severity: Critical | Major | Minor | Informational
+Description of the issue and why it matters.
+```
+
 ## Quick Reference
 
 | Issue Type | Reference |

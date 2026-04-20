@@ -14,6 +14,14 @@ description: Reviews Rust test code for unit test patterns, integration test str
 5. **Check test isolation** — No shared mutable state between tests, proper setup/teardown. Prefer `LazyLock` over `lazy_static!`/`once_cell` for shared fixtures
 6. **Check coverage patterns** — Error paths tested, edge cases covered
 
+## Gates (hard)
+
+Do not advance to **Output Format** until each pass condition is satisfied (yes/no with a concrete artifact).
+
+1. **Edition recorded** — Open the target crate’s `Cargo.toml` (or workspace `[workspace.package]` / inherited edition) and note the `edition` value. **Pass:** you can quote `edition = "…"` (or document “inherited from workspace”) before citing Rust 2024–specific behavior (`if let` / tail temporary drops, `#[expect]` vs `#[allow]` migration, native `async fn` in traits as default). If edition is not `2024`, do **not** report those items as edition-2024 regressions; at most **Informational** if still useful.
+2. **`dyn` vs static async mocks** — Before suggesting native `async fn` in traits instead of `async-trait`, check whether the mock is used as `dyn Trait`. **Pass:** if `dyn` is required, you either skip that suggestion or align with **Valid Patterns** (`async-trait` still needed).
+3. **Verification protocol** — **Pass:** steps from `beagle-rust:review-verification-protocol` are done before any finding is listed (see **Before Submitting Findings**).
+
 ## Output Format
 
 Report findings as:

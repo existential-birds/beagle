@@ -260,19 +260,20 @@ Write findings to `.beagle/ai-writing-review.json`:
 
 ### 10. Verification
 
-Before completing, verify:
+Before completing, all of the following must **pass** (objective checks):
 
-1. **JSON validity:** Confirm `.beagle/ai-writing-review.json` exists and is parseable
-2. **Subagent success:** All spawned subagents completed without errors
-3. **Git HEAD captured:** The `git_head` field is non-empty
-4. **No double-flagging:** Cross-check against `.beagle/llm-artifacts-review.json` if it exists
+1. **JSON file exists and parses:** `.beagle/ai-writing-review.json` is present **or** you exited at Gate 1 with no scan (then no JSON is required).
+2. **JSON validity:** If the file exists, `python3 -c "import json; json.load(open('.beagle/ai-writing-review.json'))"` exits 0.
+3. **Subagent success:** If you used `Task` subagents, each returned without tool/runtime failure (failed spawn = do not write final JSON as if complete).
+4. **Git HEAD captured:** When JSON exists, `git_head` matches `git rev-parse HEAD` (non-empty string).
+5. **No double-flagging:** If `.beagle/llm-artifacts-review.json` exists, no finding duplicates its file:line + overlapping type for the skip rules in §4.
 
 ```bash
-# Verify JSON is valid
+# Verify JSON is valid (when file exists)
 python3 -c "import json; json.load(open('.beagle/ai-writing-review.json'))" 2>/dev/null && echo "Valid JSON" || echo "Invalid JSON"
 ```
 
-If any verification fails, report the error and do not proceed.
+If any check fails, report the error and do not proceed.
 
 ## Output Format for Each Finding
 
@@ -296,9 +297,28 @@ If any verification fails, report the error and do not proceed.
 - Create `.beagle` directory if needed
 - Write JSON report before displaying summary
 
+## Gates (sequenced pass conditions)
+
+Advance only when each **pass condition** is satisfied using artifacts (paths, exit codes, parseable output)—not an internal “I checked” claim.
+
+1. **Arguments → scope**
+   - **Pass:** You can list the concrete paths (or `git:commit:<sha>` / `git:pr:<n>`) you will scan. If that set is empty, emit the “No files to scan…” message and **do not** create `.beagle/ai-writing-review.json`.
+
+2. **Scope → execution**
+   - **Pass:** Each of Prose, Code docs, and Git (when in scope) has either completed subagent output **or** equivalent inline work with the same structured fields per finding.
+
+3. **Consolidation → write**
+   - **Pass:** Duplicates (same file:line and type) removed; when `.beagle/llm-artifacts-review.json` exists, overlaps with it skipped per §4; `git_head` equals the output of `git rev-parse HEAD` (non-empty).
+
+4. **JSON → summary**
+   - **Pass:** `python3 -c "import json; json.load(open('.beagle/ai-writing-review.json'))"` exits 0.
+
+5. **Finding → verification protocol**
+   - **Pass:** For each reported issue, you can cite the surrounding paragraph or function you used so the flag is evidence-backed (see `beagle-core:review-verification-protocol`).
+
 ## Reference Material
 
-## AI Writing Detection for Developer Text
+### AI Writing Detection for Developer Text
 
 Detect patterns characteristic of AI-generated text in developer artifacts. These patterns reduce trust, add noise, and obscure meaning.
 

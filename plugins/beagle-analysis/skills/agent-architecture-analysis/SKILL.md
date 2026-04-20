@@ -468,6 +468,8 @@ grep -r "related_tests\|similar_\|find_relevant" --include="*.py"
 
 ## Output Format
 
+**Gate order:** Do not assign Strong / Partial / Weak or treat recommendations as observed facts until **Hard gates** (after [Analysis Workflow](#analysis-workflow)) are satisfied for the factors in scope.
+
 ### Executive Summary Table
 
 ```markdown
@@ -526,6 +528,16 @@ For each factor, provide:
    - Compile executive summary table
    - Highlight strengths and critical gaps
    - Suggest priority order for improvements
+
+---
+
+## Hard gates (evidence before scores)
+
+Run these in order. Do not skip ahead: each **Pass** is an objective condition you can check (paths on disk, citations present), not internal certainty.
+
+1. **Scan gate** — After the initial scan (workflow step 1), **Pass:** for every factor (1–13) you have either (a) ≥1 repo-relative path or glob hit to inspect, or (b) a one-line note with rationale (e.g. search command/output, or “no matches — codebase may omit this concern”). Empty hand-waving (“looks fine”) fails this gate.
+2. **Evidence gate (per factor)** — Before writing Strong / Partial / Weak for that factor, **Pass:** “Current Implementation” includes ≥1 citation with **file path** plus **line range or short quoted snippet** from `codebase_path`, or an explicit **no evidence located** statement after targeted reads. If evidence is missing after search, default that factor to **Weak** unless the criterion is clearly N/A (say why).
+3. **Synthesis gate** — Executive summary table and per-factor analysis sections, **Pass:** only after gates 1–2 are satisfied for the factors in scope. Recommendations may name new files or patterns only as proposals; they must not be presented as observed facts without matching citations from step 2.
 
 ---
 

@@ -31,6 +31,14 @@ Evaluate the input prompt across these dimensions:
 
 Identify which dimensions are weak or missing in the input prompt.
 
+### Gates (sequenced)
+
+Complete in order; do not skip steps.
+
+1. **Audit gate (end of Step 1):** **Pass when** the forthcoming Analysis names the task type and either lists each weak or missing dimension from the table or explicitly states all dimensions are adequate, with a brief reason for any dimension you treat as already sufficient.
+2. **Transform gate (Step 2):** **Pass when** every improvement you will list under "Improvements Applied" maps to a gap from the audit (or to deliberate strengthening when the prompt was already adequate).
+3. **Output gate (Step 3):** **Pass when** the Optimized Prompt block appears only after Gates 1–2 pass.
+
 ## Step 2: Apply Transformation Rules
 
 ### Task Clarity
@@ -108,11 +116,11 @@ running tests after each step to ensure behavior is unchanged.
 
 ## Step 3: Generate Output
 
-Produce output in this exact format:
+Follow the Gates under Step 1 (audit → transform → output). Produce output in this exact format:
 
 ### Analysis
 
-[2-3 sentences identifying the prompt type and which dimensions are weak]
+[2-3 sentences identifying the prompt type, which dimensions are weak or missing, or why all dimensions are already adequate]
 
 ### Improvements Applied
 

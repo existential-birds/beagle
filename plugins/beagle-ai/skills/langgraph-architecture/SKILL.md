@@ -248,6 +248,15 @@ graph.update_state(config, {"field": "new_value"})
 graph.invoke(None, config)
 ```
 
+## Gates (sequenced)
+
+Complete **in order** before treating a LangGraph design as locked in. Each step has an objective **pass condition** (artifact or explicit “none”), not an honor-system “we considered it.”
+
+1. **Alternatives** — **Pass:** For the workload, either (a) at least one row from [Consider Alternatives When](#consider-alternatives-when) was evaluated and rejected with a one-line reason, or (b) the use case clearly matches [Use LangGraph When You Need](#use-langgraph-when-you-need) and does not fit a “consider alternative” row.
+2. **State contract** — **Pass:** Every state field has an assigned reducer (or default/LastValue) documented in the same place as the schema; large payloads are references or Store-backed, not inlined blobs (see [State Size Considerations](#state-size-considerations)).
+3. **Checkpointer** — **Pass:** The saver type is chosen for the target environment per [Checkpointer Selection](#checkpointer-selection) (e.g. production is not `InMemorySaver` unless explicitly test-only).
+4. **Loops and flaky nodes** — **Pass:** `recursion_limit` (or equivalent) is set for any graph that can cycle; per-node `RetryPolicy` or a documented “no retries” choice exists for external calls (see [Retry Configuration](#retry-configuration)).
+
 ## Error Handling Strategy
 
 ### Retry Configuration
@@ -321,7 +330,7 @@ def check_budget(state):
 
 ## Decision Checklist
 
-Before implementing:
+After [Gates (sequenced)](#gates-sequenced), before implementing:
 
 1. [ ] Is LangGraph the right tool? (vs simpler alternatives)
 2. [ ] State schema defined with appropriate reducers?

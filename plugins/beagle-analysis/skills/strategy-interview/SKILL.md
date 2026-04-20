@@ -162,6 +162,8 @@ Before producing documents, read the kernel back as a single paragraph: "[Diagno
 
 Then check the guiding policy's *exclusions* against the coherent actions. If the policy rules something out but an action quietly reintroduces it ("We said we're not pursuing enterprise, but action 4 is build SSO support"), surface the conflict.
 
+**Pass condition (all required before Phase 4 file writes):** The user has confirmed the one-paragraph kernel readback (including corrections applied in-chat), and any exclusion-vs-action conflict is resolved or explicitly parked with rationale in `strategy-notes.md` (or `state.md` / `evidence.md` if durable state exists).
+
 ### Phase 4 — Produce the deliverables
 
 Before writing files, confirm the user wants file output: "I'd like to write two files — a strategy draft and reasoning notes. Want me to write those, or would you prefer I summarize in chat?" If chat-only, deliver the "At a glance" block inline and offer to write files later. Confirm the output path — don't assume the working directory is correct.
@@ -171,6 +173,7 @@ Before writing files, confirm the user wants file output: "I'd like to write two
 1. Update `state.md` and `evidence.md` with any final-phase findings.
 2. Write or update `composition.md` with the confirmed kernel, explicit exclusions, success signals, unresolved assumptions, and selected evidence with source tags.
 3. Compose `strategy-draft.md` and `strategy-notes.md` from the `.beagle/strategy/<subject-slug>/` artifacts. If subagents are available, prefer spawning one — a fresh context reading persisted files produces better documents than the main context reconstructing from a long transcript. Without subagents, re-read each artifact file before composing.
+4. Before treating `strategy-draft.md` as done, run the **Source discipline** sequence (section **Source discipline (gate before market/competitor claims in files)**) and meet its **Pass condition** (inventory → classify → tag or remove unsupported claims).
 
 When — and only when — the kernel feels solid, produce **two files** in the user's working directory (or wherever they indicate):
 
@@ -190,14 +193,18 @@ After writing both files, give a short chat summary: diagnosis in one sentence, 
 - **Resist the urge to soften.** Your natural instinct will be to produce balanced, diplomatic language — exactly wrong for a diagnosis. A diagnosis that everyone is comfortable with isn't specific enough. The user can always soften later; your job is to find the sharp version first.
 - **Lean on domain experts.** When the user is in a highly specialized domain (biotech, defense, regulated industries, deep tech), lean harder on their expertise — ask more "teach me" questions. Flag when a diagnosis rests on domain knowledge you can't verify. Never confidently diagnose in unfamiliar territory; use the user's own framing and push for specificity rather than substituting shallow knowledge.
 
-## Source discipline
+## Source discipline (gate before market/competitor claims in files)
 
-Strategy lenses can invite confident claims about markets, competitors, and trends. Guard against this:
+Strategy lenses can invite confident claims about markets, competitors, and trends. **Do not invent** statistics, competitor capabilities, or industry trends.
 
-- Distinguish user-provided facts from assumptions.
-- Do not invent market data, competitor capabilities, or industry trends.
-- Mark unsourced competitive or market claims as `[assumption — verify]` in both output files.
-- If the user wants research-backed claims, suggest they provide sources or ask Claude to research specific questions separately.
+**Sequence before writing or materially editing `strategy-draft.md` (and when updating `composition.md`):**
+
+1. **Inventory:** List each sentence that asserts market size, competitor behavior, industry trend, regulatory fact, or other externally verifiable claim.
+2. **Classify each line:** `user-provided` (quote or close paraphrase from the user), `inference` (follows from user statements and is labeled as such in notes), or `unsupported`.
+3. **Handle `unsupported`:** Mark as `[assumption — verify]` in both `strategy-draft.md` and `strategy-notes.md` (and in `evidence.md` if durable state is in use), or remove the claim.
+4. **Pass condition:** Every such sentence in `strategy-draft.md` is either anchored to the user's words / agreed inference in notes **or** explicitly tagged `[assumption — verify]`. Zero unsourced numbers or "market facts" invented to sound credible.
+
+If the user wants research-backed claims, they must supply sources or run a separate research pass — do not fabricate citations.
 
 ## Durable interview state
 

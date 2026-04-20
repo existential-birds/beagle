@@ -8,6 +8,17 @@ disable-model-invocation: true
 
 Detect common artifacts left behind by LLM coding agents: over-abstraction, dead code, DRY violations in tests, verbose comments, and defensive overkill.
 
+## Hard gates (sequence)
+
+Advance only when each **pass condition** is objectively true (prevents “review complete” without artifacts):
+
+| Gate | Pass condition |
+|------|----------------|
+| **G1 — Scope** | File list is non-empty *or* you exit with exactly the Step 1 message; `scope` is set to `all` or `changed`. |
+| **G2 — Four categories** | Tests, dead code, abstraction, and style are each reviewed (four `Task` runs when Step 3 applies, or four sequential passes covering the same categories). **Stop** if any category did not complete; do not write JSON or a summary that implies a full pass. |
+| **G3 — JSON before summary** | `.beagle/llm-artifacts-review.json` exists and is valid JSON **before** Step 6 markdown. |
+| **G4 — Integrity** | Step 7 checks pass before treating the run as complete. |
+
 ## Arguments
 
 Parse `$ARGUMENTS` for flags and optional path:
@@ -131,6 +142,8 @@ Each subagent MUST:
 
 ## Step 4: Consolidate Findings
 
+**Prerequisite:** **G2** satisfied (all four category reviews finished successfully).
+
 Wait for all subagents to complete, then:
 
 1. Merge all findings into a single list
@@ -192,6 +205,8 @@ Write findings to `.beagle/llm-artifacts-review.json`:
 
 ## Step 6: Display Summary
 
+**Prerequisite:** **G3** satisfied (JSON on disk and parseable).
+
 ```markdown
 ## LLM Artifacts Review
 
@@ -243,6 +258,7 @@ If any verification fails, report the error and do not proceed.
 
 ## Rules
 
+- Follow **Hard gates** order; do not skip **G3** (JSON before Step 6).
 - Always load the `beagle-core:llm-artifacts-detection` skill first
 - Use `Task` tool for parallel subagents when >= 4 files
 - Every finding MUST have file:line reference

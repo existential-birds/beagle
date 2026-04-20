@@ -108,7 +108,7 @@ Apply the loaded skills to generate documentation:
    mkdir -p docs/drafts
    ```
 
-3. **Write the draft file**
+3. **Write the draft file** (see **Hard gates** → Write gate: confirm file on disk before the next step)
 
 4. **Report to user:**
    ```markdown
@@ -269,3 +269,19 @@ If any verification fails, report the specific issue and offer remediation steps
 - Reference analyzed symbols in draft metadata
 - Preserve existing navigation structure when publishing
 - Ask before overwriting existing files
+
+## Hard gates (sequenced)
+
+Do not skip ahead: each **Pass** must be true before the next step. Use commands or explicit artifacts—not internal assurance.
+
+### Generate draft (Mode 1)
+
+1. **Context gate — Pass:** Step 0 commands ran (or equivalent) and you recorded at least one concrete outcome: e.g. `docs/` listing snippet, or explicit note that `docs/` is missing and will be created.
+2. **Type gate — Pass:** Reference vs How-To is decided using the keyword table **or** the user’s explicit answer (quote or paraphrase with “user chose …”). Do not start **Step 3: Analyze Code** until this is locked.
+3. **Skills gate — Pass:** Before analysis, both are in play: `beagle-docs:docs-style` and the type skill (`beagle-docs:reference-docs` or `beagle-docs:howto-docs`). In your run, name the two skills loaded (IDs/paths)—not “I reviewed writing guidelines.”
+4. **Write gate — Pass:** After writing the draft, `test -f docs/drafts/{slug}.md` succeeds (or `ls` shows the file). Only then emit the **Draft Created** block.
+
+### Publish draft (Mode 2)
+
+1. **Destination gate — Pass:** User chose a destination (from the menu or a specific path). Resolve `{destination}` to a full path; **Pass** when the parent directory exists (`test -d "$(dirname "$path")"` or project-appropriate check) **and** you are not overwriting an existing file without explicit user approval.
+2. **Move gate — Pass:** After `mv`, the file exists at `{destination}/{slug}.md` (`test -f`) and navigation updates (if applicable) are applied before claiming **Published**.

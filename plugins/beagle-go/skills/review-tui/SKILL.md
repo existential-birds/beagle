@@ -11,6 +11,19 @@ disable-model-invocation: true
 - `--parallel`: Spawn specialized subagents per technology area
 - Path: Target directory (default: current working directory)
 
+## Gates (sequence)
+
+Advance only when each **pass condition** is true (reduces scope drift and unsubstantiated blocking claims):
+
+| Gate | Pass condition |
+|------|----------------|
+| **G1 — Scope** | Step 1 produced a concrete list of target `.go` paths (from the git command or an explicit user path). If the list is empty, you **stopped** for scope clarification **or** recorded an agreed non-git scope (e.g. single file/dir) before reviewing. |
+| **G2 — Skills before review** | `beagle-go:review-verification-protocol`, `beagle-go:go-code-review`, and `beagle-go:bubbletea-code-review` are loaded; Step 4 conditionals (tests → `go-testing-code-review`, Wish → `wish-ssh-code-review`) are loaded **before** Step 5. |
+| **G3 — Evidence for Critical/Major** | Each Critical/Major finding cites **file path + line** (or a short quoted snippet) from the **opened** source—not from diff hunks alone. |
+| **G4 — Pre-output hygiene** | Each retained finding was checked against Step 7 **and** the loaded verification protocol **before** writing the Issues section. |
+
+Do not start Step 5 until **G2** passes. Do not publish Critical/Major until **G3** and **G4** pass.
+
 ## Step 1: Identify Changed Files
 
 ```bash

@@ -13,6 +13,18 @@ description: Reviews axum web framework code for routing patterns, extractor usa
 4. **Check state** — Shared state via `State<T>`, not global mutable state
 5. **Check error handling** — `IntoResponse` implementations, error types
 
+## Gates (before reporting findings)
+
+Run **in order**. Do not write a finding until the step that applies has passed.
+
+1. **Version and edition on disk** — **Pass when:** You have read the relevant `Cargo.toml` (crate or workspace root) and can state `axum` (and related tower/tower-http) versions and Rust `edition`. **Then** apply 0.6 vs 0.7+ or Edition 2024–specific checklist items only when that file supports them.
+
+2. **Per-finding evidence** — **Pass when:** Each issue cites `[FILE:LINE]` from the **current** tree for the handler, router, layer, or type under review (not from memory, docs-only, or another branch).
+
+3. **Category check vs protocol** — **Pass when:** For the finding type (routing conflict, extractor order, error leak, middleware order, etc.), you ran the matching checks from `beagle-rust:review-verification-protocol` (e.g. full handler signature for extractor order; surrounding error mapping before “raw error to client”). **Then** add the finding.
+
+4. **Output shape** — **Pass when:** The report lines match **Output Format** below (severity + description).
+
 ## Output Format
 
 Report findings as:
@@ -109,4 +121,4 @@ Description of the issue and why it matters.
 
 ## Before Submitting Findings
 
-Load and follow `beagle-rust:review-verification-protocol` before reporting any issue.
+Complete **Gates (before reporting findings)** and load `beagle-rust:review-verification-protocol` for category-specific checks before any issue is final.

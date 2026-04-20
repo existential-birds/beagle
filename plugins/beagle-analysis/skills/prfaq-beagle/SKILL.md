@@ -45,6 +45,18 @@ Verdict branches:
 
 **Terminal state: a binary verdict.** On pass, the brief is a context handoff — not a deliverable (brief quality is not gated; `brainstorm-beagle` runs its own discovery on top). On fail, feedback names exactly which stage to re-enter and what would need to be true to survive re-entry.
 
+## Gates (objective pass conditions)
+
+Do not advance until the **Pass when** line is satisfied (these restate critical transitions as checkable stops—see stage sections for full coaching).
+
+| Step | Pass when |
+|------|-----------|
+| **Resume fork** | If `.beagle/concepts/<slug>/prfaq.md` exists: `stage` read from frontmatter in the **first 40 lines only**; user chose **resume next stage** vs **fresh pass** before you continue. |
+| **After artifact-analysis** | Invocation finished; `analysis/report.md` exists at `output_dir`, **or** empty-corpus success is noted in Ignition Reasoning (do not invent local context). |
+| **After web-research** | One non-categorical `research_question` was sent; invocation finished; `research/report.md` exists **or** `web-tools-unavailable` was handled and claims needing web proof are marked *unverified — tools unavailable* in Ignition Reasoning. |
+| **Ignition → Press Release (1e)** | `prfaq.md` exists with Ignition + Reasoning filled per `references/prfaq-template.md`; user **explicitly confirmed** the recap matches (or you fixed `prfaq.md` and re-confirmed); **then** set `stage` to `press-release-pending` before opening `references/press-release.md`. |
+| **Final verdict** | PASS: Stage 5 rubric in `references/verdict.md` met → `brief.md` written + `stage: pass`. FAIL: Verdict section complete + `stage: fail` + no `brief.md`—no middle outcomes. |
+
 ## Concept folder layout
 
 All artifacts for a concept live under `.beagle/concepts/<slug>/`:

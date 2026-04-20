@@ -27,6 +27,16 @@ description: Reviews PostgreSQL code for indexing strategies, JSONB operations, 
 - [ ] Advisory locks used for application-level coordination
 - [ ] Queries use parameterized statements (no SQL injection)
 
+## Gates (before reporting findings)
+
+Use this sequence so conclusions stay evidence-bound (not “I checked mentally”):
+
+1. **Scope** — Record the concrete paths (and line ranges or symbols if helpful) for the SQL, DDL/migrations, and connection code under review. **Pass:** every subsystem you critique (queries, JSONB, pool, transactions) has at least one cited path.
+2. **SQL/DDL citation for performance claims** — Index, sequential-scan, JSONB-operator, and plan-related findings must point to the exact statement or schema (quoted excerpt or `file:line`). **Pass:** each such finding includes that citation.
+3. **Binding check before injection flags** — Only assert SQL-injection risk after locating how SQL and values are combined (bound parameters vs string concat/format/f-strings). **Pass:** you name the mechanism you saw in code for each flagged callsite.
+
+Then load the relevant reference doc from [Quick Reference](#quick-reference) and walk the [Review Checklist](#review-checklist).
+
 ## When to Load References
 
 - Reviewing SELECT queries with WHERE/JOIN → indexes.md

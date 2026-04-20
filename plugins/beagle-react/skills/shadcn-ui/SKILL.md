@@ -54,6 +54,14 @@ npx shadcn@latest add --all
 - `-c, --cwd <cwd>` - Set working directory
 - `--src-dir` - Use src directory structure
 
+### Gates (CLI and file changes)
+
+Run these **in order** before `init` / `add` (skip only when you are not running the CLI—e.g. copying snippets from this skill):
+
+1. **Working directory:** **Pass:** `pwd` and `package.json` at that path identify the app root that should receive `components/` and `components.json` (use `-c <cwd>` if the shell is elsewhere).
+2. **After `init`:** **Pass:** `components.json` exists at that app root (or the documented path for your monorepo layout).
+3. **Before `--overwrite`:** **Pass:** you can list which tracked files will be replaced, or version control shows the change is intentional and recoverable.
+
 ## Quick Reference
 
 ### cn() Utility

@@ -8,6 +8,16 @@ disable-model-invocation: true
 
 Commit all local changes following Conventional Commits format and push to remote.
 
+## Gates
+
+Complete **in order**. Do not run the next action until the **Pass** condition is satisfied (use command output as evidence, not memory).
+
+1. **Diff understood** — **Pass when:** Outputs from `git status`, `git diff`, and `git diff --cached` are consistent with your one-sentence description of what changed (or you recorded that there is nothing to commit).
+2. **Commit line chosen** — **Pass when:** You have a draft first line `type(scope): description` (or `type: description` if omitting scope) that matches the change set you intend to ship.
+3. **Staging matches intent** — **Pass when:** After `git add`, `git diff --cached --stat` (and spot-check `git diff --cached` if needed) shows only the paths you meant to include; adjust staging before committing if not.
+4. **Push target confirmed** — **Pass when:** Current branch and remote are the ones you intend (`git branch -vv`, `git remote -v`); then push.
+5. **Remote caught up** — **Pass when:** `git status` is clean and `git status -sb` shows the branch is up to date with its configured upstream (no unexpected unpushed commits left for this task).
+
 ## Step 1: Gather Context
 
 Run these commands in parallel to understand the changes:
@@ -63,9 +73,14 @@ Rules:
 
 ## Step 4: Stage, Commit, and Push
 
+Satisfy **Gates** 1–3 before `git commit`; satisfy **Gate** 4 before `git push`; satisfy **Gate** 5 after push.
+
 ```bash
 # Stage all changes (or selectively stage)
 git add -A
+
+# Gate 3: confirm staged set before committing
+git diff --cached --stat
 
 # Commit with message (use HEREDOC for multi-line)
 git commit -m "$(cat <<'EOF'
@@ -122,4 +137,4 @@ EOF
 
 ## Step 5: Verify
 
-After pushing, run `git status` to confirm the working tree is clean and the branch is up to date with remote.
+After pushing, satisfy **Gate 5**: run `git status` and `git status -sb` and confirm a clean tree and upstream sync (or an expected ahead/behind you can explain, e.g. fork workflow).

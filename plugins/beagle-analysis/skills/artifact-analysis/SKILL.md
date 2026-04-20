@@ -29,10 +29,21 @@ The deliverable is always on disk: a written scan plan the caller can audit, one
 
 Four steps, in order. No step is skippable.
 
+### Hard gates
+
+Advance to the next step only when the **pass condition** is true—confirm using files under `output_dir` (and tool output), not memory.
+
+| After | Pass condition |
+| --- | --- |
+| `plan.md` written | `plan.md` exists and includes intent, resolved paths, slices, per-slice briefs, skip patterns, budgets applied, and synthesis approach (same fields as **The scan plan (`plan.md`)**). |
+| Subagent dispatch | Either the **empty corpus** path was taken (no subagents; `plan.md` documents zero readable documents) **or** every slice listed in `plan.md` has `findings/<slice-slug>.md` on disk. |
+| `report.md` written | `report.md` exists; headings match `references/report-template.md` (seven sections plus `## Sources`). |
+| Before return to caller | Every row of `references/failure-modes.md` → **Verification checklist (orchestrator runs at end)** is checked off, *or* any failed check is recorded under `## Gaps & Limitations` in `report.md` as that failure-modes file prescribes. |
+
 1. **Write `plan.md`** — resolved paths (with any auto-discovery applied), intent summary (when provided), per-slice briefs, skip patterns, and how findings will be synthesized.
 2. **Dispatch subagents** — spawn 1-3 parallel subagents over non-overlapping slices of the resolved paths. Each writes `findings/<slice-slug>.md` under `output_dir`.
 3. **Synthesize `report.md`** — fold findings into the seven fixed sections with path-anchored citations.
-4. **Verify before returning** — run the verification checklist in `references/failure-modes.md` to confirm all expected artifacts exist and are well-formed. Any check that fails becomes an entry in `Gaps & Limitations`.
+4. **Verify before returning** — satisfy the last **Hard gates** row; execute the numbered checklist in `references/failure-modes.md` (**Verification checklist (orchestrator runs at end)**). Any check that fails becomes an entry in `Gaps & Limitations` per that file—do not return a deliverable with silent checklist failures.
 
 ```
 Receive paths + optional intent ──→ Auto-discover if paths empty

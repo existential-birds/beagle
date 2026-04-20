@@ -12,6 +12,16 @@ description: Configures ExDoc for Elixir projects including mix.exs setup, extra
 | Markdown, cheatsheets (.cheatmd), livebooks (.livemd) | [references/extras-formats.md](references/extras-formats.md) |
 | Custom head/body tags, syntax highlighting, nesting, annotations | [references/advanced-config.md](references/advanced-config.md) |
 
+## Gates
+
+Use this sequence before claiming ExDoc is wired correctly or that docs build:
+
+1. **Dependencies resolved** — Run `mix deps.get` from the project root. **Pass:** exit code `0`, and `mix.exs` includes `ex_doc` as in [Dependency Setup](#dependency-setup) (or the project’s equivalent dev-only docs dep).
+2. **Extra paths real** — For every path string in `extras/0` (and in `groups_for_extras/0` if used), confirm that path exists in the repo **or** you have just created that file. **Pass:** no stale or typo paths remain when you run `mix docs`.
+3. **Docs build** — Run `mix docs`. **Pass:** exit code `0`, and the HTML entry exists at `<output>/index.html` (default `<project>/doc/index.html`; use `docs: [output: ...]` if you changed `output`).
+
+For cheatsheets, livebooks, or custom head/body assets, follow the same “path exists before listing” rule; see [When to Load References](#when-to-load-references).
+
 ## Dependency Setup
 
 Add ExDoc to `mix.exs` deps:

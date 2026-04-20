@@ -425,6 +425,15 @@ Before publishing, verify:
 - [ ] Written for reading away from keyboard (no tasks to follow)
 - [ ] Progressive structure builds understanding step by step
 
+## Gates before "done" (sequenced)
+
+Run in order. **Do not skip ahead**; each step has an objective pass condition.
+
+1. **Classify** — Decide whether this document is an explanation (vs tutorial, how-to, or reference) using [When to Use Explanation vs Other Doc Types](#when-to-use-explanation-vs-other-doc-types). **Pass if** the dominant reader question matches an Explanation row in that table *and* the introduction states what understanding the reader will gain (one short sentence is enough).
+2. **Skeleton** — Align the draft with [Explanation Document Template](#explanation-document-template). **Pass if** the draft includes substantive content (not placeholders) for **Overview**, **How It Works**, and at least one of **Design Decisions and Trade-offs** or **Alternatives Considered**.
+3. **Rationale** — **Pass if** every major design or architecture claim includes either why it was chosen or what trade-off it accepts (not only what exists).
+4. **Checklist** — Complete [Checklist for Explanations](#checklist-for-explanations). **Pass if** every item is satisfied or explicitly waived in prose (with reason).
+
 ## When to Use Explanation vs Other Doc Types
 
 | Reader's Question | Doc Type | Focus |

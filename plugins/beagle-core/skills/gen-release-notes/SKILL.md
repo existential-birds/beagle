@@ -18,6 +18,17 @@ $ARGUMENTS
 
 Use extended thinking to analyze the changes thoroughly before generating release notes.
 
+## Gates
+
+Do not invent tags, PR numbers, or links. Each row must pass before the work that depends on it.
+
+| When | Pass condition (evidence) | On fail |
+|------|---------------------------|---------|
+| Before `git log` / `git diff` | `git tag -l "$PREV_TAG"` prints exactly one line matching `PREV_TAG` | Stop; report that the tag is missing—do not write changelog entries |
+| Before categorizing | `git rev-parse "$PREV_TAG^{commit}"` exits 0 | Stop; fix `PREV_TAG` or repo checkout |
+| If using `gh pr list` | Command exits 0 and JSON is valid | Fall back to commit subjects + merge-commit URLs only; do not fabricate PR numbers |
+| After Step 5 footer edits | Same intent as Step 5: confirm two compare-link lines exist—`[Unreleased]:` (points at `HEAD` from the new tag) and `[VERSION]:` for the release you added (VERSION matches the `## [VERSION]` heading). Use the Step 5 `grep` command with your real version substituted for the placeholder | Re-run footer edits from Step 5 |
+
 ## Step 1: Gather Changes
 
 Run these commands to collect information about changes since the provided tag:
@@ -26,8 +37,9 @@ Run these commands to collect information about changes since the provided tag:
 # Store the previous tag
 PREV_TAG="$ARGUMENTS"
 
-# Verify the tag exists
+# Gate: tag must exist (output must be non-empty and match PREV_TAG)
 git tag -l "$PREV_TAG"
+# If the line above prints nothing, STOP — do not continue below.
 
 # Get the repo URL for PR links
 git remote get-url origin

@@ -14,6 +14,18 @@ description: Reviews serde serialization code for derive patterns, enum represen
 5. **Check edition 2024 compatibility** — Reserved `gen` keyword, RPIT lifetime capture changes, `never_type_fallback`
 6. **Verify round-trip correctness** — Serialized data must deserialize back to the same value
 
+## Gates (before reporting findings)
+
+Run **in order**. Do not write a finding until the step that applies has passed.
+
+1. **Serde context on disk** — **Pass when:** You have read the relevant `Cargo.toml` (crate or workspace root) and can state Rust `edition`, `serde` / `serde_derive` features if non-default (`derive`, `rc`), and which format crates apply (`serde_json`, `toml`, `bincode`, etc.) for the code under review. **Then** apply edition-specific checklist items (e.g. `gen`, RPIT/`never_type_fallback`) only when that file supports them.
+
+2. **Per-finding evidence** — **Pass when:** Each issue cites `[FILE:LINE]` from the **current** tree for the `struct`/`enum`, `Serialize`/`Deserialize` impl, or attribute block in question (not from memory, docs-only, or another branch).
+
+3. **Category check vs protocol** — **Pass when:** For the finding type (derive attrs, enum tagging, `flatten`, custom impl, sqlx + serde alignment), you ran the matching checks from `beagle-rust:review-verification-protocol` (e.g. full type definition + serde attrs before “wrong representation”; confirmed edition in `Cargo.toml` before edition-2024-only findings). **Then** add the finding.
+
+4. **Output shape** — **Pass when:** The report lines match **Output Format** below (severity + description).
+
 ## Output Format
 
 Report findings as:
@@ -104,4 +116,4 @@ Description of the issue and why it matters.
 
 ## Before Submitting Findings
 
-Load and follow `beagle-rust:review-verification-protocol` before reporting any issue.
+Complete **Gates (before reporting findings)** above; gate 3 incorporates `beagle-rust:review-verification-protocol` for serde-related issue types.

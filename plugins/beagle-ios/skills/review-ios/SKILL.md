@@ -11,6 +11,17 @@ disable-model-invocation: true
 - `--parallel`: Spawn specialized subagents per technology area
 - Path: Target directory (default: current working directory)
 
+## Hard gates
+
+Complete in order before writing **Issues** in the output (empty scope is allowed; fabricated findings are not).
+
+1. **Scope gate:** You have an explicit list of `.swift` paths under review (from Step 1 or a user-provided path). **Pass:** List captured in working notes **or** one line: `No Swift files in scope` — then stop with no Issues.
+2. **Linter gate (style):** Step 2 commands ran for this tree; if no `.swiftlint.yml` / `.swiftlint.yaml`, note that in one line. **Pass:** You do not report a style issue that SwiftLint would already enforce for that line when config exists and `swiftlint` succeeds.
+3. **Protocol gate:** `beagle-ios:review-verification-protocol` is loaded before Step 6. **Pass:** If you report any Issues, at least one finding was checked against that checklist (name the item in Review Summary or on that Issue); if you report zero Issues, state `Protocol applied; no issues` in Review Summary.
+4. **Evidence gate (Critical/Major):** For each Critical or Major item, you re-read the file at `FILE:LINE` (full surrounding context, not only the diff hunk). **Pass:** The Issue text matches observable code at that location.
+
+Do not begin Step 6 until **Gates 1–3** are satisfied (skills load order stays Steps 4–5).
+
 ## Step 1: Identify Changed Files
 
 ```bash

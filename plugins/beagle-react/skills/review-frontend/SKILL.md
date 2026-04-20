@@ -35,7 +35,9 @@ git diff --name-only $(git merge-base HEAD main)..HEAD | grep -E '\.test\.tsx?$'
 
 ## Step 3: Load Verification Protocol
 
-Load `beagle-react:review-verification-protocol` skill and keep its checklist in mind throughout the review.
+Load `beagle-react:review-verification-protocol` before any substantive judgment on code.
+
+**Pass before Step 5:** The skill is loaded (or its checklist is open in context). Do not classify severity or write findings until this gate clears.
 
 ## Step 4: Load Skills
 
@@ -78,6 +80,8 @@ Before reporting any issue:
 3. For "missing" claims - did you check framework/parent handling?
 4. For syntax issues - did you verify against current version docs?
 5. Remove any findings that are style preferences, not actual issues
+
+**Pass before promoting to Critical/Major:** For that item, (2)–(4) are satisfied with a concrete artifact when applicable — e.g. opened file at `FILE:LINE`, grep/search output for references, or cited parent/framework code — not only diff context.
 
 ## Step 7: Review Convergence
 
@@ -175,6 +179,16 @@ npm run test
 ```
 
 All checks must pass before approval.
+
+## Gates
+
+Advance in order; do not skip a **pass condition** by restating it informally.
+
+1. **Scope recorded** — **Pass when:** You have the output of the Step 1 command (or an explicit substitute path list) naming what is in scope for this review.
+2. **Protocol + always skills loaded** — **Pass when:** `beagle-react:review-verification-protocol`, `beagle-react:react-router-code-review`, and `beagle-react:shadcn-code-review` are loaded before first severity judgment.
+3. **Conditional skills** — **Pass when:** For each Step 2 detection row, you either loaded the listed skill or recorded that detection was negative (which command returned no matches).
+4. **Critical/Major evidence** — **Pass when:** Each such finding cites `FILE:LINE` that exists in the tree and meets the Step 6 pass rule for that finding type.
+5. **Single output** — **Pass when:** The Issues section uses one continuous numbering sequence and this deliverable satisfies Step 7 single-pass completeness (no withheld issue types or rounds).
 
 ## Rules
 

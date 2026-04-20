@@ -335,7 +335,19 @@ Before publishing, verify:
 - [ ] Potential failures are anticipated with recovery guidance
 - [ ] "What you've learned" summarizes concrete skills gained
 - [ ] Next steps guide to continued learning
-- [ ] Tutorial tested end-to-end by someone unfamiliar with it
+- [ ] Pre-publish gates (below) completed in order—not only self-reviewed
+
+## Pre-publish gates
+
+Run these **in order**. Start the next gate only after the previous **pass** is satisfied.
+
+1. **Draft artifact** — The tutorial exists at a concrete path (file, branch, or CMS location). **Pass:** the artifact opens without guesswork.
+
+2. **Observable outcomes** — **Pass:** every procedural step states what the reader should see next (command output, UI change, or named file)—not only what to do.
+
+3. **Single path** — **Pass:** aside from prerequisite install links, the body does not branch into equivalent alternatives (“npm or yarn…”) unless you split into separate tutorials.
+
+4. **Independent run** — Someone who did not write the draft follows the tutorial from a clean starting point. **Pass:** each step matches its promised outcome; any mismatch is fixed in the doc before publish (see “The Teacher Takes Responsibility” above).
 
 ## When to Use Tutorial vs Other Doc Types
 

@@ -13,7 +13,16 @@ Follow this sequence to avoid false positives and catch edition-specific issues:
 2. **Check dependencies** — Note key crates (thiserror vs anyhow, tokio features, serde features). These inform which patterns are expected.
 3. **Scan changed files** — Read full functions, not just diffs. Many Rust bugs hide in ownership flow across a function.
 4. **Check each category** — Work through the checklist below, loading references as needed.
-5. **Verify before reporting** — Load beagle-rust:review-verification-protocol before submitting findings.
+5. **Verify before reporting** — Complete **Gates** (below), including the verification-protocol gate, before submitting findings.
+
+## Gates
+
+These steps are **sequenced**: do not skip ahead with “mental verification.” Each step has an objective **Pass** you can satisfy from files on disk and your own read path.
+
+1. **Crate context** — Before relying on edition-specific checklist rows (Edition 2024, MSRV-sensitive APIs) or dependency assumptions. **Pass:** You opened the relevant `Cargo.toml` (package or workspace manifest) and can state `edition` and `rust-version` (if set) in one line.
+2. **Expanded read** — Before reporting a **Major** or **Critical** finding. **Pass:** You read the full function, `unsafe` block, or `impl` / trait item that contains the cited line (not only a diff hunk).
+3. **Severity match** — Before each finding line in the report. **Pass:** The **Severity** label matches **Severity Calibration** for that issue class, or you use **Informational** and give a one-line rationale.
+4. **Verification protocol** — Before finalizing the report. **Pass:** `beagle-rust:review-verification-protocol` is loaded and every step in it that applies to this review is completed (do not substitute a vague “I checked”).
 
 ## Output Format
 
@@ -215,4 +224,4 @@ Only flag these issues when the specific conditions apply:
 
 ## Before Submitting Findings
 
-Load and follow `beagle-rust:review-verification-protocol` before reporting any issue.
+Satisfy **Gates** § verification protocol (step 4). Load and follow `beagle-rust:review-verification-protocol` before reporting any issue.

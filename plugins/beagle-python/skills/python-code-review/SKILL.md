@@ -64,6 +64,16 @@ Only flag these issues when the specific conditions apply:
 | Generic exception handling | Specific exception types are available and meaningful |
 | Unused variables | Variable lacks `_` prefix AND isn't used in f-strings, logging, or debugging |
 
+## Gates (reporting workflow)
+
+Complete **in order**. Do not advance until each **pass condition** is met.
+
+1. **Scope** — **Pass:** You list every `.py` path (or explicit glob) you inspected this run.
+2. **False-positive screen** — **Pass:** For each issue you plan to report, you checked **Valid Patterns** and **Context-Sensitive Rules** above; you drop or narrow the finding if those sections say not to flag it.
+3. **Evidence** — **Pass:** Each remaining finding names a **file path** plus **location** (line range, symbol, or short verbatim snippet from the file).
+4. **Verification protocol** — **Pass:** You load [review-verification-protocol](../review-verification-protocol/SKILL.md) and complete its mandatory steps **for each reported issue** before the user-facing write-up.
+5. **Ship** — **Pass:** The user-visible output matches whatever structure that protocol requires (no issues-only dump that skips its checks).
+
 ## When to Load References
 
 - Reviewing code formatting/style → pep8-style.md
@@ -82,6 +92,4 @@ Only flag these issues when the specific conditions apply:
 6. Do exceptions include meaningful context?
 7. Are there any mutable default arguments?
 
-## Before Submitting Findings
-
-Load and follow [review-verification-protocol](../review-verification-protocol/SKILL.md) before reporting any issue.
+Before reporting: complete **Gates (reporting workflow)** above (especially gate 4).

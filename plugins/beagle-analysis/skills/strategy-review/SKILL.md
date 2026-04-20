@@ -24,6 +24,15 @@ This review does three things that generic feedback doesn't:
 
 Read `references/review-dimensions.md` — it contains the seven evaluation dimensions and their criteria. This is the backbone of the review. Keep it in working memory throughout.
 
+## Hard gates (evidence-bound)
+
+These steps are easy to rationalize without evidence; each gate has a **pass condition** before you advance.
+
+1. **Ratings (Step 3).** Do not assign Strong, Adequate, or Weak for any dimension until you have at least one of: a quoted or section-referenced passage from the strategy inputs, a `strategy-notes.md` (or equivalent) cross-reference, or an explicit **Missing** note stating that no relevant passage exists. **Pass:** every dimension that is rated has one of those anchors on record (in chat, in `dimension-ratings.md` if using durable state, or inline in the final review).
+2. **Critical findings (Step 5).** Do not list an item under Critical findings unless it ties to the same kind of anchor (quote, section ref, notes cross-ref, or explicit absence). **Pass:** no critical finding is only a generic critique with no tie to the document or notes.
+3. **Judge artifact mode.** **Order:** finalize prose `strategy-review.md` → derive `strategy-review.json` from that prose → run the validation checklist in `references/judge-artifact-schema.md` → emit or save JSON only after the checklist passes (parses, required fields, score arithmetic). **Pass:** JSON validates and matches the prose labels and evidence.
+4. **Durable state (when `.beagle/.../reviews/.../` exists).** Before you call the review complete, ensure `review-state.md` exists and its `current_step` and lens/kernel fields match what you actually did (Steps 1–5 and files on disk). **Pass:** ledger reflects the true step and inputs; if `dimension-ratings.md` or `kernel-extraction.md` were created, the final `strategy-review.md` does not contradict them.
+
 ## Complementary review lenses
 
 The kernel evaluation (diagnosis, guiding policy, coherent actions) is always the backbone. Four additional lenses load conditionally when the strategy document warrants them. **Do not force them.** Most reviews use one or two; some use none. A lens loads when the document's content triggers it — not as a mandatory checklist.
@@ -77,7 +86,7 @@ Work through each dimension from `references/review-dimensions.md`. For each:
 
 1. **Assess** — What does the document do well or poorly on this dimension?
 2. **Find evidence** — Quote or cite specific passages. Don't make claims you can't point to.
-3. **Rate** — Assign a rating (Strong / Adequate / Weak / Missing).
+3. **Rate** — Assign a rating (Strong / Adequate / Weak / Missing) only after step 2 satisfies **Hard gates → Ratings** (anchor on record before the label).
 4. **Recommend** — If Weak or Missing, what specifically should the author do? Not "improve the diagnosis" — rather, "the diagnosis names 'market shift' as the challenge but doesn't specify *which* shift or *why it matters for this company specifically*. A stronger version would identify the one or two structural changes that create the opening or threat."
 
 The seven dimensions (summarized here, detailed in the reference):

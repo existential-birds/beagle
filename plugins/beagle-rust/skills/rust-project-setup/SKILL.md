@@ -189,6 +189,15 @@ When migrating existing projects to edition 2024:
 
 Run `cargo fix --edition` to auto-fix most mechanical changes.
 
+## Setup completion gates
+
+Use these as **objective pass conditions** after the checklist—not informal “looks done.”
+
+1. **Manifest loads** — From the project or workspace root, run `cargo metadata --format-version 1`. **Pass:** exit code 0 and the output lists your crate(s) (package `name` matches what you expect).
+2. **Lint and format** — Run `cargo clippy --all-targets` (add `-- -D warnings` if warnings must fail) and `cargo fmt --check`. **Pass:** both exit 0 before you treat CI as authoritative.
+3. **CI present** — You committed the workflow you intend to run (see [references/ci-setup.md](references/ci-setup.md)). **Pass:** at least one pipeline run finishes green for check, clippy, tests, and fmt (or the subset you defined).
+4. **Lockfile policy** — **Binary crate:** `Cargo.lock` is committed (`git ls-files Cargo.lock` prints `Cargo.lock`). **Library crate:** `Cargo.lock` is not tracked (empty `git ls-files Cargo.lock`, or file gitignored and never added). **Pass:** the index matches that policy with no surprise `Cargo.lock` changes.
+
 ## Related Skills
 
 - `beagle-rust:rust-best-practices` — idiomatic patterns and edition 2024 coding guidance

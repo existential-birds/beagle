@@ -36,6 +36,20 @@ Compare code implementations across multiple repositories using structured evalu
 8. Aggregate scores, compute weighted totals, rank repos, and write the report.
 9. Display the markdown summary and verify the JSON report.
 
+## Hard gates
+
+Sequenced workflow: **do not start the next phase until the current gate passes.** Each pass condition must be checkable (file on disk, non-empty content, or `json.load` succeeds)—not “I reviewed internally.”
+
+| Gate | Pass condition | Unblocks |
+|------|----------------|----------|
+| **A — Inputs** | `spec_path` is a readable file and non-empty; `len(repo_paths) ≥ 2`; each path contains `.git`. | Phase 1 repo agents |
+| **B — Phase 1 facts** | For **each** repo agent output: stdin/stdout parses as JSON; required keys/shape match `references/fact-schema.md`. | Phase 2 judge agents |
+| **C — Phase 2 scores** | **Five** judge outputs (one per dimension) each parse as JSON; each includes a score (and justification) for **every** repo label. | Aggregation |
+| **D — Report file** | `.beagle/llm-judge-report.json` exists; `python3 -c "import json; json.load(open('.beagle/llm-judge-report.json'))"` exits 0. | Markdown summary to the user |
+| **E — Consistency** | Summary table and verdict use the same labels, weights, and per-dimension scores as the JSON report. | Mark task complete |
+
+Parallelism is allowed **within** a phase (all Phase 1 tasks together; all Phase 2 tasks together), but Phase 2 must not start until Gate B passes, and the user-visible summary must not precede Gate D.
+
 ## Command Workflow
 
 ### Step 1: Parse Arguments
@@ -267,11 +281,10 @@ Display a markdown summary with scores, ranking, verdict, and detailed justifica
 
 ## Verification
 
-Before completing:
+Before completing (maps to **Hard gates** D and E):
 
-1. Verify `.beagle/llm-judge-report.json` exists and is valid JSON.
-2. Verify all repos have scores for all dimensions.
-3. Verify weighted totals sum correctly.
+1. **Gate D:** `.beagle/llm-judge-report.json` exists and `json.load` succeeds.
+2. **Gate E / completeness:** Every repo label has scores for every dimension; each `weighted_total` equals the sum over dimensions of `(score × weight / 100)` using the configured weights; markdown summary matches the JSON report.
 
 ## Rules
 

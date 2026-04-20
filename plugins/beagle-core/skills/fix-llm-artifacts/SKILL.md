@@ -21,6 +21,18 @@ Apply fixes from a previous `review-llm-artifacts` run with automatic safe/risky
 
 ## Instructions
 
+### Hard gates
+
+Sequence matters. Do not apply fixes until each **pass condition** is satisfied (these steps are not “internal verification”).
+
+1. **Working tree** — `git status --porcelain` is empty **or** a stash was created with message `beagle-core: pre-fix-llm-artifacts backup` and `git stash list` shows it. If the user refuses stash/backup, **stop** or document explicit acceptance of risk in the report before edits.
+2. **Review artifact on disk** — `.beagle/llm-artifacts-review.json` exists, **or** `--all` completed a `review-llm-artifacts` run that wrote that file. Otherwise **stop** (no fixes from memory or guesses).
+3. **Stale review** — If `jq -r '.git_head' .beagle/llm-artifacts-review.json` ≠ `git rev-parse HEAD`, prompt to re-run review. **`y`** → re-run review, then continue. **`n`** → **abort** the fix pass (do not apply fixes against stale findings).
+4. **Verification overlay** — If `.beagle/llm-artifacts-verification.json` exists, it must **parse**; build exclude/inconclusive sets **before** partitioning (Section 4). On parse failure, **stop** and report the error.
+5. **Risky fixes** — No `code_removal`, `logic_change`, `mock_boundary`, `abstraction_change`, or `test_refactor` work without the interactive choice in Section 6 (or `s` to skip all remaining risky items).
+
+**Post-edit:** Sections 7–8 **pass** only when invoked tools exit successfully (non-zero = failure; keep JSON artifacts per Cleanup).
+
 ### 1. Parse Arguments
 
 Extract flags from `$ARGUMENTS`:
@@ -75,7 +87,7 @@ if [ "$stored_head" != "$current_head" ]; then
 fi
 ```
 
-If stale, prompt: "Review results are stale. Re-run review? (y/n)"
+If stale, prompt: "Review results are stale. Re-run review? (y/n)". **`y`** → re-run `review-llm-artifacts`, then reload JSON. **`n`** → **abort** (do not apply fixes; stale findings are not trustworthy).
 
 ### 4. Partition Findings by Safety
 

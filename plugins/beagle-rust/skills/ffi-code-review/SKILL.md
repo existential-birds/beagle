@@ -154,4 +154,4 @@ Description of the issue and why it matters.
 
 ## Before Submitting Findings
 
-Complete **Gates** (at minimum Gate 4) before reporting any issue; Gate 4 incorporates `beagle-rust:review-verification-protocol`.
+Complete **Gates 1-4 in order** before reporting any issue; Gate 4 incorporates `beagle-rust:review-verification-protocol`.

@@ -22,11 +22,14 @@ Execute a YAML test plan, run setup commands, health checks, and each test seque
 Read and validate the test plan:
 
 ```bash
+# Resolve plan path from --plan (default shown)
+PLAN_PATH="${PLAN_PATH:-docs/testing/test-plan.yaml}"
+
 # Check file exists
-ls docs/testing/test-plan.yaml || { echo "Error: Test plan not found"; exit 1; }
+ls "$PLAN_PATH" || { echo "Error: Test plan not found: $PLAN_PATH"; exit 1; }
 
 # Validate YAML
-python3 -c "import yaml; yaml.safe_load(open('docs/testing/test-plan.yaml'))" || { echo "Error: Invalid YAML"; exit 1; }
+python3 -c "import yaml; yaml.safe_load(open('$PLAN_PATH'))" || { echo "Error: Invalid YAML: $PLAN_PATH"; exit 1; }
 ```
 
 Extract from the YAML:

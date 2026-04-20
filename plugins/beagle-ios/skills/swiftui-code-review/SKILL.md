@@ -20,7 +20,7 @@ Complete in order; do not skip ahead.
 
 1. **Anchor scope** — Pass when: every reviewed file is listed as a repo-relative `.swift` path (or the review explicitly states “none opened / N/A” with reason).
 2. **Reference before critique** — Pass when: for any non-trivial body, modifier chain, or wrapper-ownership question, you have opened the matching `references/*.md` row from the table above *or* you state “not needed” with one line why.
-3. **Evidence-bound findings** — Pass when: each substantive issue names **file path + symbol or approximate line range** (or pasted snippet) before recommendations; no finding that rests only on “typical SwiftUI” without pointing at this code.
+3. **Evidence-bound findings** — Pass when: each substantive issue includes **`[FILE:LINE]`** (or a bounded line range) before recommendations; symbols/snippets may supplement but not replace the location anchor; no finding that rests only on “typical SwiftUI” without pointing at this code.
 
 ## Review Checklist
 

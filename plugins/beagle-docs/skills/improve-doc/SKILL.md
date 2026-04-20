@@ -41,7 +41,7 @@ Hard sequencing — advance only when the **pass condition** is met (artifact or
 1. **Choices** — Every section with open issues has a terminal outcome: applied **`yes`**, unchanged **`skip`**, or **`modify`** loop finished with **`yes`** or **`skip`**.
    - **Pass:** No section left in a pending `modify` state unless the user aborted the whole session (then do not write).
 2. **Skips** — Content for every **`skip`** matches the original section text (copy preserved, not paraphrased).
-   - **Pass:** Spot-check: first and last line of each skipped block unchanged vs. initial read.
+   - **Pass:** Full block equality check against the initial read (line-for-line, including whitespace).
 3. **Write** — Only after the above.
    - **Pass:** Single save to **Path**; completion report notes backup or major restructure if applicable (Rules).
 

@@ -55,14 +55,15 @@ Complete these **in order**. Do not advance to the next gate until its **Pass** 
 # Get current branch
 git rev-parse --abbrev-ref HEAD
 
-# Get default base branch (try origin/main, then origin/master)
-git rev-parse --verify origin/main >/dev/null 2>&1 && echo "main" || echo "master"
+# Resolve base branch: use --base if supplied, otherwise default (main → master)
+BASE_BRANCH="${BASE_BRANCH:-$(git rev-parse --verify origin/main >/dev/null 2>&1 && echo main || echo master)}"
+MERGE_BASE="$(git merge-base HEAD "origin/${BASE_BRANCH}")"
 
 # Get changed files vs base
-git diff --name-only $(git merge-base HEAD origin/main)..HEAD
+git diff --name-only "${MERGE_BASE}"..HEAD
 
 # Get commit messages for context
-git log --oneline $(git merge-base HEAD origin/main)..HEAD
+git log --oneline "${MERGE_BASE}"..HEAD
 ```
 
 **Capture:**

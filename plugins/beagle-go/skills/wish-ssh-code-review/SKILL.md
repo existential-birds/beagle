@@ -19,7 +19,7 @@ Run these **in order** when producing a written review. Do not claim a defect in
 1. **Locate Wish entry points** — **Pass when:** you have at least one repo path per server surface that calls `wish.NewServer`, `wish.WithMiddleware`, registers `bubbletea.Middleware`, or defines the top-level `ssh.Handler` chain (list the paths explicitly).
 2. **Capture server-setup evidence** — **Pass when:** for each path from step 1, you have the actual `wish.WithHostKey*` / host-key configuration and the **full middleware list in source order** as written (not recalled from memory). If graceful shutdown exists, note the file(s) where `ListenAndServe` and `Shutdown` run.
 3. **Capture session / TUI evidence** — **Pass when:** for each `teaHandler` (or equivalent), you have noted from source whether `s.Pty()` is checked before using window size, and whether per-session renderers (`bubbletea.MakeRenderer`) are used where Lipgloss styles apply.
-4. **Write findings** — **Pass when:** each finding includes a `path:line` (or line range) and points to the relevant row in **Quick Reference** (or the matching section in `references/`).
+4. **Write findings** — **Pass when:** each finding uses `[FILE:LINE] ISSUE_TITLE` (line range allowed where needed) and points to the relevant row in **Quick Reference** (or the matching section in `references/`).
 
 ## Review Checklist
 

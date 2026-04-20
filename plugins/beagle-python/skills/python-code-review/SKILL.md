@@ -70,7 +70,7 @@ Complete **in order**. Do not advance until each **pass condition** is met.
 
 1. **Scope** — **Pass:** You list every `.py` path (or explicit glob) you inspected this run.
 2. **False-positive screen** — **Pass:** For each issue you plan to report, you checked **Valid Patterns** and **Context-Sensitive Rules** above; you drop or narrow the finding if those sections say not to flag it.
-3. **Evidence** — **Pass:** Each remaining finding names a **file path** plus **location** (line range, symbol, or short verbatim snippet from the file).
+3. **Evidence** — **Pass:** Each remaining finding includes **`[FILE:LINE]`** (or a bounded line range). Symbols or short verbatim snippets may supplement the location anchor but do not replace it.
 4. **Verification protocol** — **Pass:** You load [review-verification-protocol](../review-verification-protocol/SKILL.md) and complete its mandatory steps **for each reported issue** before the user-facing write-up.
 5. **Ship** — **Pass:** The user-visible output matches whatever structure that protocol requires (no issues-only dump that skips its checks).
 

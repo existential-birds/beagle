@@ -324,7 +324,7 @@ Use this **sequenced** workflow before treating a reference page as complete. Fi
 1. **Structure** — Sections match your project template (typically Parameters, Returns, Example, Related; HTTP docs add Endpoint, Path/Query, Headers, Response). **Pass:** every required section exists, or a one-line omission note appears under **Related** (e.g. “No query parameters”).
 2. **Tables** — Parameters/returns/errors use tables with consistent columns per **Consistent Format Across Entries** and **Required vs Optional**. **Pass:** no blank Description cells; no `TBD` / `???` for shipped APIs.
 3. **Runnable example** — At least one example meets **Every Example Must Be Runnable** and **Use Realistic Values**. **Pass:** imports included; user-visible strings are realistic (not generic `foo`/`bar` unless the API is illustrative-only).
-4. **Related** — **Pass:** `## Related` contains ≥1 markdown link to another reference or guide, or one explicit sentence that there are no related symbols.
+4. **Related** — **Pass:** `## Related` contains ≥1 Markdown link to another reference or guide, or one explicit sentence that there are no related symbols.
 
 ## Checklist for Reference Pages
 

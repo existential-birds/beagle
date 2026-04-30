@@ -65,6 +65,7 @@ This downloads the skills and configures them for your agent.
 | **beagle-docs** | 10 | Documentation quality, AI writing detection (Diataxis) |
 | **beagle-analysis** | 13 | Brainstorming, ADRs, strategy, LLM-as-judge, spec gap resolution, TDD plan writing |
 | **beagle-testing** | 2 | Test plan generation and execution |
+| **beagle-meta** | 2 | Skill tooling — builder, reviewer |
 | **Total** | **145** | — |
 
 ## Skills
@@ -86,7 +87,6 @@ These are the canonical skill entry points for Beagle.
 | `fetch-pr-feedback` | Fetch bot comments from PR |
 | `respond-pr-feedback` | Reply to bot comments |
 | `subagent-prompt` | Hand off the current session as an orchestrator-plus-subagents prompt for a fresh session |
-| `skill-builder` | Create new skills |
 | `prompt-improver` | Optimize prompts |
 
 ### Code Review Skills
@@ -121,6 +121,13 @@ These are the canonical skill entry points for Beagle.
 | `web-research` | beagle-analysis | Parallel-subagent web research with cited synthesis report |
 | `artifact-analysis` | beagle-analysis | Parallel-subagent scan of local docs with cited extraction |
 | `write-plan` | beagle-analysis | Turn a finalized `brainstorm-beagle` spec into a TDD-driven implementation plan |
+
+### Skill Tooling
+
+| Skill | Plugin | Description |
+|---------|--------|-------------|
+| `skill-builder` | beagle-meta | Create new Claude Code skills with best practices |
+| `review-skill` | beagle-meta | Automated skill PR review for structural validity, design quality, and marketplace consistency |
 
 ### Testing Skills
 

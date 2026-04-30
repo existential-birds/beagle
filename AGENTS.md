@@ -4,16 +4,16 @@ This file provides guidance to Codex when working with code in this repository.
 
 ## What This Is
 
-Beagle is a Claude Code plugin marketplace providing framework-aware code review skills and verification workflows for pre-push reviews and GitHub bot feedback handling. It contains 11 focused plugins with 122 skills.
+Beagle is a Claude Code plugin marketplace providing framework-aware code review skills and verification workflows for pre-push reviews and GitHub bot feedback handling. It contains 12 focused plugins with 123 skills.
 
 ## Marketplace Architecture
 
 ```text
 beagle/
 ├── .claude-plugin/
-│   └── marketplace.json         # Marketplace manifest (11 plugins)
+│   └── marketplace.json         # Marketplace manifest (12 plugins)
 └── plugins/
-    ├── beagle-core/             # Shared workflows, verification, git workflows (18 skills)
+    ├── beagle-core/             # Shared workflows, verification, git workflows (17 skills)
     ├── beagle-python/           # Python, FastAPI, SQLAlchemy, PostgreSQL, pytest (7 skills)
     ├── beagle-go/               # Go, BubbleTea, Wish SSH, Prometheus (13 skills)
     ├── beagle-elixir/           # Elixir, Phoenix, LiveView, ExUnit, ExDoc (11 skills)
@@ -23,7 +23,8 @@ beagle/
     ├── beagle-ai/               # Pydantic AI, LangGraph, DeepAgents, Vercel AI SDK (13 skills)
     ├── beagle-docs/             # Documentation quality, AI writing detection (10 skills)
     ├── beagle-analysis/         # Brainstorming, 12-Factor, ADRs, LLM-as-judge (8 skills)
-    └── beagle-testing/          # Test plan generation and execution (2 skills)
+    ├── beagle-testing/          # Test plan generation and execution (2 skills)
+    └── beagle-meta/             # Skill tooling — builder, reviewer (2 skills)
 ```
 
 Each plugin is self-contained with its own `plugin.json` and `skills/` directory.
@@ -75,7 +76,8 @@ Beagle-specific:
 | beagle-core | `commit-push` | Commit with Conventional Commits format |
 | beagle-core | `create-pr` | Create PR with structured template |
 | beagle-core | `gen-release-notes` | Generate changelog from git history |
-| beagle-core | `skill-builder` | Guided skill creation workflow |
+| beagle-meta | `skill-builder` | Guided skill creation workflow |
+| beagle-meta | `review-skill` | Automated skill PR review for structural validity, design quality, and marketplace consistency |
 | beagle-core | `receive-feedback` | Process code review feedback with verification |
 | beagle-core | `fetch-pr-feedback` | Fetch and evaluate bot review comments from PR |
 | beagle-core | `respond-pr-feedback` | Post replies to bot review comments |

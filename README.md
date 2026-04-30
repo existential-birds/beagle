@@ -6,7 +6,7 @@
 
 *Image: NASA, Public Domain. [Source](https://www.nasa.gov/multimedia/imagegallery/image_feature_572.html)*
 
-Beagle is a Claude Code plugin marketplace with 127 skills across code review, documentation, testing, architectural analysis, and git workflows. Use it to review before you push, detect AI-generated artifacts, draft and improve docs, generate test plans, and analyze codebases — across Python, Go, Rust, Elixir, React, iOS/Swift, and AI frameworks.
+Beagle is a Claude Code plugin marketplace with 128 skills across code review, documentation, testing, architectural analysis, and git workflows. Use it to review before you push, detect AI-generated artifacts, draft and improve docs, generate test plans, and analyze codebases — across Python, Go, Rust, Elixir, React, iOS/Swift, and AI frameworks.
 
 Used with [Amelia](https://github.com/existential-birds/amelia) for agent-based workflows and [Daydream](https://github.com/existential-birds/daydream) for automated review-fix-test loops.
 
@@ -53,7 +53,7 @@ This downloads the skills and configures them for your agent.
 
 | Plugin | Skills | Category |
 |--------|--------|----------|
-| **beagle-core** | 18 | Shared workflows, verification, git |
+| **beagle-core** | 17 | Shared workflows, verification, git |
 | **beagle-python** | 7 | Python, FastAPI, SQLAlchemy, pytest |
 | **beagle-go** | 13 | Go, BubbleTea, Wish SSH, Prometheus |
 | **beagle-elixir** | 11 | Elixir, Phoenix, LiveView, ExUnit, ExDoc |
@@ -64,7 +64,8 @@ This downloads the skills and configures them for your agent.
 | **beagle-docs** | 10 | Documentation quality, AI writing detection (Diataxis) |
 | **beagle-analysis** | 11 | Brainstorming, ADRs, strategy, LLM-as-judge, spec gap resolution |
 | **beagle-testing** | 2 | Test plan generation and execution |
-| **Total** | **127** | — |
+| **beagle-meta** | 2 | Skill tooling — builder, reviewer |
+| **Total** | **128** | — |
 
 ## Skills
 
@@ -83,7 +84,6 @@ These are the canonical skill entry points for Beagle.
 | `receive-feedback <path>` | Process review feedback |
 | `fetch-pr-feedback` | Fetch bot comments from PR |
 | `respond-pr-feedback` | Reply to bot comments |
-| `skill-builder` | Create new skills |
 | `prompt-improver` | Optimize prompts |
 
 ### Code Review Skills
@@ -113,6 +113,13 @@ These are the canonical skill entry points for Beagle.
 | `resolve-beagle` | beagle-analysis | Close Open Questions and latent gaps in a brainstorm-beagle spec |
 | `strategy-interview` | beagle-analysis | Build strategy through guided conversation |
 | `strategy-review` | beagle-analysis | Pressure-test existing strategy documents |
+
+### Skill Tooling
+
+| Skill | Plugin | Description |
+|---------|--------|-------------|
+| `skill-builder` | beagle-meta | Create new Claude Code skills with best practices |
+| `review-skill` | beagle-meta | Automated skill PR review for structural validity, design quality, and marketplace consistency |
 
 ### Testing Skills
 

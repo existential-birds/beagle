@@ -158,6 +158,19 @@
         "test-plan",
         "qa"
       ]
+    },
+    {
+      "name": "beagle-meta",
+      "source": "./plugins/beagle-meta",
+      "description": "Skill tooling — building, reviewing, and evaluating Claude Code skills",
+      "category": "meta",
+      "tags": [
+        "skills",
+        "meta",
+        "review",
+        "builder",
+        "evaluation"
+      ]
     }
   ]
 }

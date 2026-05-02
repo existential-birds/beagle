@@ -6,6 +6,28 @@ Format follows [Keep a Changelog](https://keepachangelog.com/en/1.1.0/). Version
 
 ## [Unreleased]
 
+## [3.4.0] - 2026-05-02
+
+### Added
+- **beagle-core:** Add `verify-llm-artifacts` skill — second-pass adjudication of `review-llm-artifacts` JSON that classifies each finding as confirmed, false positive, or inconclusive before deletes happen, and carries the original `fix_action` field through to `fix-llm-artifacts` unchanged. Includes a verification checklist with mechanical detection rules (e.g. monorepo trigger fires when `[workspace]`, `workspaces`, `pnpm-workspace.yaml`, `lerna.json`, or `turbo.json` is present) instead of judgment-call prose ([#98](https://github.com/existential-birds/beagle/pull/98))
+- **beagle-core:** Add `--all` flag to `review-llm-artifacts` for opt-in full-project scans; default remains files changed since merge-base with `main` ([#98](https://github.com/existential-birds/beagle/pull/98))
+- **beagle-core:** Extend `review-llm-artifacts` JSON schema with `scope` and `target` fields so downstream skills can reproduce the original invocation ([#98](https://github.com/existential-birds/beagle/pull/98))
+
+### Changed
+- **all plugins:** Roll out rule→gate sequencing across every `SKILL.md` in the marketplace (130+ files). Soft rules become sequenced Gates with objective pass conditions backed by evidence on disk or in tool output, and each gate blocks the next step until its condition is met. Background: <https://blog.fsck.com/2026/04/07/rules-and-gates/> ([#98](https://github.com/existential-birds/beagle/pull/98))
+- **beagle-core:** `fix-llm-artifacts` now reads `scope` and `target` from the stale review JSON and re-invokes `review-llm-artifacts` with the original arguments (preserving `--all` or narrowed paths) instead of falling back to the default scope. Pre-schema review JSON without those fields falls back to a full-project re-run with a cancellable warning ([#98](https://github.com/existential-birds/beagle/pull/98))
+- **beagle-core:** `review-llm-artifacts` full scan replaces `find ! -path` filters with `-type d ... -prune` so `node_modules`, `.git`, `target`, `build`, etc. are never descended into — prevents minutes-long hangs on large repos ([#98](https://github.com/existential-birds/beagle/pull/98))
+
+### Fixed
+- **beagle-core:** `fetch-pr-feedback` no longer drops sections after the first `---` separator. The `clean_body` jq filter previously stripped everything from `\n---\n` to EOF to remove bot footer boilerplate, silently dropping real findings from claude[bot] and human reviewers who use `---` as a section separator. Replaced with a marker-guarded version that only removes a trailing `---` block when it begins with a known bot-footer signature ([#98](https://github.com/existential-birds/beagle/pull/98))
+- **beagle-core:** `review-llm-artifacts --since-main` resolves `main`/`origin/main`/`master`/`origin/master` explicitly and exits non-zero when none exist, instead of wrapping `git merge-base` in `|| true` and silently reporting "no files to scan" in repos without a local main ([#98](https://github.com/existential-birds/beagle/pull/98))
+- **beagle-testing:** `gen-test-plan` Gate 3 swaps `grep -E` alternation (passed if any one key matched) for a python YAML parse plus explicit four-key presence check, so plans missing `metadata`, `setup`, or `tests` can no longer slip through. Also parameterizes `BASE_BRANCH` so Gate 1 evidence matches commands for non-main bases ([#98](https://github.com/existential-birds/beagle/pull/98))
+- **beagle-testing:** `run-test-plan` Step 1 parameterizes `PLAN_PATH` so `--plan` works before Step 3's gate runs ([#98](https://github.com/existential-birds/beagle/pull/98))
+- **beagle-docs:** `improve-doc` Gate replaces spot-check with full block equality so mid-section edits in `skip` sections cannot pass unnoticed ([#98](https://github.com/existential-birds/beagle/pull/98))
+- **beagle-elixir, beagle-ios, beagle-python, beagle-go:** Require canonical `[FILE:LINE] ISSUE_TITLE` header on review evidence gates (`elixir-docs-review`, `swiftdata-code-review`, `swiftui-code-review`, `python-code-review`, `wish-ssh-code-review`); symbols and snippets supplement but cannot replace the anchor ([#98](https://github.com/existential-birds/beagle/pull/98))
+- **beagle-ai:** `deepagents-code-review` SKILL.md trimmed back under the 500-line cap (509 → 476) by extracting the Code Review Checklist to `references/checklist.md` ([#98](https://github.com/existential-birds/beagle/pull/98))
+- **beagle-rust:** `ffi-code-review` resolves an "at minimum Gate 4" / "in order" contradiction by requiring Gates 1–4 in order ([#98](https://github.com/existential-birds/beagle/pull/98))
+
 ## [3.3.0] - 2026-04-18
 
 ### Added
@@ -379,7 +401,8 @@ Format follows [Keep a Changelog](https://keepachangelog.com/en/1.1.0/). Version
 - Development commands: `skill-builder`, `ensure-docs`
 - Cursor IDE command equivalents
 
-[Unreleased]: https://github.com/existential-birds/beagle/compare/v3.3.0...HEAD
+[Unreleased]: https://github.com/existential-birds/beagle/compare/v3.4.0...HEAD
+[3.4.0]: https://github.com/existential-birds/beagle/compare/v3.3.0...v3.4.0
 [3.3.0]: https://github.com/existential-birds/beagle/compare/v3.2.0...v3.3.0
 [3.2.0]: https://github.com/existential-birds/beagle/compare/v3.1.0...v3.2.0
 [3.1.0]: https://github.com/existential-birds/beagle/compare/v3.0.0...v3.1.0

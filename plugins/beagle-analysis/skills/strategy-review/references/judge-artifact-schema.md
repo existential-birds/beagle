@@ -32,7 +32,7 @@ This is a 1–4 scale, not 1–5. The strategy-review skill has four levels; the
 
 ## Schema definition
 
-> **Note:** The example below is a partial illustrative fragment. It shows two of seven required `dimension_ratings`, one of the minimum two `failure_paths`, and one of the required 2–4 `critical_findings` to demonstrate the structure without duplicating the pattern for every entry. A valid `strategy-review.json` must include all seven dimensions, at least two failure paths, and 2–4 critical findings per the field reference below.
+> **Note:** The example below is a partial illustrative fragment. It shows two of seven required `dimension_ratings`, one of the minimum two `failure_paths`, and one of the required 2–4 `critical_findings` to demonstrate the structure without duplicating the pattern for every entry. A valid `strategy-review.json` must include all seven dimensions, at least two failure paths, and 2–4 critical findings per the field reference below. The example also illustrates the optional `review_id`, `strengths`, `notes_cross_reference`, and `recommended_next_steps` fields — these may be omitted when not applicable.
 
 ```json
 {
@@ -44,6 +44,7 @@ This is a 1–4 scale, not 1–5. The strategy-review skill has four levels; the
   },
 
   "review_metadata": {
+    "review_id": "fieldkit-mobile-2026-04-10-near-final",
     "reviewed_at": "2026-04-10T14:30:00Z",
     "documents": [
       {
@@ -239,6 +240,20 @@ This is a 1–4 scale, not 1–5. The strategy-review skill has four levels; the
     }
   ],
 
+  "strengths": [
+    {
+      "title": "Painful exclusions are explicit",
+      "description": "Names what it won't do (enterprise, SOC 2, BuildOps feature parity) — exclusions concentrate force where the team has an edge.",
+      "evidence": [
+        {
+          "text": "Won't build enterprise compliance features this year. Won't match BuildOps on breadth.",
+          "provenance": "doc_quote",
+          "location": "Guiding Policy"
+        }
+      ]
+    }
+  ],
+
   "critical_findings": [
     {
       "title": "Native mobile capability assumed but unverified",
@@ -263,6 +278,36 @@ This is a 1–4 scale, not 1–5. The strategy-review skill has four levels; the
   "unresolved_questions": [
     "Has the team built native mobile before, or is this a first attempt?",
     "What happens to existing enterprise customers during the transition?"
+  ],
+
+  "notes_cross_reference": {
+    "patterns_that_crept_back": [
+      {
+        "pattern": "fluff",
+        "description": "Notes flagged 'leverage synergies' as fluff during the interview; the draft replaced it with 'capture cross-product value' — softer wording, same emptiness.",
+        "notes_quote": "Drop 'leverage synergies' — meaningless.",
+        "draft_quote": "Capture cross-product value across mobile and web."
+      }
+    ],
+    "thinking_sharpened_then_softened": [
+      {
+        "topic": "diagnosis",
+        "notes_version": "Drift to enterprise was an admission we couldn't win mid-market on product, not a strategic choice.",
+        "draft_version": "Pursued enterprise opportunities in parallel with mid-market growth.",
+        "what_was_lost": "Notes named the structural failure (couldn't win mid-market). Draft reframes it as a parallel opportunity, masking the diagnosis."
+      }
+    ]
+  },
+
+  "recommended_next_steps": [
+    {
+      "action": "Add a capability validation milestone in month 1 with an explicit week-6 trigger.",
+      "rationale": "Native mobile is the load-bearing action. Without an early check, Q3 failure is invisible until it's too late."
+    },
+    {
+      "action": "Define the metric that proves mid-market dominance.",
+      "rationale": "Strategy passes structural review but lacks a specificity hook the team can point to in 12 months."
+    }
   ],
 
   "aggregate_score": {
@@ -306,9 +351,12 @@ This is a 1–4 scale, not 1–5. The strategy-review skill has four levels; the
 | `failure_paths` | array | yes | Failure scenarios. Minimum 2, typically 3–5. |
 | `review_lenses_applied` | array | no | Omit if no review lenses triggered. |
 | `interview_lens_audit` | array | no | Omit if no interview lenses were used during the `beagle-analysis:strategy-interview`. |
+| `notes_cross_reference` | object | no | Structured signals from a notes-vs-draft cross-read. Omit if no `strategy-notes.md` or interview durable state was available. |
+| `strengths` | array | no | 2–4 specific strengths the author should protect. Mirrors the prose "What Works" section. Omit if not produced. |
 | `critical_findings` | array | yes | The 2–4 highest-severity findings. |
 | `blocking_findings` | array | yes | Titles of findings that should block the strategy from being finalized. May be empty. |
 | `unresolved_questions` | array | yes | Questions the review couldn't answer. May be empty. |
+| `recommended_next_steps` | array | no | Ordered priority list of post-review actions. Mirrors the prose "Recommended Next Steps" section. Array order encodes priority. Omit if not produced. |
 | `aggregate_score` | object | yes | Weighted composite score. |
 | `reward_signal` | object | yes | Pass/fail determination for evaluation loops. |
 
@@ -316,6 +364,7 @@ This is a 1–4 scale, not 1–5. The strategy-review skill has four levels; the
 
 | Field | Type | Required | Description |
 |-------|------|----------|-------------|
+| `review_id` | string | no | Stable identifier for this review run. Used by pipelines to deduplicate when the same document is reviewed multiple times. Format is caller's choice — UUIDv4 or a slug like `<doc-slug>-<YYYY-MM-DD>-<maturity>` are both valid. Must be unique per review run, not per document. |
 | `reviewed_at` | string (ISO 8601) | yes | Timestamp of the review. |
 | `documents` | array | yes | Documents reviewed, each with `name`, `path`, `sha256`, `word_count`. |
 | `subject` | string | yes | What the strategy is about. |
@@ -376,6 +425,54 @@ Evidence entries appear throughout the schema. Every evidence object has:
 | `dropped` | array[string] | yes | Specific findings lost between notes and draft. May be empty. |
 | `impact_on_kernel` | string | yes | How the lens findings affected the kernel elements. |
 | `evidence` | array | yes | Evidence entries with provenance. |
+
+### Strengths objects
+
+Each entry in the optional top-level `strengths` array captures one specific strength the author should protect. Mirrors the prose "What Works" section.
+
+| Field | Type | Required | Description |
+|-------|------|----------|-------------|
+| `title` | string | yes | Short, specific title for the strength. |
+| `description` | string | yes | 1–2 sentences on why it works and what it anchors. |
+| `evidence` | array | yes | At least one evidence entry pointing to the supporting passage. |
+
+### Notes cross-reference object
+
+The optional top-level `notes_cross_reference` object captures structured signals from comparing `strategy-notes.md` (or interview durable state) against the draft. Only emit when notes were available to the reviewer. Mirrors the prose "Notes Cross-Reference" section.
+
+| Field | Type | Required | Description |
+|-------|------|----------|-------------|
+| `patterns_that_crept_back` | array | no | Bad-strategy patterns caught during interview that reappeared in the draft, often in softer language. May be empty. |
+| `thinking_sharpened_then_softened` | array | no | Topics where the notes show a sharper version of the diagnosis or policy than the draft contains. May be empty. |
+
+`patterns_that_crept_back` entries:
+
+| Field | Type | Required | Description |
+|-------|------|----------|-------------|
+| `pattern` | enum | yes | One of the five bad-strategy patterns. Same vocabulary as `bad_strategy_patterns`. |
+| `description` | string | yes | What the pattern looks like in the softer draft form. |
+| `notes_quote` | string | yes | The original sharper language from the notes. |
+| `draft_quote` | string | yes | The softened version that appears in the draft. |
+
+`thinking_sharpened_then_softened` entries:
+
+| Field | Type | Required | Description |
+|-------|------|----------|-------------|
+| `topic` | string | yes | What was softened — typically `diagnosis`, `guiding_policy`, or a named action. |
+| `notes_version` | string | yes | The sharper formulation from the notes. |
+| `draft_version` | string | yes | The softened formulation in the draft. |
+| `what_was_lost` | string | yes | The specific edge, claim, or admission that the softening removed. |
+
+Note: `notes_cross_reference` complements but does not duplicate `interview_lens_audit` (which captures lens-specific drift) or `unresolved_questions` (open questions). When the same finding is best expressed as a lens audit entry, prefer `interview_lens_audit`.
+
+### Recommended next steps objects
+
+Each entry in the optional top-level `recommended_next_steps` array is one priority action. Array order encodes priority — first entry is highest priority. Mirrors the prose "Recommended Next Steps" section.
+
+| Field | Type | Required | Description |
+|-------|------|----------|-------------|
+| `action` | string | yes | Concrete action the author should take. Specific enough to act on without asking "but what?". |
+| `rationale` | string | yes | Why this is the priority — what it addresses, what it unblocks. |
 
 ### Aggregate score
 
@@ -447,6 +544,10 @@ Before emitting the JSON, verify:
 14. **Bad-strategy pattern names valid**: The five `bad_strategy_patterns` entries use exactly these `pattern` values: `fluff`, `failure_to_face_challenge`, `goals_as_strategy`, `bad_objectives`, `strategy_by_analogy`.
 15. **Failure paths minimum count**: `failure_paths` has at least 2 entries.
 16. **Critical findings count**: `critical_findings` has 2–4 entries.
+17. **Strengths count when present**: If `strengths` is emitted, it has 2–4 entries (matching the prose template). Each entry has at least one evidence entry.
+18. **Notes cross-reference precondition**: `notes_cross_reference` is emitted only when `strategy-notes.md` or interview durable state was available to the reviewer. If absent, omit the field rather than emitting an empty object.
+19. **Patterns-that-crept-back vocabulary**: Every `notes_cross_reference.patterns_that_crept_back[].pattern` value uses the same five-pattern vocabulary as `bad_strategy_patterns`.
+20. **Recommended next steps order**: `recommended_next_steps` array order encodes priority — first entry is highest priority. Each entry has both `action` and `rationale`.
 
 ---
 
@@ -458,6 +559,23 @@ The JSON artifact is a structured projection of the prose review, not a replacem
 - Every critical finding in the JSON appears in the prose Critical Findings section.
 - The aggregate label in the JSON matches the overall assessment tone in the Review Summary.
 - Evidence quotes in the JSON are verifiable against the same document passages cited in the prose.
+
+**Section-to-field mapping** (when the optional fields are emitted):
+
+| Prose section (`review-template.md`) | JSON field |
+|--------------------------------------|------------|
+| What Works | `strengths` |
+| Critical Findings | `critical_findings` |
+| Dimension Ratings | `dimension_ratings` |
+| Failure Path Analysis | `failure_paths` |
+| Assumption Risk Map | `assumption_risk_map` |
+| Lens Findings (review lenses) | `review_lenses_applied` |
+| Lens Findings (interview lens audit subsection) | `interview_lens_audit` |
+| Notes Cross-Reference — Patterns that crept back | `notes_cross_reference.patterns_that_crept_back` |
+| Notes Cross-Reference — Thinking sharpened then softened | `notes_cross_reference.thinking_sharpened_then_softened` |
+| Notes Cross-Reference — Open questions still open | `unresolved_questions` |
+| Notes Cross-Reference — Lens findings not reflected | `interview_lens_audit` (with `dropped` populated) |
+| Recommended Next Steps | `recommended_next_steps` |
 
 When both are produced, write the prose first, then derive the JSON from it. This ensures the reviewer's judgment flows from careful prose analysis, not from filling in a schema.
 

@@ -351,12 +351,12 @@ This is a 1–4 scale, not 1–5. The strategy-review skill has four levels; the
 | `failure_paths` | array | yes | Failure scenarios. Minimum 2, typically 3–5. |
 | `review_lenses_applied` | array | no | Omit if no review lenses triggered. |
 | `interview_lens_audit` | array | no | Omit if no interview lenses were used during the `beagle-analysis:strategy-interview`. |
-| `notes_cross_reference` | object | no | Structured signals from a notes-vs-draft cross-read. Omit if no `strategy-notes.md` or interview durable state was available. |
-| `strengths` | array | no | 2–4 specific strengths the author should protect. Mirrors the prose "What Works" section. Omit if not produced. |
+| `notes_cross_reference` | object | no | Structured signals from a notes-vs-draft cross-read. Omit if no `strategy-notes.md` or interview durable state was available, or if both sub-arrays would be empty. |
+| `strengths` | array | no | Specific strengths the author should protect. 2–4 entries when emitted. Mirrors the prose "What Works" section. |
 | `critical_findings` | array | yes | The 2–4 highest-severity findings. |
 | `blocking_findings` | array | yes | Titles of findings that should block the strategy from being finalized. May be empty. |
 | `unresolved_questions` | array | yes | Questions the review couldn't answer. May be empty. |
-| `recommended_next_steps` | array | no | Ordered priority list of post-review actions. Mirrors the prose "Recommended Next Steps" section. Array order encodes priority. Omit if not produced. |
+| `recommended_next_steps` | array | no | 2–4 priority actions for post-review follow-up. Mirrors the prose "Recommended Next Steps" section. Array order encodes priority. Omit if not produced. |
 | `aggregate_score` | object | yes | Weighted composite score. |
 | `reward_signal` | object | yes | Pass/fail determination for evaluation loops. |
 
@@ -364,7 +364,7 @@ This is a 1–4 scale, not 1–5. The strategy-review skill has four levels; the
 
 | Field | Type | Required | Description |
 |-------|------|----------|-------------|
-| `review_id` | string | no | Stable identifier for this review run. Used by pipelines to deduplicate when the same document is reviewed multiple times. Format is caller's choice — UUIDv4 or a slug like `<doc-slug>-<YYYY-MM-DD>-<maturity>` are both valid. Must be unique per review run, not per document. |
+| `review_id` | string | no | Stable identifier for this review run. Used by pipelines to deduplicate when the same document is reviewed multiple times. Format is caller's choice — UUIDv4 (e.g., `550e8400-e29b-41d4-a716-446655440000`) or a slug like `<doc-slug>-<YYYY-MM-DD>-<maturity>` are both valid. Must be unique per review run, not per document. |
 | `reviewed_at` | string (ISO 8601) | yes | Timestamp of the review. |
 | `documents` | array | yes | Documents reviewed, each with `name`, `path`, `sha256`, `word_count`. |
 | `subject` | string | yes | What the strategy is about. |
@@ -428,7 +428,7 @@ Evidence entries appear throughout the schema. Every evidence object has:
 
 ### Strengths objects
 
-Each entry in the optional top-level `strengths` array captures one specific strength the author should protect. Mirrors the prose "What Works" section.
+Each entry in the optional top-level `strengths` array captures one specific strength the author should protect. Mirrors the prose "What Works" section. When emitted, the array must contain 2–4 entries.
 
 | Field | Type | Required | Description |
 |-------|------|----------|-------------|
@@ -545,9 +545,10 @@ Before emitting the JSON, verify:
 15. **Failure paths minimum count**: `failure_paths` has at least 2 entries.
 16. **Critical findings count**: `critical_findings` has 2–4 entries.
 17. **Strengths count when present**: If `strengths` is emitted, it has 2–4 entries (matching the prose template). Each entry has at least one evidence entry.
-18. **Notes cross-reference precondition**: `notes_cross_reference` is emitted only when `strategy-notes.md` or interview durable state was available to the reviewer. If absent, omit the field rather than emitting an empty object.
+18. **Notes cross-reference precondition**: `notes_cross_reference` is emitted only when `strategy-notes.md` or interview durable state was available to the reviewer AND at least one sub-array (`patterns_that_crept_back` or `thinking_sharpened_then_softened`) is non-empty. Omit the field rather than emitting an empty object or an object with two empty arrays.
 19. **Patterns-that-crept-back vocabulary**: Every `notes_cross_reference.patterns_that_crept_back[].pattern` value uses the same five-pattern vocabulary as `bad_strategy_patterns`.
 20. **Recommended next steps order**: `recommended_next_steps` array order encodes priority — first entry is highest priority. Each entry has both `action` and `rationale`.
+21. **Recommended next steps count when present**: If `recommended_next_steps` is emitted, it has 2–4 entries.
 
 ---
 

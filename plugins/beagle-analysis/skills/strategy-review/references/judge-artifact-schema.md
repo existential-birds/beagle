@@ -251,6 +251,17 @@ This is a 1–4 scale, not 1–5. The strategy-review skill has four levels; the
           "location": "Guiding Policy"
         }
       ]
+    },
+    {
+      "title": "Action set is coherent and mutually reinforcing",
+      "description": "Actions align to the same policy choice and reinforce the mid-market mobile focus.",
+      "evidence": [
+        {
+          "text": "Ship native mobile app with full offline sync by Q3",
+          "provenance": "doc_quote",
+          "location": "Coherent Actions, item 1"
+        }
+      ]
     }
   ],
 

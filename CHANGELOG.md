@@ -6,6 +6,8 @@ Format follows [Keep a Changelog](https://keepachangelog.com/en/1.1.0/). Version
 
 ## [Unreleased]
 
+## [3.5.0] - 2026-05-03
+
 ### Added
 - **beagle-analysis:** Extend `strategy-review` judge artifact schema to v1.1 — adds optional `strengths`, `recommended_next_steps`, `review_id`, and `notes_cross_reference` fields. Backward compatible: `schema_version` stays `"1.0"` ([#86](https://github.com/existential-birds/beagle/issues/86))
 - **beagle-analysis:** Add two `strategy-review` pressure-test scenarios — happy-path (all Strong) and durable-state + judge-mode interaction ([#86](https://github.com/existential-birds/beagle/issues/86))
@@ -405,7 +407,8 @@ Format follows [Keep a Changelog](https://keepachangelog.com/en/1.1.0/). Version
 - Development commands: `skill-builder`, `ensure-docs`
 - Cursor IDE command equivalents
 
-[Unreleased]: https://github.com/existential-birds/beagle/compare/v3.4.0...HEAD
+[Unreleased]: https://github.com/existential-birds/beagle/compare/v3.5.0...HEAD
+[3.5.0]: https://github.com/existential-birds/beagle/compare/v3.4.0...v3.5.0
 [3.4.0]: https://github.com/existential-birds/beagle/compare/v3.3.0...v3.4.0
 [3.3.0]: https://github.com/existential-birds/beagle/compare/v3.2.0...v3.3.0
 [3.2.0]: https://github.com/existential-birds/beagle/compare/v3.1.0...v3.2.0

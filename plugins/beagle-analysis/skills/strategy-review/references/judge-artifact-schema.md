@@ -467,7 +467,7 @@ Note: `notes_cross_reference` complements but does not duplicate `interview_lens
 
 ### Recommended next steps objects
 
-Each entry in the optional top-level `recommended_next_steps` array is one priority action. Array order encodes priority — first entry is highest priority. Mirrors the prose "Recommended Next Steps" section.
+Each entry in the optional top-level `recommended_next_steps` array is one priority action. Array order encodes priority — first entry is highest priority. Mirrors the prose "Recommended Next Steps" section. When emitted, the array must contain 2–4 entries.
 
 | Field | Type | Required | Description |
 |-------|------|----------|-------------|

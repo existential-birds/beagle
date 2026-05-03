@@ -310,8 +310,9 @@ Write the prose review first, then derive the JSON from it. This ensures scores 
 2. **Every score must cite evidence.** At least one evidence entry per dimension, each tagged with provenance (`doc_quote`, `reviewer_inference`, `unverified_assumption`, `source_backed`, or `notes_cross_ref`).
 3. **Distinguish document facts from reviewer inferences.** A downstream consumer filtering by provenance should be able to separate what the document says from what the reviewer concluded. This is the single most important quality signal for evaluation pipelines.
 4. **All seven dimensions and all five bad-strategy patterns are always present.** Use `detected: false` for absent patterns. This gives consumers stable field counts.
-5. **Blocking findings gate the reward signal.** A strategy passes (`reward_signal.pass: true`) only if the aggregate score is at least Adequate AND no findings are marked blocking.
-6. **Validate before emitting.** JSON must parse, required fields must exist, scores must match labels, weighted total must be arithmetically correct. See the validation checklist in the schema reference.
+5. **Optional signals when produced in prose.** The schema also accepts an optional top-level `strengths` array, a top-level `recommended_next_steps` array, a `review_metadata.review_id` identifier, and a `notes_cross_reference` object (with `patterns_that_crept_back` and `thinking_sharpened_then_softened` sub-arrays). When the prose review produces the matching sections — and, for `notes_cross_reference`, when notes were available — emit the corresponding JSON fields. Otherwise omit them rather than emitting empty stubs.
+6. **Blocking findings gate the reward signal.** A strategy passes (`reward_signal.pass: true`) only if the aggregate score is at least Adequate AND no findings are marked blocking.
+7. **Validate before emitting.** JSON must parse, required fields must exist, scores must match labels, weighted total must be arithmetically correct. See the validation checklist in the schema reference.
 
 ### Aggregate scoring
 

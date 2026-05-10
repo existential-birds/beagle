@@ -4,14 +4,14 @@ This file provides guidance to Claude Code (claude.ai/code) when working with co
 
 ## What This Is
 
-Beagle is a Claude Code plugin marketplace providing framework-aware code review skills and verification workflows for pre-push reviews and GitHub bot feedback handling. It contains 11 focused plugins with 129 skills.
+Beagle is a Claude Code plugin marketplace providing framework-aware code review skills and verification workflows for pre-push reviews and GitHub bot feedback handling. It contains 12 focused plugins with 135 skills.
 
 ## Marketplace Architecture
 
 ```text
 beagle/
 ├── .claude-plugin/
-│   └── marketplace.json         # Marketplace manifest (11 plugins)
+│   └── marketplace.json         # Marketplace manifest (12 plugins)
 └── plugins/
     ├── beagle-core/             # Shared workflows, verification, git workflows (18 skills)
     ├── beagle-python/           # Python, FastAPI, SQLAlchemy, PostgreSQL, pytest (7 skills)
@@ -23,6 +23,7 @@ beagle/
     ├── beagle-ai/               # Pydantic AI, LangGraph, DeepAgents, Vercel AI SDK (13 skills)
     ├── beagle-docs/             # Documentation quality, AI writing detection (10 skills)
     ├── beagle-analysis/         # Brainstorming, ADRs, strategy, LLM-as-judge, spec resolution, PRFAQ filter (12 skills)
+    ├── beagle-latex/            # LaTeX docs, code review, bibliography, compilation, Quarto book authoring, textbook typography (6 skills)
     └── beagle-testing/          # Test plan generation and execution (2 skills)
 ```
 
@@ -94,6 +95,12 @@ Beagle-specific:
 | beagle-docs | `ensure-docs` | Documentation coverage check |
 | beagle-docs | `review-ai-writing` | Detect AI writing patterns in docs and code |
 | beagle-docs | `humanize-beagle` | Fix AI writing with safe/risky classification |
+| beagle-latex | `latex-document` | Create, edit, and compile single-file LaTeX (article, report, resume, beamer, IEEE, book) |
+| beagle-latex | `latex-code-review` | Audit `.tex` for long-form anti-patterns, encoding bugs, missing packages, float misuse |
+| beagle-latex | `latex-bibliography` | BibTeX/biblatex/biber + DOI/arXiv fetch + citation hygiene |
+| beagle-latex | `latex-compilation` | latexmk, `\include`/`\includeonly`, log parsing, error recovery |
+| beagle-latex | `quarto-book` | Quarto book project workflow with kaobook bridge — multi-chapter `.qmd` to PDF |
+| beagle-latex | `textbook-typography` | Class selection: kaobook (recommended), Eisvogel+scrbook, tufte-book |
 | beagle-testing | `gen-test-plan` | Generate YAML test plan from branch changes |
 | beagle-testing | `run-test-plan` | Execute test plan, stop on first failure |
 

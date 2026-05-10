@@ -6,6 +6,9 @@ Format follows [Keep a Changelog](https://keepachangelog.com/en/1.1.0/). Version
 
 ## [Unreleased]
 
+### Added
+- **beagle-latex:** New plugin for LaTeX document creation, code review, bibliography hygiene, compilation, and Quarto book authoring. Six skills: `latex-document` (single-file create/compile with auto-detected engine and bundled article/report/resume-ats/beamer/IEEE/book templates), `latex-code-review` (audits `.tex` for the 9 long-form anti-patterns plus encoding/float/hardcoded-dimension issues, hooks `beagle-core:review-verification-protocol`), `latex-bibliography` (BibTeX/biblatex/biber selection, DOI/arXiv `fetch_bibtex.sh`, citation hygiene checklist), `latex-compilation` (latexmk, `\include`/`\includeonly` for fast incremental builds, log error parsing), `quarto-book` (multi-chapter `.qmd` book projects with bundled starter assets including `_quarto.yml`, `metadata.yaml`, sample chapters, and a kaobook Pandoc bridge template), and `textbook-typography` (kaobook vs Eisvogel+scrbook vs tufte-book class selection with `pandoc-sidenote` filter setup). Plugin README ships a `PostToolUse` hook recipe for auto-recompile on `*.tex`/`*.qmd` edits.
+
 ## [3.5.0] - 2026-05-03
 
 ### Added

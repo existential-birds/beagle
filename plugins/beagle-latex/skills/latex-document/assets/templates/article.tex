@@ -1,0 +1,76 @@
+\documentclass[11pt,a4paper]{article}
+
+\usepackage[utf8]{inputenc}
+\usepackage[T1]{fontenc}
+\usepackage[margin=1in]{geometry}
+\usepackage{microtype}
+\usepackage{graphicx}
+\usepackage{booktabs}
+\usepackage{enumitem}
+\usepackage{amsmath, amssymb}
+\usepackage[colorlinks=true, linkcolor=blue, urlcolor=blue]{hyperref}
+
+\setlist[itemize]{nosep, leftmargin=*, topsep=2pt, partopsep=0pt}
+\setlist[enumerate]{nosep, leftmargin=*, topsep=2pt, partopsep=0pt}
+
+\widowpenalty=10000
+\clubpenalty=10000
+
+\title{Article Title}
+\author{Author Name \\ Affiliation}
+\date{\today}
+
+\begin{document}
+
+\maketitle
+
+\begin{abstract}
+A short summary of the article's purpose, approach, and findings.
+\end{abstract}
+
+\section{Introduction}
+
+Open with the problem and why it matters. Establish what the reader will get from this article and how it relates to prior work.
+
+\section{Background}
+
+Give the minimum context needed to follow the rest. Cite related work; do not summarize an entire field.
+
+\section{Method}
+
+Describe the approach. Equations:
+
+\begin{equation}
+  f(x) = \int_{0}^{x} g(t) \, dt
+  \label{eq:integral}
+\end{equation}
+
+Equation~\ref{eq:integral} defines the integral form used below.
+
+\section{Results}
+
+Present findings concretely. Where appropriate, use tables:
+
+\begin{table}[htbp]
+  \centering
+  \caption{Headline result.}
+  \label{tab:result}
+  \begin{tabular}{lrr}
+    \toprule
+    Method & Score & Time (s) \\
+    \midrule
+    Baseline & 72.1 & 1.4 \\
+    Ours     & 84.6 & 1.6 \\
+    \bottomrule
+  \end{tabular}
+\end{table}
+
+\section{Discussion}
+
+Interpret. State limitations explicitly.
+
+\section{Conclusion}
+
+One paragraph. Tie back to the problem opened in \S1.
+
+\end{document}

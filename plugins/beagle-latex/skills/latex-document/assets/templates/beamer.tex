@@ -1,0 +1,110 @@
+\documentclass[aspectratio=169]{beamer}
+
+\usepackage[utf8]{inputenc}
+\usepackage[T1]{fontenc}
+\usepackage{graphicx}
+\usepackage{booktabs}
+\usepackage{xcolor}
+\usepackage{amsmath, amssymb}
+
+\usetheme{Madrid}
+\usecolortheme{default}
+
+\definecolor{primary}{RGB}{0, 102, 204}
+\definecolor{accent}{RGB}{220, 50, 50}
+\setbeamercolor{structure}{fg=primary}
+\setbeamercolor{title}{fg=white, bg=primary}
+\setbeamercolor{frametitle}{fg=white, bg=primary}
+
+\setbeamertemplate{navigation symbols}{}
+\setbeamertemplate{footline}[frame number]
+
+\title[Short Title]{Full Presentation Title}
+\subtitle{Subtitle or Context}
+\author{Author Name}
+\institute{Organization}
+\date{\today}
+
+\begin{document}
+
+\begin{frame}
+\titlepage
+\end{frame}
+
+\begin{frame}{Outline}
+\tableofcontents
+\end{frame}
+
+\section{Introduction}
+
+\begin{frame}{Problem Statement}
+  \begin{itemize}
+    \item First point
+    \item Second point
+    \item Third point with \textcolor{accent}{\textbf{emphasis}}
+  \end{itemize}
+
+  \vspace{1em}
+  \begin{block}{Key Insight}
+    A highlighted block with the takeaway.
+  \end{block}
+\end{frame}
+
+\begin{frame}{Two-Column Layout}
+  \begin{columns}[T]
+    \column{0.5\textwidth}
+    \textbf{Left}
+    \begin{itemize}
+      \item Point A
+      \item Point B
+    \end{itemize}
+
+    \column{0.5\textwidth}
+    \textbf{Right}
+    \begin{itemize}
+      \item Point C
+      \item Point D
+    \end{itemize}
+  \end{columns}
+\end{frame}
+
+\section{Results}
+
+\begin{frame}{Headline Result}
+  \begin{table}
+    \centering
+    \begin{tabular}{lrr}
+      \toprule
+      Method & Score & Time \\
+      \midrule
+      Baseline & 72.1 & 1.4 \\
+      Ours     & 84.6 & 1.6 \\
+      \bottomrule
+    \end{tabular}
+  \end{table}
+\end{frame}
+
+\begin{frame}{Equations}
+  \[
+    f(x) = \int_{0}^{x} g(t) \, dt
+  \]
+\end{frame}
+
+\section{Conclusion}
+
+\begin{frame}{Summary}
+  \begin{itemize}
+    \item Recap finding 1
+    \item Recap finding 2
+    \item Next steps
+  \end{itemize}
+\end{frame}
+
+\begin{frame}
+  \begin{center}
+    \Huge Thank you. \\[1em]
+    \large Questions?
+  \end{center}
+\end{frame}
+
+\end{document}

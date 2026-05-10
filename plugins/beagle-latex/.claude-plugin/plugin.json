@@ -1,0 +1,32 @@
+{
+  "name": "beagle-latex",
+  "description": "LaTeX document creation, code review, bibliography hygiene, compilation workflows, and Quarto book authoring with kaobook/Eisvogel textbook typography.",
+  "version": "1.0.0",
+  "author": {
+    "name": "Existential Birds, LLC",
+    "email": "tech@existentialbirds.com"
+  },
+  "repository": "https://github.com/existential-birds/beagle",
+  "keywords": [
+    "latex",
+    "tex",
+    "pdflatex",
+    "xelatex",
+    "lualatex",
+    "latexmk",
+    "quarto",
+    "kaobook",
+    "eisvogel",
+    "tufte",
+    "pandoc",
+    "bibtex",
+    "biblatex",
+    "biber",
+    "textbook",
+    "book",
+    "thesis",
+    "code-review",
+    "documentation",
+    "publishing"
+  ]
+}

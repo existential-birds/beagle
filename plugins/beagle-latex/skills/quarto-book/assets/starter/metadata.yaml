@@ -1,0 +1,19 @@
+# Sidecar metadata for Quarto book projects.
+# Merged into the project via `metadata-files: [metadata.yaml]` in _quarto.yml,
+# or passed to Pandoc via --metadata-file.
+
+title: "Book Title"
+subtitle: "Subtitle that orients the reader"
+author:
+  - name: "Author Name"
+    affiliation: "Affiliation"
+    email: "author@example.com"
+date: "today"
+abstract: |
+  A 100–200 word summary of the book's purpose, audience, and what the reader
+  will be able to do after finishing it. Used by the kaobook template to
+  generate a back-cover-style abstract page.
+keywords: [keyword1, keyword2, keyword3]
+bibliography: references.bib
+csl: chicago-author-date.csl       # optional; download from https://www.zotero.org/styles
+language: en-US

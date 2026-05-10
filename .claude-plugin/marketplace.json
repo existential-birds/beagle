@@ -149,6 +149,27 @@
       ]
     },
     {
+      "name": "beagle-latex",
+      "source": "./plugins/beagle-latex",
+      "description": "LaTeX document creation, code review, bibliography hygiene, compilation, and Quarto book authoring with kaobook/Eisvogel textbook typography",
+      "category": "documentation",
+      "tags": [
+        "latex",
+        "tex",
+        "latexmk",
+        "quarto",
+        "kaobook",
+        "eisvogel",
+        "tufte",
+        "bibtex",
+        "biblatex",
+        "textbook",
+        "book",
+        "code-review",
+        "publishing"
+      ]
+    },
+    {
       "name": "beagle-testing",
       "source": "./plugins/beagle-testing",
       "description": "Language-agnostic test plan generation and execution",

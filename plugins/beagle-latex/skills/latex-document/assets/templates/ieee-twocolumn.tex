@@ -1,0 +1,118 @@
+% IEEE journal / conference paper template.
+% Uses IEEEtran class. Install via TeX Live: tlmgr install ieeetran
+% Default options: conference; switch to "journal" for transactions.
+
+\documentclass[conference]{IEEEtran}
+
+\IEEEoverridecommandlockouts
+
+\usepackage{cite}
+\usepackage{amsmath, amssymb, amsfonts}
+\usepackage{algorithmic}
+\usepackage{graphicx}
+\usepackage{textcomp}
+\usepackage{xcolor}
+\usepackage{booktabs}
+
+\def\BibTeX{{\rm B\kern-.05em{\sc i\kern-.025em b}\kern-.08em
+    T\kern-.1667em\lower.7ex\hbox{E}\kern-.125emX}}
+
+\begin{document}
+
+\title{Paper Title — Concise and Specific\\
+{\footnotesize \textsuperscript{*}Note: optional second-line subtitle}
+\thanks{Identify funding source here, if any.}
+}
+
+\author{
+  \IEEEauthorblockN{First Author}
+  \IEEEauthorblockA{\textit{Department of X} \\
+  \textit{University Name}\\
+  City, Country \\
+  email@example.com}
+  \and
+  \IEEEauthorblockN{Second Author}
+  \IEEEauthorblockA{\textit{Department of Y} \\
+  \textit{Other University}\\
+  City, Country \\
+  email@example.com}
+}
+
+\maketitle
+
+\begin{abstract}
+A 150–250 word summary of the paper. State the problem, the contribution, the method in one phrase, and the headline result. IEEE abstracts are evaluated independently of the body, so make this stand alone.
+\end{abstract}
+
+\begin{IEEEkeywords}
+keyword1, keyword2, keyword3, keyword4
+\end{IEEEkeywords}
+
+\section{Introduction}
+Open with the problem and why it's hard. Position relative to prior work; state the contribution explicitly with a numbered list of 2–4 items so reviewers can find them at a glance.
+
+The contributions of this paper are:
+\begin{enumerate}
+\item First contribution.
+\item Second contribution.
+\item Third contribution.
+\end{enumerate}
+
+\section{Related Work}
+Group related work by approach, not chronologically. Cite \cite{ref1} \cite{ref2} for foundational work and contrast directly.
+
+\section{Method}
+Describe the approach. Equations are numbered automatically:
+
+\begin{equation}
+  \mathcal{L}(\theta) = \frac{1}{N}\sum_{i=1}^{N} \ell\bigl(f_\theta(x_i), y_i\bigr)
+  \label{eq:loss}
+\end{equation}
+
+Equation~\eqref{eq:loss} defines the loss minimized by the method.
+
+\section{Experiments}
+Detail the dataset, baselines, and evaluation protocol. IEEE expects reproducibility — include enough detail that a competent reader could re-run the experiment.
+
+\subsection{Setup}
+Hardware, software versions, hyperparameters, training time.
+
+\subsection{Results}
+
+\begin{table}[htbp]
+  \caption{Performance comparison.}
+  \label{tab:results}
+  \centering
+  \begin{tabular}{lrr}
+    \toprule
+    Method & Accuracy (\%) & Latency (ms) \\
+    \midrule
+    Baseline A \cite{ref1} & 72.1 & 14 \\
+    Baseline B \cite{ref2} & 78.4 & 22 \\
+    \textbf{Ours}          & \textbf{84.6} & \textbf{16} \\
+    \bottomrule
+  \end{tabular}
+\end{table}
+
+Table~\ref{tab:results} shows that the proposed method achieves the best accuracy with comparable latency to the fastest baseline.
+
+\section{Discussion}
+Interpret the results. Address the most likely reviewer objection directly. State limitations.
+
+\section{Conclusion}
+One paragraph. Tie back to the contributions stated in \S1.
+
+\section*{Acknowledgments}
+Thank funders and collaborators here. Keep brief.
+
+\bibliographystyle{IEEEtran}
+\bibliography{references}
+
+% Inline bibliography fallback (delete the block above if using):
+%
+% \begin{thebibliography}{00}
+% \bibitem{ref1} A. Author, ``Paper Title,'' \emph{Journal}, vol.~1, no.~1, pp.~1--10, 2024.
+% \bibitem{ref2} B. Author, ``Other Title,'' in \emph{Proc. Conf.}, 2023, pp.~100--110.
+% \end{thebibliography}
+
+\end{document}

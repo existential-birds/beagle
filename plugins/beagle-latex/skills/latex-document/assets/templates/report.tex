@@ -1,0 +1,109 @@
+\documentclass[11pt,a4paper]{article}
+
+\usepackage[utf8]{inputenc}
+\usepackage[T1]{fontenc}
+\usepackage[margin=1in]{geometry}
+\usepackage{microtype}
+\usepackage{graphicx}
+\usepackage{xcolor}
+\usepackage[colorlinks=true]{hyperref}
+\usepackage{titlesec}
+\usepackage{fancyhdr}
+\usepackage{tabularx}
+\usepackage{colortbl}
+\usepackage{booktabs}
+\usepackage{longtable}
+\usepackage{enumitem}
+\usepackage[most]{tcolorbox}
+\usepackage{float}
+\usepackage{amsmath, amssymb}
+
+% --- list compaction (always on for reports) ---
+\setlist[itemize]{nosep, leftmargin=*, topsep=2pt, partopsep=0pt}
+\setlist[enumerate]{nosep, leftmargin=*, topsep=2pt, partopsep=0pt}
+
+\widowpenalty=10000
+\clubpenalty=10000
+
+% --- colors ---
+\definecolor{primary}{RGB}{0, 102, 204}
+\definecolor{lightgray}{RGB}{240, 240, 240}
+
+% --- header / footer ---
+\pagestyle{fancy}
+\fancyhf{}
+\fancyhead[L]{\small\textcolor{gray}{Report Title}}
+\fancyhead[R]{\small\textcolor{gray}{\today}}
+\fancyfoot[C]{\small\thepage}
+\renewcommand{\headrulewidth}{0.4pt}
+
+\titleformat{\section}{\Large\bfseries\color{primary}}{\thesection}{0.5em}{}
+\titleformat{\subsection}{\large\bfseries}{}{0em}{}
+
+\hypersetup{linkcolor=primary, urlcolor=primary, citecolor=primary}
+
+\title{\textbf{Report Title} \\ \large Subtitle or Description}
+\author{Author Name \\ Organization}
+\date{\today}
+
+\begin{document}
+
+\maketitle
+\thispagestyle{empty}
+
+\tableofcontents
+\newpage
+
+\section{Executive Summary}
+
+Two to four paragraphs giving the headline findings, recommendations, and the decision the reader should make after reading. A reader who reads only this section should walk away with the right action.
+
+\section{Introduction}
+
+Context, scope, and the question this report answers.
+
+\section{Findings}
+
+\subsection{Key Metrics}
+
+\begin{table}[htbp]
+\centering
+\caption{Summary of key metrics.}
+\label{tab:metrics}
+\begin{tabularx}{0.95\textwidth}{lXrr}
+\toprule
+\textbf{Metric} & \textbf{Description} & \textbf{Value} & \textbf{\textit{vs prior}} \\
+\midrule
+Metric 1 & Short description & 1{,}234 & +12\% \\
+Metric 2 & Short description & 5{,}678 & --3\% \\
+Metric 3 & Short description & 910 & +25\% \\
+\bottomrule
+\end{tabularx}
+\end{table}
+
+\subsection{Analysis}
+
+Prose interpretation of the metrics. Connect to the executive summary; identify trends and outliers; state limitations of the data.
+
+\begin{tcolorbox}[colback=primary!5, colframe=primary!70, title=\textbf{Key Insight}]
+Use \texttt{tcolorbox} for callouts that should not blend into the body — executive summaries, key insights, persona descriptions, warning notes.
+\end{tcolorbox}
+
+\section{Recommendations}
+
+\begin{enumerate}
+  \item First recommendation, with rationale tied to a specific finding.
+  \item Second recommendation.
+  \item Third recommendation.
+\end{enumerate}
+
+\section{Conclusion}
+
+Summary and next steps. Single short section.
+
+\appendix
+\section{Methodology}
+
+Detail the data sources, sampling, and analytical approach. Anything a skeptical reader would need to evaluate the report's reliability lives here, not in the body.
+
+\end{document}

@@ -1,0 +1,35 @@
+project:
+  type: book
+  output-dir: _book
+
+book:
+  title: "Book Title"
+  subtitle: "Subtitle"
+  author: "Author Name"
+  date: "today"
+  chapters:
+    - index.qmd
+    - chapters/01-intro.qmd
+    - chapters/02-foundations.qmd
+  bibliography: references.bib
+
+format:
+  pdf:
+    documentclass: kaobook        # swap to scrbook for Eisvogel, or tufte-book for Tufte
+    classoption: [11pt, oneside]
+    template: templates/kaobook.latex
+    pdf-engine: lualatex          # kaobook uses fontspec → lualatex/xelatex
+    keep-tex: true                # leaves intermediate .tex in _book/ for inspection
+    toc: true
+    toc-depth: 2
+    number-sections: true
+    fig-pos: htbp
+    citeproc: true
+    listings: true
+    mainfont: "EB Garamond"       # adjust to taste; see beagle-latex:textbook-typography
+    sansfont: "Source Sans Pro"
+    monofont: "JetBrains Mono"
+
+  html:                           # uncomment if you also want HTML output
+    theme: cosmo
+    code-link: true

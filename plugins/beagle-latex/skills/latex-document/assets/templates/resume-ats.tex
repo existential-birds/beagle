@@ -1,0 +1,77 @@
+% ATS-safe résumé: single column, no graphics, no hyperref, no tikz, no tabularx.
+% Standard fonts only. Parses cleanly through every ATS we've tested.
+
+\documentclass[11pt,a4paper]{article}
+\usepackage[utf8]{inputenc}
+\usepackage[T1]{fontenc}
+\usepackage[margin=0.7in]{geometry}
+\usepackage{enumitem}
+\usepackage{titlesec}
+\usepackage{parskip}
+
+\pagestyle{empty}
+
+\titleformat{\section}{\large\bfseries\uppercase}{}{0em}{}[\vspace{-0.5em}\rule{\textwidth}{0.4pt}]
+\titlespacing*{\section}{0pt}{1em}{0.5em}
+
+% Entry: Title | Dates / Org | Location
+\newcommand{\entry}[4]{%
+    \noindent\textbf{#1} \hfill #2 \\
+    \textit{#3} \hfill #4%
+}
+
+\begin{document}
+
+\begin{center}
+    {\LARGE\bfseries Full Name} \\[0.3em]
+    City, State \quad | \quad (555) 123-4567 \quad | \quad email@example.com \quad | \quad linkedin.com/in/profile
+\end{center}
+
+\section{Summary}
+
+Two- to three-line professional summary tied to the role being applied for. Lead with concrete capability and quantified outcome, not adjectives.
+
+\section{Experience}
+
+\entry{Senior Title}{Jan 2022 -- Present}{Company Name}{City, State}
+\begin{itemize}[leftmargin=1.5em, itemsep=0.2em, topsep=0.3em]
+    \item Drove \textit{specific outcome} through \textit{specific action}, reducing \textit{metric} by X\%.
+    \item Owned \textit{project / system} serving X users, shipping Y features and improving \textit{metric} from A to B.
+    \item Led team of N engineers across \textit{scope}; mentored \textit{specific deliverables}.
+\end{itemize}
+
+\vspace{0.5em}
+
+\entry{Title}{Jun 2019 -- Dec 2021}{Previous Company}{City, State}
+\begin{itemize}[leftmargin=1.5em, itemsep=0.2em, topsep=0.3em]
+    \item Built \textit{feature / system} that \textit{outcome with metric}.
+    \item Collaborated with \textit{stakeholders} on \textit{deliverable}, improving \textit{measurable outcome}.
+\end{itemize}
+
+\vspace{0.5em}
+
+\entry{Junior Title}{Aug 2016 -- May 2019}{Earlier Company}{City, State}
+\begin{itemize}[leftmargin=1.5em, itemsep=0.2em, topsep=0.3em]
+    \item Contributed to \textit{initiative} producing \textit{measurable outcome}.
+\end{itemize}
+
+\section{Education}
+
+\entry{B.S.\ in Field}{Sep 2012 -- Jun 2016}{University Name}{City, State}
+\begin{itemize}[leftmargin=1.5em, itemsep=0.2em, topsep=0.3em]
+    \item GPA: 3.X/4.0 (omit if below 3.5)
+    \item Coursework: Course A, Course B, Course C
+\end{itemize}
+
+\section{Skills}
+
+\textbf{Technical:} Skill A, Skill B, Skill C, Skill D, Skill E \\
+\textbf{Tools:} Tool A, Tool B, Tool C \\
+\textbf{Languages:} English (Native), Spanish (Conversational)
+
+\section{Certifications}
+
+\noindent Certification Name -- Issuing Organization \hfill 2024 \\
+Another Certification -- Issuing Organization \hfill 2023
+
+\end{document}

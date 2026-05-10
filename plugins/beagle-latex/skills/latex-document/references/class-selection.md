@@ -1,11 +1,6 @@
----
-name: textbook-typography
-description: Picks the right LaTeX class and design for an "elegant textbook" — kaobook (KOMA + Tufte hybrid, sidenotes and mini-TOC at chapter starts), Eisvogel + scrbook (lower-friction Pandoc default), or tufte-book (canonical Tufte layout). Covers class trade-offs, sidenote setup, margin design, and the `pandoc-sidenote` filter for tufte workflows. Use when the user wants a book, thesis, or technical manual with marginalia / asides / margin figures, or when choosing between Pandoc/Quarto LaTeX templates for book output.
----
+# Class Selection — kaobook, Eisvogel+scrbook, tufte-book
 
-# Textbook Typography
-
-Three serious stacks survive the "elegant textbook, ship-now, maintained upstream" filter. Pick once based on visual target — class is hard to switch later.
+Three serious stacks for an "elegant textbook" target. Pick once based on visual goal — class is hard to switch later.
 
 ## Stack A — kaobook (recommended)
 
@@ -20,7 +15,7 @@ Three serious stacks survive the "elegant textbook, ship-now, maintained upstrea
 - Code-heavy chapters can swap to wide layout per-chapter
 
 **Watch out for:**
-- No first-party Pandoc template — the Quarto bridge template at `beagle-latex:quarto-book/assets/starter/templates/kaobook.latex` handles this
+- No first-party Pandoc template — bring your own bridge if you're driving from Markdown
 - Multi-pass rebuilds: kaobook docs note "occasionally LaTeX can need up to four re-runs" for margin float positioning. Use latexmk.
 - lualatex preferred over pdflatex (fontspec for typography control)
 
@@ -69,7 +64,7 @@ This is the body. \sidenote{And this is a sidenote — appears in the wide outer
 \end{kaobox-toc}
 
 \begin{margintable}                       % small table in margin
-  ... 
+  ...
 \end{margintable}
 
 % Switch to wide layout for code-heavy section:
@@ -109,8 +104,6 @@ pandoc 00_intro.md 01_method.md 02_schedule.md \
   -o textbook.pdf
 ```
 
-**For Quarto:** set `format: pdf: documentclass: scrbook` and `template: eisvogel` in `_quarto.yml`.
-
 ## Stack C — tufte-latex (`tufte-book`) + `pandoc-sidenote`
 
 Bil Kleb's `tufte-latex` (`tufte-book` class) plus `jez/pandoc-sidenote`, a Pandoc filter that rewrites footnotes into `\sidenote{...}`.
@@ -120,51 +113,26 @@ Bil Kleb's `tufte-latex` (`tufte-book` class) plus `jez/pandoc-sidenote`, a Pand
 - You're modeling a book's design on Tufte's "Visual Display of Quantitative Information" or "Beautiful Evidence"
 
 **Watch out for:**
-- Pandoc by itself "omits sidenote contents completely" — you must run the filter
 - Less flexible than kaobook for non-Tufte deviations
 - Asymmetric layout (text + side margin) may not be what users actually want when they ask for "Tufte-style"
-
-**Setup:**
-
-```bash
-# Install the filter
-cabal install pandoc-sidenote      # Haskell route
-# OR
-brew install pandoc-sidenote       # macOS
-```
-
-**Invocation:**
-
-```bash
-pandoc input.md \
-  --filter pandoc-sidenote \
-  --template tufte-book.latex \
-  --pdf-engine xelatex \
-  --top-level-division=chapter \
-  -o tufte-book.pdf
-```
-
-The filter converts every `[^1]` footnote into a `\sidenote{...}`.
 
 ## Decision matrix
 
 | Need | kaobook | Eisvogel+scrbook | tufte-book |
 |---|---|---|---|
-| Sidenotes / marginalia | ✓ native | — | ✓ via filter |
-| Mini-TOC at chapter starts | ✓ | — | — |
-| Code listings | ✓ (kaocodes) | ✓ (Skylighting) | weak |
+| Sidenotes / marginalia | native | — | via filter |
+| Mini-TOC at chapter starts | yes | — | — |
+| Code listings | yes (kaocodes) | yes (Skylighting) | weak |
 | Setup time | ~30 min (custom template) | ~5 min | ~15 min (filter install) |
-| Pandoc support | DIY template | first-class | filter required |
-| Tufte aesthetic | "in the spirit of" | — | exact |
 | Multi-pass cost | up to 4 passes | 2-3 passes | 2-3 passes |
-| Recommended for new work | **yes** | yes (when no marginalia needed) | only if Tufte is the explicit target |
+| Tufte aesthetic | "in the spirit of" | — | exact |
 
 ## Common failure modes
 
-- **kaobook compiled without lualatex/xelatex** — kaobook uses `fontspec`. Set `pdf-engine: lualatex` in Quarto config or `--pdf-engine=lualatex` on the command line.
+- **kaobook compiled without lualatex/xelatex** — kaobook uses `fontspec`. Set engine to lualatex or xelatex.
 - **kaobook margin floats overlap text** — Run latexmk with extra passes (`-r .latexmkrc` configured for 4 max passes). Margin float positioning needs multiple iterations to settle.
-- **Eisvogel: code listings render as raw text** — Pass `--listings` to Pandoc. Quarto: `listings: true` in format-pdf block.
-- **tufte-book: footnotes appear at page bottom instead of margin** — Filter not running. Verify `--filter pandoc-sidenote` is on the command line; check `pandoc-sidenote --version` works.
+- **Eisvogel: code listings render as raw text** — Pass `--listings` to Pandoc.
+- **tufte-book: footnotes appear at page bottom instead of margin** — `pandoc-sidenote` filter not running. Verify `--filter pandoc-sidenote` is on the command line; check `pandoc-sidenote --version` works.
 - **Chapter pages start on left page (verso)** — `tufte-book` defaults to `openright`. Add `\documentclass[oneside]{tufte-book}` or `openany` option.
 
 ## Body font recommendations
@@ -180,17 +148,7 @@ Books at 11pt (kaobook default) on A4 with kaobook's wide margins read best with
 | **Charter** | OFL | Free, designed for laser printers, dense text-friendly |
 | **Minion** | commercial | Adobe; expensive but the standard for trade books |
 
-Specify in Quarto:
-
-```yaml
-format:
-  pdf:
-    mainfont: "EB Garamond"
-    sansfont: "Source Sans Pro"
-    monofont: "JetBrains Mono"
-```
-
-Or in raw LaTeX with kaobook:
+In raw LaTeX with kaobook:
 
 ```latex
 \usepackage{fontspec}
@@ -198,9 +156,3 @@ Or in raw LaTeX with kaobook:
 \setsansfont{Source Sans Pro}
 \setmonofont{JetBrains Mono}[Scale=0.95]
 ```
-
-## Gates
-
-1. **Class fits aesthetic** — Before scaffolding. **Pass:** You can name the class chosen and tie it to a concrete user-stated need (e.g., "user wants margin sidenotes for asides → kaobook", "user wants minimum setup, no marginalia → Eisvogel+scrbook").
-2. **Engine matches class** — Before first compile. **Pass:** lualatex/xelatex specified for kaobook or any class using `fontspec`. pdflatex acceptable for Eisvogel+scrbook unless system fonts are needed.
-3. **Margin elements verified** — When using kaobook or tufte-book. **Pass:** A test compile produced visible sidenotes/marginnotes in the rendered PDF. Compilation alone is not enough — these can compile clean but render empty if the macros aren't wired correctly.

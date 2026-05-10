@@ -1,6 +1,6 @@
 {
   "name": "beagle-latex",
-  "description": "LaTeX document creation, code review, bibliography hygiene, compilation workflows, and Quarto book authoring with kaobook/Eisvogel textbook typography.",
+  "description": "LaTeX document creation, code review, and bibliography hygiene — single-file documents with auto-detected engine, BibTeX/biber citation hygiene, and long-form anti-pattern detection.",
   "version": "1.0.0",
   "author": {
     "name": "Existential Birds, LLC",
@@ -14,19 +14,10 @@
     "xelatex",
     "lualatex",
     "latexmk",
-    "quarto",
-    "kaobook",
-    "eisvogel",
-    "tufte",
-    "pandoc",
     "bibtex",
     "biblatex",
     "biber",
-    "textbook",
-    "book",
-    "thesis",
     "code-review",
-    "documentation",
-    "publishing"
+    "documentation"
   ]
 }

@@ -1,11 +1,6 @@
----
-name: latex-compilation
-description: Compiles LaTeX documents efficiently — picks the right engine (pdflatex/xelatex/lualatex), uses latexmk for dependency-driven multi-pass, splits long documents with `\include`/`\includeonly` for fast incremental builds, and parses log errors into actionable hints. Use when builds are slow, when chasing "Citation undefined" / "Undefined control sequence" / "Overfull hbox" / "Missing $ inserted" errors, or when setting up a long-document project for fast per-chapter rebuilds.
----
+# LaTeX Compilation Troubleshooting
 
-# LaTeX Compilation
-
-This skill is the troubleshooting and optimization layer. For first-time compilation of a single file, `beagle-latex:latex-document` is enough.
+Reference for engine selection, latexmk usage, multi-chapter incremental builds, and parsing log errors when compilation goes sideways.
 
 ## Engine choice
 
@@ -24,7 +19,7 @@ Documents already targeting a non-default engine declare it via package imports 
 `latexmk` runs the right number of passes for cross-references, bibliography, index, and glossary — automatically. Prefer it for any document beyond a quick one-pass test.
 
 ```bash
-bash <skill_path>/../latex-document/scripts/compile_latex.sh document.tex --use-latexmk
+bash <skill_path>/scripts/compile_latex.sh document.tex --use-latexmk
 ```
 
 Direct invocation:
@@ -73,7 +68,7 @@ Each `\include{name}` reads `name.tex` and starts it on a new page. `\includeonl
 
 Workflow: do a full build first, then iterate on one chapter with `\includeonly`. The chapter rebuilds in seconds; cross-references to other chapters keep working because LaTeX reads the cached `.aux` files.
 
-For Quarto book projects, this same pattern is built in — `quarto render <chapter>.qmd` renders one chapter; `quarto render` does the whole book. See `beagle-latex:quarto-book`.
+For multi-chapter projects, use the Quarto book pattern — see project-specific tooling in your repo.
 
 ## Auto-compile on edit
 
@@ -106,9 +101,3 @@ The compile script in `latex-document` surfaces these automatically. When debugg
 3. **Use `nofonts` option for `tikz`** during drafting if compile time is dominated by figures.
 4. **Preload a format file** for repeated identical preambles (`pdflatex -ini`). Niche; only worth it for batch generation.
 5. **Run latexmk in continuous mode** while writing: `latexmk -pvc -pdf root.tex` — recompiles on every save and reloads the viewer.
-
-## Gates
-
-1. **Engine appropriate** — Before reporting compile work. **Pass:** Engine chosen matches the document's package needs (pdflatex unless `fontspec`/`xeCJK`/`polyglossia` present, xelatex/lualatex if so).
-2. **Multi-pass complete** — When document has bibliography/index/glossary/cross-refs. **Pass:** Either latexmk was used, or pdflatex/biber/pdflatex/pdflatex sequence was run; final pass produced no `LaTeX Warning: There were undefined references`.
-3. **Log scan** — Before reporting success. **Pass:** You read the `.log` file for `Error`, `Warning`, and `Overfull`/`Underfull` entries and either resolved them or stated explicitly which are accepted.

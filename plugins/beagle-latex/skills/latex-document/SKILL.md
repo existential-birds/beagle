@@ -1,19 +1,19 @@
 ---
 name: latex-document
-description: Creates, edits, and compiles single-file LaTeX documents — resumes, articles, reports, beamer presentations, IEEE journal papers, and standalone books. Auto-detects engine (pdflatex/xelatex/lualatex), runs bibtex/biber/makeindex/makeglossaries automatically, and ships templates that compile clean. Use when the user asks to write a CV, draft a paper, build a slide deck, generate a report, or compile a `.tex` file. For multi-chapter book projects driven from Markdown/`.qmd`, use `beagle-latex:quarto-book` instead.
+description: Creates, edits, and compiles single-file LaTeX documents — resumes, articles, reports, beamer presentations, IEEE journal papers, and standalone books. Auto-detects engine (pdflatex/xelatex/lualatex), runs bibtex/biber/makeindex/makeglossaries automatically, and ships templates that compile clean. Use when the user asks to write a CV, draft a paper, build a slide deck, generate a report, or compile a `.tex` file.
 ---
 
 # LaTeX Document
 
-Single-file `.tex` workflow. For multi-chapter books with chapter-per-file source, defer to `beagle-latex:quarto-book`.
+Single-file `.tex` workflow. Multi-chapter book workflows (chapter-per-file source driven from Markdown/`.qmd`) live outside this plugin — set up Quarto separately if you need that.
 
 ## Workflow
 
-1. **Identify document type.** Ask the user if not stated. Map to a template from `assets/templates/` (article, report, resume-ats, beamer, ieee-twocolumn, book-academic). For "elegant textbook" or anything Tufte-flavored, hand off to `beagle-latex:textbook-typography` for class selection first.
+1. **Identify document type.** Ask the user if not stated. Map to a template from `assets/templates/` (article, report, resume-ats, beamer, ieee-twocolumn, book-academic). For "elegant textbook" or anything Tufte-flavored, see [references/class-selection.md](references/class-selection.md) for textbook class selection (kaobook / Eisvogel+scrbook / tufte-book).
 2. **Copy or scaffold.** Copy the closest template into the project, rename to the target file, and customize content. Do not retain placeholder names ("FULL NAME", "[Industry/Field]") in the final output.
 3. **Pick the right engine.** Auto-detection in the compile script handles this for you — `fontspec`/`xeCJK`/`polyglossia` triggers xelatex; `luacode`/`directlua` triggers lualatex; everything else uses pdflatex. Override with `--engine` only when you have a specific reason.
 4. **Add citations / index / glossary if needed.** For citations, hand off to `beagle-latex:latex-bibliography`. The compile script auto-detects `\bibliography{...}` (bibtex), `\addbibresource{...}` (biber), `\makeindex`/`\printindex`, and `\makeglossaries`/`\newacronym`, and runs the right pass.
-5. **Compile.** Use the bundled script. For a clean dependency-driven build, prefer `--use-latexmk` once you've confirmed the document compiles end-to-end.
+5. **Compile.** Use the bundled script. For a clean dependency-driven build, prefer `--use-latexmk` once you've confirmed the document compiles end-to-end. When builds fail or hang on cross-references, see [references/troubleshooting.md](references/troubleshooting.md) for engine choice, latexmk config, multi-chapter `\includeonly` workflow, and a log-error lookup table.
 6. **Audit before delivering.** For documents 5+ pages, run `beagle-latex:latex-code-review` to catch the long-form anti-patterns. For shorter docs (resume, single-page article), skip the review.
 
 ## Compile

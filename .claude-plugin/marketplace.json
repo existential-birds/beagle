@@ -151,22 +151,16 @@
     {
       "name": "beagle-latex",
       "source": "./plugins/beagle-latex",
-      "description": "LaTeX document creation, code review, bibliography hygiene, compilation, and Quarto book authoring with kaobook/Eisvogel textbook typography",
+      "description": "LaTeX document creation, code review, and bibliography hygiene — single-file documents with auto-detected engine, BibTeX/biber citation hygiene, and long-form anti-pattern detection.",
       "category": "documentation",
       "tags": [
         "latex",
         "tex",
         "latexmk",
-        "quarto",
-        "kaobook",
-        "eisvogel",
-        "tufte",
         "bibtex",
         "biblatex",
-        "textbook",
-        "book",
         "code-review",
-        "publishing"
+        "documentation"
       ]
     },
     {

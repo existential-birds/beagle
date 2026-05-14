@@ -4,8 +4,6 @@ LaTeX document creation, code review, and bibliography hygiene skills for [Claud
 
 Covers single-file LaTeX documents (resumes, articles, reports, beamer slides, IEEE submissions, single-volume books) with auto-detected engine selection, BibTeX/biblatex/biber citation hygiene, and a code-review skill that catches the long-form anti-patterns LLM-generated LaTeX usually ships with.
 
-> **Note:** Multi-chapter book authoring with kaobook + Quarto lives outside this plugin in a dedicated companion marketplace. This plugin focuses on single-file documents and citation hygiene.
-
 ## Installation
 
 ```bash

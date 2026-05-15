@@ -6,6 +6,11 @@ Format follows [Keep a Changelog](https://keepachangelog.com/en/1.1.0/). Version
 
 ## [Unreleased]
 
+## [3.6.0] - 2026-05-15
+
+### Added
+- **beagle-remix-v2:** New plugin (v0.1.0) with 12 skills covering Remix v2 code review and best practices — `review-remix-v2` orchestrator plus paired build/review skills for routing, data flow (loaders/actions/defer/revalidation), forms (Form/fetcher/optimistic UI/uploads), meta + sessions (meta v2, links, sessions, auth/CSRF), error boundaries (root + nested, throw Response, v1 holdovers), and performance/SSR (hydration, headers/caching, prefetch/streaming, server-client split) ([#102](https://github.com/existential-birds/beagle/pull/102))
+
 ## [3.5.0] - 2026-05-03
 
 ### Added
@@ -407,7 +412,8 @@ Format follows [Keep a Changelog](https://keepachangelog.com/en/1.1.0/). Version
 - Development commands: `skill-builder`, `ensure-docs`
 - Cursor IDE command equivalents
 
-[Unreleased]: https://github.com/existential-birds/beagle/compare/v3.5.0...HEAD
+[Unreleased]: https://github.com/existential-birds/beagle/compare/v3.6.0...HEAD
+[3.6.0]: https://github.com/existential-birds/beagle/compare/v3.5.0...v3.6.0
 [3.5.0]: https://github.com/existential-birds/beagle/compare/v3.4.0...v3.5.0
 [3.4.0]: https://github.com/existential-birds/beagle/compare/v3.3.0...v3.4.0
 [3.3.0]: https://github.com/existential-birds/beagle/compare/v3.2.0...v3.3.0

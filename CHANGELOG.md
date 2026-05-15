@@ -6,6 +6,10 @@ Format follows [Keep a Changelog](https://keepachangelog.com/en/1.1.0/). Version
 
 ## [Unreleased]
 
+### Added
+- **beagle-core:** Add `subagent-prompt` skill — produces a self-contained orchestration prompt that hands the current session's work off to a fresh session for sub-agent execution, with explicit per-task verification commands and a final integration check before reporting success. User-invocable, `disable-model-invocation: true`
+- **beagle-analysis:** Add `write-plan` skill — turns a finalized `brainstorm-beagle` spec at `.beagle/concepts/<slug>/spec.md` into a bite-sized, TDD-driven implementation plan at `.beagle/concepts/<slug>/plan.md`. Reads the spec, scans `CLAUDE.md` conventions, designs file structure, decomposes work into 2-5 minute steps with exact paths/commands, self-reviews against the spec, gets user approval, then writes. References `references/plan-template.md` and `references/plan-reviewer.md` for the document skeleton and the optional reviewer-subagent prompt
+
 ## [3.6.0] - 2026-05-15
 
 ### Added

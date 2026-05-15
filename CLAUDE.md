@@ -4,7 +4,7 @@ This file provides guidance to Claude Code (claude.ai/code) when working with co
 
 ## What This Is
 
-Beagle is a Claude Code plugin marketplace providing framework-aware code review skills and verification workflows for pre-push reviews and GitHub bot feedback handling. It contains 12 focused plugins with 143 skills.
+Beagle is a Claude Code plugin marketplace providing framework-aware code review skills and verification workflows for pre-push reviews and GitHub bot feedback handling. It contains 12 focused plugins with 145 skills.
 
 ## Marketplace Architecture
 
@@ -13,7 +13,7 @@ beagle/
 ├── .claude-plugin/
 │   └── marketplace.json         # Marketplace manifest (12 plugins)
 └── plugins/
-    ├── beagle-core/             # Shared workflows, verification, git workflows (19 skills)
+    ├── beagle-core/             # Shared workflows, verification, git workflows (20 skills)
     ├── beagle-python/           # Python, FastAPI, SQLAlchemy, PostgreSQL, pytest (7 skills)
     ├── beagle-go/               # Go, BubbleTea, Wish SSH, Prometheus (13 skills)
     ├── beagle-elixir/           # Elixir, Phoenix, LiveView, ExUnit, ExDoc (11 skills)
@@ -23,7 +23,7 @@ beagle/
     ├── beagle-rust/             # Rust, tokio, axum, sqlx, serde (12 skills)
     ├── beagle-ai/               # Pydantic AI, LangGraph, DeepAgents, Vercel AI SDK (13 skills)
     ├── beagle-docs/             # Documentation quality, AI writing detection (10 skills)
-    ├── beagle-analysis/         # Brainstorming, ADRs, strategy, LLM-as-judge, spec resolution, PRFAQ filter (12 skills)
+    ├── beagle-analysis/         # Brainstorming, ADRs, strategy, LLM-as-judge, spec resolution, PRFAQ filter, TDD plan writing (13 skills)
     └── beagle-testing/          # Test plan generation and execution (2 skills)
 ```
 
@@ -88,11 +88,13 @@ Beagle-specific:
 | beagle-core | `verify-llm-artifacts` | Adjudicate review findings (confirm/false-positive/inconclusive) before deletes |
 | beagle-core | `fix-llm-artifacts` | Fix detected artifacts |
 | beagle-core | `prompt-improver` | Optimize prompts |
+| beagle-core | `subagent-prompt` | Hand off the current session's work to a fresh session as an orchestrator-plus-subagents prompt, with per-task verification commands and a final integration check |
 | beagle-analysis | `llm-judge` | Compare implementations using LLM-as-judge |
 | beagle-analysis | `write-adr` | Generate ADRs from decisions |
 | beagle-analysis | `web-research` | Parallel web-search research with cited, gap-flagged synthesis report |
 | beagle-analysis | `artifact-analysis` | Parallel-subagent scan of local docs with cited, structured extraction |
 | beagle-analysis | `prfaq-beagle` | Hardcore Working Backwards PRFAQ coach — 5-stage filter (Ignition → Press Release → Customer FAQ → Internal FAQ → Verdict) producing binary pass/fail; on pass hands off to `brainstorm-beagle` via a concept brief |
+| beagle-analysis | `write-plan` | Turn a finalized `brainstorm-beagle` spec at `.beagle/concepts/<slug>/spec.md` into a bite-sized, TDD-driven implementation plan at `.beagle/concepts/<slug>/plan.md` |
 | beagle-docs | `draft-docs` | Generate documentation drafts |
 | beagle-docs | `improve-doc` | Improve docs using Diataxis principles |
 | beagle-docs | `ensure-docs` | Documentation coverage check |

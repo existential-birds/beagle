@@ -12,6 +12,8 @@
     "verification",
     "git",
     "feedback",
-    "llm-artifacts"
+    "llm-artifacts",
+    "subagent-prompt",
+    "orchestration"
   ]
 }

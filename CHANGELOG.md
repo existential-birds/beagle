@@ -6,9 +6,14 @@ Format follows [Keep a Changelog](https://keepachangelog.com/en/1.1.0/). Version
 
 ## [Unreleased]
 
+## [3.7.0] - 2026-05-15
+
 ### Added
-- **beagle-core:** Add `subagent-prompt` skill — produces a self-contained orchestration prompt that hands the current session's work off to a fresh session for sub-agent execution, with explicit per-task verification commands and a final integration check before reporting success. User-invocable, `disable-model-invocation: true`
-- **beagle-analysis:** Add `write-plan` skill — turns a finalized `brainstorm-beagle` spec at `.beagle/concepts/<slug>/spec.md` into a bite-sized, TDD-driven implementation plan at `.beagle/concepts/<slug>/plan.md`. Reads the spec, scans `CLAUDE.md` conventions, designs file structure, decomposes work into 2-5 minute steps with exact paths/commands, self-reviews against the spec, gets user approval, then writes. References `references/plan-template.md` and `references/plan-reviewer.md` for the document skeleton and the optional reviewer-subagent prompt
+- **beagle-core:** Add `subagent-prompt` skill — produces a self-contained orchestration prompt that hands the current session's work off to a fresh session for sub-agent execution, with explicit per-task verification commands and a final integration check before reporting success. User-invocable, `disable-model-invocation: true` ([#104](https://github.com/existential-birds/beagle/pull/104))
+- **beagle-analysis:** Add `write-plan` skill — turns a finalized `brainstorm-beagle` spec at `.beagle/concepts/<slug>/spec.md` into a bite-sized, TDD-driven implementation plan at `.beagle/concepts/<slug>/plan.md`. Reads the spec, scans `CLAUDE.md` conventions, designs file structure, decomposes work into 2-5 minute steps with exact paths/commands, self-reviews against the spec, gets user approval, then writes. References `references/plan-template.md` and `references/plan-reviewer.md` for the document skeleton and the optional reviewer-subagent prompt ([#104](https://github.com/existential-birds/beagle/pull/104))
+
+### Fixed
+- **beagle-react:** `review-frontend` now routes to `review-remix-v2` when Remix v2 is detected, ensuring Remix projects get the dedicated review skill instead of generic React review ([#104](https://github.com/existential-birds/beagle/pull/104))
 
 ## [3.6.0] - 2026-05-15
 
@@ -416,7 +421,8 @@ Format follows [Keep a Changelog](https://keepachangelog.com/en/1.1.0/). Version
 - Development commands: `skill-builder`, `ensure-docs`
 - Cursor IDE command equivalents
 
-[Unreleased]: https://github.com/existential-birds/beagle/compare/v3.6.0...HEAD
+[Unreleased]: https://github.com/existential-birds/beagle/compare/v3.7.0...HEAD
+[3.7.0]: https://github.com/existential-birds/beagle/compare/v3.6.0...v3.7.0
 [3.6.0]: https://github.com/existential-birds/beagle/compare/v3.5.0...v3.6.0
 [3.5.0]: https://github.com/existential-birds/beagle/compare/v3.4.0...v3.5.0
 [3.4.0]: https://github.com/existential-birds/beagle/compare/v3.3.0...v3.4.0

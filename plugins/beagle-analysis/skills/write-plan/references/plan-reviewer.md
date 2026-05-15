@@ -10,7 +10,7 @@ Use this template when dispatching a plan-document reviewer subagent.
 
 ## Prompt Template
 
-```
+```text
 Task tool (general-purpose):
   description: "Review implementation plan"
   prompt: |

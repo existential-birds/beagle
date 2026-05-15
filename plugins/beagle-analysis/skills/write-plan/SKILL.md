@@ -1,6 +1,7 @@
 ---
 name: write-plan
-description: "Use when you have a finalized `beagle-analysis:brainstorm-beagle` spec at `.beagle/concepts/<slug>/spec.md` and need a bite-sized, TDD-driven implementation plan before any code is written. Triggers on: \"write a plan\", \"plan this spec\", \"turn the spec into a plan\", \"now plan the implementation\", \"/write-plan\". Reads the spec, designs the file structure, decomposes work into 2-5 minute TDD steps with exact paths and commands, self-reviews against the spec, gets user approval, then writes to `.beagle/concepts/<slug>/plan.md`. Does NOT brainstorm specs, write code, or execute the plan — produces the plan document only. Make sure to use this skill whenever a spec exists and the user is about to start building, even if they don't explicitly say \"plan\"."
+description: "Use when you have a finalized `beagle-analysis:brainstorm-beagle` spec at `.beagle/concepts/<slug>/spec.md` and need a bite-sized, TDD-driven implementation plan before any code is written. Triggers on: \"write a plan\", \"plan this spec\", \"turn the spec into a plan\", \"now plan the implementation\", \"/write-plan\". Reads the spec, designs the file structure, decomposes work into 2-5 minute TDD steps with exact paths and commands, self-reviews against the spec, gets user approval, then writes to `.beagle/concepts/<slug>/plan.md`. Does NOT brainstorm specs, write code, or execute the plan — produces the plan document only."
+disable-model-invocation: true
 ---
 
 # Write Plan: Spec Into Implementation Plan
@@ -28,7 +29,7 @@ Complete these steps in order:
 9. **Present draft to user** — show the draft in chat for review; iterate if needed
 10. **Write to disk** — save to `.beagle/concepts/<slug>/plan.md` only after explicit user approval
 
-```
+```text
 Spec at .beagle/concepts/<slug>/spec.md? ── No  → STOP, route to beagle-analysis:brainstorm-beagle
                                           ── Yes → Read spec + CLAUDE.md + relevant code
                                                    ↓
@@ -349,11 +350,11 @@ If the user requests changes, revise inline and present again. Do not write to d
 
 - **Default path:** `.beagle/concepts/<slug>/plan.md`
 - **Slug source:** inherit from the spec's parent folder (the `<slug>` segment under `.beagle/concepts/`). User preferences override the default path.
-- Commit to git with message: `docs: add <slug> implementation plan`
+- If the user explicitly asks to commit, use: `docs: add <slug> implementation plan`
 - After writing, tell the user:
   > "Plan written to `<path>`. Review it on disk and let me know if you want changes, or hand it off to your executor."
-- Then ask whether the user wants a `beagle-core:subagent-prompt` to execute the plan in a new session — phrase it as a direct question so the user can answer yes/no:
-  > "Want me to run `beagle-core:subagent-prompt` so you can execute this in a fresh session?"
+- Then point the user at `beagle-core:subagent-prompt` for execution in a fresh session. That skill has `disable-model-invocation: true` and cannot be launched via a Skill tool call from here — instruct the user to invoke it themselves:
+  > "Ready to execute? Run `/beagle-core:subagent-prompt` in a fresh session to hand this off to sub-agents."
 - Wait for the next instruction before considering work complete.
 
 ## Execution Handoff

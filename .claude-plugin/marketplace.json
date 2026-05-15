@@ -92,6 +92,21 @@
       ]
     },
     {
+      "name": "beagle-remix-v2",
+      "source": "./plugins/beagle-remix-v2",
+      "description": "Remix v2 (route modules + React Router v6) code review and best-practice skills",
+      "category": "frontend",
+      "tags": [
+        "remix",
+        "remix-v2",
+        "react-router",
+        "react-router-v6",
+        "loaders",
+        "actions",
+        "code-review"
+      ]
+    },
+    {
       "name": "beagle-ai",
       "source": "./plugins/beagle-ai",
       "description": "Pydantic AI, LangGraph, DeepAgents, and Vercel AI SDK skills",

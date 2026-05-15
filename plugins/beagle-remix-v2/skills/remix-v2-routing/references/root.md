@@ -91,7 +91,15 @@ Like any other route module, `root.tsx` can export `loader`, `action`, `meta`, `
 // app/root.tsx
 import { json } from "@remix-run/node";
 import type { LoaderFunctionArgs } from "@remix-run/node";
-import { isRouteErrorResponse, useLoaderData, useRouteError } from "@remix-run/react";
+import {
+  isRouteErrorResponse,
+  Links,
+  LiveReload,
+  Meta,
+  Scripts,
+  ScrollRestoration,
+  useRouteError,
+} from "@remix-run/react";
 
 export async function loader({ request }: LoaderFunctionArgs) {
   return json({ user: await getUser(request) });
@@ -110,7 +118,9 @@ export function ErrorBoundary() {
         {isRouteErrorResponse(error)
           ? <h1>{error.status} {error.statusText}</h1>
           : <h1>Application Error</h1>}
+        <ScrollRestoration />
         <Scripts />
+        <LiveReload />
       </body>
     </html>
   );

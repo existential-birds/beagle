@@ -1,6 +1,7 @@
 ---
 name: remix-v2-routing-review
 description: Reviews Remix v2 route files for naming convention violations, missing layouts, resource-route shape, and v1 holdovers. Use when reviewing files under app/routes/ in a Remix v2 codebase.
+user-invocable: false
 ---
 
 # Remix v2 Routing Code Review

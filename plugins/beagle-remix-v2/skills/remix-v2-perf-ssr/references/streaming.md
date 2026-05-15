@@ -91,7 +91,7 @@ export default function handleRequest(/* ... */) {
 }
 ```
 
-Default is 5000ms. **Don't bump it to 30s "to be safe"** — slow upstream calls then hold the connection open, exhausting server worker pools and pushing p99 latency through the floor. If upstreams are slow, set per-call timeouts inside the loader:
+Default is 5000ms. **Don't bump it to 30s "to be safe"** — slow upstream calls then hold the connection open, exhausting server worker pools and pushing p99 latency through the roof. If upstreams are slow, set per-call timeouts inside the loader:
 
 ```tsx
 const reviewsPromise = Promise.race([

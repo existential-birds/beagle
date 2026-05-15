@@ -1,6 +1,7 @@
 ---
 name: remix-v2-meta-sessions-review
 description: Reviews Remix v2 code for v1-shape meta exports (BREAKING in v2), cookie security gaps (httpOnly, secure, secrets rotation), auth gates in wrong layer, and missing CSRF. Use when reviewing meta/SEO, session, auth, or form-mutation code in a Remix v2 codebase.
+user-invocable: false
 ---
 
 # Remix v2 Meta, Sessions, Auth, and CSRF Code Review

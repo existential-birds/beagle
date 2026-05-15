@@ -4,22 +4,23 @@ This file provides guidance to Claude Code (claude.ai/code) when working with co
 
 ## What This Is
 
-Beagle is a Claude Code plugin marketplace providing framework-aware code review skills and verification workflows for pre-push reviews and GitHub bot feedback handling. It contains 11 focused plugins with 129 skills.
+Beagle is a Claude Code plugin marketplace providing framework-aware code review skills and verification workflows for pre-push reviews and GitHub bot feedback handling. It contains 12 focused plugins with 143 skills.
 
 ## Marketplace Architecture
 
 ```text
 beagle/
 ├── .claude-plugin/
-│   └── marketplace.json         # Marketplace manifest (11 plugins)
+│   └── marketplace.json         # Marketplace manifest (12 plugins)
 └── plugins/
-    ├── beagle-core/             # Shared workflows, verification, git workflows (18 skills)
+    ├── beagle-core/             # Shared workflows, verification, git workflows (19 skills)
     ├── beagle-python/           # Python, FastAPI, SQLAlchemy, PostgreSQL, pytest (7 skills)
     ├── beagle-go/               # Go, BubbleTea, Wish SSH, Prometheus (13 skills)
     ├── beagle-elixir/           # Elixir, Phoenix, LiveView, ExUnit, ExDoc (11 skills)
     ├── beagle-ios/              # Swift, SwiftUI, SwiftData, iOS frameworks (16 skills)
-    ├── beagle-react/           # React, React Flow, shadcn/ui, Tailwind, Vitest (16 skills)
-    ├── beagle-rust/            # Rust, tokio, axum, sqlx, serde (10 skills)
+    ├── beagle-react/            # React, React Flow, shadcn/ui, Tailwind, Vitest (16 skills)
+    ├── beagle-remix-v2/         # Remix v2 routing, loaders/actions, forms, sessions, perf/SSR (12 skills)
+    ├── beagle-rust/             # Rust, tokio, axum, sqlx, serde (12 skills)
     ├── beagle-ai/               # Pydantic AI, LangGraph, DeepAgents, Vercel AI SDK (13 skills)
     ├── beagle-docs/             # Documentation quality, AI writing detection (10 skills)
     ├── beagle-analysis/         # Brainstorming, ADRs, strategy, LLM-as-judge, spec resolution, PRFAQ filter (12 skills)
@@ -73,6 +74,8 @@ Beagle-specific:
 | beagle-go | `review-tui` | BubbleTea TUI code review with Elm architecture focus |
 | beagle-ios | `review-ios` | iOS/SwiftUI code review |
 | beagle-elixir | `review-elixir` | Elixir/Phoenix/LiveView code review |
+| beagle-rust | `review-rust` | Rust/tokio/axum/sqlx/serde code review |
+| beagle-remix-v2 | `review-remix-v2` | Remix v2 code review (loaders, actions, forms, sessions, perf/SSR) |
 | beagle-core | `review-plan` | Review implementation plans before execution |
 | beagle-core | `commit-push` | Commit with Conventional Commits format |
 | beagle-core | `create-pr` | Create PR with structured template |
@@ -82,6 +85,7 @@ Beagle-specific:
 | beagle-core | `fetch-pr-feedback` | Fetch and evaluate bot review comments from PR |
 | beagle-core | `respond-pr-feedback` | Post replies to bot review comments |
 | beagle-core | `review-llm-artifacts` | Detect LLM coding artifacts |
+| beagle-core | `verify-llm-artifacts` | Adjudicate review findings (confirm/false-positive/inconclusive) before deletes |
 | beagle-core | `fix-llm-artifacts` | Fix detected artifacts |
 | beagle-core | `prompt-improver` | Optimize prompts |
 | beagle-analysis | `llm-judge` | Compare implementations using LLM-as-judge |

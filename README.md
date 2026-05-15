@@ -6,7 +6,7 @@
 
 *Image: NASA, Public Domain. [Source](https://www.nasa.gov/multimedia/imagegallery/image_feature_572.html)*
 
-Beagle is a Claude Code plugin marketplace with 131 skills across code review, documentation, testing, architectural analysis, and git workflows. Use it to review before you push, detect AI-generated artifacts, draft and improve docs, generate test plans, and analyze codebases — across Python, Go, Rust, Elixir, React, iOS/Swift, and AI frameworks.
+Beagle is a Claude Code plugin marketplace with 143 skills across code review, documentation, testing, architectural analysis, and git workflows. Use it to review before you push, detect AI-generated artifacts, draft and improve docs, generate test plans, and analyze codebases — across Python, Go, Rust, Elixir, React, Remix v2, iOS/Swift, and AI frameworks.
 
 Used with [Amelia](https://github.com/existential-birds/amelia) for agent-based workflows and [Daydream](https://github.com/existential-birds/daydream) for automated review-fix-test loops.
 
@@ -59,12 +59,13 @@ This downloads the skills and configures them for your agent.
 | **beagle-elixir** | 11 | Elixir, Phoenix, LiveView, ExUnit, ExDoc |
 | **beagle-ios** | 16 | Swift, SwiftUI, SwiftData, iOS frameworks |
 | **beagle-react** | 16 | React, React Flow, shadcn/ui, Tailwind |
+| **beagle-remix-v2** | 12 | Remix v2 route modules, loaders/actions, forms, sessions |
 | **beagle-rust** | 12 | Rust, tokio, axum, sqlx, serde |
 | **beagle-ai** | 13 | Pydantic AI, LangGraph, DeepAgents |
 | **beagle-docs** | 10 | Documentation quality, AI writing detection (Diataxis) |
 | **beagle-analysis** | 12 | Brainstorming, ADRs, strategy, LLM-as-judge, spec gap resolution |
 | **beagle-testing** | 2 | Test plan generation and execution |
-| **Total** | **131** | — |
+| **Total** | **143** | — |
 
 ## Skills
 
@@ -98,6 +99,7 @@ These are the canonical skill entry points for Beagle.
 | `review-ios` | beagle-ios | iOS/SwiftUI code review |
 | `review-elixir` | beagle-elixir | Elixir/Phoenix code review |
 | `review-rust` | beagle-rust | Rust/tokio/axum code review |
+| `review-remix-v2` | beagle-remix-v2 | Remix v2 code review (loaders, actions, forms, sessions) |
 
 ### Documentation & Analysis Skills
 
@@ -114,6 +116,9 @@ These are the canonical skill entry points for Beagle.
 | `resolve-beagle` | beagle-analysis | Close Open Questions and latent gaps in a brainstorm-beagle spec |
 | `strategy-interview` | beagle-analysis | Build strategy through guided conversation |
 | `strategy-review` | beagle-analysis | Pressure-test existing strategy documents |
+| `prfaq-beagle` | beagle-analysis | Working Backwards PRFAQ filter — pass/fail concepts before brainstorming |
+| `web-research` | beagle-analysis | Parallel-subagent web research with cited synthesis report |
+| `artifact-analysis` | beagle-analysis | Parallel-subagent scan of local docs with cited extraction |
 
 ### Testing Skills
 

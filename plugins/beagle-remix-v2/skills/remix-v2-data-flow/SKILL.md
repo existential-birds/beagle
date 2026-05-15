@@ -67,6 +67,23 @@ v2 did **not** change the underlying contract: loaders and actions must return a
 
 Throwing a `Response` from a loader or action exits the data function immediately. Use this for auth guards (`throw redirect("/login")`) and 404s (`throw new Response("Not Found", { status: 404 })` or `throw json({ message }, { status: 404 })`). Throwing a plain `Error` will not be classified as a route response by `useRouteError()` / `isRouteErrorResponse()`.
 
+## Streaming Rejections: `<Await errorElement>` + `useAsyncError()`
+
+When a promise passed through `defer()` rejects, an `<Await errorElement={...}>` boundary catches it inline — without it, the rejection bubbles to the route's `ErrorBoundary` and tears down the whole page, defeating the streaming benefit. Inside the `errorElement`, call `useAsyncError()` (from `@remix-run/react`) to read the rejection value — this is the streaming analogue of `useRouteError()`.
+
+```tsx
+function ReviewsError() {
+  const error = useAsyncError(); // typed as `unknown`
+  return <p>Failed to load reviews: {String(error)}</p>;
+}
+
+<Suspense fallback={<ReviewsSkeleton />}>
+  <Await resolve={reviews} errorElement={<ReviewsError />}>
+    {(r) => <ReviewList reviews={r} />}
+  </Await>
+</Suspense>
+```
+
 ## Sensitive Data
 
 Everything returned from a loader travels to the browser as JSON. Project to a safe DTO (`{ id, email, name }`) before returning; never return the full Prisma `User`, password hashes, API keys, or internal flags. Loaders execute server-only — but the *return value* is shipped to the client wholesale.

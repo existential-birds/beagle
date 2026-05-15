@@ -86,9 +86,33 @@ export default function App() {
 }
 ```
 
-v2 does NOT auto-merge meta across the route hierarchy — Remix picks the last
-matching route's meta array only. To inherit from parents, flatMap `matches`
-explicitly. See [references/meta-v2.md](references/meta-v2.md).
+**`<Meta />` and `<Links />` aggregate differently.** `<Links />` walks the
+entire route match chain and renders **every** matched route's `links` export
+— a stylesheet declared in a leaf route is rendered automatically and
+unloaded on navigation away. `<Meta />` does **NOT** aggregate; Remix picks
+the last matching route's `meta` array only. To inherit from parents in
+`meta`, flatMap `matches` explicitly:
+
+```tsx
+import type { MetaFunction } from "@remix-run/node";
+import type { loader as projectLoader } from "./project.$pid";
+
+export const meta: MetaFunction<
+  typeof loader,
+  { "routes/project.$pid": typeof projectLoader }
+> = ({ data, matches }) => {
+  const parentMeta = matches.flatMap((m) => m.meta ?? []);
+  const project = matches.find((m) => m.id === "routes/project.$pid")?.data;
+  return [
+    ...parentMeta,
+    { title: `${data?.task.name} | ${project?.name}` },
+  ];
+};
+```
+
+The second generic on `MetaFunction` (keyed by route id) types
+`matches.find(...).data` for parent routes. See
+[references/meta-v2.md](references/meta-v2.md).
 
 ## Sessions
 

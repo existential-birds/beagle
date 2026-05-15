@@ -49,9 +49,11 @@ export default function Signup() {
 | Name | Purpose |
 |---|---|
 | `<Form>` from `@remix-run/react` | Navigating, progressively-enhanced form that posts to a route `action` and triggers full-page revalidation |
+| `<Form navigate={false}>` | Shorthand for "post via fetcher; do not navigate." Equivalent to `<fetcher.Form>` without holding a fetcher ref — useful when you only need pending state, not a programmatic handle |
 | `useFetcher()` | Non-navigating submission channel for inline mutations, list rows, popovers — same revalidation, no URL change |
+| `useFetchers()` | **Read-only** array of all in-flight fetcher states across the app. Use for global pending indicators (top-bar loader) without prop drilling. No `Form`/`submit`/`load` methods on the returned items — just `formData`, `state`, etc. |
 | `useNavigation()` | Observes page-level navigation; the source of truth for `<Form>` pending state |
-| `useSubmit()` | Programmatic submission (onChange autosave, keyboard shortcuts) |
+| `useSubmit()` | Programmatic submission (onChange autosave, keyboard shortcuts). Accepts `HTMLFormElement`, `FormData`, plain object (form-encoded), or plain object encoded as JSON via `{ encType: "application/json" }` |
 | `useActionData<typeof action>()` | Read the most recent action result for the current route |
 
 State transitions:

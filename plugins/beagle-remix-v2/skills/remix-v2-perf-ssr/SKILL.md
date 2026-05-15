@@ -93,6 +93,33 @@ The compiler strips `loader`, `action`, and `headers` exports from client bundle
 
 Public env vars reach the browser via a root-loader `window.ENV` pattern. Never return raw `process.env` from a loader. See [references/server-client-split.md](references/server-client-split.md).
 
+## `clientLoader` and `clientAction`
+
+v2 added optional `clientLoader` / `clientAction` exports that run in the browser alongside (or instead of) the server `loader`/`action`. By default `clientLoader` does **NOT** run on initial hydration — the server `loader` SSRs the page, and `clientLoader` only fires on subsequent client navigations. Opt in to first-render execution with `clientLoader.hydrate = true` and export a `HydrateFallback` component to render while it executes:
+
+```tsx
+import type { ClientLoaderFunctionArgs } from "@remix-run/react";
+
+export async function loader() {
+  return json({ /* SSR data */ });
+}
+
+export async function clientLoader({ serverLoader }: ClientLoaderFunctionArgs) {
+  const cached = clientCache.get();
+  if (cached) return cached;
+  const fresh = await serverLoader<typeof loader>(); // round-trip to server loader
+  clientCache.set(fresh);
+  return fresh;
+}
+clientLoader.hydrate = true; // opt in to running on initial hydration
+
+export function HydrateFallback() {
+  return <Skeleton />;
+}
+```
+
+Use `clientLoader` for: client-side caching of server payloads, reading from IndexedDB / `localStorage` after hydration, fully client-only routes (skip `loader` entirely). **Do NOT** re-fetch the same server payload SSR'd by the route's `loader` — that's a wasted round-trip; either call `serverLoader()` and cache, or only run on transitions (leave `hydrate` `false`).
+
 ## Hydration Safety
 
 `useHydrated()` returns `false` during SSR and on the very first client render, then flips to `true` on the next render — that two-pass behavior is what keeps HTML matched. For components that should never SSR (maps, charts that read `window`), wrap in `<ClientOnly fallback={...}>`. For SSR-safe IDs use React's `useId()`, never `Math.random()` or `crypto.randomUUID()` in render.

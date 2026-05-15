@@ -6,7 +6,7 @@
 
 *Image: NASA, Public Domain. [Source](https://www.nasa.gov/multimedia/imagegallery/image_feature_572.html)*
 
-Beagle is a Claude Code plugin marketplace with 143 skills across code review, documentation, testing, architectural analysis, and git workflows. Use it to review before you push, detect AI-generated artifacts, draft and improve docs, generate test plans, and analyze codebases — across Python, Go, Rust, Elixir, React, Remix v2, iOS/Swift, and AI frameworks.
+Beagle is a Claude Code plugin marketplace with 145 skills across code review, documentation, testing, architectural analysis, and git workflows. Use it to review before you push, detect AI-generated artifacts, draft and improve docs, generate test plans, and analyze codebases — across Python, Go, Rust, Elixir, React, Remix v2, iOS/Swift, and AI frameworks.
 
 Used with [Amelia](https://github.com/existential-birds/amelia) for agent-based workflows and [Daydream](https://github.com/existential-birds/daydream) for automated review-fix-test loops.
 
@@ -53,7 +53,7 @@ This downloads the skills and configures them for your agent.
 
 | Plugin | Skills | Category |
 |--------|--------|----------|
-| **beagle-core** | 19 | Shared workflows, verification, git |
+| **beagle-core** | 20 | Shared workflows, verification, git |
 | **beagle-python** | 7 | Python, FastAPI, SQLAlchemy, pytest |
 | **beagle-go** | 13 | Go, BubbleTea, Wish SSH, Prometheus |
 | **beagle-elixir** | 11 | Elixir, Phoenix, LiveView, ExUnit, ExDoc |
@@ -63,9 +63,9 @@ This downloads the skills and configures them for your agent.
 | **beagle-rust** | 12 | Rust, tokio, axum, sqlx, serde |
 | **beagle-ai** | 13 | Pydantic AI, LangGraph, DeepAgents |
 | **beagle-docs** | 10 | Documentation quality, AI writing detection (Diataxis) |
-| **beagle-analysis** | 12 | Brainstorming, ADRs, strategy, LLM-as-judge, spec gap resolution |
+| **beagle-analysis** | 13 | Brainstorming, ADRs, strategy, LLM-as-judge, spec gap resolution, TDD plan writing |
 | **beagle-testing** | 2 | Test plan generation and execution |
-| **Total** | **143** | — |
+| **Total** | **145** | — |
 
 ## Skills
 
@@ -85,6 +85,7 @@ These are the canonical skill entry points for Beagle.
 | `receive-feedback <path>` | Process review feedback |
 | `fetch-pr-feedback` | Fetch bot comments from PR |
 | `respond-pr-feedback` | Reply to bot comments |
+| `subagent-prompt` | Hand off the current session as an orchestrator-plus-subagents prompt for a fresh session |
 | `skill-builder` | Create new skills |
 | `prompt-improver` | Optimize prompts |
 
@@ -119,6 +120,7 @@ These are the canonical skill entry points for Beagle.
 | `prfaq-beagle` | beagle-analysis | Working Backwards PRFAQ filter — pass/fail concepts before brainstorming |
 | `web-research` | beagle-analysis | Parallel-subagent web research with cited synthesis report |
 | `artifact-analysis` | beagle-analysis | Parallel-subagent scan of local docs with cited extraction |
+| `write-plan` | beagle-analysis | Turn a finalized `brainstorm-beagle` spec into a TDD-driven implementation plan |
 
 ### Testing Skills
 

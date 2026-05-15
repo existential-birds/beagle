@@ -14,12 +14,16 @@ disable-model-invocation: true
 ## Step 1: Identify Changed Files
 
 ```bash
-git diff --name-only $(git merge-base HEAD main)..HEAD | grep -E '\.(tsx?|css)$'
+git diff --name-only $(git merge-base HEAD main)..HEAD | grep -E '\.(tsx?|jsx?|mjs|cjs|css)$|^(remix|vite)\.config\.'
 ```
 
 ## Step 2: Detect Technologies
 
 ```bash
+# Detect Remix v2 (any official adapter). When matched, the Remix-specific
+# surface is delegated to beagle-remix-v2:review-remix-v2 in Step 4.
+grep -E '"@remix-run/(react|node|cloudflare|deno|serve)"' package.json | head -3
+
 # Detect React Flow
 grep -r "@xyflow/react\|ReactFlow\|useNodesState" --include="*.tsx" -l | head -3
 
@@ -43,11 +47,18 @@ Load `beagle-react:review-verification-protocol` before any substantive judgment
 
 Use the `Skill` tool to load each applicable skill (e.g., `Skill(skill: "beagle-react:react-router-code-review")`).
 
-**Always load:**
+**Remix v2 branch (Step 2 detected `@remix-run/*` in package.json):**
+
+- Load `beagle-remix-v2:review-remix-v2` — umbrella orchestrator that loads all six Remix v2 area review skills (routing, data-flow, forms, error-boundaries, perf/SSR, meta+sessions) with its own detection telemetry. Run it for the Remix-specific surface and consolidate its findings into this review's output.
+- Do NOT also load `beagle-react:react-router-code-review` — Remix v2 sits on React Router v6 but routes through Remix's route module conventions, which `beagle-remix-v2:remix-v2-routing-review` (loaded via the umbrella) covers in that context.
+- Still load `beagle-react:shadcn-code-review` and the conditional skills below — they're orthogonal to the Remix layer and apply to component/styling/state code regardless of router.
+
+**Non-Remix branch (default):**
+
 - `beagle-react:react-router-code-review`
 - `beagle-react:shadcn-code-review`
 
-**Conditionally load based on detection:**
+**Conditionally load based on detection (both branches):**
 
 | Condition | Skill |
 |-----------|-------|
@@ -185,8 +196,8 @@ All checks must pass before approval.
 Advance in order; do not skip a **pass condition** by restating it informally.
 
 1. **Scope recorded** — **Pass when:** You have the output of the Step 1 command (or an explicit substitute path list) naming what is in scope for this review.
-2. **Protocol + always skills loaded** — **Pass when:** `beagle-react:review-verification-protocol`, `beagle-react:react-router-code-review`, and `beagle-react:shadcn-code-review` are loaded before first severity judgment.
-3. **Conditional skills** — **Pass when:** For each Step 2 detection row, you either loaded the listed skill or recorded that detection was negative (which command returned no matches).
+2. **Protocol + branch skills loaded** — **Pass when:** `beagle-react:review-verification-protocol` and `beagle-react:shadcn-code-review` are loaded, **and** either (a) Step 2 found Remix v2 and `beagle-remix-v2:review-remix-v2` is loaded (without `beagle-react:react-router-code-review`), or (b) Step 2 found no Remix v2 and `beagle-react:react-router-code-review` is loaded — before first severity judgment.
+3. **Conditional skills** — **Pass when:** For each Step 2 detection row (Remix v2, @xyflow/react, Zustand, Tailwind v4, test files), you either loaded the listed skill or recorded that detection was negative (which command returned no matches).
 4. **Critical/Major evidence** — **Pass when:** Each such finding cites `FILE:LINE` that exists in the tree and meets the Step 6 pass rule for that finding type.
 5. **Single output** — **Pass when:** The Issues section uses one continuous numbering sequence and this deliverable satisfies Step 7 single-pass completeness (no withheld issue types or rounds).
 

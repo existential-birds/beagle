@@ -36,7 +36,7 @@ upload directly to object storage for anything larger than ~1 MB.
 ```tsx
 const handler = unstable_createMemoryUploadHandler({
   maxPartSize: 500_000,           // 500 KB cap; reject larger uploads
-  filter: ({ contentType }) => contentType?.startsWith("image/"),
+  filter: ({ contentType }) => contentType.startsWith("image/"),
 });
 ```
 

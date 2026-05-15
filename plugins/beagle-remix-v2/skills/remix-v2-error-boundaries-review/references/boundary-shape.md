@@ -217,4 +217,4 @@ Use `useRouteLoaderData("<route-id>")` and treat the result as possibly
 - Throwing patterns (return-vs-throw, `handleError`) → [throw-response.md](throw-response.md)
 - Root boundary specifics (`<Meta />`, `<Links />`, `<Scripts />`) → [root-boundary.md](root-boundary.md)
 - v1 markers (`CatchBoundary`, `useCatch`) → [v1-holdovers.md](v1-holdovers.md)
-- Remix v2 docs: https://v2.remix.run/docs/route/error-boundary/
+- Remix v2 docs: https://remix.run/docs/en/main/route/error-boundary

@@ -15,6 +15,7 @@ Loaded by `review-remix-v2` (umbrella) to flag routing anti-patterns in `app/rou
 | Missing `<Outlet />`, orphan dotted segments, duplicated layout logic | [references/layouts-outlets.md](references/layouts-outlets.md) |
 | Default export on a resource, `<Link>` without `reloadDocument`, splat params | [references/resource-routes.md](references/resource-routes.md) |
 | `react-router-dom` imports, `__double` folders, v1-adapter fallback | [references/v1-holdovers.md](references/v1-holdovers.md) |
+| Missing `<Meta />`/`<Links />`/`<Scripts />`/`<ScrollRestoration />`, Vite-vs-Classic `<LiveReload />`, root `ErrorBoundary` without document shell | [references/root-shell.md](references/root-shell.md) |
 
 ## Scope
 
@@ -40,12 +41,12 @@ Out of scope: loader/action data contracts (covered by `remix-v2-data-flow-revie
 - [ ] Imports come from `@remix-run/react`, not `react-router-dom`
 - [ ] Non-route files (CSS, helpers, tests) live in a folder with `route.tsx`, or are listed in `ignoredRouteFiles`
 - [ ] Trailing-underscore opt-outs only used when a parent layout actually exists to escape
-- [ ] Optional segments `($lang)` narrow `params.lang` in the loader
+- [ ] Optional segments `($lang)` narrow `params.lang` in the loader (see [references/route-files.md](references/route-files.md#optional-segments-lang-without-narrowing-in-the-loader))
 
 ## Valid Patterns (Do NOT Flag)
 
 - **Resource route with no default export** — this *is* the convention that makes it a resource route. Never flag.
-- **`_layout.tsx` (or any `_`-prefixed file) without `<Outlet />`** when the module is intentionally a wrapper that renders fixed UI only. Confirm by checking children — if no `*.{segment}.tsx` siblings exist, the wrapper-only shape is intentional.
+- **Any `_`-prefixed pathless layout file without `<Outlet />`** when the module is intentionally a wrapper that renders fixed UI only. Confirm by checking children — if no `*.{segment}.tsx` siblings exist, the wrapper-only shape is intentional.
 - **Files prefixed with `_` that don't appear in any URL** — pathless layouts and `_index` are supposed to be hidden from the URL.
 - **`@remix-run/v1-route-convention`** wired up in `remix.config.js` — legitimate migration adapter, not a smell on its own. Only flag if v1-style files appear *without* the adapter installed.
 - **`useLoaderData<typeof loader>()`** — type annotation, not assertion.
@@ -84,6 +85,7 @@ Run these in order. **Do not draft user-facing findings until every gate passes*
 - Reviewing parent modules and shared chrome → [references/layouts-outlets.md](references/layouts-outlets.md)
 - Reviewing a module that returns non-HTML, or any `<Link>` to such a module → [references/resource-routes.md](references/resource-routes.md)
 - Reviewing imports or filenames that look like v1 → [references/v1-holdovers.md](references/v1-holdovers.md)
+- Reviewing `app/root.tsx` (document shell, `<Meta />`/`<Links />`/`<Scripts />`/`<ScrollRestoration />`, `<LiveReload />` on Vite vs Classic Compiler, root `ErrorBoundary`) → [references/root-shell.md](references/root-shell.md)
 
 ## Review Questions
 

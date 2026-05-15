@@ -29,7 +29,7 @@ claude plugin install beagle-remix-v2@existential-birds
 | **remix-v2-routing** | Flat-routes v2 conventions, `_layout`/`_index`/`$param`, `root.tsx` scaffold, resource routes |
 | **remix-v2-data-flow** | `loader`, `action`, `useLoaderData`, `useActionData`, `defer`/`Await`, revalidation, `useNavigation` |
 | **remix-v2-forms** | `<Form>`, `useFetcher`, `useSubmit`, optimistic UI, intent-based multi-action, multipart upload |
-| **remix-v2-perf-ssr** | `headers` + SWR caching, streaming, `.server.ts`/`.client.ts`, `useHydrated`, `<PrefetchPageLinks>` |
+| **remix-v2-perf-ssr** | `headers`/caching policy, streaming via `defer`+`<Await>`, `.server.ts`/`.client.ts` split, hydration safety, `<Link prefetch>`/`<PrefetchPageLinks>` |
 | **remix-v2-meta-sessions** | v2 `meta` array API, `links`, `createCookieSessionStorage`, auth gates, CSRF |
 
 ### Code-review skills (loaded by the umbrella reviewer)

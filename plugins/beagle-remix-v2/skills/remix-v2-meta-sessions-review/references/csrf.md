@@ -17,10 +17,13 @@ for the canonical wiring.
 
 **Why bad:** Remix is **not** safe by default. The only protection
 against cross-origin POSTs is whatever `SameSite` value the session
-cookie carries. `SameSite=Lax` leaves gaps:
+cookie carries. `SameSite=Lax` blocks cookies on cross-site POST
+navigations in all current browsers. (Chrome briefly had a 2-minute
+"Lax+POST" window in 2020 — removed in 2021.) The real `Lax`-vs-`Strict`
+tradeoff is subdomain takeover: with `Lax`, a compromised subdomain can
+initiate top-level GET nav with credentials; with `Strict`, deep-link
+navigations from external sites lose session. Additional gaps:
 
-- HTML form POSTs from a top-level cross-origin navigation are exempt
-  from `Lax` in some older browsers.
 - Subdomain takeovers: an attacker controlling `evil.example.com` can
   forge POSTs to `app.example.com` since `SameSite` treats sibling
   subdomains as same-site.
@@ -90,7 +93,7 @@ responses that mutate them.
 ```tsx
 // BAD — skips AuthenticityTokenInput; csrf.validate throws on the server
 async function deletePost(id: string) {
-  await fetch(`/posts/${id}`, { method: "POST" });
+  await fetch(`/posts/${id}/delete`, { method: "POST" });
 }
 ```
 
@@ -188,6 +191,14 @@ const CSRF_SECRET = process.env.CSRF_SECRET!;
   flag if the error boundary doesn't return a 403 status.
 - **`sameSite: "lax"` with CSRF library** — `remix-utils/csrf` is the
   primary defense; `"lax"` on the session cookie is fine.
+
+## Reviewer note: `csrf.commitToken` return shape
+
+`csrf.commitToken(request)` returns `[token, cookieHeader | undefined]`.
+The cookie header may be undefined when the existing CSRF cookie is still
+valid. Reviewers should look for the `cookieHeader ? { ... } : {}`
+conditional in `root.tsx` and not flag the empty-headers branch as dead
+code.
 
 ## Detection notes for reviewers
 

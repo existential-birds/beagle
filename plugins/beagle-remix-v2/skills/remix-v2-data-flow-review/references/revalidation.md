@@ -99,7 +99,7 @@ function SaveButton() {
   return (
     <button
       onClick={async () => {
-        await fetcher.submit({ ... }, { method: "post", action: "/save" });
+        await fetcher.submit({ ... }, { method: "POST", action: "/save" });
         revalidate(); // manual refresh
       }}
     >

@@ -14,7 +14,7 @@ disable-model-invocation: true
 ## Step 1: Identify Changed Files
 
 ```bash
-git diff --name-only $(git merge-base HEAD main)..HEAD | grep -E '\.(tsx?|css)$'
+git diff --name-only $(git merge-base HEAD main)..HEAD | grep -E '\.(tsx?|jsx?|mjs|cjs|css)$|^(remix|vite)\.config\.'
 ```
 
 If nothing is returned, ask the user for an explicit path list before continuing.
@@ -34,8 +34,11 @@ grep -rE 'export const meta|export function meta|export let meta' app/ --include
 # Sessions / cookies / auth
 grep -rE 'createCookieSessionStorage|getSession\(|commitSession\(|destroySession\(' app/ --include="*.ts" --include="*.tsx" -l | head -3
 
-# Forms and progressive enhancement
+# Form primitives (forms-review)
 grep -rE 'useFetcher\(|<Form|useSubmit\(|useNavigation\(' app/ --include="*.tsx" -l | head -3
+
+# Form anti-patterns: native form / manual fetch (forms-review trigger even without Remix imports)
+grep -rE '(^|[^.])<form |fetch\(' app/ --include="*.tsx" -l | head -3
 
 # Error boundaries
 grep -rE 'export function ErrorBoundary|export const ErrorBoundary|useRouteError|isRouteErrorResponse' app/ --include="*.tsx" -l | head -3
@@ -43,6 +46,9 @@ grep -rE 'export function ErrorBoundary|export const ErrorBoundary|useRouteError
 # Headers / streaming / server-only modules
 grep -rE 'export const headers|export function headers|defer\(' app/ --include="*.tsx" --include="*.ts" -l | head -3
 find app -type f \( -name '*.server.ts' -o -name '*.server.tsx' -o -name '*.client.ts' -o -name '*.client.tsx' \) | head -5
+
+# Prefetch hygiene (perf-ssr-review)
+grep -rE 'prefetch=|<PrefetchPageLinks' app/ --include="*.tsx" -l | head -3
 
 # Loaders / actions (data flow)
 grep -rE 'export (async )?function (loader|action)|export const (loader|action)' app/ --include="*.tsx" --include="*.ts" -l | head -3
@@ -69,18 +75,18 @@ Use the `Skill` tool to load each applicable skill (e.g., `Skill(skill: "beagle-
 - `beagle-remix-v2:remix-v2-perf-ssr-review`
 - `beagle-remix-v2:remix-v2-meta-sessions-review`
 
-**Per-area triggers** (record which detection commands matched so coverage is auditable):
+**Detection telemetry** (records what each area review will actually find; does not gate loading — all six skills always load, but record matches/non-matches for the final report's coverage section):
 
 | Condition | Skill |
 |-----------|-------|
 | `app/routes/` present | `remix-v2-routing-review` |
 | `loader` / `action` exports found | `remix-v2-data-flow-review` |
-| `<Form>` or `useFetcher` found | `remix-v2-forms-review` |
+| `<Form>`, `useFetcher`, `useSubmit`, `useNavigation`, native `<form`, or manual `fetch(` found | `remix-v2-forms-review` |
 | `ErrorBoundary` / `useRouteError` found | `remix-v2-error-boundaries-review` |
-| `headers` export, `defer(`, or `.server.ts` / `.client.ts` files | `remix-v2-perf-ssr-review` |
+| `headers` export, `defer(`, or `.server.ts` / `.client.ts` files or `prefetch=`/`<PrefetchPageLinks` found | `remix-v2-perf-ssr-review` |
 | `meta` export or session/cookie helpers found | `remix-v2-meta-sessions-review` |
 
-If a detection row returns no matches, record that explicitly instead of silently skipping the skill.
+If a detection row returns no matches, record that explicitly in the report's coverage section — the skill still loads, but the reviewer should note the area had no surface to review.
 
 ## Step 5: Review
 

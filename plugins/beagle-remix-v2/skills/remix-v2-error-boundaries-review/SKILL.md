@@ -139,6 +139,6 @@ passes** for the batch you are about to report.
 - Reviewing thrown `Response` / `json` patterns, `handleError`, or return-vs-throw → [references/throw-response.md](references/throw-response.md)
 - Reviewing `app/root.tsx` boundary scaffolding → [references/root-boundary.md](references/root-boundary.md)
 - Detecting v1 holdovers (`CatchBoundary`, `useCatch`, `v2_errorBoundary`) → [references/v1-holdovers.md](references/v1-holdovers.md)
-- Remix v2 ErrorBoundary docs: https://v2.remix.run/docs/route/error-boundary/
-- Remix v2 error handling guide: https://v2.remix.run/docs/guides/errors/
-- Remix v2 `entry.server` / `handleError` docs: https://v2.remix.run/docs/file-conventions/entry.server/
+- Remix v2 ErrorBoundary docs: https://remix.run/docs/en/main/route/error-boundary
+- Remix v2 error handling guide: https://remix.run/docs/en/main/guides/errors
+- Remix v2 `entry.server` / `handleError` docs: https://remix.run/docs/en/main/file-conventions/entry.server

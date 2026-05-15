@@ -56,10 +56,10 @@ If the v1 tree must stay during migration, wire `@remix-run/v1-route-convention`
 ```text
 sitemap\.xml.tsx          # backslash — no
 "sitemap.xml".tsx         # quotes   — no
-$.cash.tsx                # trying to escape $ unprintably
+$bill.tsx                 # author meant literal /$bill but $ is a dynamic param marker
 ```
 
-**Why bad**: Only `[...]` brackets escape convention characters in v2. Anything else leaves the special character active — the dot becomes a path delimiter, the `$` becomes a dynamic segment.
+**Why bad**: Only `[...]` brackets escape convention characters in v2. Anything else leaves the special character active — the dot becomes a path delimiter, the `$` becomes a dynamic segment (`$bill.tsx` matches `/anything` and stores it under `params.bill`).
 
 **Fix**: Wrap the literal character(s) in brackets.
 
@@ -68,6 +68,8 @@ sitemap[.]xml.tsx                    → /sitemap.xml
 reports.$id[.pdf].tsx                → /reports/:id.pdf
 [$]bill.tsx                          → /$bill   (literal dollar sign in URL)
 ```
+
+Splat misuse (`$.tsx` placed somewhere it shouldn't be) is a separate smell — it is the *correct* escape for "catch the rest", not a literal-character problem. See [resource-routes.md](resource-routes.md) for splat-key errors.
 
 ---
 
@@ -120,10 +122,12 @@ app/routes/dashboard/
 ```js
 // remix.config.js — ignore by glob
 /** @type {import('@remix-run/dev').AppConfig} */
-module.exports = {
+export default {
   ignoredRouteFiles: ["**/.*", "**/*.css", "**/*.test.*", "**/*.server.*"],
 };
 ```
+
+Vite-based v2 projects use `vite.config.ts` with the Remix Vite plugin instead of `remix.config.js`.
 
 ---
 
@@ -141,6 +145,33 @@ app/routes/admin_.users.tsx          # no admin.tsx exists
 
 # Fix
 app/routes/admin.users.tsx
+```
+
+---
+
+## Optional segments `($lang)` without narrowing in the loader
+
+**Pattern**: A route uses an optional segment like `($lang)._index.tsx` and the loader uses `params.lang` without checking for `undefined`.
+
+```tsx
+// app/routes/($lang)._index.tsx — smell
+export async function loader({ params }: LoaderFunctionArgs) {
+  const messages = await loadMessages(params.lang);   // undefined on /
+  return json(messages);
+}
+```
+
+**Why bad**: Optional segments are *optional* — `params.lang` is `string | undefined`. On `/` (no lang), it is `undefined`; on `/en`, it is `"en"`. Passing `undefined` downstream silently produces wrong data, a 500, or a redirect loop.
+
+**Fix**: Narrow before use — default, redirect, or 404.
+
+```tsx
+// app/routes/($lang)._index.tsx — correct
+export async function loader({ params }: LoaderFunctionArgs) {
+  const lang = params.lang ?? "en";
+  const messages = await loadMessages(lang);
+  return json(messages);
+}
 ```
 
 ---

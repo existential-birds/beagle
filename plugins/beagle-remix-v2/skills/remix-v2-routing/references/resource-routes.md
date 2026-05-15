@@ -9,9 +9,11 @@ A route becomes a resource route when its module has **no `default` export**. Th
 ```tsx
 // app/routes/reports.$id[.pdf].tsx   →   /reports/42.pdf
 import type { LoaderFunctionArgs } from "@remix-run/node";
+import invariant from "tiny-invariant";
 
 export async function loader({ params }: LoaderFunctionArgs) {
-  const pdf = await generateReportPDF(params.id!);
+  invariant(params.id, "id is required");
+  const pdf = await generateReportPDF(params.id);
   return new Response(pdf, {
     status: 200,
     headers: { "Content-Type": "application/pdf" },
@@ -79,10 +81,12 @@ Note the `[.]` bracket-escape on the filename so the dot is treated as a literal
 // app/routes/api.users.$id.tsx
 import type { LoaderFunctionArgs } from "@remix-run/node";
 import { json } from "@remix-run/node";
+import invariant from "tiny-invariant";
 
 export async function loader({ params, request }: LoaderFunctionArgs) {
   await requireApiKey(request);                // parent loaders DID NOT run
-  const user = await getUser(params.id!);
+  invariant(params.id, "id is required");
+  const user = await getUser(params.id);
   if (!user) throw new Response("Not found", { status: 404 });
   return json(user);
 }

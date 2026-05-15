@@ -20,7 +20,7 @@ Targets TypeScript route modules importing from `@remix-run/*`. See [beagle-remi
 ## Review Checklist
 
 - [ ] Routes serving data export `headers` (even if the answer is `no-store`)
-- [ ] Child routes serving personalized data export their own `headers` (parent's are dropped silently)
+- [ ] Child routes serving personalized data export their own `headers` (otherwise they silently inherit the parent's policy)
 - [ ] `Cache-Control: public` is never set on auth'd or cookie-bearing responses
 - [ ] `Vary: Cookie` is set when cache decision depends on session
 - [ ] Server-only libs (`prisma`, `bcrypt`, `node:fs`, `jsonwebtoken`) live in `*.server.ts` or `app/.server/`
@@ -60,7 +60,7 @@ Apply these only when the specific context applies:
 | Issue | Flag ONLY IF |
 |-------|--------------|
 | Missing `headers` export | Route serves cacheable public content (not auth'd, not personalized, not intentionally `no-store`) |
-| Child route missing `headers` | An ancestor route in the matched chain DOES export `headers` (otherwise it's "no cache configured," not "silent drop") |
+| Child route missing `headers` | An ancestor exports `headers` AND its policy is broader than the child's cacheability (e.g., parent caches public + s-maxage, child serves personalized data) |
 | `Cache-Control: public` | Loader actually reads session / user state (or response carries `Set-Cookie`) |
 | `Vary: Cookie` missing | Loader branches response shape on a cookie (theme, locale, session) AND the cache is `public`/`s-maxage` |
 | `new Date()` / `Math.random()` / `Date.now()` | Call site is in render path — NOT in `useEffect`, event handler, `<ClientOnly>`, or post-hydration code |
@@ -82,7 +82,7 @@ Run these in order. **Do not draft user-facing findings until every gate passes*
 
 3. **Hydration-context check** — **Pass:** Before flagging `new Date()`, `Math.random()`, `Date.now()`, `crypto.randomUUID()`, or locale formatting, confirm the call site is in the **render path** of a component. Calls inside `useEffect`, `useLayoutEffect`, event handlers, callbacks passed to `setTimeout`/`requestAnimationFrame`, or inside `<ClientOnly>{() => ...}</ClientOnly>` are post-hydration and must not be flagged.
 
-4. **Parent/child headers chain check** — **Pass:** Before flagging "missing `headers` on a child" as silent-cache-loss, confirm a parent route in the matched chain actually exports `headers` (search the route file tree for `export const headers` or `export function headers`). If no ancestor exports headers, there is nothing for the child to "drop" — the issue is just "no caching configured," not "cache silently lost."
+4. **Parent/child headers chain check** — **Pass:** Before flagging "missing `headers` on a child" as silent cache inheritance, confirm an ancestor route in the matched chain actually exports `headers` (search the route file tree for `export const headers` or `export function headers`) AND that the inherited policy is wider than the child's cacheability profile. If no ancestor exports headers, the issue is just "no caching configured," not "child silently inherits parent's cache."
 
 5. **Server/client boundary check** — **Pass:** Before flagging a server-lib import as a leak, confirm the importing file is reachable from the **client graph** — i.e., it's a route module, a non-`.server` utility transitively imported by a route's default export, or a `.client.ts` file. Imports inside `loader`, `action`, `headers`, or other `.server.ts` modules are not leaks.
 

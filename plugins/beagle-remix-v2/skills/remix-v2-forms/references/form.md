@@ -8,7 +8,7 @@ matched route tree.
 
 ```tsx
 <Form
-  method="get | post | put | patch | delete"
+  method="get | post | put | patch | delete"  // Remix accepts lowercase JSX method and normalizes; v2 docs document them as uppercase. formMethod on useNavigation/fetcher always returns UPPERCASE.
   action?={string}
   encType?="application/x-www-form-urlencoded" | "multipart/form-data" | "application/json" | "text/plain"
   replace?={boolean}

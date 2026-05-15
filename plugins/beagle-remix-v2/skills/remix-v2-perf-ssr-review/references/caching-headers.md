@@ -26,9 +26,9 @@ export const headers: HeadersFunction = ({ loaderHeaders }) => ({
 
 **Report as:** `[FILE:LINE] MISSING_HEADERS_EXPORT` — route serves cacheable content but does not declare a cache policy.
 
-### 2. Child route omits `headers`, parent's policy silently drops
+### 2. Child route omits `headers`, silently inherits parent's cache policy
 
-In Remix v2 only the **deepest matched route's** `headers` function runs. If the child route does not export one, the parent's headers are NOT inherited — they are dropped. The route ends up with no cache headers at all, defeating the parent's policy without an error.
+In Remix v2 only the **deepest matched route's** `headers` function runs by default. If the leaf route does not export one, Remix walks UP to the nearest ancestor's `headers` and uses it. The bug is the opposite of "dropped": a personalized child without its own `headers` silently inherits the parent's aggressive cache policy, leaking per-user HTML at the CDN.
 
 **Bad:**
 ```tsx
@@ -39,7 +39,8 @@ export const headers: HeadersFunction = () => ({
 
 // app/routes/_layout.dashboard.tsx
 export async function loader() { return json({ user: await getUser() }); }
-// no headers export — parent's Cache-Control is dropped, not inherited
+// no headers export — Remix walks up to _layout.tsx and serves
+// personalized dashboard HTML with public, s-maxage=3600 at the CDN.
 ```
 
 **Good (define on leaf):**
@@ -50,9 +51,9 @@ export const headers: HeadersFunction = () => ({
 });
 ```
 
-**Report as:** `[FILE:LINE] CHILD_DROPS_PARENT_HEADERS` — child route lacks `headers` export; parent's `Cache-Control` is silently discarded.
+**Report as:** `[FILE:LINE] CHILD_INHERITS_AGGRESSIVE_PARENT_CACHE` — child route serves personalized data but has no `headers` export; falls back to parent's permissive policy.
 
-**Verify before flagging:** confirm a parent route in the matched chain actually exports `headers` (grep the route tree for `export const headers` or `export function headers`).
+**Verify before flagging:** confirm an ancestor exports `headers` AND the inherited policy is wider than the child's actual cacheability profile (e.g., parent returns `public, s-maxage=...` while the child reads session/user state).
 
 ### 3. `Cache-Control: public` on an auth'd or personalized response
 
@@ -98,7 +99,7 @@ export const headers: HeadersFunction = () => ({
 
 **Report as:** `[FILE:LINE] MISSING_VARY_COOKIE` — cacheable response varies by cookie but `Vary: Cookie` is not set.
 
-Note: `Vary: Cookie` is coarse — most CDNs treat any cookie change as a cache miss. Prefer a narrow custom header (e.g. `Vary: X-Theme`) plus an edge function that normalizes the cookie to that header, if CDN cache hit rate matters.
+Note: `Vary: Cookie` is coarse — most CDNs treat any cookie change as a cache miss. Behavior is CDN-specific: Cloudflare ignores `Vary: Cookie` by default unless Cache Rules are configured; Fastly honors it; Akamai treats it as a poor-quality directive.
 
 ### 5. `Set-Cookie` returned alongside `Cache-Control: public`
 
@@ -199,7 +200,7 @@ export async function loader({ request }: LoaderFunctionArgs) {
 ## Verify before flagging
 
 - For "missing `headers` export," confirm the route is not in a path explicitly marked uncacheable (auth area, admin area). Look for an enclosing layout that returns `no-store`.
-- For "child drops parent headers," walk the route file tree and confirm a parent actually exports `headers`. If none does, the issue is "no caching configured" — a softer finding.
+- For "child inherits aggressive parent cache," walk the route file tree and confirm an ancestor actually exports `headers` AND that the inherited policy is wider than the child's cacheability profile. If no ancestor exports headers, the issue is "no caching configured" — a softer finding.
 - For "`public` on auth'd route," confirm the loader reads session state. A route that happens to be under an auth layout but reads only public data may legitimately use `public`.
 - For "missing `Vary: Cookie`," confirm the response body branches on a cookie. If the loader is cookie-independent (or short-circuits to a redirect when unauth'd), `Vary: Cookie` is not required.
 - For "`Set-Cookie` + `public`," confirm both are set on the same response. A loader that conditionally sets the cookie only on first visit, with a redirect, is fine.

@@ -75,7 +75,7 @@ export async function action({ request }: ActionFunctionArgs) {
     directory: "/tmp/uploads",
     maxPartSize: 10_000_000,    // 10 MB
     file: ({ filename }) => filename,
-    filter: ({ contentType }) => contentType.startsWith("image/"),
+    filter: ({ contentType }) => contentType.startsWith("image/"), // callbacks also receive `name`
   });
   const formData = await unstable_parseMultipartFormData(request, uploadHandler);
   const upload = formData.get("attachment");
@@ -91,10 +91,7 @@ permanent store, then clean up.
 
 ## Bound Every Handler
 
-**Always pass `maxPartSize`.** Without it,
-`unstable_createMemoryUploadHandler` will buffer entire uploads into RAM.
-A single malicious upload can OOM the server. The disk handler will fill
-the disk. Treat unbounded handlers as a security bug.
+**`unstable_createMemoryUploadHandler`** has no default cap — without `maxPartSize`, it buffers the entire upload into RAM. **`unstable_createFileUploadHandler`** defaults `maxPartSize` to 3MB, which is usually still too generous for untrusted user input. Always set an explicit `maxPartSize` matched to the upload's purpose.
 
 `filter` is the second line of defense: reject parts whose `contentType`
 or `name` doesn't match what you accept.

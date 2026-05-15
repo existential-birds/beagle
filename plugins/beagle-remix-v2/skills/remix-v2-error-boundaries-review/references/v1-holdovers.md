@@ -177,4 +177,4 @@ Inside the boundary, narrow `error.data` defensively (see
 - v2 boundary shape (the migration target) → [boundary-shape.md](boundary-shape.md)
 - Throw / `handleError` semantics → [throw-response.md](throw-response.md)
 - Remix `remix@2.0.0` changelog (flag + `CatchBoundary` removal): https://github.com/remix-run/remix/blob/remix@2.0.0/packages/remix-react/CHANGELOG.md
-- v1 → v2 migration guide: https://v2.remix.run/docs/start/v2
+- v1 → v2 migration guide: https://remix.run/docs/en/main/start/v2

@@ -38,6 +38,7 @@ Targets TypeScript route modules importing from `@remix-run/*`. See [beagle-remi
 - [ ] `shouldRevalidate` returns `defaultShouldRevalidate` by default; opt-outs are narrow and justified
 - [ ] `defer()` is used only when at least one promise streams (no `await` before passing it)
 - [ ] Every `<Await>` is wrapped in `<Suspense>` and has an `errorElement`
+- [ ] `useRevalidator().revalidate()` is reserved for focus/polling/SSE — not called immediately after a `<Form>` post or `fetcher.submit` (Remix already revalidates).
 
 ## Valid Patterns (Do NOT Flag)
 
@@ -49,7 +50,6 @@ These are correct Remix v2 usage and must not be reported as issues:
 - **Bare `new Response(body, init)` returns** — v2 routes may return any `Response`; `json()` is an ergonomic wrapper, not a requirement. Non-JSON bodies (binary, text, streams) correctly skip `json()`.
 - **`return redirect(...)` from an action** — Both `return redirect(...)` and `throw redirect(...)` are legal in actions; throwing is required only from non-action helpers when you want to exit the calling function.
 - **`loader` declared without the `request` arg** — Loaders may destructure only what they need (`{ params }`, `{ context }`, or `()` with no args); the unused arg is not a bug.
-- **`useFetcher` data read without checking `fetcher.state`** — May be intentional when stale data is acceptable during revalidation.
 - **Parent `loader` revalidated after an unrelated action** — This is default Remix behavior, not a smell. Flag only if `shouldRevalidate` exists and is wrong.
 - **Action returning `json({ errors }, { status: 400 })`** — This is the canonical validation-error pattern (keeps the form route rendered with field errors). Not the same as the "no redirect on success" anti-pattern.
 - **`useRevalidator` for focus / polling / cross-tab sync** — These are the documented use cases; only flag manual `revalidate()` calls that immediately follow a `<Form>` post or `fetcher.submit` Remix would already revalidate.
@@ -79,7 +79,7 @@ Run these in order. **Do not draft user-facing findings until every gate passes*
 
 3. **Type-annotation vs type-assertion check** — **Pass:** Before flagging an "unsafe cast" on loader/action consumption, confirm the code uses `as` (assertion) — not `useLoaderData<typeof loader>()` (annotation) and not `useActionData<typeof action>()` (annotation). The generic form is the documented safe path and must not be flagged.
 
-4. **v1 holdover check** — **Pass:** Before flagging "missing pending state," grep the file for `useTransition`, `transition.submission`, `fetcher.type`, `formMethod === "post"` (lowercase), and `LoaderArgs` / `ActionArgs`. If present, the finding is a v1-holdover migration issue, not a missing-feature issue — label it accordingly.
+4. **v1 holdover check** — **Pass:** Before flagging "missing pending state," grep the file for `useTransition`, `transition.submission`, `fetcher.type`, `formMethod === "post"` or `formMethod==='post'` (lowercase, any whitespace/quote variation), and `LoaderArgs` / `ActionArgs`. If present, the finding is a v1-holdover migration issue, not a missing-feature issue — label it accordingly.
 
 5. **Protocol** — **Pass:** You completed the Pre-Report Verification Checklist in [review-verification-protocol](../../../beagle-core/skills/review-verification-protocol/SKILL.md) for this review.
 

@@ -76,10 +76,10 @@ Wire it in `remix.config.js`:
 
 ```js
 // remix.config.js
-const { createRoutesFromFolders } = require("@remix-run/v1-route-convention");
+import { createRoutesFromFolders } from "@remix-run/v1-route-convention";
 
 /** @type {import('@remix-run/dev').AppConfig} */
-module.exports = {
+export default {
   ignoredRouteFiles: ["**/.*"],
   routes(defineRoutes) {
     return createRoutesFromFolders(defineRoutes, {
@@ -88,6 +88,8 @@ module.exports = {
   },
 };
 ```
+
+Vite-based v2 projects use `vite.config.ts` with the Remix Vite plugin instead of `remix.config.js`.
 
 The adapter preserves v1 nested-folder behavior — `index.tsx`, `__double` underscores, and folder-as-URL all keep working. Treat it as a migration aid, not a long-term answer: new code should adopt v2 conventions.
 
@@ -101,7 +103,8 @@ The flat structure means everything under `app/routes/` is a route candidate. CS
 
 ```js
 // remix.config.js
-module.exports = {
+/** @type {import('@remix-run/dev').AppConfig} */
+export default {
   ignoredRouteFiles: [
     "**/.*",                    // dotfiles
     "**/*.css",                 // stylesheets
@@ -111,6 +114,8 @@ module.exports = {
 };
 ```
 
+Vite-based v2 projects use `vite.config.ts` with the Remix Vite plugin instead of `remix.config.js`.
+
 Globs that match are skipped during route discovery.
 
 ## Manual `routes()` for Programmatic Definitions
@@ -119,7 +124,8 @@ You can also define routes programmatically. The callback receives `defineRoutes
 
 ```js
 // remix.config.js
-module.exports = {
+/** @type {import('@remix-run/dev').AppConfig} */
+export default {
   ignoredRouteFiles: ["**/*"],   // ignore filesystem entirely
   routes(defineRoutes) {
     return defineRoutes((route) => {
@@ -129,6 +135,8 @@ module.exports = {
   },
 };
 ```
+
+Vite-based v2 projects use `vite.config.ts` with the Remix Vite plugin instead of `remix.config.js`.
 
 ## Migration Checklist
 

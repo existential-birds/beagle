@@ -13,9 +13,11 @@ See [beagle-remix-v2:remix-v2-routing](../../remix-v2-routing/SKILL.md) for cano
 ```tsx
 // app/routes/reports.$id[.pdf].tsx — smell
 import type { LoaderFunctionArgs } from "@remix-run/node";
+import invariant from "tiny-invariant";
 
 export async function loader({ params }: LoaderFunctionArgs) {
-  const pdf = await generateReportPDF(params.id!);
+  invariant(params.id, "id is required");
+  const pdf = await generateReportPDF(params.id);
   return new Response(pdf, { headers: { "Content-Type": "application/pdf" } });
 }
 
@@ -31,9 +33,11 @@ export default function ReportPage() {     // <-- turns it into a UI route
 ```tsx
 // app/routes/reports.$id[.pdf].tsx — correct resource route
 import type { LoaderFunctionArgs } from "@remix-run/node";
+import invariant from "tiny-invariant";
 
 export async function loader({ params }: LoaderFunctionArgs) {
-  const pdf = await generateReportPDF(params.id!);
+  invariant(params.id, "id is required");
+  const pdf = await generateReportPDF(params.id);
   return new Response(pdf, { headers: { "Content-Type": "application/pdf" } });
 }
 // No default export — that is what makes this a resource route.

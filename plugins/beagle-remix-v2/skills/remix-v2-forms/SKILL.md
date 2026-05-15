@@ -58,8 +58,9 @@ State transitions:
 
 - `useNavigation().state`: `idle → submitting → loading → idle` for non-GET
   form submissions; `idle → loading → idle` for GET navigation.
-- `useFetcher().state`: `idle → submitting → loading → idle` (submitting
-  only present for non-GET).
+- `useFetcher().state`: `idle → submitting → loading → idle`.
+
+**Asymmetry:** `useNavigation` skips `submitting` for GET navigations; `useFetcher` does NOT — only `fetcher.load()` skips it. `<fetcher.Form method='get'>` and `fetcher.submit(..., {method:'get'})` both transition through `submitting`.
 
 ## Key Patterns
 
@@ -170,7 +171,7 @@ skips loader revalidation.
 | Concern | `<Form>` | `useFetcher` | Native `<form>` | `fetch()` |
 |---|---|---|---|---|
 | URL change / history entry | Yes | No | Yes (hard nav) | No |
-| Works without JS | Yes | Yes (via degraded `<Form>`) | Yes | No |
+| Works without JS | Yes | Yes | Yes | No |
 | Revalidates loaders | Yes | Yes | Yes (hard reload) | No |
 | Pending state hook | `useNavigation()` | `fetcher.state` | None | Manual |
 | Optimistic input source | `navigation.formData` | `fetcher.formData` | None | Manual |

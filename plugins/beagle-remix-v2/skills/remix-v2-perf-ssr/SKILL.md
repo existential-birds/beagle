@@ -89,7 +89,7 @@ See [references/headers-caching.md](references/headers-caching.md).
 
 ## Server/Client Split
 
-The compiler strips `loader`, `action`, and `headers` exports from client bundles along with the dependencies used **inside them** — but only if those dependencies have no module side effects. A top-level `new PrismaClient()`, a `console.log`, an `initializeApp` call all defeat tree-shaking. Rule: any module that imports `node:fs`, `prisma`, `bcrypt`, `jsonwebtoken`, or reads `process.env` should be named `*.server.ts` (or live under `app/.server/`). Build fails loud if it reaches the client graph — silent leaks are eliminated.
+The compiler strips `loader`, `action`, and `headers` exports from client bundles along with the dependencies used **inside them** — but only if those dependencies have no module side effects. A top-level `new PrismaClient()`, a `console.log`, an `initializeApp` call all defeat tree-shaking. Rule: any module that imports `node:fs`, `prisma`, `bcrypt`, `jsonwebtoken`, or reads `process.env` should be named `*.server.ts` (or live under `app/.server/` — directory form requires the Remix Vite plugin; Classic Compiler supports only the filename suffix). Build fails loud if it reaches the client graph — silent leaks are eliminated.
 
 Public env vars reach the browser via a root-loader `window.ENV` pattern. Never return raw `process.env` from a loader. See [references/server-client-split.md](references/server-client-split.md).
 
@@ -97,7 +97,7 @@ Public env vars reach the browser via a root-loader `window.ENV` pattern. Never 
 
 `useHydrated()` returns `false` during SSR and on the very first client render, then flips to `true` on the next render — that two-pass behavior is what keeps HTML matched. For components that should never SSR (maps, charts that read `window`), wrap in `<ClientOnly fallback={...}>`. For SSR-safe IDs use React's `useId()`, never `Math.random()` or `crypto.randomUUID()` in render.
 
-The hydration-mismatch grep list: `new Date(`, `Math.random(`, `crypto.randomUUID(`, `Date.now(`, `window.`, `document.`, `localStorage`, `navigator.`, `Intl.DateTimeFormat()` without an explicit locale, `process.env.` in component bodies, `typeof window` ternaries that produce different JSX, third-party scripts that mutate the DOM, browser extensions injecting nodes into `<body>`. See [references/hydration.md](references/hydration.md).
+The hydration-mismatch grep list: `new Date(`, `Math.random(`, `crypto.randomUUID(`, `Date.now(`, `window.`, `document.`, `localStorage`, `sessionStorage`, `navigator.`, `Intl.DateTimeFormat()` without an explicit locale, `Intl.NumberFormat`, `.toLocaleDateString`, `.toLocaleTimeString`, `.toLocaleString`, `process.env.` in component bodies, `typeof window` ternaries that produce different JSX, third-party scripts that mutate the DOM, browser extensions injecting nodes into `<body>`. See [references/hydration.md](references/hydration.md).
 
 ## Prefetching
 
@@ -125,7 +125,7 @@ Answer **in order**. **Pass** means the condition is true; pick the API on the s
 ### `.server.ts` vs runtime `typeof window` check
 
 1. **Does the module import `node:*`, `prisma`, `bcrypt`, `jsonwebtoken`, `fs`, `path`, or read `process.env` at the top level**?
-   - **Pass →** Name the file `*.server.ts` (or place under `app/.server/`). Build fails loud if leaked to client. **Stop.**
+   - **Pass →** Name the file `*.server.ts` (or place under `app/.server/` — directory form requires the Remix Vite plugin; Classic Compiler supports only the filename suffix). Build fails loud if leaked to client. **Stop.**
    - **Fail →** Step 2.
 2. **Is the module called only inside `loader`/`action`/`headers`** with no top-level side effects?
    - **Pass →** `.server.ts` is still preferred for clarity; tree-shaking may work but is unreliable. **Stop.**
@@ -150,7 +150,7 @@ Answer **in order**. **Pass** means the condition is true; pick the API on the s
 
 - **Headers and caching**: see [references/headers-caching.md](references/headers-caching.md) for `HeadersFunction` signature, `loaderHeaders`/`parentHeaders`/`actionHeaders`/`errorHeaders`, SWR patterns, and parent/child merge semantics.
 - **Streaming**: see [references/streaming.md](references/streaming.md) for `defer()`, `<Await>`, `<Suspense>`, `abortDelay`, error handling, CSP interactions.
-- **Server/client split**: see [references/server-client-split.md](references/server-client-split.md) for `.server.*` / `.client.*`, env var handling, the `window.ENV` pattern.
+- **Server/client split**: see [references/server-client-split.md](references/server-client-split.md) for `.server.*` / `.client.*` (directory form requires the Remix Vite plugin; Classic Compiler supports only the filename suffix), env var handling, the `window.ENV` pattern.
 - **Hydration**: see [references/hydration.md](references/hydration.md) for `useHydrated`, `<ClientOnly>`, `useId`, mismatch grep list.
 - **Prefetch**: see [references/prefetch.md](references/prefetch.md) for `<Link prefetch>` modes, `<PrefetchPageLinks>`, the `Purpose: prefetch` header trick.
 - **Preload links**: see [references/links-preload.md](references/links-preload.md) for `links` export, font/CSS preload, image guidance.
@@ -170,5 +170,5 @@ Answer **in order**. **Pass** means the condition is true; pick the API on the s
 | Branch after hydration | `useHydrated()` | `remix-utils/use-hydrated` |
 | Prefetch on hover | `<Link prefetch="intent">` | `@remix-run/react` |
 | Prefetch on render (above-fold) | `<Link prefetch="render">` | `@remix-run/react` |
-| Programmatic prefetch | `<PrefetchPageLinks page="/abs">` | `@remix-run/react` |
+| Programmatic prefetch | `<PrefetchPageLinks page="/absolute/path">` | `@remix-run/react` |
 | Preload font/CSS | `links` export | route module |

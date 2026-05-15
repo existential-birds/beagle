@@ -13,12 +13,15 @@ import type { LinksFunction } from "@remix-run/node";
 
 A `LinkDescriptor` is one of two unions:
 
-- `HtmlLinkDescriptor` — fields mirror the `<link>` element:
-  `rel` (`stylesheet` | `preload` | `prefetch` | `dns-prefetch` |
-  `preconnect` | `icon` | `canonical` | `alternate`), `href`, `as`,
-  `type`, `media`, `crossOrigin`, `imagesrcset`, `imagesizes`,
-  `integrity`, `disabled`.
-- `PageLinkDescriptor` — `{ page: string }`. Tells Remix to preload the
+- `HtmlLinkDescriptor` — fields mirror the `<link>` element. Per Remix v2
+  the `rel` type is `LiteralUnion<"alternate" | "dns-prefetch" | "icon" |
+  "manifest" | "modulepreload" | "next" | "pingback" | "preconnect" |
+  "prefetch" | "preload" | "prerender" | "search" | "stylesheet", string>`
+  — any string is accepted at compile time; common non-literal values
+  include `canonical` and `apple-touch-icon`. Other fields: `href`, `as`,
+  `type`, `media`, `crossOrigin`, `imageSrcSet`, `imageSizes`,
+  `integrity`, `disabled`, `hrefLang`.
+- `PrefetchPageDescriptor` — `{ page: string }`. Tells Remix to preload the
   module graph and loader data for the given route path.
 
 ## Stylesheets
@@ -51,19 +54,19 @@ export const links: LinksFunction = () => [
     rel: "preload",
     as: "image",
     href: "/img/hero.jpg",
-    imagesrcset: "/img/hero-sm.jpg 480w, /img/hero-lg.jpg 1200w",
-    imagesizes: "(max-width: 600px) 480px, 1200px",
+    imageSrcSet: "/img/hero-sm.jpg 480w, /img/hero-lg.jpg 1200w",
+    imageSizes: "(max-width: 600px) 480px, 1200px",
   },
 ];
 ```
 
-`imagesrcset` and `imagesizes` mirror the responsive-image attributes from
+`imageSrcSet` and `imageSizes` mirror the responsive-image attributes from
 `<img srcset>` / `<img sizes>`; together they let the browser pick the
 right asset to preload for the current viewport.
 
 ## Page Preloads
 
-`PageLinkDescriptor` triggers a module and loader-data preload for a route
+`PrefetchPageDescriptor` triggers a module and loader-data preload for a route
 the user is likely to visit:
 
 ```tsx
@@ -84,8 +87,8 @@ elements, dedicated SEO-stable links (canonical, alternate) live better in
 
 ```tsx
 export const links: LinksFunction = () => [
-  { rel: "canonical", href: "https://example.com/posts/intro" },
-  { rel: "alternate", hreflang: "fr", href: "https://example.com/fr/posts/intro" },
+  { rel: "canonical", href: "https://example.com/posts/intro" }, // canonical is not in the literal union; accepted via the open-string fallback
+  { rel: "alternate", hrefLang: "fr", href: "https://example.com/fr/posts/intro" },
 ];
 ```
 

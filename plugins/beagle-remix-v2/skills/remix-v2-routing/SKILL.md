@@ -1,6 +1,6 @@
 ---
 name: remix-v2-routing
-description: Remix v2 routing patterns. Use when implementing flat-routes v2 conventions, route file naming, nested layouts, resource routes, or root.tsx scaffolding. Triggers on _layout.tsx, _index.tsx, $param, app/routes/, @remix-run/dev, defineRoutes, <Outlet /> in route modules.
+description: Remix v2 routing patterns. Use when implementing flat-routes v2 conventions, route file naming, nested layouts, resource routes, or root.tsx scaffolding. Triggers on _<name>.tsx (pathless layout), _index.tsx, $param, app/routes/, @remix-run/dev, defineRoutes, <Outlet /> in route modules.
 ---
 
 # Remix v2 Routing
@@ -11,13 +11,13 @@ description: Remix v2 routing patterns. Use when implementing flat-routes v2 con
 
 ```text
 _index.tsx                 → /
-concerts.tsx               → /concerts                (layout module)
+concerts.tsx               → /concerts                (acts as layout when dotted children exist; otherwise leaf for /concerts)
 concerts._index.tsx        → /concerts                (renders under layout)
 concerts.$city.tsx         → /concerts/:city          params.city
 concerts.trending.tsx      → /concerts/trending
 _auth.tsx + _auth.login.tsx → /login (pathless layout, no URL segment)
 files.$.tsx                → /files/*                 params["*"]
-($lang)._index.tsx         → / and /:lang             (optional segment)
+($lang)._index.tsx         → / and /en (or /fr etc.) — optional segment
 sitemap[.]xml.tsx          → /sitemap.xml             (escape literal)
 concerts_.mine.tsx         → /concerts/mine           (opts out of layout)
 dashboard/route.tsx        → /dashboard               (folder + route.tsx)
@@ -115,6 +115,9 @@ Answer **in order**. **Pass** means the condition is true; pick the answer on th
 
 ### Layout vs flat URL
 
+0. **Is there shared chrome at all (nav, breadcrumbs, sidebar) at this level**?
+   - **Fail →** Use plain dotted segments (`about.tsx`, `pricing.tsx`); no layout module needed. **Stop.**
+   - **Pass →** Step 1.
 1. **Should this URL share UI (nav, breadcrumbs, sidebar) with a parent path**?
    - **Pass →** Use dot-delimited nesting (`concerts.$city.tsx` under `concerts.tsx`). **Stop.**
    - **Fail →** Step 2.

@@ -147,6 +147,7 @@ import { Authenticator } from "remix-auth";
 import { FormStrategy } from "remix-auth-form";
 import { sessionStorage } from "~/session.server";
 
+// Snippet targets remix-auth@^2; v3 dropped the sessionStorage argument from the constructor.
 export const authenticator = new Authenticator<User>(sessionStorage);
 
 authenticator.use(

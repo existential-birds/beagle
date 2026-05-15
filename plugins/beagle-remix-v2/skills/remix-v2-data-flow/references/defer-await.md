@@ -21,6 +21,7 @@ Defer does **not** help when:
 import { defer } from "@remix-run/node";
 
 defer(data, init?: number | ResponseInit): TypedDeferredData;
+// (numeric status shorthand was added in Remix 2.5+; pre-2.5 requires `defer(data, { status: 404 })`)
 ```
 
 `data` may contain plain values *and* unresolved promises in any field. Remix serializes the resolved values eagerly and streams the rest.
@@ -105,7 +106,7 @@ Inside the render prop, `rs` is fully typed via `SerializeFrom` — same seriali
 ## Compatibility Notes
 
 - `defer()` requires a streaming-capable runtime adapter. Node (`@remix-run/node`) and Cloudflare (`@remix-run/cloudflare`) both support it. Some older serverless adapters buffer responses and break streaming — verify your deploy target supports HTTP streaming end-to-end before depending on `defer()` for TTFB.
-- `defer()` returns a `TypedDeferredData`, not a `TypedResponse`. You cannot wrap a `defer()` result in `json()` or vice versa — pick one per loader.
+- `defer()` returns a `TypedDeferredData<T>`, not a `TypedResponse`. You cannot wrap a `defer()` result in `json()` or vice versa — pick one per loader.
 
 ## When to Use Plain `json()` Instead
 

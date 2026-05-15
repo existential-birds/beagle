@@ -35,8 +35,9 @@ Allowed exception: importing types like `Path` from `react-router-dom` is someti
 ```text
 app/routes/__auth/login.tsx          # v1 pathless layout shape
 app/routes/__auth/signup.tsx
-app/routes/__auth.tsx                # the layout module
 ```
+
+(v1 used `__auth/` as a *folder* name. A `.tsx` file literally named `__auth.tsx` at the routes root is a malformed mix of v1 and v2 grammar — it's neither a v1 pathless layout nor a v2 pathless layout. Treat it as a typo for `_auth.tsx`.)
 
 **Why bad**: v1's double-underscore-folder convention is not recognized by v2 flat-routes. The walker either ignores the folder or mounts files at wrong URLs.
 
@@ -104,7 +105,7 @@ export default {
 
 **Pattern**: Code uses `useTransition` (v1) instead of `useNavigation` (v2), or `useFetchers` semantics that assume v1 behavior.
 
-**Why bad**: `useTransition` was renamed `useNavigation` in v2 and its return shape changed (`state` is now `"idle" | "loading" | "submitting"`). Code copied from v1 docs or older blog posts will type-check against React's `useTransition` (different API entirely) or silently misbehave.
+**Why bad**: v2 renamed `useTransition` to `useNavigation` and removed the `type` and `submission` fields. The `state` values (`"idle" | "submitting" | "loading"`) are unchanged from v1. Code copied from v1 docs or older blog posts will type-check against React's `useTransition` (a different API entirely) or silently misbehave when it reaches for the removed `type`/`submission` properties.
 
 **Fix**:
 

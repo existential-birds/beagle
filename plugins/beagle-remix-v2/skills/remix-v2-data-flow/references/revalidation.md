@@ -111,7 +111,7 @@ The shape: `{ state, location, formData, formAction, formMethod }`. The `submiss
 
 ### v1 `useTransition` → v2 `useNavigation`
 
-If you see `useTransition` from `@remix-run/react` in a codebase, it's a v1 holdover and will no longer compile against v2. Replacements:
+If you see `useTransition` from `@remix-run/react`, it's a v1 holdover. In `@remix-run/react@2.x` it still exists as a deprecated forwarder to `useNavigation`, so code compiles — schedule for replacement before the next major. Replacements:
 
 | v1                                       | v2                                              |
 |------------------------------------------|-------------------------------------------------|

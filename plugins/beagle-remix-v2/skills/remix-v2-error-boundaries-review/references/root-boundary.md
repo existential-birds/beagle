@@ -209,5 +209,5 @@ with `<Meta />`, `<Links />`, and `<Scripts />`.
 
 - Boundary shape and narrowing → [boundary-shape.md](boundary-shape.md)
 - Throw vs return semantics → [throw-response.md](throw-response.md)
-- Remix root route docs: https://v2.remix.run/docs/file-conventions/root/
-- Error handling guide: https://v2.remix.run/docs/guides/errors/
+- Remix root route docs: https://remix.run/docs/en/main/file-conventions/root
+- Error handling guide: https://remix.run/docs/en/main/guides/errors

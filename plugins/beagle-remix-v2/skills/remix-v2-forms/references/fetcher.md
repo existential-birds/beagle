@@ -23,8 +23,9 @@ fetcher.formAction    // target action URL while in flight
 fetcher.formMethod    // method while in flight
 ```
 
-State transitions: `idle → submitting → loading → idle` (submitting only
-present for non-GET).
+State transitions: `idle → submitting → loading → idle`.
+
+**Asymmetry:** `useNavigation` skips `submitting` for GET navigations; `useFetcher` does NOT — only `fetcher.load()` skips it. `<fetcher.Form method='get'>` and `fetcher.submit(..., {method:'get'})` both transition through `submitting`.
 
 ## When to Reach for `useFetcher`
 

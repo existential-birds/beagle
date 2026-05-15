@@ -88,6 +88,8 @@ intent may not match user expectation.
 `formData.get("intent")`. Order buttons so the first is the correct
 Enter-key default.
 
+Older codebases may use `_action` instead of `intent` — treat as equivalent; do not flag the spelling difference unless the action handler hardcodes one name.
+
 ## Anti-pattern 3 — `method="put"` / `"patch"` / `"delete"` without fallback
 
 ```tsx

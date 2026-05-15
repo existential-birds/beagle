@@ -178,9 +178,10 @@ single fetcher so only the clicked button is "in flight". See
 1. Grep the file for `useState`, `useNavigation`, `useFetcher`,
    `fetcher.state`. A real loading flag often shadows what is really
    happening.
-2. Confirm `<Form method>` is POST (or non-GET). GET forms only ever
-   produce `"loading"`, never `"submitting"`, so some patterns look
-   different on GET.
+2. Confirm `<Form method>` is POST (or non-GET). GET forms driven by
+   `useNavigation` only ever produce `"loading"`, never `"submitting"`,
+   so some patterns look different on GET. (`<fetcher.Form method='get'>`
+   driven by `fetcher.state` DOES produce `"submitting"`.)
 3. Confirm the per-row vs page-global axis by reading the surrounding
    `.map()` — page-global checks are correct on a single-form route.
 4. Confirm `nav.formAction` checks the right path; an outdated literal

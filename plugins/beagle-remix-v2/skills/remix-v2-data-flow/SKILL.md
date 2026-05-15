@@ -57,7 +57,7 @@ Imports: `@remix-run/node` for server utilities (`json`, `redirect`, `defer`, ty
 
 ## When `json()` Is Optional in v2
 
-v2 did **not** change the underlying contract: loaders and actions must return a `Response`. `json()` is the ergonomic wrapper that sets `application/json` and lets you supply status / headers. Returning a bare object is not the documented v2 contract — do not assume the auto-wrapping behavior introduced in Remix 3 / React Router `dataStrategy`. Reach for `json()` whenever you need:
+v2 did **not** change the underlying contract: loaders and actions must return a `Response`. `json()` is the ergonomic wrapper that sets `application/json` and lets you supply status / headers. Bare object returns work in v2 (Remix auto-wraps as `json()`), but `json()` is preferred for explicit status, headers, and clean `TypedResponse<T>` typing. Reach for `json()` whenever you need:
 
 - A non-200 status code (e.g. `{ status: 400 }` for validation errors).
 - Custom headers (caching, `Set-Cookie`).
@@ -84,9 +84,9 @@ Loaders run on every GET navigation and may be invoked speculatively by prefetch
 
 ## Pending State (v1 → v2)
 
-`useTransition` is removed in v2 — use `useNavigation`. The `submission` object is flattened directly onto the navigation/fetcher (no more `transition.submission.formMethod`). `formMethod` is now **UPPERCASE** in v2 (`"POST"`, not `"post"`); comparisons like `nav.formMethod === "post"` silently never match. `fetcher.type` is also gone — branch on `fetcher.state` plus presence of `fetcher.formData`.
+`useTransition` is removed in v2 — use `useNavigation`. The `submission` object is flattened directly onto the navigation in v2 (and the fetcher likewise; both `nav.formData`/`nav.formMethod` and `fetcher.formData`/`fetcher.formMethod` are flat). `formMethod` is now **UPPERCASE** in v2 (`"POST"`, not `"post"`); comparisons like `nav.formMethod === "post"` silently never match. `fetcher.type` is also gone — branch on `fetcher.state` plus presence of `fetcher.formData`.
 
-GET submissions go `idle → loading → idle`. POST flow goes `idle → submitting → loading → idle`. Spinners gated only on `"submitting"` will miss GET forms.
+GET submissions go `idle → loading → idle`. POST flow goes `idle → submitting → loading → idle`. Spinners gated only on `"submitting"` will miss GET forms. GET submissions still populate `nav.formData` and `nav.formMethod === "GET"` during the `loading` phase, so filter-form pending UI should branch on `formData` presence, not on `state === 'submitting'`. For `useFetcher`, `submitting` applies to BOTH GET (`<fetcher.Form method='get'>` and `fetcher.submit(..., {method:'get'})`) and non-GET; only `fetcher.load()` skips `submitting`. This is the inverse of `useNavigation`, which skips `submitting` for GET.
 
 ## Gates (decision sequencing)
 

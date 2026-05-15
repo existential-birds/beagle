@@ -14,7 +14,7 @@ export async function action(
 }
 ```
 
-The v2 type name is `ActionFunctionArgs`. The v1 alias `ActionArgs` is deprecated.
+Deprecated alias still exported by `@remix-run/node` in 2.x — prefer the v2 name (`LoaderFunctionArgs` / `ActionFunctionArgs`).
 
 ## Parsing FormData
 
@@ -175,6 +175,8 @@ export default function SaveButton() {
 ```
 
 Missing pending UI is a real UX bug — users double-click and double-submit. Gate on `nav.state !== "idle"` (or `fetcher.state !== "idle"` for non-navigating mutations).
+
+For `useFetcher`, `submitting` applies to BOTH GET (`<fetcher.Form method='get'>` and `fetcher.submit(..., {method:'get'})`) and non-GET; only `fetcher.load()` skips `submitting`. This is the inverse of `useNavigation`, which skips `submitting` for GET.
 
 ## Action Anti-Pattern Recap
 

@@ -18,7 +18,7 @@ export async function loader(
 - `params` — route params from the file/segment definition. Values are typed `string | undefined` — always guard before passing to a DB query.
 - `context` — adapter-supplied context (Cloudflare bindings, Express locals via the Node adapter, etc.).
 
-The v2 type name is `LoaderFunctionArgs`. The v1 name `LoaderArgs` may still exist as a deprecated alias — prefer the v2 name.
+Deprecated alias still exported by `@remix-run/node` in 2.x — prefer the v2 name (`LoaderFunctionArgs` / `ActionFunctionArgs`).
 
 ## Typed `useLoaderData`
 
@@ -34,7 +34,7 @@ export default function Invoices() {
 `useLoaderData<typeof loader>()` is a **type annotation**, not a `as`-style assertion. Internally it resolves to `SerializeFrom<typeof loader>`, which models the on-the-wire transformation:
 
 - `Date` becomes `string`.
-- `Map` / `Set` collapse to empty object / array shapes.
+- `Map` and `Set` both serialize to `{}` (no own-enumerable entries).
 - `undefined` fields are stripped.
 - Class instances lose their methods (just plain data survives).
 
@@ -54,7 +54,7 @@ return json({ user }, 201); // numeric shorthand for status
 
 ### When `json()` Is Optional in v2
 
-v2 did **not** change the underlying contract: loaders must return a `Response`. `json()` is the ergonomic wrapper. Returning a bare object is not the documented v2 contract — do not assume the auto-wrapping behavior of Remix 3 / React Router `dataStrategy`. Reach for `json()` whenever you need a non-200 status, custom headers, or explicit `TypedResponse<T>` inference.
+v2 did **not** change the underlying contract: loaders must return a `Response`. `json()` is the ergonomic wrapper. Bare object returns work in v2 (Remix auto-wraps as `json()`), but `json()` is preferred for explicit status, headers, and clean `TypedResponse<T>` typing. Reach for `json()` whenever you need a non-200 status, custom headers, or explicit `TypedResponse<T>` inference.
 
 ## `redirect()`
 

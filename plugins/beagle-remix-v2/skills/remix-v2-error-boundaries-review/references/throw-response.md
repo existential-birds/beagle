@@ -39,7 +39,7 @@ export async function action({ request }: ActionFunctionArgs) {
 // app/entry.server.tsx
 export function handleError(
   error: unknown,
-  { request }: DataFunctionArgs,
+  { request }: LoaderFunctionArgs | ActionFunctionArgs,
 ) {
   if (request.signal.aborted) return;                  // ignore client disconnects
   if (error instanceof Error) {
@@ -183,7 +183,7 @@ when users report them.
 Export `handleError`. Filter aborted requests, narrow by type, report:
 
 ```tsx
-export function handleError(error: unknown, { request }: DataFunctionArgs) {
+export function handleError(error: unknown, { request }: LoaderFunctionArgs | ActionFunctionArgs) {
   if (request.signal.aborted) return;
   if (error instanceof Error) Sentry.captureException(error);
   else console.error("Non-Error thrown:", error);
@@ -195,7 +195,7 @@ export function handleError(error: unknown, { request }: DataFunctionArgs) {
 **Pattern**
 
 ```tsx
-export function handleError(error: unknown, { request }: DataFunctionArgs) {
+export function handleError(error: unknown, { request }: LoaderFunctionArgs | ActionFunctionArgs) {
   Sentry.captureException(error);                       // also for Responses?
 }
 ```
@@ -228,5 +228,5 @@ if (!user) {
 
 - Boundary shape (narrowing, props, hook) → [boundary-shape.md](boundary-shape.md)
 - Root boundary specifics → [root-boundary.md](root-boundary.md)
-- `handleError` doc: https://v2.remix.run/docs/file-conventions/entry.server/
-- `throw` semantics: https://v2.remix.run/docs/guides/errors/
+- `handleError` doc: https://remix.run/docs/en/main/file-conventions/entry.server
+- `throw` semantics: https://remix.run/docs/en/main/guides/errors

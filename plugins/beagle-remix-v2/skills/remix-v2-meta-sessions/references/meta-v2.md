@@ -28,7 +28,7 @@ A `MetaDescriptor` is a union of:
 | `{ name: string, content: string }` | `<meta name=... content=...>` |
 | `{ property: string, content: string }` | `<meta property=... content=...>` (OG, Twitter) |
 | `{ httpEquiv: string, content: string }` | `<meta http-equiv=... content=...>` |
-| `{ charset: "utf-8" }` | `<meta charset="utf-8">` |
+| `{ charSet: "utf-8" }` | `<meta charset="utf-8">` |
 | `{ tagName: "link", ...HtmlLinkAttrs }` | `<link>` (canonical, alternate) |
 | `{ "script:ld+json": object }` | `<script type="application/ld+json">` |
 

@@ -136,9 +136,15 @@ and ships HTML/loader data to unauthenticated users. See
 ## CSRF
 
 **Remix has no built-in CSRF protection.** Same-origin `<Form>` posts rely
-entirely on whatever `SameSite` value you set on the session cookie. Subdomain
-takeovers, older browsers, and `<form>` POST exceptions to `SameSite=Lax` leave
-gaps. Recommend `remix-utils/csrf` with a **dedicated** signed cookie — never
+entirely on whatever `SameSite` value you set on the session cookie.
+`SameSite=Lax` blocks cookies on cross-site POST navigations in all current
+browsers. (Chrome briefly had a 2-minute "Lax+POST" window in 2020 — removed
+in 2021.) The real `Lax`-vs-`Strict` tradeoff is subdomain takeover: with
+`Lax`, a compromised subdomain can initiate top-level GET nav with
+credentials; with `Strict`, deep-link navigations from external sites lose
+session. Apps that use `SameSite=None` for legitimate cross-site needs
+(OAuth popups, iframe embeds) have no cookie-level CSRF protection at all.
+Recommend `remix-utils/csrf` with a **dedicated** signed cookie — never
 reuse the session cookie. Manual `fetch("/api/x", { method: "POST" })`
 bypasses `AuthenticityTokenInput`, so any action that does not call
 `csrf.validate(request)` is an attacker entry point.

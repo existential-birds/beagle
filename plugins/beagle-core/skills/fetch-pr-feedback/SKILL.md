@@ -141,7 +141,7 @@ def clean_body:
 [(add // []) | .[] | select(
   .user.login != $pr_author and
   .user.login != $current_user and
-  (($resolved_ids | index(.id)) | not)
+  (.id as $comment_id | ($resolved_ids | index($comment_id) | not))
 )] |
 map({
   id,

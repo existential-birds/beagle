@@ -21,12 +21,13 @@ Guidance for writing idiomatic, performant, and safe Rust code. This is a develo
 |-------|----------|-----------|
 | Ownership | Borrow by default, clone only when you need a separate owned copy | [references/coding-idioms.md](references/coding-idioms.md) |
 | Clippy | Run `cargo clippy -- -D warnings` on every commit; configure workspace lints | [references/clippy-config.md](references/clippy-config.md) |
-| Performance | Don't guess, measure. Profile with `--release` first | [references/performance.md](references/performance.md) |
+| Performance | Don't guess, measure. Profile with `--release` first. Watch monomorphization + cache-line alignment at scale | [references/performance.md](references/performance.md) |
 | Generics | Static dispatch by default, dynamic dispatch when you need mixed types | [references/generics-dispatch.md](references/generics-dispatch.md) |
 | Type State | Encode state in the type system when invalid operations should be compile errors | [references/type-state-pattern.md](references/type-state-pattern.md) |
 | Documentation | `//` for why, `///` for what and how, `//!` for module/crate purpose | [references/documentation.md](references/documentation.md) |
 | Pointers | Choose pointer types based on ownership needs and threading model | [references/pointer-types.md](references/pointer-types.md) |
-| API Design | Unsurprising, flexible, obvious, constrained -- encode invariants in types | [references/api-design.md](references/api-design.md) |
+| API Design | Unsurprising, flexible, obvious, constrained — encode invariants in types; watch hidden contracts (re-exports, auto-traits) | [references/api-design.md](references/api-design.md) |
+| Wild Patterns | Drop guards, extension traits, index pointers, crate preludes — battle-tested idioms from mature crates | [references/coding-idioms.md](references/coding-idioms.md) |
 | Ecosystem | Evaluate crates, pick error handling strategy, stay current | [references/ecosystem-patterns.md](references/ecosystem-patterns.md) |
 
 ## Gates
@@ -88,3 +89,11 @@ Evaluate crates by recent download trends, maintenance activity, documentation q
 ## Pointer Types
 
 Choose pointer types based on ownership and threading: `Box<T>` for single-owner heap allocation, `Rc<T>`/`Arc<T>` for shared ownership, `Cell`/`RefCell`/`Mutex`/`RwLock` for interior mutability. Use `LazyLock`/`LazyCell` (stable since 1.80) instead of `lazy_static` or `once_cell`. See [references/pointer-types.md](references/pointer-types.md) for the full single-thread vs multi-thread decision table and migration guidance.
+
+## Destructors and Cleanup
+
+`Drop::drop(&mut self)` cannot return an error or `.await`. For fallible cleanup (I/O flush, network shutdown, async commit), expose an explicit `close()` or `shutdown()` method returning `Result<(), Error>` (or `impl Future`) and run best-effort cleanup in `Drop` as a fallback. Patterns for "consume self in Drop": `Option<T>`-newtype with `mem::take`, per-field `mem::take`, or `ManuallyDrop<T>`. Never `block_on(...)` in `Drop` (deadlock under async runtimes). For scoped state changes (toggle, restore, run on panic), use a **drop guard** bound with `let _guard = ...` — never `let _ = ...`, which drops immediately. `scopeguard::defer!` is the battle-tested option; note that drop guards do NOT run under `panic = "abort"`. See [references/coding-idioms.md](references/coding-idioms.md) and [references/api-design.md](references/api-design.md) for the explicit-destructor pattern.
+
+## Async APIs
+
+`async fn` lowers to a state machine returning an anonymous `impl Future`. Public APIs should use `-> impl Future<...> + Send + 'static` to lock down the Send-ness contract — auto-trait propagation through `-> impl Trait` is silent and a single `Rc<...>` or `std::sync::MutexGuard` held across `.await` downgrades the whole future to `!Send`, breaking downstream callers that `tokio::spawn` it. **Drop equals cancel**: when a future is dropped mid-poll, locals drop, no cleanup runs. Document **cancel-safety** on every public `async fn`: cancel-safe (`recv`, observation-only) vs cancel-unsafe (`read_exact`, `write_all`, anything holding cross-poll invariants). For runtime-agnostic library code, take `impl Future` or use `futures` crate primitives — do NOT spawn internally, and document the required runtime. Use `std::pin::pin!` macro for stack-pinned local futures; `Box::pin` only when heap allocation is acceptable.

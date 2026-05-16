@@ -306,3 +306,99 @@ For C-callback contexts, prefer explicit lifecycle hooks (register-on-enter, flu
 2. Do `CString` values outlive their derived pointers?
 3. Are callbacks wrapped in `catch_unwind`?
 4. Are `Send`/`Sync` deliberately not implemented for thread-unsafe FFI types?
+
+## Calling conventions — `extern "C"` vs `extern "system"` vs `extern "Rust"`
+
+The calling convention is **part of the function pointer's type**. `fn() -> i32`, `extern "C" fn() -> i32`, and `extern "system" fn() -> i32` are three distinct types and cannot be substituted for one another.
+
+| Form | Meaning | When to use |
+|------|---------|-------------|
+| `extern "C"` | The C ABI as implemented by the target's C compiler | Standard FFI: POSIX, Linux, macOS, Win64. The default when you write bare `extern fn`. |
+| `extern "system"` | The OS-native system ABI | Win32 API entry points. On Win32 x86 this is `stdcall`; on x64 it equals `extern "C"`. |
+| `extern "Rust"` | The unstable Rust ABI (compiler-chosen, changes between rustc releases) | Never across FFI. Implicit when you write `fn` with no extern qualifier. |
+| `extern "C-unwind"` | C ABI but unwinding through the boundary is defined (stable since Rust 1.71) | Only when both sides have agreed that panics may propagate. |
+
+**Unwinding across a non-`C-unwind` FFI boundary is undefined behavior.** Wrap callback bodies in `std::panic::catch_unwind` and convert panics to error codes, or use `std::process::abort_unwind` to terminate on unwind.
+
+```rust
+// BAD -- implicit extern "Rust"; cannot be called by C even if signature matches.
+type Callback = fn(*mut c_void, i32);
+
+// GOOD -- explicit C ABI, matches the C-side function pointer type.
+type Callback = extern "C" fn(*mut c_void, i32);
+```
+
+- `[FILE:LINE] FFI_EXTERN_FN_MISSING_ABI` — function-pointer type written as `fn(...)` (implicit `extern "Rust"`) where a C library expects an `extern "C" fn(...)`. Add the explicit ABI; the types are not interchangeable.
+- `[FILE:LINE] FFI_WIN32_API_EXTERN_C_NOT_SYSTEM` — Win32 API declaration uses `extern "C"` instead of `extern "system"`. Compiles on x64; crashes on i686 because of `stdcall` vs `cdecl`.
+- `[FILE:LINE] FFI_PANICKING_BODY_NO_CATCH_UNWIND` — `extern "C" fn` body can panic (uses `unwrap`, indexes, `?` on incompatible types) without a surrounding `std::panic::catch_unwind`. Wrap the body or declare the function `extern "C-unwind"`.
+
+## Allocator ownership across the boundary
+
+**Whoever allocates also frees.** A pointer can travel freely across FFI, but the free call must return to the original allocator. Three patterns:
+
+- **Implementation-managed** — the library allocates and exposes a paired `*_free` function. Example: `ECDSA_SIG_new` / `ECDSA_SIG_free`. The Rust wrapper calls `_new` to obtain a handle and `_free` from its `Drop`.
+- **Caller-managed** — the caller allocates and the library writes into the buffer. Example: `snprintf(buf, n, ...)`. The Rust side passes `Vec::as_mut_ptr` + length and reads the result on return.
+- **Mixed (library allocates, caller frees with `free`)** — example: `BIO_new_mem_buf` returns memory the caller must release with `libc::free`. This requires the Rust caller to use the *same* allocator as the C library — `libc::free`, never `Box::from_raw`.
+
+```rust
+// BAD -- Box::from_raw on a malloc'd pointer; allocators differ, UB.
+let p: *mut u8 = unsafe { libc::malloc(64) as *mut u8 };
+unsafe { drop(Box::from_raw(p)) };
+
+// BAD -- libc::free on a Box::into_raw pointer; allocators differ, UB.
+let p: *mut u8 = Box::into_raw(Box::new(0u8));
+unsafe { libc::free(p as *mut _) };
+
+// GOOD -- each pointer returns to its own allocator.
+let c_ptr = unsafe { libc::malloc(64) as *mut u8 };
+unsafe { libc::free(c_ptr as *mut _) };
+let rust_ptr = Box::into_raw(Box::new(0u8));
+unsafe { drop(Box::from_raw(rust_ptr)) };
+```
+
+- `[FILE:LINE] FFI_BOX_FROM_RAW_ON_C_ALLOCATED` — `Box::from_raw` on a pointer returned by `malloc`/`calloc`/library-specific allocator. Use the library's own free function (or `libc::free`).
+- `[FILE:LINE] FFI_LIBC_FREE_ON_BOX_POINTER` — `libc::free` on a pointer obtained from `Box::into_raw` or `Box::leak`. Reconstruct the `Box` with `Box::from_raw` and let drop run.
+
+## Callbacks across FFI — fn pointers + `void*` user_data
+
+Closures cannot cross FFI directly: they are anonymous types with no stable layout, and their call convention is `extern "Rust"`. The canonical pattern uses a free `extern "C"` trampoline plus a `void*` user-data pointer that carries `Box::into_raw(Box::new(closure))`.
+
+```rust
+unsafe extern "C" {
+    fn register_cb(cb: extern "C" fn(*mut c_void, i32), user_data: *mut c_void);
+}
+
+extern "C" fn trampoline<F: FnMut(i32)>(user_data: *mut c_void, event: i32) {
+    let _ = std::panic::catch_unwind(|| {
+        // SAFETY: user_data was Box::into_raw'd for type F at registration time.
+        let closure = unsafe { &mut *(user_data as *mut F) };
+        closure(event);
+    });
+}
+
+pub fn register<F: FnMut(i32) + 'static>(f: F) -> *mut c_void {
+    let boxed = Box::into_raw(Box::new(f)) as *mut c_void;
+    unsafe { register_cb(trampoline::<F>, boxed) };
+    boxed // caller must Box::from_raw(boxed as *mut F) on unregister
+}
+```
+
+- `[FILE:LINE] FFI_CLOSURE_PASSED_DIRECTLY` — code attempts to pass a Rust closure where the C signature expects `extern "C" fn(...)`. Replace with a free-function trampoline plus a `Box::into_raw(Box::new(closure))` user-data pointer.
+- `[FILE:LINE] FFI_CALLBACK_NO_CATCH_UNWIND` — `extern "C" fn` trampoline invokes a closure without `std::panic::catch_unwind`. Panic across the C boundary is UB.
+- `[FILE:LINE] FFI_CALLBACK_USER_DATA_NEVER_RECLAIMED` — registration path calls `Box::into_raw` but no unregister/cleanup path calls `Box::from_raw`. Memory leak per registration.
+
+## Symbol naming
+
+`#[no_mangle]` (or `#[unsafe(no_mangle)]` in edition 2024) preserves the exact source identifier as the symbol name. `#[export_name = "..."]` (or `#[unsafe(export_name = "...")]`) overrides the symbol name. On the import side, `#[link_name = "..."]` inside an `extern` block renames the imported symbol. Without any of these, Rust mangles the name and C cannot find it.
+
+- `[FILE:LINE] FFI_NO_MANGLE_NEEDS_UNSAFE_2024` — edition 2024 crate uses `#[no_mangle]` without the `unsafe(...)` wrapper. The bare attribute is deprecated; switch to `#[unsafe(no_mangle)]`.
+- `[FILE:LINE] FFI_LINK_NAME_MISMATCH` — `#[link_name = "..."]` on an extern declaration does not match the symbol the C library actually exports (typo, missing prefix, mangled C++ name). Linker either fails or silently resolves to the wrong symbol.
+
+## `-sys` crate split convention
+
+Hand-written or bindgen-generated raw FFI declarations belong in a sibling `*-sys` crate (`openssl-sys`); the safe wrapper lives in the namesake crate (`openssl`). The split (a) lets the bindings and the wrapper evolve on independent SemVer tracks, (b) lets multiple safe wrappers share one set of raw declarations, and (c) makes the unsafe surface easy to audit. Cargo also forbids two crates linking the same native library (via the `links` key) from coexisting, so any nontrivial wrapper that does this in-tree forces a major bump on every bindings change.
+
+- `[FILE:LINE] FFI_BINDINGS_MIXED_WITH_WRAPPER` — a crate exposes `pub extern "C" fn`/raw struct declarations alongside its safe wrapper API. Split the raw declarations into a `*-sys` crate.
+- `[FILE:LINE] FFI_SYS_CRATE_DUPLICATE_LINK` — two different versions of the same `-sys` crate end up in the dep graph (both setting `links = "foo"`). Cargo refuses to build; align versions in `Cargo.toml`.
+
+See also: [type-mapping.md](type-mapping.md) for C-to-Rust primitive correspondence and `#[repr(C)]` layout. See [../../rust-code-review/references/unsafe-deep.md](../../rust-code-review/references/unsafe-deep.md) for the broader unsafe-block discipline that FFI inherits.

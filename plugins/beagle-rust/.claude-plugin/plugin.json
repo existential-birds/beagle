@@ -1,7 +1,7 @@
 {
   "name": "beagle-rust",
   "description": "Rust code review and development skills covering ownership, lifetimes, error handling, async/tokio, serde, sqlx, axum, macros, FFI, unsafe, concurrency, and testing patterns.",
-  "version": "1.6.0",
+  "version": "1.6.1",
   "author": {
     "name": "Existential Birds, LLC",
     "email": "tech@existentialbirds.com"

@@ -27,7 +27,7 @@ Do not invent tags, PR numbers, or links. Each row must pass before the work tha
 | Before `git log` / `git diff` | `git tag -l "$PREV_TAG"` prints exactly one line matching `PREV_TAG` | Stop; report that the tag is missing—do not write changelog entries |
 | Before categorizing | `git rev-parse "$PREV_TAG^{commit}"` exits 0 | Stop; fix `PREV_TAG` or repo checkout |
 | If using `gh pr list` | Command exits 0 and JSON is valid | Fall back to commit subjects + merge-commit URLs only; do not fabricate PR numbers |
-| After Step 5 footer edits | Same intent as Step 5: confirm two compare-link lines exist—`[Unreleased]:` (points at `HEAD` from the new tag) and `[VERSION]:` for the release you added (VERSION matches the `## [VERSION]` heading). Use the Step 5 `grep` command with your real version substituted for the placeholder | Re-run footer edits from Step 5 |
+| After Step 5 footer edits | Step 6 footer-gate exits 0 (both `grep -q` checks pass against the staged `CHANGELOG.md`) | Re-run footer edits from Step 5, then re-run Step 6 until it exits 0 |
 
 ## Step 1: Gather Changes
 
@@ -201,9 +201,47 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
     [3.1.0]: https://github.com/OWNER/REPO/compare/v3.0.0...v3.1.0
    ```
 
-   After editing, verify with: `grep -E '^\[(Unreleased|NEW_VERSION)\]:' CHANGELOG.md` — both lines must be present and `[Unreleased]` must point at the new tag, not the old one.
+   After editing, run **Step 6** to verify both footer lines exist and are correct. Do not skip Step 6 — it is the hard gate that prevents the recurring "missing footer compare link" reviewer feedback.
 
-## Step 6: Output Summary
+## Step 6: Verify CHANGELOG footer compare links (HARD GATE)
+
+This is the enforcement gate for footer compare links. It must run before `gen-release-notes` reports success and before any commit step in the release workflow. It is **not** advisory — both `grep -q` checks must exit 0 or the gate fails with a named missing line.
+
+Run this block exactly:
+
+```bash
+# Extract NEW and PREV versions from the staged CHANGELOG.md.
+# We only match numeric `## [X.Y.Z]` headings so `## [Unreleased]` is skipped.
+NEW_VERSION=$(grep -m1 -E '^## \[[0-9]+\.[0-9]+\.[0-9]+\]' CHANGELOG.md | sed -E 's/^## \[([0-9]+\.[0-9]+\.[0-9]+)\].*/\1/')
+PREV_VERSION=$(grep -m2 -E '^## \[[0-9]+\.[0-9]+\.[0-9]+\]' CHANGELOG.md | sed -n '2p' | sed -E 's/^## \[([0-9]+\.[0-9]+\.[0-9]+)\].*/\1/')
+
+if [ -z "$NEW_VERSION" ] || [ -z "$PREV_VERSION" ]; then
+  echo "GATE FAIL: could not extract NEW_VERSION ($NEW_VERSION) or PREV_VERSION ($PREV_VERSION) from CHANGELOG.md"
+  exit 1
+fi
+
+echo "Gating footer compare links: NEW=v${NEW_VERSION}, PREV=v${PREV_VERSION}"
+
+# Escape dots so they match literally inside the regex.
+NEW_RE=${NEW_VERSION//./\\.}
+PREV_RE=${PREV_VERSION//./\\.}
+
+# Check 1: the new [NEW_VERSION] footer line exists and points PREV->NEW.
+grep -qE "^\[${NEW_RE}\]: .*compare/v${PREV_RE}\.\.\.v${NEW_RE}\$" CHANGELOG.md \
+  || { echo "GATE FAIL: missing footer line: [${NEW_VERSION}]: .../compare/v${PREV_VERSION}...v${NEW_VERSION}"; exit 1; }
+
+# Check 2: the [Unreleased] footer line is advanced to compare from the new tag.
+grep -qE "^\[Unreleased\]: .*compare/v${NEW_RE}\.\.\.HEAD\$" CHANGELOG.md \
+  || { echo "GATE FAIL: [Unreleased] is not advanced; expected: [Unreleased]: .../compare/v${NEW_VERSION}...HEAD"; exit 1; }
+
+echo "Footer compare links verified: [${NEW_VERSION}] and [Unreleased] both present and correct."
+```
+
+**Pass condition (objective):** both `grep -q` invocations above exit 0 against the staged `CHANGELOG.md`. The block must print `Footer compare links verified: ...` and exit 0.
+
+**On fail:** the gate names the missing or wrong line. Return to Step 5 and edit `CHANGELOG.md` to add or correct that line, then re-run this block. Do not proceed to Step 7 or report success until the block exits 0.
+
+## Step 7: Output Summary
 
 After updating the changelog, provide:
 1. The suggested version number with rationale

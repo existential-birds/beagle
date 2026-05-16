@@ -6,6 +6,16 @@ Format follows [Keep a Changelog](https://keepachangelog.com/en/1.1.0/). Version
 
 ## [Unreleased]
 
+## [3.9.1] - 2026-05-15
+
+### Added
+- **beagle-rust:** Expand `ffi-code-review/references/safety-patterns.md` (+96 lines, 12 review checks) with calling-convention semantics (`extern "C"` vs `extern "system"` vs `extern "Rust"` vs `extern "C-unwind"`), allocator-ownership rule (whoever allocates also frees — `Box::from_raw` only on Rust-allocated pointers, `libc::free` only on C-allocated), callback marshaling via `extern "C" fn` trampoline + `Box::into_raw(Box::new(closure))` user_data + `catch_unwind`, symbol naming hygiene (`#[unsafe(no_mangle)]` in edition 2024), and the `-sys` crate split convention — distilled from *Rust for Rustaceans* Ch 11
+- **beagle-rust:** Add Quick Reference row for "Wild Patterns" and "Destructors and Cleanup" + "Async APIs" sections to `rust-best-practices/SKILL.md` — surfaces the new dev-side content (drop guards, extension traits, index pointers, crate preludes, explicit `close()`/`shutdown()` pattern, cancel-safety documentation, runtime-agnostic library design) directly in the SKILL discovery surface, not only in references
+
+### Fixed
+- **beagle-core:** Tighten `gen-release-notes` Step 6 from a soft "verify" sentence into a **hard gate** with runnable shell commands that extract `NEW_VERSION` and `PREV_VERSION` from the staged `CHANGELOG.md`, then `grep -qE` for the exact `[NEW]: ...compare/vPREV...vNEW` footer line AND the advanced `[Unreleased]: ...compare/vNEW...HEAD` line. Exits with a named error on failure. Previously, the verification was prose-only and the 3.8.0 release shipped without its `[3.8.0]` footer compare link
+- **release command:** Rewrite Step 3.5 of `.claude/commands/release.md` from soft "verify" prose into a hard gate that re-runs the same `gen-release-notes` Step 6 checks. Defense in depth — release flow now blocks at PR creation if footer compare links are missing
+
 ## [3.9.0] - 2026-05-15
 
 ### Added
@@ -452,7 +462,8 @@ Format follows [Keep a Changelog](https://keepachangelog.com/en/1.1.0/). Version
 - Development commands: `skill-builder`, `ensure-docs`
 - Cursor IDE command equivalents
 
-[Unreleased]: https://github.com/existential-birds/beagle/compare/v3.9.0...HEAD
+[Unreleased]: https://github.com/existential-birds/beagle/compare/v3.9.1...HEAD
+[3.9.1]: https://github.com/existential-birds/beagle/compare/v3.9.0...v3.9.1
 [3.9.0]: https://github.com/existential-birds/beagle/compare/v3.8.0...v3.9.0
 [3.8.0]: https://github.com/existential-birds/beagle/compare/v3.7.0...v3.8.0
 [3.7.0]: https://github.com/existential-birds/beagle/compare/v3.6.0...v3.7.0

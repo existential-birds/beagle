@@ -22,7 +22,10 @@ For EACH feedback item:
 1. **Locate**: Find the referenced code (`Read` tool)
 2. **Context**: Understand why it exists (`Grep` for usage, git blame)
 3. **Validate**: Test the claim (run tests, reproduce issue)
-4. **Document**: Note verification result before proceeding
+4. **Classify**: VALID (claim holds) or INVALID (claim disproved by an artifact). If genuinely unparseable, NEEDS CLARIFICATION — but never use this to dodge a fixable item.
+5. **Document**: Record the artifact (path:line, command output, grep hit) before proceeding.
+
+A claim is INVALID only when verification produced a concrete artifact disproving it. "I don't think this matters" is not verification — it is deferral, which is forbidden.
 
 ## Using Code-Review Skills for Verification
 
@@ -48,5 +51,13 @@ Feedback: "Remove unused `validate_user` function"
 Verification:
 1. `Grep` for "validate_user" across codebase
 2. Found: Called in `auth/middleware.py:45`
-3. Result: **Feedback incorrect** - function is used
-4. Action: Push back with evidence
+3. Classification: **INVALID** — function is used
+4. Action: Reject with evidence in the pre-dispatch summary
+
+Contrast — feedback: "Null check missing on `session` at `auth.py:42`"
+
+Verification:
+1. `Read` `auth.py` around line 42
+2. Confirmed: `session.user_id` is dereferenced with no prior `if session is None` guard
+3. Classification: **VALID**
+4. Action: Add to the `launch fixes for ...` prompt; on confirm, spawn a subagent to add the guard. Do not edit `auth.py` from the orchestrator.

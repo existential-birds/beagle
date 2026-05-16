@@ -16,7 +16,7 @@ Every valid item is fixed by a dedicated subagent spawned in parallel.
 
 ## Quick Reference
 
-```
+```text
 ┌─────────────┐     ┌──────────────┐     ┌──────────────────────┐
 │   VERIFY    │ ──▶ │   CONFIRM    │ ──▶ │   DISPATCH FIXES     │
 │ (tool-based)│     │ ("launch     │     │ (one subagent per    │
@@ -135,7 +135,7 @@ When spawning a fix subagent, the prompt MUST include:
 
 ### Fix-Quality Contract (paste into every subagent prompt)
 
-```
+```text
 You are fixing one code review finding. Hard requirements:
 
 1. Make the fix. Do not defer. Do not declare anything out of scope.
@@ -178,6 +178,6 @@ Reads the file, verifies each item, prints invalid/valid summary, asks `launch f
 ## Files
 
 - `VERIFICATION.md` - Tool-based verification workflow
-- `EVALUATION.md` - Classification rules (VALID / INVALID only)
+- `EVALUATION.md` - Classification rules (VALID / INVALID / NEEDS CLARIFICATION)
 - `RESPONSE.md` - Structured output format
 - `references/skill-integration.md` - Using with code-review skills

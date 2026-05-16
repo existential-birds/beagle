@@ -103,12 +103,26 @@ git diff $(git merge-base HEAD main)..HEAD -- '*.rs' | grep -cE 'macro_rules!|#\
 
 # Detect FFI code in diff
 git diff $(git merge-base HEAD main)..HEAD -- '*.rs' | grep -cE 'extern "C"|#\[no_mangle\]|#\[repr\(C\)\]|bindgen|#\[unsafe\(no_mangle\)\]'
+
+# Detect concurrency primitives (atomics, lock-free, hand-rolled sync)
+git diff $(git merge-base HEAD main)..HEAD -- '*.rs' | grep -cE 'std::sync::atomic|Atomic(Bool|U?size|U?(8|16|32|64)|Ptr)|compare_exchange|fetch_(add|sub|or|and|xor|update)|UnsafeCell|unsafe impl (Send|Sync)|Ordering::(Relaxed|Acquire|Release|AcqRel|SeqCst)|atomic::fence'
+
+# Detect concurrency test tooling
+grep -rE 'loom|^miri$' --include='Cargo.toml' -l | head -3
+git diff $(git merge-base HEAD main)..HEAD -- '*.rs' | grep -cE 'loom::|#\[cfg\(loom\)\]|cfg_attr\(miri'
+
+# Detect concurrency crates
+grep -rE '^crossbeam|^arc-swap|^parking_lot|^dashmap|^flurry|^haphazard|^seize|^atomic_wait' --include='Cargo.toml' -l | head -3
 ```
 
 **Modern Rust detection notes:**
 - If `async-trait` is a dependency but the project uses edition 2024 or MSRV >= 1.75, flag as Informational — native `async fn` in traits is available and `async-trait` can likely be removed.
 - If `once_cell` or `lazy_static` is a dependency but MSRV >= 1.80, flag as Informational — `std::sync::LazyLock` and `std::cell::LazyCell` are stable replacements.
 - If `#[allow(...)]` is used where `#[expect(...)]` would be better (MSRV >= 1.81), note as Minor — `#[expect]` warns when the suppressed lint no longer fires, keeping suppressions clean.
+
+**Concurrency detection notes:**
+- If atomics (`std::sync::atomic`, `compare_exchange`, `fetch_*`), `UnsafeCell`, `unsafe impl Send/Sync`, or `crossbeam` / `arc-swap` / `parking_lot` are present in the diff, load `beagle-rust:rust-code-review` and consult `references/concurrency-primitives.md`, `references/memory-ordering.md`, and `references/lock-free-patterns.md`.
+- If hand-rolled atomics / lock-free types appear with no `loom` dependency or no `cargo +nightly miri test` in CI, load `beagle-rust:rust-testing-code-review` and consult `references/concurrency-testing.md`.
 
 ## Step 5: Load Verification Protocol
 
@@ -132,6 +146,8 @@ Use the `Skill` tool to load each applicable skill (e.g., `Skill(skill: "beagle-
 | Test files changed | `beagle-rust:rust-testing-code-review` |
 | Macro definitions in diff | `beagle-rust:macros-code-review` |
 | FFI code detected (extern, repr(C), bindgen) | `beagle-rust:ffi-code-review` |
+| Atomics, `UnsafeCell`, `unsafe impl Send/Sync`, `compare_exchange`, `crossbeam`, `arc-swap`, `parking_lot` | `beagle-rust:rust-code-review` (load `references/concurrency-primitives.md`, `references/memory-ordering.md`, `references/lock-free-patterns.md`) |
+| `loom`, `miri`, hand-rolled lock-free code under test | `beagle-rust:rust-testing-code-review` (load `references/concurrency-testing.md`) |
 
 ## Step 7: Review
 

@@ -43,6 +43,8 @@ Description of the issue and why it matters.
 | Result/Option handling, thiserror, anyhow, error context, Error trait | [references/error-handling.md](references/error-handling.md) |
 | Async pitfalls, Send/Sync bounds, runtime blocking | [references/async-concurrency.md](references/async-concurrency.md) |
 | Send/Sync semantics, atomics, memory ordering, lock patterns | [references/concurrency-primitives.md](references/concurrency-primitives.md) |
+| Memory ordering decision tree, fences, ABA, out-of-thin-air | [references/memory-ordering.md](references/memory-ordering.md) |
+| Hand-rolled spinlocks, channels, Arc, seqlock, CAS retry patterns | [references/lock-free-patterns.md](references/lock-free-patterns.md) |
 | Type layout, alignment, repr, PhantomData, generics vs dyn Trait | [references/types-layout.md](references/types-layout.md) |
 | Unsafe code, API design, derive patterns, clippy patterns | [references/common-mistakes.md](references/common-mistakes.md) |
 | Safety contracts, raw pointers, MaybeUninit, soundness, Miri | [references/unsafe-deep.md](references/unsafe-deep.md) |
@@ -101,6 +103,24 @@ Description of the issue and why it matters.
 - [ ] **Edition 2024**: `extern "C" {}` blocks written as `unsafe extern "C" {}`
 - [ ] **Edition 2024**: `#[no_mangle]` and `#[export_name]` written as `#[unsafe(no_mangle)]` and `#[unsafe(export_name)]`
 
+### Concurrency (Memory Ordering and Lock-Free Patterns)
+> Detailed guidance: [references/memory-ordering.md](references/memory-ordering.md), [references/lock-free-patterns.md](references/lock-free-patterns.md)
+- [ ] Types shared across threads have correct `Send` / `Sync` bounds; `unsafe impl Send/Sync` carries a comment naming the invariant
+- [ ] Each atomic operation pairs with a named happens-before edge (spawn/join, `Release`/`Acquire` on the same atomic, or a fence); `Release` publishes data, `Acquire` observes it
+- [ ] No `SeqCst` by default — only when two or more independent atomics need a single global total order, with a comment naming the requirement
+- [ ] No `store(.., Acquire)` / `load(.., Release)` / `load(.., AcqRel)` (rejected by the type half they occupy)
+- [ ] `Relaxed` not used to publish or observe non-atomic data (use `Release` / `Acquire`)
+- [ ] `compare_exchange_weak` used inside retry loops; strong `compare_exchange` reserved for one-shot updates; success ordering at least `Acquire` when acquiring a critical section
+- [ ] Hand-rolled spinlocks include `std::hint::spin_loop()` in the busy wait, exponential backoff, and an eventual `thread::yield_now()`; not used in normal user-space binaries without a documented reason a `Mutex` is unsuitable
+- [ ] Hand-rolled `Arc` clones with `Relaxed`, drops with `Release` + `fence(Acquire)` on the last decrement, and includes an overflow guard
+- [ ] `Arc<Mutex<...>>` cycles broken with `Weak`; `Arc<Mutex<Copy>>` reviewed for `Arc<AtomicT>` replacement
+- [ ] Hand-rolled lock-free primitives have a `#[cfg(loom)]` test module and a Miri-runnable test (no blanket `cfg_attr(miri, ignore)`)
+- [ ] `OnceLock` / `LazyLock` preferred over `once_cell` / `lazy_static` for new code (MSRV ≥ 1.80)
+- [ ] No `MutexGuard` held across `.await` (use `tokio::sync::Mutex` or drop the guard first)
+- [ ] Hot atomics on contended cache lines wrapped with `CachePadded` or `#[repr(align(64))]` to avoid false sharing
+- [ ] Shared mutation goes through `UnsafeCell<T>` (not bare `*mut T` or transmuted `&` to `&mut`)
+- [ ] Pointer-based CAS (`AtomicPtr<Node>`) uses epoch / hazard-pointer / tagged-pointer reclamation; ABA hazards considered
+
 ### Naming and Style
 - [ ] Types are `PascalCase`, functions/methods `snake_case`, constants `SCREAMING_SNAKE_CASE`
 - [ ] Modules use `snake_case`
@@ -146,6 +166,7 @@ Description of the issue and why it matters.
 - Use-after-free or dangling reference patterns
 - `unwrap()` on user input or external data in production code
 - Data races (concurrent mutation without synchronization)
+- Wrong memory ordering on an atomic that gates other shared data (data race)
 - Memory leaks via circular `Arc<Mutex<...>>` without weak references
 
 ### Major (Should Fix)
@@ -175,6 +196,8 @@ Description of the issue and why it matters.
 - Reviewing Result/Option handling, error types, Error trait impls → error-handling.md
 - Reviewing async code, tokio usage, task management → async-concurrency.md
 - Reviewing Send/Sync, atomics, memory ordering, mutexes, lock patterns → concurrency-primitives.md
+- Reviewing memory ordering decisions, fences, ABA, out-of-thin-air → memory-ordering.md
+- Reviewing hand-rolled spinlocks, channels, Arc, seqlock, CAS retry patterns → lock-free-patterns.md
 - Reviewing type layout, alignment, repr, PhantomData, generics vs dyn → types-layout.md
 - Reviewing unsafe code, API design, derive macros, clippy patterns → common-mistakes.md
 - Reviewing safety contracts, raw pointers, MaybeUninit, soundness → unsafe-deep.md

@@ -6,6 +6,17 @@ Format follows [Keep a Changelog](https://keepachangelog.com/en/1.1.0/). Version
 
 ## [Unreleased]
 
+## [3.8.0] - 2026-05-15
+
+### Added
+- **beagle-rust:** Add `references/memory-ordering.md` to `rust-code-review` — Mara Bos's decision tree for `Relaxed`/`Acquire`/`Release`/`AcqRel`/`SeqCst`, fences, the `compare_exchange` success/failure ordering pair, `compare_exchange_weak` vs strong CAS, ABA, out-of-thin-air, ARM-vs-x86 hazards, with 33 `[FILE:LINE] ISSUE_TITLE` review checks distilled from *Rust Atomics and Locks* Ch 3
+- **beagle-rust:** Add `references/lock-free-patterns.md` to `rust-code-review` — when to hand-roll vs use std/`crossbeam`/`arc-swap`/`parking_lot`, spinlocks with `spin_loop` and backoff, hand-rolled channels (Drop/panic safety, `MaybeUninit`, park/unpark races), hand-rolled `Arc`/`Weak` (clone-`Relaxed` / drop-`Release` / `fence(Acquire)` on last decrement, two-counter Weak layout), CAS loops with `fetch_update`, seqlock, three-state futex mutex, condvar counter-before-unlock and spurious-wakeup loops, with 34 review checks distilled from *Rust Atomics and Locks* Ch 4–9
+- **beagle-rust:** Add `references/concurrency-testing.md` to `rust-testing-code-review` — `loom` setup (the `#[cfg(loom)]` import shim, `RUSTFLAGS="--cfg loom"`, `LOOM_MAX_PREEMPTIONS`), `cargo +nightly miri test` with `MIRIFLAGS` for strict provenance, tree borrows, and many-seeds, the loom+miri pairing, complementary tools (`shuttle`, ThreadSanitizer, `kani`), CI matrix, and patterns that should always have a concurrency test, with 24 review checks
+- **beagle-rust:** Expand `rust-code-review/references/concurrency-primitives.md` with `UnsafeCell` invariants, `MaybeUninit` atomic-init patterns, `Mutex`/`RwLock` poisoning + `clear_poison` (1.77) including the `LazyLock` poisoning asymmetry, Send/Sync deep cuts (`MutexGuard`, `Rc` vs `Arc`, `unsafe impl` bounds, `PhantomData<*const ()>` opt-outs), ABA and out-of-thin-air clarifications, and an Atomic Types Survey covering `target_has_atomic` gating and `fetch_update`
+- **beagle-rust:** Expand `tokio-async-code-review/references/sync-primitives.md` with the std-vs-`tokio`-vs-`parking_lot` decision matrix, the `std::sync::Mutex` held across `.await` footgun (with the `drop(guard)` workaround), `tokio::sync::RwLock` write-preferring/starvation, "atomics beat locks" rule for single-value state, `tokio::sync::Notify` lost-wakeup hazards, `tokio::sync::Semaphore` for back-pressure, and `OnceCell`/`OnceLock`/`LazyLock` selection
+- **beagle-rust:** Expand `ffi-code-review/references/safety-patterns.md` with atomics and shared state across FFI — Rust `AtomicXxx` vs C `_Atomic` ABI compatibility, raw-pointer `Send`/`Sync` boundary patterns, `UnsafeCell` requirements for shared-mutation interfaces, Rust thread vs C-spawned thread differences (`thread_local!` destructors, `park`/`unpark`)
+- **beagle-rust:** Wire the new references into `rust-code-review/SKILL.md`, `rust-testing-code-review/SKILL.md`, and `review-rust/SKILL.md` (Quick Reference table, When to Load References, Review Checklist concurrency subsection, severity calibration for memory-ordering data races, and tech-detection routing for `std::sync::atomic`, `loom`/`miri`, `crossbeam`, `arc-swap`, `parking_lot`)
+
 ## [3.7.0] - 2026-05-15
 
 ### Added

@@ -39,6 +39,7 @@ Description of the issue and why it matters.
 | Unit tests, assertions, naming, snapshots, rstest, doc tests, `#[expect]`, `LazyLock` fixtures, tail expression scope | [references/unit-tests.md](references/unit-tests.md) |
 | Integration tests, async testing, fixtures, test databases, native `async fn` mocks, `if let` temporary scope | [references/integration-tests.md](references/integration-tests.md) |
 | Fuzzing, property-based testing, Miri, Loom, benchmarking, compile_fail, custom harness, mocking strategies | [references/advanced-testing.md](references/advanced-testing.md) |
+| Loom interleaving tests, Miri UB checks, shuttle, ThreadSanitizer, CI matrix for concurrent code | [references/concurrency-testing.md](references/concurrency-testing.md) |
 
 ## Review Checklist
 
@@ -106,6 +107,15 @@ Description of the issue and why it matters.
 - [ ] Doc tests serve as both documentation and correctness checks
 - [ ] Hidden setup lines prefixed with `#` to keep examples clean
 - [ ] `cargo test --doc` passes (nextest doesn't run doc tests)
+
+### Concurrency Testing
+> Detailed guidance: [references/concurrency-testing.md](references/concurrency-testing.md)
+- [ ] Hand-rolled atomics / `unsafe impl Send|Sync` / state machines have a `#[cfg(loom)]` test using `loom::sync` and `loom::thread` shims (not `std::sync`)
+- [ ] Crates with `unsafe` touching atomics, pointers, or `UnsafeCell` run `cargo +nightly miri test --all-features` in CI on every PR (not release-only, not module-level `cfg_attr(miri, ignore)`)
+- [ ] Lock-free data structures (`AtomicPtr` stacks/queues/lists) have loom + Miri (Stacked Borrows and Tree Borrows) + `proptest`-driven operation sequences
+- [ ] Nondeterministic inputs (`Instant::now`, `rand`, env, `HashMap` iteration) are kept out of `loom::model` bodies
+- [ ] Loom jobs run in `--release` with a `LOOM_MAX_PREEMPTIONS` bound; loom tests live in a separate `tests/` file so `--cfg loom` does not poison normal `cargo test`
+- [ ] `nextest run -j1` is not cited as evidence of race-condition coverage; FFI-heavy `unsafe extern "C"` paths have a ThreadSanitizer job
 
 ## Severity Calibration
 

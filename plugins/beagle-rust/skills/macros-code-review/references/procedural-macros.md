@@ -174,3 +174,82 @@ pub fn test_with_db(_attr: TokenStream, item: TokenStream) -> TokenStream {
 8. Does the attribute macro preserve the input item?
 9. Is `Span::call_site()` used only for intentionally public identifiers?
 10. Does generated code avoid `gen` as an identifier (edition 2024)?
+
+See also [declarative-macros.md](declarative-macros.md).
+
+## Span Hygiene in Proc-Macros
+
+Three `proc_macro2::Span` constructors with distinct semantics. Choose deliberately:
+
+- **`Span::call_site()`** — span of the macro invocation site (caller's location). Identifiers minted with this span resolve in the **caller's scope**. Use only when you want generated tokens to "look like the user wrote them" (errors pointing at user input, identifiers intended to respect the caller's namespace, items the user must be able to reference by name).
+- **`Span::def_site()`** — span of the macro definition site. Identifiers resolve in the **macro crate's scope**. Use for helper items the macro introduces that must NOT clash with caller identifiers. **Unstable on stable Rust** (only fully usable on nightly `proc_macro::Span`); `proc_macro2::Span::def_site()` falls back to `call_site` on stable.
+- **`Span::mixed_site()`** — a compromise matching `macro_rules!` hygiene: variables are hygienic (resolve in macro scope), but types, modules, and macros resolve in caller scope. **Default for most proc-macro work.** Use `mixed_site` by default; reach for `call_site` only when explicitly pointing at user code.
+
+```rust
+use proc_macro2::Span;
+use syn::Ident;
+
+// BAD: helper variable in caller scope -- collides with caller's `tmp`
+let helper = Ident::new("tmp", Span::call_site());
+
+// GOOD: variable hygienic, types still resolve at caller
+let helper = Ident::new("tmp", Span::mixed_site());
+let ty: syn::Type = syn::parse_quote!(::core::option::Option<#ident>);
+```
+
+## Error Reporting via `syn::Error`
+
+Point at user code with precise spans instead of panicking:
+
+- `syn::Error::new(span, "...")` — error at the given span.
+- `syn::Error::new_spanned(node, "...")` — error spanning the entire AST node; prefer this when you have a `syn::Field`, `syn::Variant`, `syn::Type`.
+- Convert with `.to_compile_error()` (returns `proc_macro2::TokenStream`) or `.into_compile_error()` (consumes).
+- `syn::Error` is iterable — `combine()` multiple errors and emit them together for one-pass diagnostics.
+
+```rust
+let mut acc: Option<syn::Error> = None;
+for field in fields.iter() {
+    if field_is_invalid(field) {
+        let e = syn::Error::new_spanned(field, "unsupported field type");
+        match acc { Some(ref mut a) => a.combine(e), None => acc = Some(e) }
+    }
+}
+if let Some(e) = acc { return e.to_compile_error().into(); }
+```
+
+## `parse_quote!` vs `quote!`
+
+`quote!` produces a `proc_macro2::TokenStream` — the standard final return value. `syn::parse_quote!` produces a `syn::T` for any `T: syn::parse::Parse` (annotate the binding to drive inference). Use `parse_quote!` when subsequent code manipulates the result as a `syn::Type`, `syn::Expr`, `syn::WhereClause`, etc.
+
+Pitfall: `parse_quote!` panics on parse failure. For fallible parses use `syn::parse2(quote! { ... })` explicitly and handle the `Result`.
+
+```rust
+let where_clause: syn::WhereClause = syn::parse_quote!(where #ty: ::core::fmt::Debug);
+let ts: proc_macro2::TokenStream = quote! { impl Trait for #name {} };
+```
+
+## Compile-Time Cost Drivers
+
+Proc macros are the biggest contributor to slow Rust builds. Audit:
+
+- **`syn` feature flags** — `features = ["full"]` costs 30-50% more compile time than `["derive"]` or `["parsing"]` alone. Many crates pull `["full"]` reflexively; check what your macro actually parses.
+- **Derive fan-out** — `#[derive(Serialize, Deserialize, Debug, Clone, PartialEq, Eq, Hash)]` on 100 types is 600 macro expansions. Each expansion runs the proc-macro code AND produces tokens the compiler must parse and check.
+- **Attribute macros on async fn** — `tracing::instrument`, `tokio::main`, `async_trait` each expand the function body, growing AST size and multiplying downstream type-check work.
+- **Switch to function-like when use is rare** — if a derive is used once or twice in a crate, a function-like macro called explicitly avoids the derive-registration overhead.
+
+## trybuild for UI Tests
+
+See [../../rust-testing-code-review/references/advanced-testing.md](../../rust-testing-code-review/references/advanced-testing.md) for full trybuild patterns. Key proc-macro caveat: `.stderr` outputs are **rustc-version-sensitive**. Pin a stable rustc in CI for trybuild jobs and use `TRYBUILD=overwrite` only on intentional rustc upgrades — never as a blanket fix for failing UI tests.
+
+## Additional Review Checks ([FILE:LINE] format)
+
+- [FILE:LINE] CALL_SITE_FOR_HELPER_VAR — Proc macro mints a helper variable via `Ident::new("tmp", Span::call_site())`. Caller with a same-named variable triggers ambiguity. Use `Span::mixed_site()`.
+- [FILE:LINE] DEF_SITE_ON_STABLE — Proc macro uses `Span::def_site()` from `proc_macro::Span` on stable rustc. Won't compile. Use `proc_macro2::Span::mixed_site()` until `def_site` stabilizes.
+- [FILE:LINE] PANIC_FOR_USER_ERROR — Proc macro uses `panic!`/`unwrap()`/`expect()` on invalid user input. Crashes the compiler with an ICE and loses spans. Return `syn::Error::new_spanned(node, "...").to_compile_error()` instead.
+- [FILE:LINE] EARLY_RETURN_ON_FIRST_ERROR — Macro returns on the first `syn::Error` instead of accumulating with `combine()`. Users iterate compile-fix-compile-fix per error; combine and emit once.
+- [FILE:LINE] QUOTE_ASSIGNED_TO_SYN_TYPE — `let ty: syn::Type = quote! { ... };` won't compile (`quote!` produces `TokenStream`). Use `syn::parse_quote!` for the syn AST type, or `syn::parse2(quote!{...})` for fallible parses.
+- [FILE:LINE] SYN_FEATURES_FULL_UNNEEDED — `syn = { version = "2", features = ["full"] }` enabled when the macro only parses `DeriveInput`. Switch to `features = ["derive"]` to cut compile time 30-50%.
+- [FILE:LINE] DERIVE_WITHOUT_TRYBUILD — Derive macro ships without `trybuild` compile-fail tests. Error-message regressions and accepted-but-broken inputs go unnoticed. Add `tests/ui/` with paired `.stderr` fixtures.
+- [FILE:LINE] PROC_MACRO_TESTS_NIGHTLY_ONLY — Trybuild/UI tests pinned to `nightly` rustc only. Stable users hit different diagnostic wording; regressions surface as user bug reports. Run trybuild on the stable toolchain the crate supports.
+- [FILE:LINE] ATTR_MACRO_LOSES_BODY_SPAN — Attribute macro re-emits the user's `fn` body but rebuilds tokens without preserving the original span. Errors inside the body point at the macro's source, not the user's code. Use `parse_quote_spanned!` or propagate `block.span()`.
+- [FILE:LINE] PROC_MACRO_REEXPORT_PROC_MACRO_TYPES — Macro re-exports `proc_macro::TokenStream`/`proc_macro::Span` instead of `proc_macro2` equivalents. Downstream consumers (e.g., other macros wrapping yours, unit tests) can't link against `proc_macro` outside a proc-macro crate. Use `proc_macro2` for shared APIs; convert at the entry point only.

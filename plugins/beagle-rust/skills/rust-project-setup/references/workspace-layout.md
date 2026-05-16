@@ -205,3 +205,84 @@ Mark crates as internal (not published) by omitting `version` or adding `publish
 name = "internal-utils"
 publish = false
 ```
+
+## Profile Tuning for Release Builds
+
+The default `[profile.release]` leaves serious performance on the table. The knobs that matter for shipped binaries:
+
+- `opt-level = 3` — full optimization (default). Drop to `"s"` or `"z"` only for size-constrained targets (wasm, embedded).
+- `lto = "thin"` — parallel cross-crate inlining. The sweet spot for most projects. Use `"fat"` (or `true`) for whole-program LTO when binary size and runtime matter more than build time.
+- `codegen-units = 1` — sacrifices build parallelism for better optimization. Combine with LTO. Only worth it for the final shipped artifact.
+- `panic = "abort"` — smaller binary, no unwinding tables. **Destructors do not run on panic** and `catch_unwind` becomes a no-op. The setting is global across all deps — audit every dep's reliance on unwinding before flipping.
+- `strip = "symbols"` (Cargo 1.59+) — removes debug symbols from the final binary, often shrinking it 50-80%.
+
+```toml
+[profile.release]
+opt-level = 3        # full speed
+lto = "thin"         # cross-crate inlining
+codegen-units = 1    # max optimization for shipped binary
+panic = "abort"      # audit deps first!
+strip = "symbols"    # smaller binary, lose backtrace names
+```
+
+See [cargo-config.md](cargo-config.md) for `RUSTFLAGS` interactions with these knobs.
+
+## `profile.dev.package` Overrides for Slow Deps
+
+Heavy dependencies stay painful in debug mode unless overridden. Compile expensive deps in release mode once; they cache in `target/` and never recompile slowly again:
+
+```toml
+[profile.dev.package."*"]
+opt-level = 0          # default: dev profile for our code
+
+[profile.dev.package.serde_derive]
+opt-level = 3          # proc-macro compiled once, reused forever
+
+[profile.dev.package.regex]
+opt-level = 3          # CPU-bound, kills test wall time in debug
+```
+
+Best targets: proc-macro deps (`serde_derive`, `tokio-macros`, `async-trait`) and CPU-bound deps (`regex`, `image`, `zstd`, `ring`). Caveat: overrides only affect code compiled inside that crate — generics monomorphized in your crate use your profile.
+
+## Workspace Compile-Time Budgets at Scale
+
+When a workspace crosses ~20 members and 100k LOC, build time dominates dev iteration. Strategies that compound:
+
+- **Split feature flags** so dev disables expensive deps (typed-builder, derive-heavy serde features). See [features-conditional.md](features-conditional.md).
+- **Shared target dir**: `CARGO_TARGET_DIR=/shared/target` across workspaces, or `sccache` for cross-machine caching.
+- **`cargo-nextest`** for test parallelism — scales beyond `cargo test`'s per-binary model on workspaces with many crates.
+- **Member partitioning**: heavy proc-macro deps live in a single leaf crate; leaves only rebuild on `cargo build -p leaf`.
+- **`RUSTFLAGS="-Zthreads=8"`** on nightly enables the parallel rustc frontend, a measurable win on workspaces with many small crates.
+
+## Cargo.toml Metadata Completeness
+
+For any crate intended for crates.io, the `[package]` block must be filled out completely. Missing fields silently make your crate undiscoverable or ship the wrong files.
+
+```toml
+[package]
+name = "mycrate"
+version = "0.1.0"
+edition = "2024"
+rust-version = "1.85"
+description = "Concise one-line summary."   # required for publish
+license = "MIT OR Apache-2.0"
+repository = "https://github.com/org/repo"
+documentation = "https://docs.rs/mycrate"   # explicit, not inferred
+readme = "README.md"
+keywords = ["cli", "parser"]                 # max 5
+categories = ["command-line-utilities"]      # from crates.io/category_slugs
+include = ["src/**/*", "Cargo.toml", "README.md", "LICENSE-*"]
+```
+
+Missing `categories`/`keywords` and crates.io search ranks you nowhere. Missing `include` and `cargo publish` ships your `target/`, `.env`, fixture data, and any dotfile not in `.gitignore`.
+
+## Additional Review Checks
+
+- [Cargo.toml] PANIC_ABORT_IN_RELEASE_WITHOUT_AUDIT — `panic = "abort"` set globally; review every `catch_unwind` site and `Drop` impl that performs cleanup. The setting is global across all deps.
+- [Cargo.toml] MISSING_LTO_IN_RELEASE_PROFILE — release profile without `lto = "thin"` or `"fat"` leaves cross-crate inlining on the table; add when shipping a binary or hot library.
+- [Cargo.toml] CODEGEN_UNITS_NOT_TUNED_FOR_BINARY — final binary uses default `codegen-units = 16`; consider `1` plus LTO for the shipped artifact.
+- [Cargo.toml] PROC_MACRO_DEP_NOT_OVERRIDDEN — heavy proc-macro dep (`serde_derive`, `tokio-macros`) without `[profile.dev.package.X] opt-level = 3`; debug builds pay the cost every clean rebuild.
+- [Cargo.toml] MISSING_METADATA_FOR_PUBLICATION — package missing `description`, `license`, or `repository` for crates.io; publish will fail or the crate will be undiscoverable.
+- [Cargo.toml] MISSING_INCLUDE_OR_EXCLUDE — no `include` or `exclude`; `cargo publish` ships build artifacts, dotfiles, and fixtures not in `.gitignore`.
+- [Cargo.toml] STRIP_NOT_SET_IN_RELEASE — release binary keeps debug symbols; `strip = "symbols"` reduces binary size 50-80% for typical Rust artifacts.
+- [Cargo.toml] EDITION_NOT_DECLARED — `edition = "..."` missing from `[package]`; silently defaults to 2015 and disables most modern idioms.

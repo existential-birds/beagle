@@ -38,7 +38,7 @@ Description of the issue and why it matters.
 |------------|-----------|
 | Unit tests, assertions, naming, snapshots, rstest, doc tests, `#[expect]`, `LazyLock` fixtures, tail expression scope | [references/unit-tests.md](references/unit-tests.md) |
 | Integration tests, async testing, fixtures, test databases, native `async fn` mocks, `if let` temporary scope | [references/integration-tests.md](references/integration-tests.md) |
-| Fuzzing, property-based testing, Miri, Loom, benchmarking, compile_fail, custom harness, mocking strategies | [references/advanced-testing.md](references/advanced-testing.md) |
+| Fuzzing, proptest, Miri, Loom basics, mocking strategies, **stub/fake/mock/spy taxonomy, rstest matrix, `paste!`, build.rs test gen, criterion baselines + `black_box` discipline, trybuild UI tests, clippy lint groups** | [references/advanced-testing.md](references/advanced-testing.md) |
 | Loom interleaving tests, Miri UB checks, shuttle, ThreadSanitizer, CI matrix for concurrent code | [references/concurrency-testing.md](references/concurrency-testing.md) |
 
 ## Review Checklist
@@ -116,6 +116,45 @@ Description of the issue and why it matters.
 - [ ] Nondeterministic inputs (`Instant::now`, `rand`, env, `HashMap` iteration) are kept out of `loom::model` bodies
 - [ ] Loom jobs run in `--release` with a `LOOM_MAX_PREEMPTIONS` bound; loom tests live in a separate `tests/` file so `--cfg loom` does not poison normal `cargo test`
 - [ ] `nextest run -j1` is not cited as evidence of race-condition coverage; FFI-heavy `unsafe extern "C"` paths have a ThreadSanitizer job
+
+### Test Augmentation (Fakes, Mocks, Stubs, Spies)
+> Detailed guidance: [references/advanced-testing.md](references/advanced-testing.md)
+- [ ] Test doubles are typed by purpose: **stub** (canned data), **fake** (working but simplified impl), **mock** (pre-programmed expectations + verification), **spy** (records calls for after-the-fact inspection) — vocabulary is used precisely
+- [ ] `mockall`-style mocks are not used where a fake would be simpler (in-memory DB beats expectation-heavy mocks for repository-style traits)
+- [ ] Fakes are tested against the same contract as the production impl (trait conformance test); no drift
+- [ ] Trait-as-seam pattern used to inject test doubles — production code depends on the trait, not the concrete type
+
+### Performance Tests (Criterion)
+> Detailed guidance: [references/advanced-testing.md](references/advanced-testing.md)
+- [ ] Benchmarks use `criterion::black_box(...)` to prevent constant-folding; pointer-flavored inputs use `black_box(input.as_ptr())` not `black_box(&input)`
+- [ ] Benchmarks isolate I/O — setup (file open, allocation) in `iter_batched` setup closure, NOT inside the measured closure
+- [ ] CI persists a baseline via `cargo bench -- --save-baseline main`; feature branches compare with `--baseline main`; regression threshold defined and enforced
+- [ ] Criterion benchmarks build with `--profile bench` (release optimization + debug symbols for flamegraph correlation)
+- [ ] No `#[bench]` (unstable, deprecated) — use `criterion` exclusively
+- [ ] Single-shot timings are not cited as evidence; reports show mean + variance from criterion's statistical engine
+
+### Test Generation
+> Detailed guidance: [references/advanced-testing.md](references/advanced-testing.md)
+- [ ] Table-driven inputs use `rstest` with `#[case::name(...)]` (descriptive case names in test output)
+- [ ] Multi-axis input matrices use `rstest` with `#[values(...)]` on multiple parameters (Cartesian product), not hand-expanded test functions
+- [ ] Per-input-named tests for large corpora use `paste!` macro or `build.rs` codegen (one `#[test] fn` per file/case)
+- [ ] Generated tests have stable names that survive CI log diffs
+
+### Proc-Macro UI Tests (trybuild)
+> Detailed guidance: [references/advanced-testing.md](references/advanced-testing.md)
+- [ ] Proc-macros that emit compile errors have `trybuild::TestCases` covering each failure path with a `.stderr` reference
+- [ ] `.stderr` outputs were regenerated after the latest rustc bump (otherwise spurious CI failures); `TRYBUILD=overwrite cargo test` is documented in CONTRIBUTING
+- [ ] CI pins a specific stable rustc for trybuild jobs (the `.stderr` format shifts between stable releases)
+- [ ] trybuild tests skipped on nightly (nightly diagnostics differ from stable)
+
+### Clippy Lint Group Strategy
+> Detailed guidance: [references/advanced-testing.md](references/advanced-testing.md)
+- [ ] `clippy::correctness` is `deny` (always — these are bugs)
+- [ ] `clippy::suspicious` is `warn` or `deny` for libraries
+- [ ] `clippy::perf` is `warn` (real wins on hot paths)
+- [ ] `clippy::pedantic` enabled for libraries; suppressions use `#[expect(clippy::lint_name, reason = "...")]` with justification, not bare `#[allow]`
+- [ ] `clippy::nursery` is NOT enabled in CI (experimental; changes between rustc releases)
+- [ ] `clippy::restriction` lints are opt-in individually; the group is never enabled wholesale
 
 ## Severity Calibration
 

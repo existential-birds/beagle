@@ -51,7 +51,7 @@ Short **sequences with pass conditions** before claiming outcomes that need evid
 
 ## Coding Idioms
 
-Prefer `&T` over `.clone()`, use `&str`/`&[T]` in parameters, and chain iterators instead of index-based loops. For Option/Result, use `let Ok(x) = expr else { return }` for early returns and `?` for propagation. See [references/coding-idioms.md](references/coding-idioms.md) for ownership, iterator, and import patterns.
+Prefer `&T` over `.clone()`, use `&str`/`&[T]` in parameters, and chain iterators instead of index-based loops. For Option/Result, use `let Ok(x) = expr else { return }` for early returns and `?` for propagation. For scoped state changes, use **drop guards** (`let _guard = ...`, never `let _ = ...`) with `mem::replace` or `scopeguard::defer!`. Add methods to foreign types via **extension traits** (`trait MyExt; impl<T: Bound> MyExt for T`). For graph and tree shapes, prefer **index pointers** (`slotmap::DefaultKey`, generational indices) over `&T` to side-step lifetimes without unsafe. Curate a lean **crate prelude** for ergonomic glob imports; prelude additions are semver-minor (RFC 1105). See [references/coding-idioms.md](references/coding-idioms.md) for ownership, iterator, import patterns, and these ecosystem-level idioms.
 
 ## Error Handling
 
@@ -63,7 +63,7 @@ Run `cargo clippy --all-targets --all-features -- -D warnings` on every commit. 
 
 ## Performance Mindset
 
-Always benchmark with `--release`, profile before optimizing, and avoid cloning in loops or premature `.collect()` calls. Keep small types on the stack and heap-allocate only recursive structures and large buffers. See [references/performance.md](references/performance.md) for profiling tools and allocation guidance.
+Always benchmark with `--release`, profile before optimizing, and avoid cloning in loops or premature `.collect()` calls. Keep small types on the stack and heap-allocate only recursive structures and large buffers. For workspaces at scale, watch **monomorphization budgets** (extract type-independent inner functions; switch internal generics to `dyn` where peak inlining isn't critical) and **false sharing** (`#[repr(align(64))]` or `crossbeam::utils::CachePadded` on per-thread atomics; `align(128)` on Apple Silicon). Benchmark with `criterion` — persist a baseline (`--save-baseline main`) and compare in CI, use `criterion::black_box` (with `as_ptr()` for pointer inputs), and isolate I/O into `iter_batched` setup. See [references/performance.md](references/performance.md) for profiling tools, allocation guidance, monomorphization patterns, cache-line alignment, and criterion discipline.
 
 ## Generics and Dispatch
 
@@ -79,7 +79,7 @@ Use `//` for why, `///` for what/how on public APIs, and `//!` for module purpos
 
 ## API Design
 
-Follow four principles: unsurprising (reuse standard names and traits), flexible (use generics and `impl Trait` to avoid unnecessary restrictions), obvious (encode invariants in the type system so misuse is a compile error), and constrained (expose only what you can commit to long-term). Use `#[non_exhaustive]` for types that may grow, seal traits you need to extend without breaking changes, and wrap foreign types in newtypes to control your SemVer surface. See [references/api-design.md](references/api-design.md) for builder patterns, sealed traits, and SemVer implications.
+Follow four principles: unsurprising (reuse standard names and traits), flexible (use generics and `impl Trait` to avoid unnecessary restrictions), obvious (encode invariants in the type system so misuse is a compile error), and constrained (expose only what you can commit to long-term). Use `#[non_exhaustive]` for types that may grow, seal traits you need to extend without breaking changes, and wrap foreign types in newtypes to control your SemVer surface. Watch for **hidden contracts** — re-exported foreign types, auto-trait propagation through `-> impl Trait`, and accidental `!Send` futures — and lock them down with a compile-time `is_normal<T: Sized + Send + Sync + Unpin>()` test for public types. Ship new traits with blanket impls for `&T`/`Box<T>` early (adding later is breaking). For fallible cleanup, expose an explicit `close()`/`shutdown()` returning `Result`; `Drop` cannot fail or `.await`. See [references/api-design.md](references/api-design.md) for builder patterns, sealed traits, object-safety mechanics, `Deref` discipline, fallible destructors, and SemVer implications.
 
 ## Ecosystem Patterns
 

@@ -113,6 +113,20 @@ git diff $(git merge-base HEAD main)..HEAD -- '*.rs' | grep -cE 'loom::|#\[cfg\(
 
 # Detect concurrency crates
 grep -rE '^crossbeam|^arc-swap|^parking_lot|^dashmap|^flurry|^haphazard|^seize|^atomic_wait' --include='Cargo.toml' -l | head -3
+
+# Detect criterion benchmarks
+grep -rE '^criterion' --include='Cargo.toml' -l | head -3
+ls -d benches 2>/dev/null
+
+# Detect proc-macro crate or trybuild
+grep -rE 'proc-macro\s*=\s*true|^trybuild' --include='Cargo.toml' -l | head -3
+
+# Detect public-surface changes (interface-design.md routing)
+git diff $(git merge-base HEAD main)..HEAD -- '*.rs' | grep -cE '^\+\s*pub (trait|fn|struct|enum|mod|use)|^\+\s*impl[<\s].*Drop for'
+
+# Detect ecosystem patterns (patterns-in-the-wild.md routing)
+grep -rE '^slotmap|^petgraph|^scopeguard|^indexmap' --include='Cargo.toml' -l | head -3
+git diff $(git merge-base HEAD main)..HEAD -- '*.rs' | grep -cE 'mem::replace|swap_remove|prelude'
 ```
 
 **Modern Rust detection notes:**
@@ -122,7 +136,16 @@ grep -rE '^crossbeam|^arc-swap|^parking_lot|^dashmap|^flurry|^haphazard|^seize|^
 
 **Concurrency detection notes:**
 - If atomics (`std::sync::atomic`, `compare_exchange`, `fetch_*`), `UnsafeCell`, `unsafe impl Send/Sync`, or `crossbeam` / `arc-swap` / `parking_lot` are present in the diff, load `beagle-rust:rust-code-review` and consult `references/concurrency-primitives.md`, `references/memory-ordering.md`, and `references/lock-free-patterns.md`.
+- If the diff introduces or restructures concurrency (worker pools, actor-style channels, `tokio::spawn` patterns, threads-vs-async choices), also consult `references/concurrency-models.md` for design-level review questions.
 - If hand-rolled atomics / lock-free types appear with no `loom` dependency or no `cargo +nightly miri test` in CI, load `beagle-rust:rust-testing-code-review` and consult `references/concurrency-testing.md`.
+
+**Interface design / API surface detection:**
+- If the diff introduces or changes `pub trait`, `pub fn`, `pub struct`, derive impls on public types, `impl Drop` on owning types, or re-exports of foreign types, load `beagle-rust:rust-code-review` and consult `references/interface-design.md` for object-safety, ergonomic-impl, fallible-destructor, and hidden-contract review checks.
+- If the diff uses index-pointer graphs (`Vec<Node> + usize`, `slotmap`, `petgraph`), `mem::replace`-style drop guards, extension traits, or modifies a `prelude` module, also consult `references/patterns-in-the-wild.md`.
+
+**Testing detection (criterion / trybuild / clippy strategy):**
+- If `benches/` directory or `criterion` dependency is present, load `beagle-rust:rust-testing-code-review` and consult `references/advanced-testing.md` for criterion baseline, `black_box`, and `iter_batched` review checks.
+- If proc-macro crate (`proc-macro = true`) or `trybuild` in `[dev-dependencies]`, consult `references/advanced-testing.md` for trybuild `.stderr` stability checks plus `beagle-rust:macros-code-review` `references/procedural-macros.md` for span hygiene and `syn` feature audits.
 
 ## Step 5: Load Verification Protocol
 
@@ -147,6 +170,11 @@ Use the `Skill` tool to load each applicable skill (e.g., `Skill(skill: "beagle-
 | Macro definitions in diff | `beagle-rust:macros-code-review` |
 | FFI code detected (extern, repr(C), bindgen) | `beagle-rust:ffi-code-review` |
 | Atomics, `UnsafeCell`, `unsafe impl Send/Sync`, `compare_exchange`, `crossbeam`, `arc-swap`, `parking_lot` | `beagle-rust:rust-code-review` (load `references/concurrency-primitives.md`, `references/memory-ordering.md`, `references/lock-free-patterns.md`) |
+| Concurrency design changes (worker pools, channels, threads-vs-async restructuring) | `beagle-rust:rust-code-review` (load `references/concurrency-models.md`) |
+| Public trait / `pub fn` / `pub struct` / `impl Drop` / re-export changes | `beagle-rust:rust-code-review` (load `references/interface-design.md`) |
+| Graph/tree code, `slotmap`, `petgraph`, `mem::replace` drop guards, extension traits, `prelude` module changes | `beagle-rust:rust-code-review` (load `references/patterns-in-the-wild.md`) |
+| `criterion` benchmarks, `benches/` directory | `beagle-rust:rust-testing-code-review` (load `references/advanced-testing.md` — criterion baseline + `black_box` + `iter_batched` checks) |
+| Proc-macro crate (`proc-macro = true`) or `trybuild` in dev-deps | `beagle-rust:rust-testing-code-review` + `beagle-rust:macros-code-review` (load `references/advanced-testing.md` trybuild + `references/procedural-macros.md` span hygiene) |
 | `loom`, `miri`, hand-rolled lock-free code under test | `beagle-rust:rust-testing-code-review` (load `references/concurrency-testing.md`) |
 
 ## Step 7: Review

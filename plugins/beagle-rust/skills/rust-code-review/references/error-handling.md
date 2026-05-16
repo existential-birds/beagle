@@ -441,6 +441,139 @@ fn do_work() -> Result<(), Error> {
 
 **Check for**: functions that need cleanup before returning errors — `try` blocks avoid the pattern of manually catching and re-raising. Until stabilized, the drop-guard or RAII pattern is the stable alternative.
 
+## Opaque vs Enumerated Errors
+
+Jon Gjengset frames this as a binary choice driven by **caller need**, not author convenience: will the caller branch on the variant, or only log and propagate?
+
+- **Enumerated** (`pub enum Error { ... }`) — caller takes different action per cause. Each variant should carry the underlying cause (e.g. `In(io::Error)` and `Out(io::Error)` are two `io::Error`s but the discriminant tells the caller *which* stream failed).
+- **Opaque** — caller will only log/propagate. Two flavors: a struct with private fields and limited accessors (when bounded info is still useful — offset, status code), or `Box<dyn Error + Send + Sync + 'static>` (full erasure).
+
+```rust
+// Enumerated: callers branch on this
+pub enum CopyError {
+    In(std::io::Error),
+    Out(std::io::Error),
+}
+
+// Opaque wrapper: callers cannot match, but can downcast if documented
+pub struct MyError(Box<dyn std::error::Error + Send + Sync + 'static>);
+```
+
+Tradeoffs: enum locks in your variant set as a public API (adding a non-`#[non_exhaustive]` variant is a breaking change), but enables exhaustive pattern matching. Opaque keeps the variant set internal but forfeits pattern matching — callers can only inspect via `source()` or documented downcasts. See [interface-design.md](interface-design.md) for `#[non_exhaustive]` rules on public error enums.
+
+**Flag**:
+
+- [FILE:LINE] ENUM_VARIANTS_DROP_CAUSE — error enum variants like `In` / `Out` with no inner `io::Error` — wraps lose the only useful information.
+- [FILE:LINE] OPAQUE_HIDES_BRANCH_INFO — opaque error hides info callers demonstrably branch on (retryable vs fatal) — promote to enum or expose an inspector.
+
+## The Custom Error Trait Set
+
+Any custom error type that ships in a public API should satisfy `Error + Display + Debug + Send + Sync + 'static`. Each bound is load-bearing:
+
+- **`Error`** — `source()` is how the chain-traversal machinery walks to the root cause.
+- **`Display`** — one-line, lowercase, no trailing punctuation, so it composes into larger error reports.
+- **`Debug`** — carries auxiliary diagnostic info (ports, paths, request IDs) that doesn't belong in `Display`.
+- **`Send + Sync`** — required in async/multithreaded code; without it the error can't cross an `await` or a `spawn`, and it won't compose with `std::io::Error` cleanly.
+- **`'static`** — required by `dyn Error` for downcasting (`Any::type_id` vtable comparison) and to avoid lifetime contamination across the call stack.
+
+```rust
+// Audit fields: Rc<...>, RefCell<...>, raw pointers, or borrowed refs
+// break Send/Sync/'static respectively.
+#[derive(Debug, thiserror::Error)]
+#[error("decode failed at offset {offset}")]
+pub struct DecodeError { offset: usize, source_id: u64 }
+```
+
+**Flag**:
+
+- [FILE:LINE] ERROR_FIELD_NOT_SEND — error type contains `Rc<T>` or `*const T` — breaks `Send + Sync`. Switch to `Arc` or owned data.
+- [FILE:LINE] ERROR_BORROWS_INPUT — error type holds `&'a str` from request data — blocks `'static`, prevents downcasting and propagation. Own the data (`String`).
+
+## Special Error Cases
+
+Jon calls out four special cases worth flagging in review:
+
+- **`Result<T, ()>` is usually wrong.** `()` doesn't implement `Error`, so the value can't be type-erased to `Box<dyn Error>` and is painful with `?`. If the failure carries no detail, switch to `Option<T>` (which says "nothing to return, no handling required"). If you must keep `Result` semantics for `#[must_use]`, define a unit struct that implements `Error`.
+- **`std::thread::Result<T>` is `Result<T, Box<dyn Any + Send + 'static>>`** — note `Any`, not `Error`. The `Err` value is whatever was passed to `panic!`, often a `&'static str` or `String`. Calling `.source()` or `Display` on it is wrong; either downcast to a known payload type, propagate it via `resume_unwind`, or just `.unwrap()`.
+- **The never type `!` / `Infallible`** for errors that cannot occur. `Result<T, Infallible>` lets you match a trait signature without panicking on `unwrap` — the compiler knows no `Err` value can ever be constructed.
+- **Boxing on the hot path has allocation cost.** Errors are rare, so boxing a large variant keeps `Result<T, E>` small — but a fallible function called in a tight loop will pay the allocation cost on every error. Use `Cow<'static, str>` or fixed-shape errors for hot loops.
+
+**Flag**:
+
+- [FILE:LINE] RESULT_UNIT_USED_AS_OPTION — `fn f() -> Result<T, ()>` returned and callers treat it as absence — switch to `Option<T>` or a unit-struct error.
+- [FILE:LINE] THREAD_RESULT_AS_ERROR — `JoinHandle::join()` payload treated as `dyn Error` (calling `.source()` or `Display`) — it's `Box<dyn Any>`. Downcast or `resume_unwind`.
+- [FILE:LINE] BOXED_ERROR_HOT_LOOP — `Result<_, Box<MyError>>` returned from a function called per-iteration in a hot loop — allocation per failure; consider a fixed-shape error or unboxed enum.
+
+## `?` Uses `From`, Not `Into`
+
+`?` desugars to (roughly) `match expr { Ok(v) => v, Err(e) => return Err(From::from(e)) }`. The conversion is literally `From::from`, not `Into::into`. Implementing only `Into<OuterErr> for InnerErr` will *not* enable `?` propagation, even though `From` implies `Into`.
+
+```rust
+// Will NOT enable `?` from InnerErr to OuterErr
+impl Into<OuterErr> for InnerErr { /* ... */ }
+
+// Correct: implement From, get Into for free, and `?` works
+impl From<InnerErr> for OuterErr { fn from(e: InnerErr) -> Self { /* ... */ } }
+```
+
+Old crates that only implement `Into` are common offenders — `?` will fail to compile against them with a confusing message about `From` not being implemented.
+
+**Flag**:
+
+- [FILE:LINE] INTO_NOT_FROM — error conversion implemented as `impl Into<Outer> for Inner` — `?` calls `From::from`, not `Into::into`. Reverse the impl direction.
+
+## Deferred Cleanup with `?` — The Surprising Bug
+
+A function that needs cleanup on the error path before propagating will *skip* the cleanup whenever `?` short-circuits:
+
+```rust
+fn do_the_thing() -> Result<(), Error> {
+    let thing = Thing::setup()?;
+    step_one(&thing)?;          // if this errors, cleanup is skipped
+    step_two(&thing)?;
+    thing.cleanup();            // only runs on the success path
+    Ok(())
+}
+```
+
+Three fixes, in order of preference:
+
+- **RAII guard (stable, idiomatic).** Move cleanup into `Drop`. The compiler runs destructors on every exit path, including `?` early returns.
+- **`try` blocks** (still unstable behind `#![feature(try_blocks)]`). Scope `?` to a block; cleanup runs after.
+- **Explicit `match`.** Verbose but stable: bind the intermediate `Result`, run cleanup, then propagate.
+
+```rust
+struct Thing;
+impl Drop for Thing { fn drop(&mut self) { /* cleanup */ } }
+// Now `?` cannot skip cleanup — Drop fires on every exit.
+```
+
+**Flag**:
+
+- [FILE:LINE] CLEANUP_SKIPPED_BY_QMARK — resource setup followed by `?` calls and a manual `cleanup()` / `close()` / `release()` after — the `?` early-return skips cleanup. Use `Drop` (RAII) or scope cleanup in a `try` block.
+- [FILE:LINE] MANUAL_DROP_GUARD_LEAK — explicit `mem::forget` or `ManuallyDrop` on a guard followed by `?` — leaks the resource on error. Restructure so the guard owns the cleanup.
+
+## `#[error(transparent)]` (thiserror)
+
+`#[error(transparent)]` marks a variant that is a thin wrapper around an inner error type. `Display` and `source()` delegate to the inner error unchanged — the wrapper is invisible to logs and chain traversal.
+
+```rust
+#[derive(Debug, thiserror::Error)]
+pub enum AppError {
+    #[error(transparent)]
+    Io(#[from] std::io::Error),     // displays exactly like the io::Error
+    #[error("config invalid at {path}")]
+    Config { path: PathBuf, #[source] source: toml::de::Error },
+}
+```
+
+Use it when the variant adds no semantic information — the inner type is already the "real" error. Do *not* use it when you have context to add (a path, a request ID); use `#[error("...")]` with a `#[source]` field instead so the wrapping shows up in logs.
+
+**Flag**:
+
+- [FILE:LINE] TRANSPARENT_HIDES_CONTEXT — `#[error(transparent)]` on a variant that *should* be carrying context (path, ID) — the inner error's message alone won't tell users what was being attempted. Switch to `#[error("...")]` + `#[source]`.
+- [FILE:LINE] TRANSPARENT_DUPLICATE_DISPLAY — `#[error(transparent)]` paired with a manual `Display` impl that also prints the inner error — double-prints in error chains. Drop one.
+
 ## Review Questions
 
 1. Are all `unwrap()` / `expect()` calls in production code justified?

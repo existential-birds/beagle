@@ -46,8 +46,8 @@ Description of the issue and why it matters.
 
 | Issue Type | Reference |
 |------------|-----------|
-| Fragment types, repetition, hygiene, declarative patterns | [references/declarative-macros.md](references/declarative-macros.md) |
-| Proc macro types, syn/quote, spans, testing | [references/procedural-macros.md](references/procedural-macros.md) |
+| Fragment types, repetition, hygiene boundaries (vars vs types), `$crate` paths, TT-muncher pattern + recursion limits, fragment-matcher follow restrictions, decl-vs-proc decision tree | [references/declarative-macros.md](references/declarative-macros.md) |
+| Proc macro types, syn/quote, span hygiene (`call_site` vs `def_site` vs `mixed_site`), `syn::Error::new_spanned` + combine, `parse_quote!` vs `quote!`, `syn` feature audit, trybuild UI tests | [references/procedural-macros.md](references/procedural-macros.md) |
 
 ## Review Checklist
 
@@ -68,10 +68,11 @@ Description of the issue and why it matters.
 
 - [ ] `syn` features minimized (don't enable `full` when `derive` suffices -- reduces compile time)
 - [ ] Spans propagated from input tokens to output tokens (errors point to user code, not macro internals)
-- [ ] `Span::call_site()` used for identifiers that should be visible to the caller
-- [ ] `Span::mixed_site()` used for identifiers private to the macro (matches `macro_rules!` hygiene)
-- [ ] Error reporting uses `syn::Error` with proper spans, not `panic!`
-- [ ] Multiple errors collected and reported together via `syn::Error::combine`
+- [ ] `Span::mixed_site()` is the default for introduced helper variables — `call_site` only when intentionally pointing at user code; `def_site` is nightly-only on `proc_macro::Span`
+- [ ] Error reporting uses `syn::Error::new_spanned(node, msg)` with the offending AST node, never `panic!`
+- [ ] Multiple errors collected and reported together via `syn::Error::combine` (good UX vs first-failure)
+- [ ] `parse_quote!` (not `quote!`) used when the result needs to be a `syn::T` for further AST manipulation; `syn::parse2(quote!{...})` for fallible cases
+- [ ] Public types re-exported from `proc_macro2`, not `proc_macro` (compatibility with downstream consumers)
 - [ ] `proc-macro2` used for testing (testable outside of compiler context)
 - [ ] Generated code volume is proportionate -- proc macros that emit large amounts of code bloat compile times
 

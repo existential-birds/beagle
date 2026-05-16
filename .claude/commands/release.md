@@ -96,31 +96,43 @@ Run `/beagle:gen-release-notes ${PREV_TAG}` to:
 
 **Do not proceed** until CHANGELOG.md is updated with the new version.
 
-### Step 3.5: Verify CHANGELOG footer reference links
+### Step 3.5: Verify CHANGELOG footer compare links (HARD GATE)
 
-Every prior release PR has been flagged by CodeRabbit for missing footer compare links. This step is the gate that prevents that recurring feedback. After `gen-release-notes` runs, confirm the footer at the bottom of `CHANGELOG.md` contains both:
+This is the enforcement gate for footer compare links. `beagle-core:gen-release-notes` Step 6 is the source-of-truth gate; this step re-runs it here so the release flow fails even if `gen-release-notes` was bypassed, skipped, or its gate was ignored. Both `grep -q` checks below must exit 0 or the release flow stops. This step is **not** advisory — do not paraphrase, do not summarize, do not skip.
 
-1. An updated `[Unreleased]` line pointing at the **new** version (not the previous one).
-2. A new `[NEW_VERSION]` line comparing the previous tag to the new tag.
+Run this block exactly:
 
 ```bash
-NEW_VERSION=$(grep -E '^\#\# \[[0-9]+\.[0-9]+\.[0-9]+\]' CHANGELOG.md | head -1 | sed 's/.*\[\(.*\)\].*/\1/')
-echo "Verifying footer links for v${NEW_VERSION}..."
+# Extract NEW and PREV versions from the staged CHANGELOG.md.
+# We only match numeric `## [X.Y.Z]` headings so `## [Unreleased]` is skipped.
+NEW_VERSION=$(grep -m1 -E '^## \[[0-9]+\.[0-9]+\.[0-9]+\]' CHANGELOG.md | sed -E 's/^## \[([0-9]+\.[0-9]+\.[0-9]+)\].*/\1/')
+PREV_VERSION=$(grep -m2 -E '^## \[[0-9]+\.[0-9]+\.[0-9]+\]' CHANGELOG.md | sed -n '2p' | sed -E 's/^## \[([0-9]+\.[0-9]+\.[0-9]+)\].*/\1/')
 
-# Escape dots so they match literally in the ERE patterns below.
-NEW_VERSION_RE=${NEW_VERSION//./\\.}
+if [ -z "$NEW_VERSION" ] || [ -z "$PREV_VERSION" ]; then
+  echo "GATE FAIL: could not extract NEW_VERSION ($NEW_VERSION) or PREV_VERSION ($PREV_VERSION) from CHANGELOG.md"
+  exit 1
+fi
 
-# Both checks must pass before proceeding.
-grep -qE "^\[Unreleased\]: .*compare/v${NEW_VERSION_RE}\.\.\.HEAD" CHANGELOG.md \
-  || { echo "MISSING: [Unreleased] is not pointing at v${NEW_VERSION}"; exit 1; }
+echo "Gating footer compare links: NEW=v${NEW_VERSION}, PREV=v${PREV_VERSION}"
 
-grep -qE "^\[${NEW_VERSION_RE}\]: .*compare/v.*\.\.\.v${NEW_VERSION_RE}" CHANGELOG.md \
-  || { echo "MISSING: [${NEW_VERSION}] footer line not found"; exit 1; }
+# Escape dots so they match literally inside the regex.
+NEW_RE=${NEW_VERSION//./\\.}
+PREV_RE=${PREV_VERSION//./\\.}
 
-echo "Footer links verified."
+# Check 1: the new [NEW_VERSION] footer line exists and points PREV->NEW.
+grep -qE "^\[${NEW_RE}\]: .*compare/v${PREV_RE}\.\.\.v${NEW_RE}\$" CHANGELOG.md \
+  || { echo "GATE FAIL: missing footer line: [${NEW_VERSION}]: .../compare/v${PREV_VERSION}...v${NEW_VERSION}"; exit 1; }
+
+# Check 2: the [Unreleased] footer line is advanced to compare from the new tag.
+grep -qE "^\[Unreleased\]: .*compare/v${NEW_RE}\.\.\.HEAD\$" CHANGELOG.md \
+  || { echo "GATE FAIL: [Unreleased] is not advanced; expected: [Unreleased]: .../compare/v${NEW_VERSION}...HEAD"; exit 1; }
+
+echo "Footer compare links verified: [${NEW_VERSION}] and [Unreleased] both present and correct."
 ```
 
-If either check fails, edit `CHANGELOG.md` to add the missing lines using the format documented in `gen-release-notes` Step 5 item 3, then re-run the checks. **Do not proceed to Step 4 until both checks pass.**
+**Pass condition (objective):** both `grep -q` invocations above exit 0 against the staged `CHANGELOG.md`. The block must print `Footer compare links verified: ...` and exit 0.
+
+**On fail:** the gate names the missing or wrong line. Edit `CHANGELOG.md` to add the missing lines using the diff format documented in `beagle-core:gen-release-notes` Step 5 item 3 (advance `[Unreleased]` to compare from the new tag, insert a new `[NEW_VERSION]` line comparing PREV to NEW). Re-run the block above. **Do not proceed to Step 4 until the block exits 0.**
 
 ## Step 4: Update Versions
 

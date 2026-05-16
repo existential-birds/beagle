@@ -40,12 +40,17 @@ Description of the issue and why it matters.
 |------------|-----------|
 | Ownership transfers, borrowing, lifetimes, clone traps, iterators | [references/ownership-borrowing.md](references/ownership-borrowing.md) |
 | Lifetime variance, covariance/invariance, memory regions | [references/lifetime-variance.md](references/lifetime-variance.md) |
-| Result/Option handling, thiserror, anyhow, error context, Error trait | [references/error-handling.md](references/error-handling.md) |
-| Async pitfalls, Send/Sync bounds, runtime blocking | [references/async-concurrency.md](references/async-concurrency.md) |
+| Result/Option handling, thiserror, anyhow, opaque vs enumerated errors, deferred-cleanup with `?` | [references/error-handling.md](references/error-handling.md) |
+| Async pitfalls, Send/Sync bounds, poll contract, Pin mechanics, cancellation soundness | [references/async-concurrency.md](references/async-concurrency.md) |
 | Send/Sync semantics, atomics, memory ordering, lock patterns | [references/concurrency-primitives.md](references/concurrency-primitives.md) |
-| Type layout, alignment, repr, PhantomData, generics vs dyn Trait | [references/types-layout.md](references/types-layout.md) |
+| Memory ordering decision tree, fences, ABA, out-of-thin-air | [references/memory-ordering.md](references/memory-ordering.md) |
+| Hand-rolled spinlocks, channels, Arc, seqlock, CAS retry patterns | [references/lock-free-patterns.md](references/lock-free-patterns.md) |
+| Shared-memory vs worker-pool vs actor design, async vs threads, race-condition vs data race | [references/concurrency-models.md](references/concurrency-models.md) |
+| Type layout, alignment, repr, PhantomData, generics vs dyn Trait, wide pointers, auto-trait leakage | [references/types-layout.md](references/types-layout.md) |
+| Object safety, ergonomic trait impls, Deref discipline, fallible destructors, hidden contracts, is_normal | [references/interface-design.md](references/interface-design.md) |
+| Index pointers, drop guards, extension traits, crate preludes | [references/patterns-in-the-wild.md](references/patterns-in-the-wild.md) |
 | Unsafe code, API design, derive patterns, clippy patterns | [references/common-mistakes.md](references/common-mistakes.md) |
-| Safety contracts, raw pointers, MaybeUninit, soundness, Miri | [references/unsafe-deep.md](references/unsafe-deep.md) |
+| Validity vs safety, drop check, may_dangle, provenance, panic safety in unsafe, MaybeUninit, Miri | [references/unsafe-deep.md](references/unsafe-deep.md) |
 
 > For development guidance on performance, pointer types, type state, clippy config, iterators, generics, and documentation, use the `beagle-rust:rust-best-practices` skill.
 
@@ -91,6 +96,39 @@ Description of the issue and why it matters.
 - [ ] `Send + Sync` bounds verified for types shared across threads
 - [ ] `#[diagnostic::on_unimplemented]` used on public traits to provide clear error messages when users forget to implement them
 
+### Interface Design
+> Detailed guidance: [references/interface-design.md](references/interface-design.md)
+- [ ] Methods on `dyn`-intended traits don't use `Self` by value, generic params, or associated constants (or are gated `where Self: Sized`)
+- [ ] New traits ship with blanket impls for `&T`, `&mut T`, `Box<T>` so reference and smart-pointer arguments work
+- [ ] Iterable types implement `IntoIterator` for `&Self` and `&mut Self`, not just `Self`
+- [ ] `Deref` only used for transparent forwarding, never as "inheritance" — inherent-method ambiguity is a real bug class
+- [ ] Fallible cleanup uses an explicit `close()`/`shutdown()` returning `Result`; `Drop` is best-effort fallback only
+- [ ] No `block_on(...)` or new runtime in `Drop` (deadlock under async runtimes)
+- [ ] Public types have a compile-time `fn is_normal<T: Sized + Send + Sync + Unpin>() {}` test so auto-trait regressions surface at build time
+- [ ] Re-exported foreign types in public API are flagged — downstream major bumps become this crate's breaking change
+- [ ] Getter methods follow the convention `fn name(&self)` not `fn get_name(&self)` (reserve `get_*` for `Option`-returning or interesting lookups)
+- [ ] `as_*` is cheap reference-to-reference, `to_*` may allocate, `into_*` consumes — verify the cost matches the prefix
+- [ ] Standard derives (`Debug`, `Clone`, `Default`, `PartialEq`, `Eq`, `Hash`) considered for every public type; `Copy` only when truly cheap and value-like (removing it later is breaking)
+
+### Patterns in the Wild
+> Detailed guidance: [references/patterns-in-the-wild.md](references/patterns-in-the-wild.md)
+- [ ] Index-pointer graphs use generational indices (`slotmap::DefaultKey`, `petgraph::NodeIndex`) — bare `usize` orphans after `Vec::swap_remove`
+- [ ] Drop guards bound to `let _guard = ...`, never `let _ = ...` (the second drops immediately, not at scope end)
+- [ ] Drop-guard cleanup not relied upon under `panic = "abort"` (destructors do not run)
+- [ ] Extension traits used only when the type is foreign; for owned types use inherent `impl` directly
+- [ ] Extension-trait methods don't shadow popular existing methods on the same type (ambiguity at call sites)
+- [ ] Crate `prelude` module additions treated as semver-minor (RFC 1105); reserve for major releases when possible
+
+### Concurrency Design (Models)
+> Detailed guidance: [references/concurrency-models.md](references/concurrency-models.md)
+- [ ] Concurrency model (shared memory vs worker pool vs actor) named explicitly in the design; primitives match the model
+- [ ] Mutex critical section is short, measurable, and excludes I/O / network calls / `.await` points
+- [ ] Worker-pool queues are bounded; backpressure strategy is named
+- [ ] Actor mailbox channels are sized to expected load; cross-actor cycles reviewed for deadlock
+- [ ] `async` is not conflated with parallelism — `join!` interleaves on one thread; only `tokio::spawn` (or equivalent on a multi-threaded runtime) parallelizes
+- [ ] CAS retry loops on a hot atomic considered for replacement with `fetch_add`/sharding (CAS is O(N²) under contention)
+- [ ] `println!` / `dbg!` not used as a debugging tool for race conditions (the Stdout mutex changes the race)
+
 ### Unsafe Code
 - [ ] `unsafe` blocks have safety comments explaining invariants
 - [ ] `unsafe` is minimal — only the truly unsafe operation is inside the block
@@ -100,6 +138,24 @@ Description of the issue and why it matters.
 - [ ] **Edition 2024**: `unsafe fn` bodies use explicit `unsafe {}` blocks around unsafe ops (`unsafe_op_in_unsafe_fn` is deny)
 - [ ] **Edition 2024**: `extern "C" {}` blocks written as `unsafe extern "C" {}`
 - [ ] **Edition 2024**: `#[no_mangle]` and `#[export_name]` written as `#[unsafe(no_mangle)]` and `#[unsafe(export_name)]`
+
+### Concurrency (Memory Ordering and Lock-Free Patterns)
+> Detailed guidance: [references/memory-ordering.md](references/memory-ordering.md), [references/lock-free-patterns.md](references/lock-free-patterns.md)
+- [ ] Types shared across threads have correct `Send` / `Sync` bounds; `unsafe impl Send/Sync` carries a comment naming the invariant
+- [ ] Each atomic operation pairs with a named happens-before edge (spawn/join, `Release`/`Acquire` on the same atomic, or a fence); `Release` publishes data, `Acquire` observes it
+- [ ] No `SeqCst` by default — only when two or more independent atomics need a single global total order, with a comment naming the requirement
+- [ ] No `store(.., Acquire)` / `load(.., Release)` / `load(.., AcqRel)` (rejected by the type half they occupy)
+- [ ] `Relaxed` not used to publish or observe non-atomic data (use `Release` / `Acquire`)
+- [ ] `compare_exchange_weak` used inside retry loops; strong `compare_exchange` reserved for one-shot updates; success ordering at least `Acquire` when acquiring a critical section
+- [ ] Hand-rolled spinlocks include `std::hint::spin_loop()` in the busy wait, exponential backoff, and an eventual `thread::yield_now()`; not used in normal user-space binaries without a documented reason a `Mutex` is unsuitable
+- [ ] Hand-rolled `Arc` clones with `Relaxed`, drops with `Release` + `fence(Acquire)` on the last decrement, and includes an overflow guard
+- [ ] `Arc<Mutex<...>>` cycles broken with `Weak`; `Arc<Mutex<Copy>>` reviewed for `Arc<AtomicT>` replacement
+- [ ] Hand-rolled lock-free primitives have a `#[cfg(loom)]` test module and a Miri-runnable test (no blanket `cfg_attr(miri, ignore)`)
+- [ ] `OnceLock` / `LazyLock` preferred over `once_cell` / `lazy_static` for new code (MSRV ≥ 1.80)
+- [ ] No `MutexGuard` held across `.await` (use `tokio::sync::Mutex` or drop the guard first)
+- [ ] Hot atomics on contended cache lines wrapped with `CachePadded` or `#[repr(align(64))]` to avoid false sharing
+- [ ] Shared mutation goes through `UnsafeCell<T>` (not bare `*mut T` or transmuted `&` to `&mut`)
+- [ ] Pointer-based CAS (`AtomicPtr<Node>`) uses epoch / hazard-pointer / tagged-pointer reclamation; ABA hazards considered
 
 ### Naming and Style
 - [ ] Types are `PascalCase`, functions/methods `snake_case`, constants `SCREAMING_SNAKE_CASE`
@@ -146,6 +202,7 @@ Description of the issue and why it matters.
 - Use-after-free or dangling reference patterns
 - `unwrap()` on user input or external data in production code
 - Data races (concurrent mutation without synchronization)
+- Wrong memory ordering on an atomic that gates other shared data (data race)
 - Memory leaks via circular `Arc<Mutex<...>>` without weak references
 
 ### Major (Should Fix)
@@ -172,12 +229,17 @@ Description of the issue and why it matters.
 
 - Reviewing ownership, borrows, lifetimes, clone traps → ownership-borrowing.md
 - Reviewing lifetime variance, covariance/invariance, multiple lifetime params → lifetime-variance.md
-- Reviewing Result/Option handling, error types, Error trait impls → error-handling.md
-- Reviewing async code, tokio usage, task management → async-concurrency.md
-- Reviewing Send/Sync, atomics, memory ordering, mutexes, lock patterns → concurrency-primitives.md
-- Reviewing type layout, alignment, repr, PhantomData, generics vs dyn → types-layout.md
+- Reviewing Result/Option handling, error types, opaque vs enumerated, deferred-cleanup, `Error` trait impls → error-handling.md
+- Reviewing async code, poll contract, Pin mechanics, cancellation soundness, cross-runtime → async-concurrency.md
+- Reviewing concurrency design decisions (shared memory vs worker pool vs actor, async vs threads), data race vs race condition → concurrency-models.md
+- Reviewing Send/Sync, atomics, mutexes, lock patterns → concurrency-primitives.md
+- Reviewing memory ordering decisions, fences, ABA, out-of-thin-air → memory-ordering.md
+- Reviewing hand-rolled spinlocks, channels, Arc, seqlock, CAS retry patterns → lock-free-patterns.md
+- Reviewing type layout, alignment, repr, PhantomData, wide pointers, auto-trait leakage, `Sized`/`?Sized` → types-layout.md
+- Reviewing interface design — object safety, ergonomic blanket impls, `Deref` discipline, fallible/blocking destructors, hidden contracts, naming → interface-design.md
+- Reviewing index-pointer graphs, drop guards, extension traits, crate preludes → patterns-in-the-wild.md
 - Reviewing unsafe code, API design, derive macros, clippy patterns → common-mistakes.md
-- Reviewing safety contracts, raw pointers, MaybeUninit, soundness → unsafe-deep.md
+- Reviewing validity vs safety, drop check + may_dangle, provenance, panic safety in unsafe, MaybeUninit → unsafe-deep.md
 - Reviewing performance, pointer types, type state, generics, iterators, documentation → `beagle-rust:rust-best-practices` skill
 
 ## Valid Patterns (Do NOT Flag)

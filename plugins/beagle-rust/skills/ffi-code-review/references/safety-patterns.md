@@ -198,9 +198,207 @@ valgrind --leak-check=full ./target/debug/my_ffi_tests # leak detection
 | Panic across FFI | Wrap callback bodies in `catch_unwind` |
 | Thread-unsafe type across threads | Don't impl `Send`/`Sync` without proof |
 
+## Atomics and Shared State Across FFI
+
+### AtomicXxx vs C `_Atomic` ABI compatibility
+
+Rust's `AtomicU32` has the same in-memory representation as C11's `_Atomic uint32_t` on every platform Rust currently targets, but **neither language spec formally guarantees this**. The compatibility relies on (a) matching layout and alignment, and (b) the C11/C++11 memory model being compatible with Rust's (which it is, by design).
+
+Cross-language atomic access is only well-defined when both sides treat the location as atomic. Passing `&AtomicU32` as a plain `*mut u32` and letting C do non-atomic stores creates a data race from Rust's perspective — undefined behavior even if the bits look right.
+
+```rust
+// BAD -- C treats it as a plain int and does *p = v;
+unsafe extern "C" { fn c_set(p: *mut u32); }
+let a = AtomicU32::new(0);
+unsafe { c_set(a.as_ptr()) }; // races with any Rust load/store of `a`
+
+// GOOD -- C side declares _Atomic uint32_t* and uses atomic_store_explicit
+unsafe extern "C" { fn c_set_atomic(p: *mut u32, v: u32); }
+let a = AtomicU32::new(0);
+unsafe { c_set_atomic(a.as_ptr(), 1) }; // C guarantees atomic store
+```
+
+Availability is also platform-gated: `AtomicU64` is missing on `thumbv6m-*`, 32-bit PowerPC, and some RISC-V profiles. Code shared with C that assumes 64-bit atomicity must `#[cfg(target_has_atomic = "64")]`-gate or fall back to a mutex.
+
+- `[FILE:LINE] FFI_ATOMIC_PASSED_AS_PLAIN_POINTER` — `AtomicU{8,16,32,64}::as_ptr()` (or `&AtomicX as *mut _`) passed to a C function whose header declares the parameter as plain `uintN_t*` rather than `_Atomic uintN_t*`.
+- `[FILE:LINE] FFI_ATOMIC64_NOT_TARGET_GATED` — `AtomicU64`/`AtomicI64` used across FFI without `#[cfg(target_has_atomic = "64")]` on a crate that lists embedded targets in `Cargo.toml` or CI.
+
+### Raw pointers, Send, Sync at FFI boundaries
+
+`*const T` and `*mut T` are `!Send` and `!Sync` by default. Wrapping a C handle in a newtype and adding `unsafe impl Send` (and sometimes `Sync`) is the standard pattern — but each line is a safety boundary that must be justified against the C library's documented thread-safety contract.
+
+The standard `Send`-only pattern (handle moves between threads but is never used from two threads at once):
+
+```rust
+struct Handle(*mut ffi::OpaqueT);
+// SAFETY: libfoo docs §3.2 -- handles may be used from any single thread,
+// just not concurrently from multiple threads.
+unsafe impl Send for Handle {}
+// NOTE: deliberately NOT Sync; concurrent use is documented as UB.
+```
+
+`Sync` is much stronger: it claims `&Handle` can be shared, i.e. that two threads may call C through the same handle simultaneously. Only sound if the C library documents that handle as thread-safe (e.g. SQLite with `SQLITE_THREADSAFE=1`, or libcurl multi-handles under documented rules).
+
+```rust
+// BAD -- libfoo docs say "not thread-safe"; this enables races.
+unsafe impl Sync for Handle {}
+
+// BAD -- no safety comment; reviewer cannot verify the claim.
+unsafe impl Send for Handle {}
+unsafe impl Sync for Handle {}
+```
+
+- `[FILE:LINE] FFI_UNSAFE_SYNC_ON_NON_THREADSAFE_HANDLE` — `unsafe impl Sync` on a wrapper around a C library whose documentation does not assert per-handle thread safety.
+- `[FILE:LINE] FFI_UNSAFE_SEND_SYNC_NO_SAFETY_COMMENT` — `unsafe impl (Send|Sync) for` an FFI wrapper with no preceding `// SAFETY:` comment referencing the C library's threading docs.
+
+### UnsafeCell on FFI boundaries
+
+`&T` in Rust is a promise that the referent will not be mutated for the lifetime of the borrow. A C function declared `extern "C" fn c_func(x: &T)` that mutates through `x` violates that promise — undefined behavior even if no Rust code observes the mutation. The correct Rust type for "C may mutate through this borrow" is `&UnsafeCell<T>` (or a `*mut T` and an unsafe contract).
+
+```rust
+// BAD -- C writes through x, but &T promises immutability.
+unsafe extern "C" {
+    fn c_increment(x: &u32); // C does (*x)++
+}
+
+// GOOD -- UnsafeCell signals "C may mutate"; or use *mut u32.
+unsafe extern "C" {
+    fn c_increment(x: &UnsafeCell<u32>);
+}
+```
+
+Similarly, if a `*mut T` is handed to C, stored there, and later mutated by C from another thread, the Rust side must model the shared-mutable semantics — `Atomic*`, `Mutex<T>`, or `UnsafeCell<T>` with hand-rolled synchronization. Plain `&mut T` cannot escape this way without violating aliasing rules.
+
+- `[FILE:LINE] FFI_SHARED_REF_C_MUTATES` — `extern "C" fn(..&T..)` or `extern "C" fn(..&mut T..)` where the C implementation is documented to mutate `*T` (or to retain the pointer after return and mutate later).
+- `[FILE:LINE] FFI_POINTER_STORED_BY_C_NO_INTERIOR_MUT` — a `*mut T` is registered with C (callback context, observer list, etc.) and the C side may mutate the pointee from another thread, but `T` is not `Atomic*`, `Mutex<T>`, or wrapped in `UnsafeCell`.
+
+### Threading models — Rust threads vs C-spawned threads
+
+When a C library calls a Rust callback from a thread the C library spawned, that thread is not a `std::thread` thread. It is a perfectly valid OS thread (kernel-scheduled, has a TLS slot), but Rust's `std::thread::current()` builds a thread handle lazily, and `thread::park`/`unpark` only work with handles that have been observed by both sides.
+
+`std::sync::Mutex`, `RwLock`, atomics, and `Condvar` work across **any** OS thread — they are backed by OS primitives (futex / SRW / pthread mutex) that do not care which language spawned the thread.
+
+`thread_local!` works on C-spawned threads (it uses platform TLS), **but the per-thread destructors are only guaranteed to run when the thread exits through Rust's thread-exit chain**. A C-managed thread pool that recycles workers without going through `pthread_exit` (or that exits the process without joining) may skip the destructors entirely.
+
+```rust
+// BAD -- relies on TLS destructor to flush a buffer in a C thread pool.
+thread_local! {
+    static BUF: RefCell<Vec<u8>> = const { RefCell::new(Vec::new()) };
+}
+// If the C library reuses the OS thread or exits without pthread_exit,
+// `BUF`'s Drop never runs and the buffered bytes are silently lost.
+```
+
+For C-callback contexts, prefer explicit lifecycle hooks (register-on-enter, flush-on-callback-exit) over TLS destructors.
+
+- `[FILE:LINE] FFI_TLS_DESTRUCTOR_ON_C_THREAD` — `thread_local!` whose `Drop` performs cleanup that must run (flush, unregister), inside a module whose entry point is a callback invoked by C-managed threads.
+- `[FILE:LINE] FFI_PARK_UNPARK_ACROSS_C_CALLBACK` — `thread::park` or `Thread::unpark` used to coordinate with a thread that originated in a C library (the `Thread` handle may not refer to that OS thread reliably).
+
+### Cross-references
+
+- `[../../rust-code-review/references/concurrency-primitives.md]` — `Send`/`Sync` bounds, `Mutex`/`RwLock` semantics, poisoning, async-aware locking.
+- `[../../rust-code-review/references/memory-ordering.md]` — `Relaxed`/`Acquire`/`Release`/`AcqRel`/`SeqCst` pairing rules and the publish-via-Release / observe-via-Acquire pattern.
+- `[../../rust-code-review/references/lock-free-patterns.md]` — ABA, hand-rolled CAS, hazard pointers, epoch reclamation.
+
 ## Review Questions
 
 1. Is ownership transfer documented and paired (allocate/free)?
 2. Do `CString` values outlive their derived pointers?
 3. Are callbacks wrapped in `catch_unwind`?
 4. Are `Send`/`Sync` deliberately not implemented for thread-unsafe FFI types?
+
+## Calling conventions — `extern "C"` vs `extern "system"` vs `extern "Rust"`
+
+The calling convention is **part of the function pointer's type**. `fn() -> i32`, `extern "C" fn() -> i32`, and `extern "system" fn() -> i32` are three distinct types and cannot be substituted for one another.
+
+| Form | Meaning | When to use |
+|------|---------|-------------|
+| `extern "C"` | The C ABI as implemented by the target's C compiler | Standard FFI: POSIX, Linux, macOS, Win64. The default when you write bare `extern fn`. |
+| `extern "system"` | The OS-native system ABI | Win32 API entry points. On Win32 x86 this is `stdcall`; on x64 it equals `extern "C"`. |
+| `extern "Rust"` | The unstable Rust ABI (compiler-chosen, changes between rustc releases) | Never across FFI. Implicit when you write `fn` with no extern qualifier. |
+| `extern "C-unwind"` | C ABI but unwinding through the boundary is defined (stable since Rust 1.71) | Only when both sides have agreed that panics may propagate. |
+
+**Unwinding across a non-`C-unwind` FFI boundary is undefined behavior.** Wrap callback bodies in `std::panic::catch_unwind` and convert panics to error codes, or use `std::panic::abort_unwind` (stable since 1.81) — or call `std::process::abort()` directly — to terminate on unwind.
+
+```rust
+// BAD -- implicit extern "Rust"; cannot be called by C even if signature matches.
+type Callback = fn(*mut c_void, i32);
+
+// GOOD -- explicit C ABI, matches the C-side function pointer type.
+type Callback = extern "C" fn(*mut c_void, i32);
+```
+
+- `[FILE:LINE] FFI_EXTERN_FN_MISSING_ABI` — function-pointer type written as `fn(...)` (implicit `extern "Rust"`) where a C library expects an `extern "C" fn(...)`. Add the explicit ABI; the types are not interchangeable.
+- `[FILE:LINE] FFI_WIN32_API_EXTERN_C_NOT_SYSTEM` — Win32 API declaration uses `extern "C"` instead of `extern "system"`. Compiles on x64; crashes on i686 because of `stdcall` vs `cdecl`.
+- `[FILE:LINE] FFI_PANICKING_BODY_NO_CATCH_UNWIND` — `extern "C" fn` body can panic (uses `unwrap`, indexes, `?` on incompatible types) without a surrounding `std::panic::catch_unwind`. Wrap the body or declare the function `extern "C-unwind"`.
+
+## Allocator ownership across the boundary
+
+**Whoever allocates also frees.** A pointer can travel freely across FFI, but the free call must return to the original allocator. Three patterns:
+
+- **Implementation-managed** — the library allocates and exposes a paired `*_free` function. Example: `ECDSA_SIG_new` / `ECDSA_SIG_free`. The Rust wrapper calls `_new` to obtain a handle and `_free` from its `Drop`.
+- **Caller-managed** — the caller allocates and the library writes into the buffer. Example: `snprintf(buf, n, ...)`. The Rust side passes `Vec::as_mut_ptr` + length and reads the result on return.
+- **Mixed (library allocates, caller frees with `free`)** — example: POSIX `getline()` allocates the line buffer with `malloc` and returns it for the caller to release with `free`. Only when an API explicitly documents `malloc`-family ownership transfer should the Rust caller release with `libc::free`; never `Box::from_raw` unless the allocation came from Rust.
+
+```rust
+// BAD -- Box::from_raw on a malloc'd pointer; allocators differ, UB.
+let p: *mut u8 = unsafe { libc::malloc(64) as *mut u8 };
+unsafe { drop(Box::from_raw(p)) };
+
+// BAD -- libc::free on a Box::into_raw pointer; allocators differ, UB.
+let p: *mut u8 = Box::into_raw(Box::new(0u8));
+unsafe { libc::free(p as *mut _) };
+
+// GOOD -- each pointer returns to its own allocator.
+let c_ptr = unsafe { libc::malloc(64) as *mut u8 };
+unsafe { libc::free(c_ptr as *mut _) };
+let rust_ptr = Box::into_raw(Box::new(0u8));
+unsafe { drop(Box::from_raw(rust_ptr)) };
+```
+
+- `[FILE:LINE] FFI_BOX_FROM_RAW_ON_C_ALLOCATED` — `Box::from_raw` on a pointer returned by `malloc`/`calloc`/library-specific allocator. Use the library's own free function (or `libc::free`).
+- `[FILE:LINE] FFI_LIBC_FREE_ON_BOX_POINTER` — `libc::free` on a pointer obtained from `Box::into_raw` or `Box::leak`. Reconstruct the `Box` with `Box::from_raw` and let drop run.
+
+## Callbacks across FFI — fn pointers + `void*` user_data
+
+Closures cannot cross FFI directly: they are anonymous types with no stable layout, and their call convention is `extern "Rust"`. The canonical pattern uses a free `extern "C"` trampoline plus a `void*` user-data pointer that carries `Box::into_raw(Box::new(closure))`.
+
+```rust
+unsafe extern "C" {
+    fn register_cb(cb: extern "C" fn(*mut c_void, i32), user_data: *mut c_void);
+}
+
+extern "C" fn trampoline<F: FnMut(i32)>(user_data: *mut c_void, event: i32) {
+    let _ = std::panic::catch_unwind(|| {
+        // SAFETY: user_data was Box::into_raw'd for type F at registration time.
+        let closure = unsafe { &mut *(user_data as *mut F) };
+        closure(event);
+    });
+}
+
+pub fn register<F: FnMut(i32) + 'static>(f: F) -> *mut c_void {
+    let boxed = Box::into_raw(Box::new(f)) as *mut c_void;
+    unsafe { register_cb(trampoline::<F>, boxed) };
+    boxed // caller must Box::from_raw(boxed as *mut F) on unregister
+}
+```
+
+- `[FILE:LINE] FFI_CLOSURE_PASSED_DIRECTLY` — code attempts to pass a Rust closure where the C signature expects `extern "C" fn(...)`. Replace with a free-function trampoline plus a `Box::into_raw(Box::new(closure))` user-data pointer.
+- `[FILE:LINE] FFI_CALLBACK_NO_CATCH_UNWIND` — `extern "C" fn` trampoline invokes a closure without `std::panic::catch_unwind`. Panic across the C boundary is UB.
+- `[FILE:LINE] FFI_CALLBACK_USER_DATA_NEVER_RECLAIMED` — registration path calls `Box::into_raw` but no unregister/cleanup path calls `Box::from_raw`. Memory leak per registration.
+
+## Symbol naming
+
+`#[no_mangle]` (or `#[unsafe(no_mangle)]` in edition 2024) preserves the exact source identifier as the symbol name. `#[export_name = "..."]` (or `#[unsafe(export_name = "...")]`) overrides the symbol name. On the import side, `#[link_name = "..."]` inside an `extern` block renames the imported symbol. Without any of these, Rust mangles the name and C cannot find it.
+
+- `[FILE:LINE] FFI_NO_MANGLE_NEEDS_UNSAFE_2024` — edition 2024 crate uses `#[no_mangle]` without the `unsafe(...)` wrapper. The bare attribute is deprecated; switch to `#[unsafe(no_mangle)]`.
+- `[FILE:LINE] FFI_LINK_NAME_MISMATCH` — `#[link_name = "..."]` on an extern declaration does not match the symbol the C library actually exports (typo, missing prefix, mangled C++ name). Linker either fails or silently resolves to the wrong symbol.
+
+## `-sys` crate split convention
+
+Hand-written or bindgen-generated raw FFI declarations belong in a sibling `*-sys` crate (`openssl-sys`); the safe wrapper lives in the namesake crate (`openssl`). The split (a) lets the bindings and the wrapper evolve on independent SemVer tracks, (b) lets multiple safe wrappers share one set of raw declarations, and (c) makes the unsafe surface easy to audit. Cargo also forbids two crates linking the same native library (via the `links` key) from coexisting, so any nontrivial wrapper that does this in-tree forces a major bump on every bindings change.
+
+- `[FILE:LINE] FFI_BINDINGS_MIXED_WITH_WRAPPER` — a crate exposes `pub extern "C" fn`/raw struct declarations alongside its safe wrapper API. Split the raw declarations into a `*-sys` crate.
+- `[FILE:LINE] FFI_SYS_CRATE_DUPLICATE_LINK` — two different versions of the same `-sys` crate end up in the dep graph (both setting `links = "foo"`). Cargo refuses to build; align versions in `Cargo.toml`.
+
+See also: [type-mapping.md](type-mapping.md) for C-to-Rust primitive correspondence and `#[repr(C)]` layout. See [../../rust-code-review/references/unsafe-deep.md](../../rust-code-review/references/unsafe-deep.md) for the broader unsafe-block discipline that FFI inherits.

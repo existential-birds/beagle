@@ -205,7 +205,7 @@ fn poll(self: Pin<&mut Self>, cx: &mut Context<'_>) -> Poll<Self::Output> {
 }
 ```
 
-Executors are free to construct a fresh `Waker` per `poll`, so caching the first waker forever is also a bug — see `WAKER_NOT_UPDATED_BETWEEN_POLLS`. Compare with `Waker::will_wake` before cloning to skip redundant atomic increments. See [concurrency-primitives.md](concurrency-primitives.md) for the underlying `Arc`/atomic mechanics.
+Executors are free to construct a fresh `Waker` per `poll`, so caching the first waker forever is also a bug — see `WAKER_STORED_ONCE_NEVER_REFRESHED`. Compare with `Waker::will_wake` before cloning to skip redundant atomic increments. See [concurrency-primitives.md](concurrency-primitives.md) for the underlying `Arc`/atomic mechanics.
 
 ## Pin Wraps a Pointer, Not a Value
 

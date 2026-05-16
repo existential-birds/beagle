@@ -309,7 +309,7 @@ impl<T> Drop for Restore<'_, T> {
 let _g = Restore(&mut *cell, Some(prev));
 ```
 
-For ad-hoc cleanup, the `scopeguard` crate's `defer!` macro packages the same pattern as a one-liner. Caveat: `panic = "abort"` skips destructors entirely. Crates that build as `cdylib` / `staticlib`, or whose users compile with `abort`, cannot rely on drop guards for panic safety — wrap the protected region in `std::panic::catch_unwind` if cleanup must run.
+For ad-hoc cleanup, the `scopeguard` crate's `defer!` macro packages the same pattern as a one-liner. Caveat: `panic = "abort"` skips destructors entirely *and* there is no unwind for `std::panic::catch_unwind` to intercept — the process terminates immediately. Under `abort`, neither drop guards nor `catch_unwind` will run cleanup. The only options are (a) build with the default `panic = "unwind"` so guards and `catch_unwind` work, or (b) restructure so cleanup happens on the success path before any panic-producing call. Crates that ship as `cdylib` / `staticlib` cannot dictate the consumer's panic strategy and should document this hazard explicitly.
 
 ## Extension Traits
 

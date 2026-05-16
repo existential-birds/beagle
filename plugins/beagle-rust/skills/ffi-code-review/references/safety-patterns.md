@@ -318,7 +318,7 @@ The calling convention is **part of the function pointer's type**. `fn() -> i32`
 | `extern "Rust"` | The unstable Rust ABI (compiler-chosen, changes between rustc releases) | Never across FFI. Implicit when you write `fn` with no extern qualifier. |
 | `extern "C-unwind"` | C ABI but unwinding through the boundary is defined (stable since Rust 1.71) | Only when both sides have agreed that panics may propagate. |
 
-**Unwinding across a non-`C-unwind` FFI boundary is undefined behavior.** Wrap callback bodies in `std::panic::catch_unwind` and convert panics to error codes, or use `std::process::abort_unwind` to terminate on unwind.
+**Unwinding across a non-`C-unwind` FFI boundary is undefined behavior.** Wrap callback bodies in `std::panic::catch_unwind` and convert panics to error codes, or use `std::panic::abort_unwind` (stable since 1.81) — or call `std::process::abort()` directly — to terminate on unwind.
 
 ```rust
 // BAD -- implicit extern "Rust"; cannot be called by C even if signature matches.
@@ -338,7 +338,7 @@ type Callback = extern "C" fn(*mut c_void, i32);
 
 - **Implementation-managed** — the library allocates and exposes a paired `*_free` function. Example: `ECDSA_SIG_new` / `ECDSA_SIG_free`. The Rust wrapper calls `_new` to obtain a handle and `_free` from its `Drop`.
 - **Caller-managed** — the caller allocates and the library writes into the buffer. Example: `snprintf(buf, n, ...)`. The Rust side passes `Vec::as_mut_ptr` + length and reads the result on return.
-- **Mixed (library allocates, caller frees with `free`)** — example: `BIO_new_mem_buf` returns memory the caller must release with `libc::free`. This requires the Rust caller to use the *same* allocator as the C library — `libc::free`, never `Box::from_raw`.
+- **Mixed (library allocates, caller frees with `free`)** — example: POSIX `getline()` allocates the line buffer with `malloc` and returns it for the caller to release with `free`. Only when an API explicitly documents `malloc`-family ownership transfer should the Rust caller release with `libc::free`; never `Box::from_raw` unless the allocation came from Rust.
 
 ```rust
 // BAD -- Box::from_raw on a malloc'd pointer; allocators differ, UB.

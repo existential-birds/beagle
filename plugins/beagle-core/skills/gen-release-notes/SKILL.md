@@ -210,29 +210,41 @@ This is the enforcement gate for footer compare links. It must run before `gen-r
 Run this block exactly:
 
 ```bash
+# Read the staged CHANGELOG.md blob (index), not the working tree, so unstaged
+# edits cannot make the gate pass when the commit would actually fail.
+STAGED_CHANGELOG=$(git show :CHANGELOG.md)
+
 # Extract NEW and PREV versions from the staged CHANGELOG.md.
 # We only match numeric `## [X.Y.Z]` headings so `## [Unreleased]` is skipped.
-NEW_VERSION=$(grep -m1 -E '^## \[[0-9]+\.[0-9]+\.[0-9]+\]' CHANGELOG.md | sed -E 's/^## \[([0-9]+\.[0-9]+\.[0-9]+)\].*/\1/')
-PREV_VERSION=$(grep -m2 -E '^## \[[0-9]+\.[0-9]+\.[0-9]+\]' CHANGELOG.md | sed -n '2p' | sed -E 's/^## \[([0-9]+\.[0-9]+\.[0-9]+)\].*/\1/')
+NEW_VERSION=$(printf '%s\n' "$STAGED_CHANGELOG" | grep -m1 -E '^## \[[0-9]+\.[0-9]+\.[0-9]+\]' | sed -E 's/^## \[([0-9]+\.[0-9]+\.[0-9]+)\].*/\1/')
+PREV_VERSION=$(printf '%s\n' "$STAGED_CHANGELOG" | grep -m2 -E '^## \[[0-9]+\.[0-9]+\.[0-9]+\]' | sed -n '2p' | sed -E 's/^## \[([0-9]+\.[0-9]+\.[0-9]+)\].*/\1/')
 
 if [ -z "$NEW_VERSION" ] || [ -z "$PREV_VERSION" ]; then
-  echo "GATE FAIL: could not extract NEW_VERSION ($NEW_VERSION) or PREV_VERSION ($PREV_VERSION) from CHANGELOG.md"
+  echo "GATE FAIL: could not extract NEW_VERSION ($NEW_VERSION) or PREV_VERSION ($PREV_VERSION) from staged CHANGELOG.md"
   exit 1
 fi
 
-echo "Gating footer compare links: NEW=v${NEW_VERSION}, PREV=v${PREV_VERSION}"
+# Infer optional tag prefix (`v` or empty) from the existing [Unreleased] footer.
+# Step 3 explicitly allows tags with or without `v`; never hardcode `v` here.
+# Fall back to `v` only when no [Unreleased] footer exists yet (first release).
+TAG_PREFIX=$(printf '%s\n' "$STAGED_CHANGELOG" | sed -nE 's|^\[Unreleased\]: .*/compare/(v?)[0-9]+\.[0-9]+\.[0-9]+\.\.\.HEAD$|\1|p' | head -1)
+if ! printf '%s\n' "$STAGED_CHANGELOG" | grep -qE '^\[Unreleased\]:'; then
+  TAG_PREFIX="v"
+fi
+
+echo "Gating footer compare links: NEW=${TAG_PREFIX}${NEW_VERSION}, PREV=${TAG_PREFIX}${PREV_VERSION}"
 
 # Escape dots so they match literally inside the regex.
 NEW_RE=${NEW_VERSION//./\\.}
 PREV_RE=${PREV_VERSION//./\\.}
 
 # Check 1: the new [NEW_VERSION] footer line exists and points PREV->NEW.
-grep -qE "^\[${NEW_RE}\]: .*compare/v${PREV_RE}\.\.\.v${NEW_RE}\$" CHANGELOG.md \
-  || { echo "GATE FAIL: missing footer line: [${NEW_VERSION}]: .../compare/v${PREV_VERSION}...v${NEW_VERSION}"; exit 1; }
+printf '%s\n' "$STAGED_CHANGELOG" | grep -qE "^\[${NEW_RE}\]: .*compare/${TAG_PREFIX}${PREV_RE}\.\.\.${TAG_PREFIX}${NEW_RE}\$" \
+  || { echo "GATE FAIL: missing footer line: [${NEW_VERSION}]: .../compare/${TAG_PREFIX}${PREV_VERSION}...${TAG_PREFIX}${NEW_VERSION}"; exit 1; }
 
 # Check 2: the [Unreleased] footer line is advanced to compare from the new tag.
-grep -qE "^\[Unreleased\]: .*compare/v${NEW_RE}\.\.\.HEAD\$" CHANGELOG.md \
-  || { echo "GATE FAIL: [Unreleased] is not advanced; expected: [Unreleased]: .../compare/v${NEW_VERSION}...HEAD"; exit 1; }
+printf '%s\n' "$STAGED_CHANGELOG" | grep -qE "^\[Unreleased\]: .*compare/${TAG_PREFIX}${NEW_RE}\.\.\.HEAD\$" \
+  || { echo "GATE FAIL: [Unreleased] is not advanced; expected: [Unreleased]: .../compare/${TAG_PREFIX}${NEW_VERSION}...HEAD"; exit 1; }
 
 echo "Footer compare links verified: [${NEW_VERSION}] and [Unreleased] both present and correct."
 ```

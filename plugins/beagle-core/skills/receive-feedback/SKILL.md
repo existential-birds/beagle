@@ -44,15 +44,20 @@ If a bug is valid, a subagent fixes it. Full stop. No deferral, no excuses.
 2. **Classify** each item as **VALID** (must fix) or **INVALID** (reject with evidence).
    - Truly unparseable items get one clarification question. That is the only escape.
 3. **Print** a short summary: invalid items with evidence, valid items numbered.
-4. **Ask exactly one prompt**: `launch fixes for 1,2,3?` (list the valid items' numbers).
-5. **On confirmation**, spawn **one subagent per valid item, all in a single message** so they run in parallel. The orchestrator MUST NOT call Edit / Write / NotebookEdit for any fix.
-6. **Collect** subagent results and emit the final response table.
+4. **Ask exactly one prompt**: `launch fixes for 1,2,3?` (list every valid item's number — the default proposal is always the full valid set).
+5. **Resolve the user's reply**:
+   - Confirmation (`y`, `yes`, `go`, `ok`, `do it`, `lgtm`, or just ↵) → dispatch the full proposed set.
+   - A comma/space-separated list of numbers (e.g. `1,3` or `1 3 4`) → dispatch only those numbers. They must be a subset of the proposed valid set. Items the user omits are NOT marked deferred — they are simply not run this round.
+   - `no` / `cancel` / `stop` → halt without dispatching.
+   - Anything else → re-print the prompt once; do not invent a new disposition.
+6. **Spawn one subagent per chosen item, all in a single message** so they run in parallel. The orchestrator MUST NOT call Edit / Write / NotebookEdit for any fix.
+7. **Collect** subagent results and emit the final response table.
 
 ## Forbidden Behaviors
 
 These are non-negotiable. The orchestrator may **not**:
 
-- Ask the user *which* items to fix. The only question allowed is `launch fixes for <numbers>?`.
+- Ask the user *which* items to fix. The only question allowed is `launch fixes for <numbers>?`, where `<numbers>` defaults to the full valid set. (The user may override by replying with their own subset of numbers — that is a user override, not an agent question.)
 - Claim an issue is **pre-existing**. If a reviewer found it on this PR, it is in scope.
 - Claim an issue is **out of scope** for the PR. If the bug exists on this branch, the PR owns it.
 - **Defer** a valid item to "later", a "backlog", a "follow-up PR", or a "future ticket".
@@ -77,23 +82,25 @@ Do not advance to the next gate until its **pass condition** is true. Details li
 **Gate 2 — Single batch confirmation**
 
 1. Print the invalid items (with rejection evidence) and the valid items (numbered).
-2. Ask the **single** prompt: `launch fixes for <comma-separated numbers>?`
+2. Ask the **single** prompt: `launch fixes for <comma-separated numbers>?` — `<numbers>` MUST be the full valid set. Do not pre-narrow it.
+3. Accept the user's reply per the Workflow resolution rules: confirmation → full set; subset of numbers → that subset only; refusal → halt.
 
-**Pass when:** The user confirms. **Fail (stop):** Asking the user to pick a subset, asking whether to fix at all, or proposing to defer any valid item.
+**Pass when:** The user confirms or supplies a subset of the proposed numbers, and the chosen set is locked in writing before Gate 3. **Fail (stop):** Proposing a narrowed default, asking "which would you like to fix?", or proposing to defer any valid item.
 
 **Gate 3 — Parallel subagent dispatch**
 
-1. In a single tool-use block, spawn one `Agent` per valid item. Each subagent gets: the original feedback text, the verification artifact, the file/line target, and instructions to make the fix and report the resulting diff.
+1. In a single tool-use block, spawn one `Agent` per item in the user-chosen set. Each subagent gets: the original feedback text, the verification artifact, the file/line target, and the Fix-Quality Contract.
 2. The orchestrator does not call `Edit`, `Write`, or `NotebookEdit` during this gate.
 
-**Pass when:** Every valid item has a corresponding subagent invocation in the same message. **Fail (stop):** Fixing inline, serializing the subagents, or skipping any valid item.
+**Pass when:** Every item in the user-chosen set has a corresponding subagent invocation in the same message. **Fail (stop):** Fixing inline, serializing the subagents, or skipping any item the user actually chose.
 
 **Gate 4 — Response artifact (batch)**
 
 1. After subagents return, fill the structured template in `RESPONSE.md`.
 2. The response has exactly two sections: **Implemented** and **Rejected**. There is no Deferred section.
+3. Valid items the user explicitly excluded from this round get a single line under the table — `Not run this round: <numbers> (user-excluded)` — and nothing else. Do not label them deferred or out of scope.
 
-**Pass when:** Every item appears in Implemented or Rejected with file:line citations. **Fail (stop):** Shipping a summary that omits an item, lacks evidence on a rejection, or invents a "Deferred" bucket.
+**Pass when:** Every item appears in Implemented or Rejected with file:line citations, and any user-excluded valid items are listed verbatim under the table. **Fail (stop):** Shipping a summary that omits an item, lacks evidence on a rejection, or invents a "Deferred" bucket.
 
 ## Command Workflow
 

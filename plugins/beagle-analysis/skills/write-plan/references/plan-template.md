@@ -88,10 +88,10 @@ Expected: FAIL — "<exact failure substring you expect to see>"
 
 **Reference:** `path/to/analog.ext:line-line` — [one-sentence delta]. Pointer only; do NOT paste the cited code inline. The executor opens the file.
 
-- [ ] **Step 4: Run test to verify it passes**
+- [ ] **Step 4: Run the new test AND the relevant suite, verify both green**
 
-Run: `<same test command as Step 2>`
-Expected: PASS
+Run: `<same test command as Step 2>` → Expected: PASS.
+Then run: `<broader suite this task lives in — module, package, or contract suite>` → Expected: PASS with zero regressions. Specify the exact command; do not leave as "run the suite."
 
 - [ ] **Step 5: Sweep modified files for leftovers**
 

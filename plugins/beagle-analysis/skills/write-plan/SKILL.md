@@ -83,6 +83,40 @@ Before designing tasks, scan for project rules that shape the plan:
 
 When CLAUDE.md mandates something specific (e.g., "every user-visible feature needs a tier-3 test driven through the compiled binary"), the plan must include tasks that satisfy that rule. Do not silently produce a plan that violates project policy — call it out and adapt.
 
+## Spike Before Plan-Lock
+
+Plans written from documentation alone bake in toolchain assumptions that fail on first contact with the codebase. Before locking the plan, identify every claim of the form "tool X supports behavior Y" or "command Z produces output W" where neither this repo nor the team has a working example. Each such claim is a **spike candidate**.
+
+For every spike candidate, the plan **must** include a `Task 0: Spike <claim>` whose body is:
+
+1. Run the canonical command(s) the rest of the plan depends on, against this repo, as a documented step.
+2. Capture the actual output (success path AND failure modes).
+3. Either: confirm the spec's Key Decision survives intact, OR route the finding back to the user with a concrete revision proposal before any other task runs.
+
+Task 0 is non-optional when the spec's Key Decisions rest on tool behavior the team has not verified in this repo. Examples of spike-required claims:
+
+- "Tool X's `--workspace` flag handles this repo's multi-backend layout in one invocation."
+- "Library Y's default test attribute uses the same pool config production uses."
+- "CLI Z's introspection covers every query shape we'll write."
+- "Migration framework W handles concurrent migrators against a fresh DB idempotently."
+
+If the spike fails or surfaces caveats, **stop and revise the spec** — do not paper over the discovery with extra plan tasks. A spec that locks a Key Decision on a tool that does not behave as assumed is a spec that needs another brainstorm pass, not a plan that needs more workarounds.
+
+This rule is stricter than the existing Assumption Audit. An assumption is "I'm guessing about behavior I haven't verified." A spike candidate is "the spec made a load-bearing decision about behavior nobody verified." The first is documented; the second is run.
+
+## Parallel-Implementation Gate
+
+When the plan adds a parallel implementation of an existing capability (a second database backend behind the same trait, a second platform target for the same UI, a second protocol adapter for the same service), the plan **must** end with a final task whose body is:
+
+1. Identify the canonical contract/conformance test suite that pins the existing implementation's observable behavior.
+2. Run that suite against **both** implementations in the same invocation.
+3. Assert byte-identical observable behavior — return values, persistent rows, emitted events, error variants. Internal struct layout does not count.
+4. Fail the task if either implementation's contract test is red. Do not declare the plan done while divergence is visible in the suite.
+
+This task is the final gate and is non-optional. Without it, a plan that "implements the second backend in parallel" ships divergence — the executor declares each backend's tasks done in isolation while the contract test (which sees both) stays red unnoticed.
+
+The behavior-equivalence gate is separate from any per-task contract tests. Per-task tests pin one implementation's behavior. The gate proves they agree.
+
 ## File Structure
 
 Before defining tasks, map out which files will be created or modified and what each one is responsible for. This is where decomposition decisions get locked in.
@@ -170,10 +204,12 @@ Expected: FAIL — "<the exact failure message you expect>"
 
 **Reference:** `path/to/analog.ext:line-line` — [one-sentence delta: what to mirror, what to change]. Pointers only; do NOT paste the cited code inline. The executor opens the file.
 
-- [ ] **Step 4: Run test to verify it passes**
+- [ ] **Step 4: Run the new test AND the relevant suite, verify both green**
 
-Run: `<same test command as Step 2>`
-Expected: PASS
+Run: `<same test command as Step 2>` → Expected: PASS.
+Then run: `<the broader test scope this task lives in — the module, the package, the contract suite, whichever covers the surface this task touched>` → Expected: PASS with zero regressions.
+
+A new test that passes while a sibling test silently turns red is a task failure, not a deferred concern. "I only ran the one I wrote" is how a contract test stays red across an entire plan. Specify the exact broader-scope command in this step; do not leave it as "run the suite" — the executor needs a copy-pasteable command.
 
 - [ ] **Step 5: Sweep modified files for leftovers**
 
@@ -210,6 +246,14 @@ The plan's job is to lock down the **contract** for each task. Tests are the con
 This is not a license to be vague. "Behavior contract" means *concrete observable behavior the test will verify*. A bullet like "handle errors" is forbidden; "if the input contains a duplicate id, return an `Err`/exception of the project's error type with a message naming the duplicate id" is required.
 
 The discipline is: **the plan defines what counts as correct; the executor writes code that meets it.** This is what TDD already says; writing the impl twice (once in the plan, once at execution) reverses the order.
+
+**Failure-propagation policy is non-optional in every contract that introduces a fallible operation.** When a task adds a new serialization, deserialization, parsing, type conversion, network call, file open, or any other operation that can return an error, the contract MUST state how that error propagates:
+
+- **Required policy** for boundary-internal code paths (anything that runs after the input has already been validated): propagate the error via the project's error type. `?` / `change_context` / `map_err` to the project's variant. The caller decides.
+- **Forbidden patterns**: `.unwrap_or(<non-default fallback string>)` to coerce a None or Err into a plausible-looking placeholder value; `.unwrap_or_default()` on a type whose default is a meaningful value (empty string, zero ID, default enum variant); silent `.ok()` discarding the error.
+- **Allowed exceptions** only when the contract spells them out: a true default that the type system makes obvious (an empty vec when "no results" is the spec'd outcome), with one sentence naming why the default is correct.
+
+Bullets like "serialize the entry_type to the row" are insufficient; the bullet must say "serialize via `to_value`?; coerce to string via `.as_str().ok_or_else(...)?`; never silently substitute a fallback variant." If the contract does not state the policy, the executor will reach for `unwrap_or` and the bug will ship.
 
 ## The Recoverability Test
 
@@ -291,6 +335,14 @@ What the Patterns section absorbs is only the *transformation shape* and the *re
 
 Example: a task that converts 14 query call sites in one file references the pattern; its test asserts that the file's tests still pass after the conversion; its commit covers just that file. A second task converting 4 sites in a different file references the same pattern and has its own test/commit.
 
+**Pattern Application Audit.** When a Pattern is applied across many sites, the plan **must** include a final `Audit: <pattern name>` task immediately after the last site-conversion task. The audit task has three steps:
+
+1. **Grep-confirm zero remaining old-pattern sites.** Exact command; expected empty output.
+2. **List production-config divergence.** Walk every site converted and call out which depend on production-specific configuration the new pattern does not replicate (pool settings, timeouts, isolation levels, env, signal handlers). The audit task body enumerates these sites explicitly — not "check the sites," but "site A at file:line depends on X, site B at file:line depends on Y." Either fix each (custom fixture, helper override, etc.) in the audit task or open a follow-up task before moving on.
+3. **Sample-verify three random converted sites against production wiring.** Pick three sites, run the corresponding production-wiring test (tier-2 or tier-3 per the project's tiering rule), assert the converted test still covers the original bug class. If any sample regresses, the pattern needs a per-site escape hatch the audit names.
+
+The audit is not a stylistic step. Patterns applied blindly across N sites are how production-config divergence (e.g. test pool config silently diverging from production pool config) ships green. The audit forces the planner to enumerate and the executor to verify.
+
 ## Assumption Audit
 
 Implementation plans bake in assumptions that the spec doesn't always pin. Before finalizing the plan, list the assumptions you made — data shapes, naming, library choices, error semantics, persistence boundaries — and check each against the spec.
@@ -311,6 +363,12 @@ After drafting the complete plan, look at the spec with fresh eyes and check the
 | **Placeholder scan** | Search for the failure patterns above. Fix them inline. |
 | **Type consistency** | Do types, signatures, and names in later tasks match earlier ones? `clearLayers()` in Task 3 vs `clearFullLayers()` in Task 7 is a bug. |
 | **Test discipline** | Does every behavior-changing task have a failing-test step before the implementation step? |
+| **Test-tier coverage** | Enumerate every CLAUDE.md tier-3 (or equivalent project-defined) trigger this plan touches — `main.rs`/entrypoint, CLI arg parsing, env-var resolution, terminal/pty/signal handling, real stdin/stdout piping, shell scripts whose contract is shell semantics, user-visible string literals whose stability is part of the contract. For each trigger, point at the tier-3 (or equivalent) test the plan adds, or mark the task incomplete. A bash credential-leak in a shell-script task is invisible to any in-process test; only a tier-3 test catches it. |
+| **Spike candidates** | Re-read the Assumptions block and the spec's Key Decisions. For every claim of the form "tool X does Y" where neither this repo nor the team has a working example, is there a Task 0 spike? If not, add one or revise the spec. |
+| **Parallel-implementation gate** | Does the plan add a second backend/platform/adapter behind an existing trait or interface? If yes, is there a final task that runs the canonical contract suite against BOTH implementations and asserts byte-identical observable behavior? If not, add it. |
+| **Failure-propagation contracts** | For every task that introduces a new fallible operation (serialize/parse/convert/open/connect), does its behavior contract name the propagation policy? `.unwrap_or(<plausible fallback>)` without explicit contract rationale is a bug class — fix the contract. |
+| **Per-task suite green** | Does every task's Step 4 specify both the single-test command AND the broader-scope suite command? Single-test-only passes hide cross-task regressions. |
+| **Pattern application audit** | If any Pattern applies to many sites, is the final Audit task present (grep + production-config divergence enumeration + 3-site sample-verify)? |
 | **Project conventions** | Does the plan respect the `CLAUDE.md` rules you read? (e.g., real-path test coverage, comment policy, commit format) |
 | **Out-of-scope** | Did any task creep into something the spec marks Out of Scope? Remove it. |
 

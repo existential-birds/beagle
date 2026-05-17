@@ -6,6 +6,15 @@ Format follows [Keep a Changelog](https://keepachangelog.com/en/1.1.0/). Version
 
 ## [Unreleased]
 
+## [3.10.0] - 2026-05-16
+
+### Added
+- **beagle-analysis:** Add spec/plan discipline for tool-behavior assumptions ([#109](https://github.com/existential-birds/beagle/pull/109)). `brainstorm-beagle` Key Decisions resting on tool behavior must cite a worked example or be tagged `needs-spike-before-planning`. `write-plan` gains Spike Before Plan-Lock (Task 0 spikes for unverified toolchain claims; failing spikes revise the spec rather than papering over with plan tasks), Parallel-Implementation Gate (final task asserts byte-identical observable behavior between implementations), failure-propagation policy banning `.unwrap_or(<plausible fallback>)` and silent `.ok()` in fallible contracts, Pattern Application Audit task after multi-site conversions (zero-remaining grep + production-config divergence enumeration + 3-site sample-verify), Step 4 broadened to run both the new test AND the relevant suite with copy-pasteable commands, and six new Final Review checklist rows
+- **beagle-core:** `fetch-pr-feedback` skips resolved review threads by default ([#106](https://github.com/existential-birds/beagle/pull/106)). Fetches resolved review-thread comment databaseIds via GraphQL and excludes them from review-comments output. Adds `--include-resolved` opt-in flag mirroring `--include-author`. Issue comments are unaffected since they're not part of review threads
+
+### Changed
+- **beagle-core:** `receive-feedback` orchestrator may no longer defer valid findings or edit code itself ([#108](https://github.com/existential-birds/beagle/pull/108)). The skill previously asked users which items to fix and used "pre-existing", "out of scope", and "deferred" as escape hatches for valid reviewer findings. Workflow now: orchestrator verifies, asks a single "launch fixes for N,N,N?" confirmation, then spawns one subagent per valid item in parallel. User may reply with a subset of numbers to dispatch only those; excluded items are labeled "Not run this round (user-excluded)" — never deferred. Adds a fix-quality contract pasted verbatim into every subagent prompt (idiomatic clean fixes, no over-engineering, no excessive comments)
+
 ## [3.9.1] - 2026-05-15
 
 ### Added
@@ -462,7 +471,8 @@ Format follows [Keep a Changelog](https://keepachangelog.com/en/1.1.0/). Version
 - Development commands: `skill-builder`, `ensure-docs`
 - Cursor IDE command equivalents
 
-[Unreleased]: https://github.com/existential-birds/beagle/compare/v3.9.1...HEAD
+[Unreleased]: https://github.com/existential-birds/beagle/compare/v3.10.0...HEAD
+[3.10.0]: https://github.com/existential-birds/beagle/compare/v3.9.1...v3.10.0
 [3.9.1]: https://github.com/existential-birds/beagle/compare/v3.9.0...v3.9.1
 [3.9.0]: https://github.com/existential-birds/beagle/compare/v3.8.0...v3.9.0
 [3.8.0]: https://github.com/existential-birds/beagle/compare/v3.7.0...v3.8.0

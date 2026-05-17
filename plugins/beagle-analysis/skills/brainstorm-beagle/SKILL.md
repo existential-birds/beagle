@@ -158,6 +158,19 @@ The spec must never prescribe implementation. This is the hardest discipline.
 
 **Exception — constraints:** When the user has genuine constraints ("must use PostgreSQL because that's what our infra runs"), those go in the Constraints section with rationale. A constraint is a boundary condition, not a design choice made during brainstorming.
 
+## Key Decisions That Rest on Tool Behavior
+
+Some Key Decisions in a spec take the form "we will use feature X of tool Y to achieve Z" (e.g. "compile-time-checked SQL on both backends via sqlx's offline cache", "dual-platform builds via the framework's single-binary target"). These decisions look settled but encode an unverified assumption: that the tool actually behaves the way the docs imply when applied to *this* codebase.
+
+When recording a Key Decision of this shape, do one of the following — never neither:
+
+1. **Cite a worked example.** Point at a file in the repo (or a comparable repo on disk) where the tool already does the thing the decision depends on. `core/.sqlx/` with N existing query files is a citation; "sqlx supports compile-time checking" from memory is not.
+2. **Tag the decision `needs-spike-before-planning`.** Add an explicit marker to the Rationale: `**Spike required:** before plan-lock, verify <specific command/behavior> against this repo and revise this decision if the result diverges from the assumption.`
+
+A decision without either is a decision the downstream planner will encode as a fact and the executor will try to build against — and "the docs said it worked" is how a 5-line plan task balloons into a 400-line bash workaround. The spike tag tells the planner to add a Task 0 spike; the citation tells the planner the spike is already implicit in the existing code.
+
+This rule is narrower than implementation leakage. The decision can still be at the WHAT level (e.g. "data must be type-checked at compile time" is WHAT). The rule applies only when the decision's *rationale* depends on specific tool behavior the user is asserting without evidence.
+
 ## Spec Format
 
 Use the template in `references/spec-template.md`. The spec has these sections:

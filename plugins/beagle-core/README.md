@@ -26,7 +26,6 @@ claude plugin install beagle-core@existential-birds
 | **fetch-pr-feedback** | `/beagle-core:fetch-pr-feedback` | Fetch bot review comments from a PR and evaluate with receive-feedback skill |
 | **respond-pr-feedback** | `/beagle-core:respond-pr-feedback` | Post replies to bot review comments after evaluation and fixes |
 | **gen-release-notes** | `/beagle-core:gen-release-notes` | Generate release notes for changes since a given tag |
-
 | **prompt-improver** | `/beagle-core:prompt-improver` | Optimize prompts for code-related tasks following Claude best practices |
 
 ## Skills

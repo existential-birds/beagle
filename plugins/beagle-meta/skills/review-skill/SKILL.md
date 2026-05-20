@@ -54,7 +54,7 @@ Marketplace violations are HIGH confidence because they can be verified by readi
 
 ### Step 7: Load and Apply Verification Protocol
 
-Load `beagle-meta:review-verification-protocol` (or `beagle-core:review-verification-protocol` if the former isn't available). Before reporting any finding, verify:
+Load `beagle-core:review-verification-protocol`. Before reporting any finding, verify:
 
 1. You read the actual skill content, not just the diff context
 2. The issue is real, not a style preference

@@ -6,6 +6,9 @@ Format follows [Keep a Changelog](https://keepachangelog.com/en/1.1.0/). Version
 
 ## [Unreleased]
 
+### Added
+- **beagle-core:** Add the `review-structure` skill — a repo-wide structural-maintainability review (`/beagle-core:review-structure`) focused on implementation quality, abstraction quality, and codebase health. Pushes for "code-judo" restructurings that preserve behavior while simplifying, guards against pushing files past 1k lines, flags anti-spaghetti branching, enforces canonical-layer reuse, calls out magic/wrapper abstractions, and demands explicit type/boundary contracts. Ships `disable-model-invocation` (user-invoked only) with a severity-categorized output format and an explicit approval bar
+
 ## [3.10.0] - 2026-05-16
 
 ### Added

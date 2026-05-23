@@ -12,6 +12,16 @@ Above all, this skill should push the reviewer to be **ambitious** about code st
 
 The structural lens is **repo-wide**: read any file in the codebase as needed (Read/Grep/Bash) to judge whether canonical helpers already exist, whether file-size budgets are honored, and whether the change makes the codebase easier or harder to live with.
 
+## Hard gates (sequence)
+
+Advance only when each **pass condition** is objectively satisfied (artifact path, tool output, or labeled capture — not "I checked it mentally"):
+
+| Gate | Pass condition |
+|------|----------------|
+| **G1 — Changed-file list** | `git diff --name-only` (or equivalent) returns a non-empty list *or* you exit with an explicit "no changed files" message; the list is recorded before any review step begins. |
+| **G2 — Full file reads** | Every file in scope has been opened with `Read`; for each file you record the path and line count (e.g. `src/foo.ts — 342 lines`). Do **not** proceed to findings until all reads are logged. |
+| **G3 — Canonical-helper and 1k-line claims verified** | Any finding that asserts "no canonical helper exists" must cite a `Grep` artifact showing the search pattern and result. Any finding that asserts a file exceeds 1 000 lines must cite a `wc -l` or `Read` line-count artifact. Findings lacking these artifacts are **blocked** from the report. |
+
 ## Core Prompt
 
 Start from this baseline:
@@ -90,25 +100,13 @@ For every meaningful change, ask:
 
 ## What to Flag Aggressively
 
-Escalate findings when you see:
+Apply rules 0–7 above, and escalate especially when you see:
 
-- A complicated implementation where a cleaner reframing could delete whole categories of complexity.
 - Refactors that move code around but fail to reduce the number of concepts a reader must hold in their head.
-- A file crossing 1000 lines due to the PR, especially if the new code could be split out.
-- New conditionals bolted onto unrelated code paths.
-- One-off booleans, nullable modes, or flags that complicate existing control flow.
-- Feature-specific logic leaking into general-purpose modules.
-- Generic "magic" handling that hides simple structure and makes the code harder to reason about.
-- Thin wrappers or identity abstractions that add indirection without simplifying anything.
-- Unnecessary casts, `any`, `unknown`, or optional params that muddy the real contract.
 - Copy-pasted logic instead of extracted helpers.
 - Narrow edge-case handling implemented in the middle of an already busy function.
 - Refactors that technically pass tests but make the code less modular or less readable.
 - "Temporary" branching that is likely to become permanent debt.
-- Bespoke helpers where the codebase already has a canonical utility for the job.
-- Logic added in the wrong layer/package when it should live somewhere more central.
-- Sequential async flow where obviously independent work could stay simpler and clearer with parallel execution.
-- Partial-update logic that leaves state less atomic than necessary.
 
 ## Preferred Remedies
 
@@ -141,18 +139,6 @@ Do not be rude, but do not soften major maintainability issues into mild suggest
 If the code is making the codebase messier, say so clearly.
 If the implementation missed an opportunity for a dramatic simplification, say that clearly too.
 
-Good phrases:
-
-- `this pushes the file past 1k lines. can we decompose this first?`
-- `this adds another special-case branch into an already busy flow. can we move this behind its own abstraction?`
-- `this works, but it makes the surrounding code more spaghetti. let's keep the behavior and restructure the implementation.`
-- `this feels like feature logic leaking into a shared path. can we isolate it?`
-- `this abstraction seems unnecessary. can we just keep the direct flow?`
-- `why does this need a cast / optional here? can we make the boundary more explicit instead?`
-- `this looks like a bespoke helper for something we already have elsewhere. can we reuse the canonical one?`
-- `i think there's a code-judo move here that makes this much simpler. can we reframe this so these branches disappear?`
-- `this refactor moves complexity around, but doesn't really delete it. is there a way to make the model itself simpler?`
-
 ## Output Expectations
 
 Prioritize findings in this order:
@@ -170,26 +156,15 @@ Prefer a smaller number of high-conviction comments over a long list of cosmetic
 
 ## Approval Bar
 
-Do not approve merely because behavior seems correct.
-The bar for approval is:
+Do not approve merely because behavior seems correct. The bar is: no violation of rules 0–7 above, and no clear structural regression.
 
-- no clear structural regression
-- no obvious missed opportunity to make the implementation dramatically simpler when such a path is visible
-- no unjustified file-size explosion
-- no obvious spaghetti-growth from special-case branching
-- no obviously hacky or magical abstraction that makes the code harder to reason about
-- no unnecessary wrapper/cast/optionality churn obscuring the real design
-- no clear architecture-boundary leak or avoidable canonical-helper duplication
-- no missed opportunity for an obvious decomposition that would materially improve maintainability
+Treat as presumptive blockers unless the author can justify them clearly:
 
-Treat these as presumptive blockers unless the author can justify them clearly:
-
-- the PR preserves a lot of incidental complexity when there is a plausible code-judo move that would delete it
-- the PR pushes a file from below 1000 lines to above 1000 lines
-- the PR adds ad-hoc branching that makes an existing flow more tangled
-- the PR solves a local problem by scattering feature checks across shared code
-- the PR adds an unnecessary abstraction, wrapper, or cast-heavy contract that makes the design more indirect
-- the PR duplicates an existing helper or puts logic in the wrong layer when there is a clear canonical home
+- the PR preserves incidental complexity when a plausible code-judo move would delete it (rule 0)
+- the PR pushes a file from below 1000 lines to above 1000 lines (rule 1)
+- the PR adds ad-hoc branching that makes an existing flow more tangled (rule 2)
+- the PR adds an unnecessary abstraction, wrapper, or cast-heavy contract (rules 4–5)
+- the PR duplicates an existing helper or puts logic in the wrong layer (rule 6)
 
 If those conditions are not met, leave explicit, actionable feedback and push for a cleaner decomposition.
 
@@ -198,7 +173,18 @@ If those conditions are not met, leave explicit, actionable feedback and push fo
 Capture the command output (or equivalent) as your authoritative changed-file set before reviewing. The structural lens applies to changes in any language — do not filter by extension.
 
 ```bash
-git diff --name-only $(git merge-base HEAD main)..HEAD
+BASE=$(for ref in main origin/main master origin/master; do
+         git rev-parse --verify "$ref" >/dev/null 2>&1 && { echo "$ref"; break; }
+       done)
+if [ -z "$BASE" ]; then
+  echo "error: no main/master ref found (checked main, origin/main, master, origin/master)." >&2
+  exit 1
+fi
+MERGE_BASE=$(git merge-base HEAD "$BASE") || {
+  echo "error: git merge-base HEAD $BASE failed." >&2
+  exit 1
+}
+git diff --name-only "$MERGE_BASE..HEAD"
 ```
 
 If the list is empty, state that explicitly and do not invent structural findings.

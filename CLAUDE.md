@@ -77,7 +77,7 @@ Beagle-specific:
 | beagle-rust | `review-rust` | Rust/tokio/axum/sqlx/serde code review |
 | beagle-remix-v2 | `review-remix-v2` | Remix v2 code review (loaders, actions, forms, sessions, perf/SSR) |
 | beagle-core | `review-plan` | Review implementation plans before execution |
-| beagle-core | `review-structure` | Repo-wide structural-maintainability review (code-judo restructurings, 1k-line guard, anti-spaghetti branching) |
+| beagle-core | `review-structure` | Repo-wide structural-maintainability review (code-judo restructurings, 1k-line file guard, anti-spaghetti branching, canonical-layer enforcement, anti-magic abstractions, explicit type/boundary contracts) |
 | beagle-core | `commit-push` | Commit with Conventional Commits format |
 | beagle-core | `create-pr` | Create PR with structured template |
 | beagle-core | `gen-release-notes` | Generate changelog from git history |

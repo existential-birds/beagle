@@ -6,8 +6,10 @@ Format follows [Keep a Changelog](https://keepachangelog.com/en/1.1.0/). Version
 
 ## [Unreleased]
 
+## [3.11.0] - 2026-05-23
+
 ### Added
-- **beagle-core:** Add the `review-structure` skill — a repo-wide structural-maintainability review (`/beagle-core:review-structure`) focused on implementation quality, abstraction quality, and codebase health. Pushes for "code-judo" restructurings that preserve behavior while simplifying, guards against pushing files past 1k lines, flags anti-spaghetti branching, enforces canonical-layer reuse, calls out magic/wrapper abstractions, and demands explicit type/boundary contracts. Ships `disable-model-invocation` (user-invoked only) with a severity-categorized output format and an explicit approval bar
+- **beagle-core:** Add the `review-structure` skill — a repo-wide structural-maintainability review (`/beagle-core:review-structure`) focused on implementation quality, abstraction quality, and codebase health ([#112](https://github.com/existential-birds/beagle/pull/112)). Pushes for "code-judo" restructurings that preserve behavior while simplifying, guards against pushing files past 1k lines, flags anti-spaghetti branching, enforces canonical-layer reuse, calls out magic/wrapper abstractions, and demands explicit type/boundary contracts. Ships `disable-model-invocation` (user-invoked only) with a severity-categorized output format and an explicit approval bar
 
 ## [3.10.0] - 2026-05-16
 
@@ -474,7 +476,8 @@ Format follows [Keep a Changelog](https://keepachangelog.com/en/1.1.0/). Version
 - Development commands: `skill-builder`, `ensure-docs`
 - Cursor IDE command equivalents
 
-[Unreleased]: https://github.com/existential-birds/beagle/compare/v3.10.0...HEAD
+[Unreleased]: https://github.com/existential-birds/beagle/compare/v3.11.0...HEAD
+[3.11.0]: https://github.com/existential-birds/beagle/compare/v3.10.0...v3.11.0
 [3.10.0]: https://github.com/existential-birds/beagle/compare/v3.9.1...v3.10.0
 [3.9.1]: https://github.com/existential-birds/beagle/compare/v3.9.0...v3.9.1
 [3.9.0]: https://github.com/existential-birds/beagle/compare/v3.8.0...v3.9.0

@@ -26,4 +26,4 @@ claude plugin install beagle-meta@existential-birds
 ## See Also
 
 - [beagle-core](../beagle-core) - Shared workflows, verification protocol, and git commands
-- [beagle marketplace](https://github.com/existential-birds/beagle) - Full plugin marketplace with 10 focused plugins
+- [beagle marketplace](https://github.com/existential-birds/beagle) - Full plugin marketplace with 12 focused plugins

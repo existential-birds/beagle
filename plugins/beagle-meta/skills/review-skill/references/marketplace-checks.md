@@ -16,7 +16,7 @@ Before running marketplace checks, build a map of the marketplace:
 
 4. **Build the skill index** — collect all `(plugin_name, skill_name, description)` tuples. This index is used for collision detection and overlap analysis.
 
-```
+```text
 Marketplace
 ├── Plugin A (plugin.json)
 │   └── skills/

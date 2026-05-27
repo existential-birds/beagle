@@ -7,7 +7,7 @@ repo=/path/to/beagle
 dest="$HOME/.agents/skills"
 mkdir -p "$dest"
 
-for plugin in beagle-ai beagle-analysis beagle-core beagle-docs beagle-elixir beagle-go beagle-ios beagle-python beagle-react beagle-remix-v2 beagle-rust beagle-testing; do
+for plugin in beagle-analysis beagle-core beagle-docs beagle-elixir beagle-go beagle-ios beagle-python beagle-react beagle-rust beagle-testing; do
   ln -sfn "$repo/plugins/$plugin/skills" "$dest/$plugin"
 done
 ```

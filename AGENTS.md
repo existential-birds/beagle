@@ -4,28 +4,26 @@ This file provides guidance to Codex when working with code in this repository.
 
 ## What This Is
 
-Beagle is a Claude Code plugin marketplace providing framework-aware code review skills and verification workflows for pre-push reviews and GitHub bot feedback handling. It contains 12 focused plugins with 143 skills.
+Beagle is a Claude Code plugin marketplace providing framework-aware code review skills and verification workflows for pre-push reviews and GitHub bot feedback handling. It contains 10 focused plugins with 131 skills.
 
 ## Marketplace Architecture
 
 ```text
 beagle/
 ├── .claude-plugin/
-│   └── marketplace.json         # Marketplace manifest (12 plugins)
+│   └── marketplace.json         # Marketplace manifest (10 plugins)
 └── plugins/
-    ├── beagle-core/             # Shared workflows, verification, git workflows (19 skills)
+    ├── beagle-core/             # Shared workflows, verification, git workflows, skill tooling (19 skills)
     ├── beagle-python/           # Python, FastAPI, SQLAlchemy, PostgreSQL, pytest (7 skills)
     ├── beagle-go/               # Go, BubbleTea, Wish SSH, Prometheus (13 skills)
     ├── beagle-elixir/           # Elixir, Phoenix, LiveView, ExUnit, ExDoc (11 skills)
     ├── beagle-ios/              # Swift, SwiftUI, SwiftData, iOS frameworks (16 skills)
-    ├── beagle-react/            # React, React Flow, shadcn/ui, Tailwind, Vitest (16 skills)
-    ├── beagle-remix-v2/         # Remix v2 routing, loaders/actions, forms, sessions, perf/SSR (12 skills)
+    ├── beagle-react/            # React, React Flow, shadcn/ui, Tailwind, Vitest, Remix v2 (28 skills)
     ├── beagle-rust/             # Rust, tokio, axum, sqlx, serde (12 skills)
-    ├── beagle-ai/               # Pydantic AI, LangGraph, DeepAgents, Vercel AI SDK (13 skills)
+    ├── beagle-ai/               # Pydantic AI, LangGraph, DeepAgents, Vercel AI SDK (deprecated)
     ├── beagle-docs/             # Documentation quality, AI writing detection (10 skills)
-    ├── beagle-analysis/         # Brainstorming, ADRs, strategy, LLM-as-judge, spec resolution, PRFAQ filter (12 skills)
-    ├── beagle-testing/          # Test plan generation and execution (2 skills)
-    └── beagle-meta/             # Skill tooling — builder, reviewer (2 skills)
+    ├── beagle-analysis/         # Brainstorming, ADRs, strategy, LLM-as-judge, spec resolution, PRFAQ filter (13 skills)
+    └── beagle-testing/          # Test plan generation and execution (2 skills)
 ```
 
 Each plugin is self-contained with its own `plugin.json` and `skills/` directory.
@@ -74,13 +72,13 @@ Beagle-specific:
 | beagle-ios | `review-ios` | iOS/SwiftUI code review |
 | beagle-elixir | `review-elixir` | Elixir/Phoenix/LiveView code review |
 | beagle-rust | `review-rust` | Rust/tokio/axum/sqlx/serde code review |
-| beagle-remix-v2 | `review-remix-v2` | Remix v2 code review (loaders, actions, forms, sessions, perf/SSR) |
+| beagle-react | `review-remix-v2` | Remix v2 code review (loaders, actions, forms, sessions, perf/SSR) |
 | beagle-core | `review-plan` | Review implementation plans before execution |
 | beagle-core | `commit-push` | Commit with Conventional Commits format |
 | beagle-core | `create-pr` | Create PR with structured template |
 | beagle-core | `gen-release-notes` | Generate changelog from git history |
-| beagle-meta | `skill-builder` | Guided skill creation workflow |
-| beagle-meta | `review-skill` | Automated skill PR review for structural validity, design quality, and marketplace consistency |
+| beagle-core | `skill-builder` | Guided skill creation workflow |
+| beagle-core | `review-skill` | Automated skill PR review for structural validity, design quality, and marketplace consistency |
 | beagle-core | `receive-feedback` | Process code review feedback with verification |
 | beagle-core | `fetch-pr-feedback` | Fetch and evaluate bot review comments from PR |
 | beagle-core | `respond-pr-feedback` | Post replies to bot review comments |

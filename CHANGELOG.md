@@ -6,6 +6,19 @@ Format follows [Keep a Changelog](https://keepachangelog.com/en/1.1.0/). Version
 
 ## [Unreleased]
 
+## [4.0.0] - 2026-05-27
+
+### Changed
+- **BREAKING:** Merged beagle-meta into beagle-core — `skill-builder` and `review-skill` now live under beagle-core
+- **BREAKING:** Merged beagle-remix-v2 into beagle-react — all 12 Remix v2 skills now live under beagle-react
+- **BREAKING:** Delisted beagle-ai from marketplace (deprecated; files preserved on disk but removed from marketplace.json)
+
+### Removed
+- `docling`, `github-projects`, `sqlite-vec` vendor skills from beagle-core
+- beagle-meta plugin entry (merged into beagle-core)
+- beagle-remix-v2 plugin entry (merged into beagle-react)
+- beagle-ai plugin entry (delisted from marketplace)
+
 ## [3.11.0] - 2026-05-23
 
 ### Added

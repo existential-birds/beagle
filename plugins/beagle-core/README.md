@@ -38,9 +38,8 @@ claude plugin install beagle-core@existential-birds
 | **review-skill-improver** | Analyzes feedback logs to identify patterns and suggest improvements to review skills |
 | **llm-artifacts-detection** | Detects common LLM coding agent artifacts: test quality issues, dead code, over-abstraction, and verbose style |
 | **verify-llm-artifacts** | Second-pass adjudication of review-llm-artifacts JSON; marks confirmed vs false positive vs inconclusive |
-| **github-projects** | GitHub Projects (v2) management via gh CLI for items, fields, and workflows |
-| **docling** | Document parser for PDF, DOCX, PPTX, HTML, images, and 15+ formats with RAG chunking support |
-| **sqlite-vec** | sqlite-vec extension for vector similarity search, KNN queries, and semantic search in SQLite |
+| **skill-builder** | Guided skill creation workflow |
+| **review-skill** | Automated skill PR review for structural validity, design quality, and marketplace consistency |
 
 ### Reference Material
 
@@ -51,12 +50,6 @@ Each skill with a `references/` directory includes detailed reference documents:
 **verify-llm-artifacts**: per-finding verification checklist (false positives vs confirmed issues)
 
 **receive-feedback**: skill integration patterns
-
-**github-projects**: project items management, custom fields
-
-**docling**: output formats, parsing options, chunking strategies, batch processing
-
-**sqlite-vec**: table setup, query patterns, vector operations, configuration
 
 ## See Also
 

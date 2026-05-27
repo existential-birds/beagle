@@ -24,7 +24,8 @@ beagle/
     ├── beagle-ai/               # Pydantic AI, LangGraph, DeepAgents, Vercel AI SDK (13 skills)
     ├── beagle-docs/             # Documentation quality, AI writing detection (10 skills)
     ├── beagle-analysis/         # Brainstorming, ADRs, strategy, LLM-as-judge, spec resolution, PRFAQ filter, TDD plan writing (13 skills)
-    └── beagle-testing/          # Test plan generation and execution (2 skills)
+    ├── beagle-testing/          # Test plan generation and execution (2 skills)
+    └── beagle-meta/             # Skill tooling — builder, reviewer (2 skills)
 ```
 
 Each plugin is self-contained with its own `plugin.json` and `skills/` directory.
@@ -81,7 +82,8 @@ Beagle-specific:
 | beagle-core | `commit-push` | Commit with Conventional Commits format |
 | beagle-core | `create-pr` | Create PR with structured template |
 | beagle-core | `gen-release-notes` | Generate changelog from git history |
-| beagle-core | `skill-builder` | Guided skill creation workflow |
+| beagle-meta | `skill-builder` | Guided skill creation workflow |
+| beagle-meta | `review-skill` | Automated skill PR review for structural validity, design quality, and marketplace consistency |
 | beagle-core | `receive-feedback` | Process code review feedback with verification |
 | beagle-core | `fetch-pr-feedback` | Fetch and evaluate bot review comments from PR |
 | beagle-core | `respond-pr-feedback` | Post replies to bot review comments |

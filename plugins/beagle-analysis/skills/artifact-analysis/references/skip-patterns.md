@@ -16,7 +16,7 @@ Secrets, credentials, and user-level config. Never scanned.
 
 ## Binary / media
 
-Formats the first version does not parse. Passed over without an error. `beagle-core:docling` is the future path for richer parsing (PDF / DOCX / PPTX) when a caller needs it.
+Formats the first version does not parse. Passed over without an error.
 
 - Images: `*.png`, `*.jpg`, `*.jpeg`, `*.gif`, `*.webp`, `*.ico`, `*.svg`, `*.bmp`, `*.tiff`
 - Documents: `*.pdf`, `*.docx`, `*.doc`, `*.pptx`, `*.ppt`, `*.xlsx`, `*.xls`

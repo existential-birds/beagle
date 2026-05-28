@@ -6,19 +6,22 @@
   },
   "metadata": {
     "description": "Framework-aware code review skills and workflows for modern development",
-    "version": "3.11.0"
+    "version": "4.0.0"
   },
   "plugins": [
     {
       "name": "beagle-core",
       "source": "./plugins/beagle-core",
-      "description": "Shared code review workflows, verification protocol, git commands, and feedback handling",
+      "description": "Shared code review workflows, verification protocol, git commands, feedback handling, and skill tooling",
       "category": "workflow",
       "tags": [
         "code-review",
         "verification",
         "git",
-        "feedback"
+        "feedback",
+        "skills",
+        "meta",
+        "builder"
       ]
     },
     {
@@ -80,7 +83,7 @@
     {
       "name": "beagle-react",
       "source": "./plugins/beagle-react",
-      "description": "React, React Flow, React Router, shadcn/ui, Tailwind, Vitest, and Zustand code review",
+      "description": "React, React Flow, React Router, Remix v2, shadcn/ui, Tailwind, Vitest, and Zustand code review",
       "category": "frontend",
       "tags": [
         "react",
@@ -88,35 +91,11 @@
         "tailwind",
         "shadcn",
         "vitest",
-        "code-review"
-      ]
-    },
-    {
-      "name": "beagle-remix-v2",
-      "source": "./plugins/beagle-remix-v2",
-      "description": "Remix v2 (route modules + React Router v6) code review and best-practice skills",
-      "category": "frontend",
-      "tags": [
+        "code-review",
         "remix",
         "remix-v2",
-        "react-router",
-        "react-router-v6",
         "loaders",
-        "actions",
-        "code-review"
-      ]
-    },
-    {
-      "name": "beagle-ai",
-      "source": "./plugins/beagle-ai",
-      "description": "Pydantic AI, LangGraph, DeepAgents, and Vercel AI SDK skills",
-      "category": "ai",
-      "tags": [
-        "pydantic-ai",
-        "langgraph",
-        "deepagents",
-        "vercel-ai",
-        "agents"
+        "actions"
       ]
     },
     {
@@ -172,19 +151,6 @@
         "testing",
         "test-plan",
         "qa"
-      ]
-    },
-    {
-      "name": "beagle-meta",
-      "source": "./plugins/beagle-meta",
-      "description": "Skill tooling — building, reviewing, and evaluating Claude Code skills",
-      "category": "meta",
-      "tags": [
-        "skills",
-        "meta",
-        "review",
-        "builder",
-        "evaluation"
       ]
     }
   ]

@@ -1,16 +1,12 @@
+> **DEPRECATED** — This plugin has been removed from the beagle marketplace as of v4.0.0 and is no longer available for new installations. Existing users with direct links (e.g., via skill.sh) can continue using these skills. The skill files remain on disk for backward compatibility.
+
 # beagle-ai
 
 Pydantic AI, LangGraph, DeepAgents, and Vercel AI SDK skills for [Claude Code](https://claude.ai/code). Part of the [beagle](https://github.com/existential-birds/beagle) plugin marketplace.
 
 ## Installation
 
-```bash
-# Add the marketplace (if not already added)
-claude plugin marketplace add https://github.com/existential-birds/beagle
-
-# Install the plugin
-claude plugin install beagle-ai@existential-birds
-```
+This plugin was removed from the beagle marketplace in v4.0.0 and is no longer available via `claude plugin install`. If you already have the files on disk (e.g., via a direct link or skill.sh), the skills continue to work when the plugin directory is referenced in your local settings.
 
 ## Skills
 

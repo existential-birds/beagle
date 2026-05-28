@@ -38,6 +38,18 @@ Reviews changed `.tsx`, `.ts`, and `.css` files against `main`. Detects framewor
 | **shadcn-ui** | shadcn/ui component patterns with Radix primitives and Tailwind styling |
 | **tailwind-v4** | Tailwind CSS v4 with CSS-first configuration, OKLCH colors, and design tokens |
 | **vitest-testing** | Vitest testing framework patterns: mocking, snapshots, coverage, and configuration |
+| **remix-v2-data-flow** | Remix v2 data loading and mutations: loaders, actions, deferred data, revalidation, pending state |
+| **remix-v2-data-flow-review** | Reviews Remix v2 loaders and actions for mutations-in-loader, missing validation, leaked server fields, wrong return helpers |
+| **remix-v2-error-boundaries-review** | Reviews Remix v2 error-handling code for unified ErrorBoundary, isRouteErrorResponse narrowing, throw-vs-return, v1 holdovers |
+| **remix-v2-forms** | Remix v2 form submissions and mutations: forms, optimistic UI, file uploads, multi-action routes |
+| **remix-v2-forms-review** | Reviews Remix v2 form code for manual fetch() mutations, native form misuse, wrong useNavigation/useFetcher choice |
+| **remix-v2-meta-sessions** | Remix v2 meta/SEO, sessions, auth, and CSRF: document head, cookie sessions, auth gates |
+| **remix-v2-meta-sessions-review** | Reviews Remix v2 code for v1-shape meta exports, cookie security gaps, auth gates in wrong layer, missing CSRF |
+| **remix-v2-perf-ssr** | Remix v2 performance, streaming, caching, and server/client boundaries |
+| **remix-v2-perf-ssr-review** | Reviews Remix v2 code for caching header misuse, missing server/client split, hydration mismatches, prefetch hygiene |
+| **remix-v2-routing** | Remix v2 routing patterns: flat-routes v2 conventions, route file naming, nested layouts, resource routes |
+| **remix-v2-routing-review** | Reviews Remix v2 route files for naming convention violations, missing layouts, resource-route shape, v1 holdovers |
+| **review-remix-v2** | Comprehensive Remix v2 code review with optional parallel agents and verification protocol |
 | **zustand-state** | Zustand state management: stores, selectors, persistence, devtools, and middleware |
 
 ### Reference Material
@@ -65,6 +77,28 @@ Each skill includes detailed reference documents:
 **ai-elements**: conversation, prompt input, visualization, workflow
 
 **dagre-react-flow**: reference
+
+**remix-v2-data-flow**: loaders, actions, deferred data, revalidation
+
+**remix-v2-data-flow-review**: data-flow anti-patterns, validation
+
+**remix-v2-error-boundaries-review**: error boundary patterns, v1 holdovers
+
+**remix-v2-forms**: form submissions, optimistic UI, file uploads
+
+**remix-v2-forms-review**: form anti-patterns, pending state
+
+**remix-v2-meta-sessions**: meta/SEO, sessions, auth, CSRF
+
+**remix-v2-meta-sessions-review**: meta/session anti-patterns
+
+**remix-v2-perf-ssr**: streaming, caching, server/client boundaries
+
+**remix-v2-perf-ssr-review**: caching misuse, hydration mismatches
+
+**remix-v2-routing**: flat-routes, nested layouts, resource routes
+
+**remix-v2-routing-review**: naming conventions, layout violations
 
 ## See Also
 

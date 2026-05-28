@@ -8,6 +8,9 @@ Format follows [Keep a Changelog](https://keepachangelog.com/en/1.1.0/). Version
 
 ## [4.0.0] - 2026-05-27
 
+### Added
+- **beagle-core:** Add `review-skill` skill for automated skill PR review — validates structural validity, design quality, and marketplace consistency with reference checks for structure, design, and marketplace integration ([#111](https://github.com/existential-birds/beagle/pull/111))
+
 ### Changed
 - **BREAKING:** Merged beagle-meta into beagle-core — `skill-builder` and `review-skill` now live under beagle-core
 - **BREAKING:** Merged beagle-remix-v2 into beagle-react — all 12 Remix v2 skills now live under beagle-react

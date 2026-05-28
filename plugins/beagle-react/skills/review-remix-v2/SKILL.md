@@ -1,7 +1,6 @@
 ---
 description: Comprehensive Remix v2 code review with optional parallel agents. Detects Remix v2 in package.json, loads relevant review skills, runs verification protocol.
 name: review-remix-v2
-disable-model-invocation: true
 ---
 
 # Remix v2 Code Review

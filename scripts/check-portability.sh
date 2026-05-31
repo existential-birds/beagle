@@ -18,16 +18,19 @@ cd "${REPO_ROOT}"
 
 failed=0
 
-# Collect every SKILL.md under plugins/*/skills/ (the 144 skill entrypoints).
-# Reference .md files are intentionally NOT scanned — only SKILL.md.
+# Collect every *.md under plugins/*/skills/ — SKILL.md entrypoints AND the
+# references/*.md files they link, because an executing agent reads those too
+# (a non-portable instruction in a reference file is just as fatal). Plugin
+# root README.md files are NOT under skills/ and are intentionally excluded:
+# they are human-facing marketplace docs, not agent-loaded skill content.
 # Built with a portable while-read loop (macOS ships bash 3.2 — no mapfile).
 SKILL_FILES=()
 while IFS= read -r f; do
   SKILL_FILES+=("$f")
-done < <(find plugins/*/skills -type f -name 'SKILL.md' | sort)
+done < <(find plugins/*/skills -type f -name '*.md' | sort)
 
 if [[ "${#SKILL_FILES[@]}" -eq 0 ]]; then
-  echo "ERROR: no SKILL.md files found under plugins/*/skills/" >&2
+  echo "ERROR: no .md files found under plugins/*/skills/" >&2
   exit 2
 fi
 
@@ -63,7 +66,9 @@ run_check "Plugin-namespace token 'beagle-<plugin>:<skill>'" 'beagle-[a-z]+:[a-z
 #    nouns for Claude's tools). Case-sensitivity is deliberate: it excludes
 #    allow-listed lowercase framework API references such as DeepAgents'
 #    "task tool" in beagle-ai, while every real Claude reference is capitalized.
-run_check "Named harness tool phrasing ('Task tool' / 'Skill tool')" 'Task tool|Skill tool'
+#    Covers the full substitution-table tool set plus AskUserQuestion.
+run_check "Named harness tool phrasing ('<Tool> tool' / AskUserQuestion)" \
+  '(Task|Skill|Edit|Write|Read|Grep|Glob|MultiEdit|NotebookEdit|WebSearch|WebFetch|Agent|Bash) tool|AskUserQuestion'
 
 # 5. 'Claude Code' as the executing agent (case-sensitive)
 run_check "Literal 'Claude Code'" 'Claude Code'

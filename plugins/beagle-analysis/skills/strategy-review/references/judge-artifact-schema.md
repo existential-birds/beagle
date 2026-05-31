@@ -39,7 +39,7 @@ This is a 1–4 scale, not 1–5. The strategy-review skill has four levels; the
   "schema_version": "1.0",
 
   "evaluator": {
-    "skill": "beagle-analysis:strategy-review",
+    "skill": "strategy-review",
     "version": "2.11.0"
   },
 

@@ -319,7 +319,7 @@ If `--report-only` is NOT set, offer generation choices.
 
 ### User Choice
 
-Use `AskUserQuestion` with these options:
+Ask the user to choose (via whatever interactive prompt the agent supports) among these options:
 
 **Question:** "Found {total} documentation gaps. What would you like to do?"
 
@@ -347,7 +347,7 @@ FOR EACH SYMBOL:
 1. Read the function/class implementation
 2. Understand parameters, return values, and exceptions
 3. Generate a complete Google-format docstring
-4. Apply the edit using the Edit tool
+4. Apply the edit to the source file
 
 RULES:
 - Match existing code style
@@ -370,7 +370,7 @@ FOR EACH SYMBOL:
 1. Read the function/class/interface implementation
 2. Understand parameters, return types, and exceptions
 3. Generate a complete JSDoc comment
-4. Apply the edit using the Edit tool
+4. Apply the edit to the source file
 
 RULES:
 - Match existing code style
@@ -392,7 +392,7 @@ FOR EACH SYMBOL:
 1. Read the function/type implementation
 2. Understand purpose, parameters, and behavior
 3. Generate a comment starting with the symbol name
-4. Apply the edit using the Edit tool
+4. Apply the edit to the source file
 
 RULES:
 - Start comment with symbol name

@@ -1,5 +1,5 @@
 ---
-description: Comprehensive BubbleTea TUI code review for terminal applications
+description: Comprehensive BubbleTea TUI code review for terminal applications. Use when reviewing charmbracelet/bubbletea, lipgloss, bubbles, or Wish SSH code; optionally reviews each area concurrently.
 name: review-tui
 disable-model-invocation: true
 ---
@@ -8,7 +8,7 @@ disable-model-invocation: true
 
 ## Arguments
 
-- `--parallel`: Spawn specialized subagents per technology area
+- `--parallel`: Review each technology area concurrently if the agent supports it (see Step 6)
 - Path: Target directory (default: current working directory)
 
 ## Gates (sequence)
@@ -18,7 +18,7 @@ Advance only when each **pass condition** is true (reduces scope drift and unsub
 | Gate | Pass condition |
 |------|----------------|
 | **G1 — Scope** | Step 1 produced a concrete list of target `.go` paths (from the git command or an explicit user path). If the list is empty, you **stopped** for scope clarification **or** recorded an agreed non-git scope (e.g. single file/dir) before reviewing. |
-| **G2 — Skills before review** | `beagle-go:review-verification-protocol`, `beagle-go:go-code-review`, and `beagle-go:bubbletea-code-review` are loaded; Step 4 conditionals (tests → `go-testing-code-review`, Wish → `wish-ssh-code-review`) are loaded **before** Step 5. |
+| **G2 — Skills before review** | [review-verification-protocol](../review-verification-protocol/SKILL.md), [go-code-review](../go-code-review/SKILL.md), and [bubbletea-code-review](../bubbletea-code-review/SKILL.md) are loaded; Step 4 conditionals (tests → [go-testing-code-review](../go-testing-code-review/SKILL.md), Wish → [wish-ssh-code-review](../wish-ssh-code-review/SKILL.md)) are loaded **before** Step 5. |
 | **G3 — Evidence for Critical/Major** | Each Critical/Major finding cites **file path + line** (or a short quoted snippet) from the **opened** source—not from diff hunks alone. |
 | **G4 — Pre-output hygiene** | Each retained finding was checked against Step 7 **and** the loaded verification protocol **before** writing the Issues section. |
 
@@ -51,22 +51,22 @@ git diff --name-only $(git merge-base HEAD main)..HEAD | grep -E '_test\.go$'
 
 ## Step 3: Load Verification Protocol
 
-Load `beagle-go:review-verification-protocol` skill and keep its checklist in mind throughout the review.
+Load the **[review-verification-protocol](../review-verification-protocol/SKILL.md)** skill and keep its checklist in mind throughout the review.
 
 ## Step 4: Load Skills
 
-Use the `Skill` tool to load each applicable skill (e.g., `Skill(skill: "beagle-go:go-code-review")`).
+Load each applicable skill below (open its `SKILL.md` and follow it).
 
 **Always load:**
-- `beagle-go:go-code-review`
-- `beagle-go:bubbletea-code-review`
+- [go-code-review](../go-code-review/SKILL.md)
+- [bubbletea-code-review](../bubbletea-code-review/SKILL.md)
 
 **Conditionally load based on detection:**
 
 | Condition | Skill |
 |-----------|-------|
-| Test files changed | `beagle-go:go-testing-code-review` |
-| Wish SSH detected | `beagle-go:wish-ssh-code-review` |
+| Test files changed | [go-testing-code-review](../go-testing-code-review/SKILL.md) |
+| Wish SSH detected | [wish-ssh-code-review](../wish-ssh-code-review/SKILL.md) |
 
 ## Step 5: Review Focus Areas
 
@@ -101,7 +101,9 @@ Use the `Skill` tool to load each applicable skill (e.g., `Skill(skill: "beagle-
 
 ## Step 6: Review
 
-**Sequential (default):**
+**If the agent supports subagents**, dispatch one per technology area in parallel; **otherwise** run the areas sequentially. Either path produces identical output.
+
+**Sequential (default, and the fallback when subagents are unavailable):**
 1. Load applicable skills
 2. Review Go code quality
 3. Review BubbleTea patterns (Model/Update/View)
@@ -110,10 +112,10 @@ Use the `Skill` tool to load each applicable skill (e.g., `Skill(skill: "beagle-
 6. Review SSH server (if applicable)
 7. Consolidate findings
 
-**Parallel (--parallel flag):**
+**Parallel (`--parallel`, only if the agent supports subagents):**
 1. Detect all technologies upfront
-2. Spawn subagents for: Go quality, BubbleTea, SSH
-3. Wait for all agents
+2. Dispatch one subagent each for: Go quality, BubbleTea, SSH
+3. Wait for all subagents
 4. Consolidate findings
 
 ## Step 7: Verify Findings

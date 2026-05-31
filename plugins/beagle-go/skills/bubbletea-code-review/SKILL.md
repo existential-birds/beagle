@@ -13,7 +13,7 @@ Advance only when each **pass condition** is objectively true (reduces false pos
 |------|----------------|
 | **G1 — Anti–false-positive** | You skimmed **NOT Issues** below **or** read [references/elm-architecture.md](references/elm-architecture.md) **before** recording a finding about `tea.Cmd` returns, value receivers on `Update`, or nested child `Update`. |
 | **G2 — Evidence for blocking / suspicious I/O** | Each Critical/Major finding names **file path + line** (or a short quoted snippet) showing the blocking call, `huh.Form.Run` in the wrong place, or other asserted anti-pattern—not a hypothetical. |
-| **G3 — Verification** | Before publishing review output, you applied **beagle-go:review-verification-protocol** to each proposed finding. |
+| **G3 — Verification** | Before publishing review output, you applied the **[review-verification-protocol](../review-verification-protocol/SKILL.md)** to each proposed finding. |
 
 ## Quick Reference
 

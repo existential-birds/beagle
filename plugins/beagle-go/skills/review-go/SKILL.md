@@ -1,5 +1,5 @@
 ---
-description: Comprehensive Go backend code review with optional parallel agents
+description: Comprehensive Go backend code review with optional parallel review areas. Use when reviewing changed Go files; detects BubbleTea, Wish SSH, and Prometheus and loads the matching review skills.
 name: review-go
 disable-model-invocation: true
 ---
@@ -8,7 +8,7 @@ disable-model-invocation: true
 
 ## Arguments
 
-- `--parallel`: Spawn specialized subagents per technology area
+- `--parallel`: Review each technology area concurrently if the agent supports it (see Step 5)
 - Path: Target directory (default: current working directory)
 
 ## Step 1: Identify Changed Files
@@ -40,39 +40,41 @@ git diff --name-only $(git merge-base HEAD main)..HEAD | grep -E '_test\.go$'
 
 ## Step 3: Load Verification Protocol
 
-Load `beagle-go:review-verification-protocol` skill and keep its checklist in mind throughout the review.
+Load the **[review-verification-protocol](../review-verification-protocol/SKILL.md)** skill and keep its checklist in mind throughout the review.
 
 ## Step 4: Load Skills
 
-Use the `Skill` tool to load each applicable skill (e.g., `Skill(skill: "beagle-go:go-code-review")`).
+Load each applicable skill below (open its `SKILL.md` and follow it).
 
 **Always load:**
-- `beagle-go:go-code-review`
+- [go-code-review](../go-code-review/SKILL.md)
 
 **Conditionally load based on detection:**
 
 | Condition | Skill |
 |-----------|-------|
-| Test files changed | `beagle-go:go-testing-code-review` |
-| BubbleTea detected | `beagle-go:bubbletea-code-review` |
-| Wish SSH detected | `beagle-go:wish-ssh-code-review` |
-| Prometheus detected | `beagle-go:prometheus-go-code-review` |
+| Test files changed | [go-testing-code-review](../go-testing-code-review/SKILL.md) |
+| BubbleTea detected | [bubbletea-code-review](../bubbletea-code-review/SKILL.md) |
+| Wish SSH detected | [wish-ssh-code-review](../wish-ssh-code-review/SKILL.md) |
+| Prometheus detected | [prometheus-go-code-review](../prometheus-go-code-review/SKILL.md) |
 
-**Pass before Step 5:** You have loaded `beagle-go:go-code-review` (and Step 3 verification protocol). Load a **conditional** skill only when its row applies: `_test.go` in Step 1 diff → testing skill; BubbleTea/Wish/Prometheus skill only if the matching Step 2 `grep` returned at least one path (if `grep` returned nothing, do **not** load that skill).
+**Pass before Step 5:** You have loaded [go-code-review](../go-code-review/SKILL.md) (and the Step 3 verification protocol). Load a **conditional** skill only when its row applies: `_test.go` in Step 1 diff → testing skill; BubbleTea/Wish/Prometheus skill only if the matching Step 2 `grep` returned at least one path (if `grep` returned nothing, do **not** load that skill).
 
 ## Step 5: Review
 
-**Sequential (default):**
+**If the agent supports subagents**, dispatch one per technology area in parallel; **otherwise** run the areas sequentially. Either path produces identical output.
+
+**Sequential (default, and the fallback when subagents are unavailable):**
 1. Load applicable skills
 2. Review Go quality issues first (error handling, concurrency, interfaces)
 3. Review detected technology areas
 4. Consolidate findings
 
-**Parallel (--parallel flag):**
+**Parallel (`--parallel`, only if the agent supports subagents):**
 1. Detect all technologies upfront
-2. Spawn one subagent per technology area with `Task` tool
-3. Each agent loads its skill and reviews its domain
-4. Wait for all agents
+2. Dispatch one subagent per technology area
+3. Each subagent loads its skill and reviews its domain
+4. Wait for all subagents
 5. Consolidate findings
 
 ## Step 6: Verify Findings

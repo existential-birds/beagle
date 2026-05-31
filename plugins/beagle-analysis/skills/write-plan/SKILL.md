@@ -411,7 +411,7 @@ If the user requests changes, revise inline and present again. Do not write to d
 - After writing, tell the user:
   > "Plan written to `<path>`. Review it on disk and let me know if you want changes."
 - Then ask exactly: **"Do you want a prompt to execute this plan in a new session?"**
-  - **If yes:** invoke `Skill(skill: "beagle-core:subagent-prompt")`, naming the just-written `plan.md` path as the source material so its source-material and task-decomposition gates resolve from the plan without re-interrogating the user. This call works even though `subagent-prompt` sets `disable-model-invocation: true` — that flag blocks only automatic, context-triggered invocation, not an explicit `Skill`-tool call (see `beagle-analysis:write-adr` for the same pattern).
+  - **If yes:** invoke the `beagle-core:subagent-prompt` skill, naming the just-written `plan.md` path as the source material so its source-material and task-decomposition gates resolve from the plan without re-interrogating the user.
   - **If no:** tell the user the plan is ready and they can hand it off later by running `/beagle-core:subagent-prompt` in a fresh session, then stop.
   - **If `subagent-prompt` is unavailable** (e.g. `beagle-core` not installed): instruct the user to run `/beagle-core:subagent-prompt` themselves.
 - Wait for the next instruction before considering work complete.

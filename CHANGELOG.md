@@ -7,7 +7,7 @@ Format follows [Keep a Changelog](https://keepachangelog.com/en/1.1.0/). Version
 ## [Unreleased]
 
 ### Changed
-- **beagle-analysis/write-plan**: after writing the plan, prompts "Do you want a prompt to execute this plan in a new session?" and, on yes, invokes `beagle-core:subagent-prompt` to generate the handoff prompt in-session instead of only instructing the user to run it manually.
+- **beagle-analysis:write-plan**: after writing the plan, prompts "Do you want a prompt to execute this plan in a new session?" and, on yes, invokes `beagle-core:subagent-prompt` to generate the handoff prompt in-session instead of only instructing the user to run it manually.
 
 ## [4.0.0] - 2026-05-27
 

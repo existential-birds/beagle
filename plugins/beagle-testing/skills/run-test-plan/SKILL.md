@@ -10,7 +10,7 @@ Execute a YAML test plan, run setup commands, health checks, and each test seque
 
 ## Prerequisites
 
-- **agent-browser skill**: Browser tests require the `agent-browser:agent-browser` skill to be available
+- **agent-browser CLI**: Browser tests require the `agent-browser` command-line tool to be available on `PATH`
 
 ## Arguments
 
@@ -311,7 +311,7 @@ git diff $(git merge-base HEAD origin/main)..HEAD -- <relevant_files>
 
 ### Debug Session Prompt
 
-Copy this to start a new Claude session:
+Copy this to start a new agent session:
 
 ---
 I'm debugging a test failure in branch `<branch>`.

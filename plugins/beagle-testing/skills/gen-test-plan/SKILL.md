@@ -331,10 +331,7 @@ After generating the test plan:
 
 1. Review the generated test plan at `docs/testing/test-plan.yaml`
 2. Adjust test values and expectations as needed
-3. Run tests with:
-   ```
-   /beagle-testing:run-test-plan
-   ```
+3. Run the tests by invoking the **run-test-plan** skill ([run-test-plan](../run-test-plan/SKILL.md))
 ```
 
 ## Step 8: Verification
@@ -359,7 +356,7 @@ grep -E "^version:|^metadata:|^setup:|^tests:" docs/testing/test-plan.yaml
 - [ ] Setup commands match detected stack
 - [ ] Each test has id, name, steps, and expected fields
 - [ ] **No automated test duplication:** Grep every `run:` and `command:` step in the plan for test runner invocations (`cargo test`, `pytest`, `npm test`, `go test`, `mix test`, `jest`, `vitest`, `mocha`, etc.). If ANY step invokes the project's test runner, the plan **fails verification**. Remove those steps and replace them with real E2E actions.
-- [ ] **Behavioral coverage:** At least one test exercises the primary behavioral change described in `changes_summary`. Re-read the `changes_summary` and commit messages — if they describe a capability (e.g., "adds Claude Code as a new LLM provider") but no test invokes that capability (e.g., sends a message through the provider), the plan fails verification. Add the missing core functionality test before completing.
+- [ ] **Behavioral coverage:** At least one test exercises the primary behavioral change described in `changes_summary`. Re-read the `changes_summary` and commit messages — if they describe a capability (e.g., "adds a new LLM provider") but no test invokes that capability (e.g., sends a message through the provider), the plan fails verification. Add the missing core functionality test before completing.
 - [ ] **No config-only plans:** If all tests target configuration/admin entry points and zero tests target core functionality entry points, the plan is incomplete. Go back to Step 4, identify the core functionality entry points, and add tests for them.
 
 ## Rules

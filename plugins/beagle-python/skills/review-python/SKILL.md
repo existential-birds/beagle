@@ -14,13 +14,13 @@ Advance only when each **pass condition** is objectively satisfied (prevents lin
 |------|----------------|
 | **G1 — Diff scope** | Step 1 command has been run; the changed `.py` paths are enumerated in writing (list may be empty — if empty, state that explicitly and do not invent Python findings). |
 | **G2 — Linters before manual style/type** | For `ruff` and `mypy`: either no project config exists for that tool, **or** it was run on the changed files and you captured pass/fail (exit code or clear tool output). **Do not** add manual style or type findings for rules those tools already enforce when configured. |
-| **G3 — Protocol and base skills** | `beagle-python:review-verification-protocol`, `beagle-python:python-code-review`, and `beagle-python:fastapi-code-review` are loaded before Step 6 substantive review. |
+| **G3 — Protocol and base skills** | The [review-verification-protocol](../review-verification-protocol/SKILL.md), [python-code-review](../python-code-review/SKILL.md), and [fastapi-code-review](../fastapi-code-review/SKILL.md) skills are loaded before Step 6 substantive review. |
 | **G4 — Evidence per issue** | Step 7 checks are satisfied for each reported issue before it appears in the final list (re-read source, search references for “unused”, confirm framework handling for “missing”, verify syntax against current docs). |
 | **G5 — Output contract** | Findings use sequential numbering, every issue has `FILE:LINE`, and the **Verdict** follows Step 8 (Critical/Major only block; Minor/Informational do not). |
 
 ## Arguments
 
-- `--parallel`: Spawn specialized subagents per technology area
+- `--parallel`: If the agent supports subagents, run a specialized subagent per technology area (otherwise reviews run sequentially with identical output)
 - Path: Target directory (default: current working directory)
 
 ## Step 1: Identify Changed Files
@@ -72,44 +72,46 @@ git diff --name-only $(git merge-base HEAD main)..HEAD | grep -E 'test.*\.py$'
 
 ## Step 4: Load Verification Protocol
 
-Load `beagle-python:review-verification-protocol` skill and keep its checklist in mind throughout the review.
+Load the [review-verification-protocol](../review-verification-protocol/SKILL.md) skill and keep its checklist in mind throughout the review.
 
 ## Step 5: Load Skills
 
-Use the `Skill` tool to load each applicable skill (e.g., `Skill(skill: "beagle-python:python-code-review")`).
+Load each applicable skill (read its `SKILL.md`) before reviewing its domain.
 
 **Always load:**
-- `beagle-python:python-code-review`
-- `beagle-python:fastapi-code-review`
+- [python-code-review](../python-code-review/SKILL.md)
+- [fastapi-code-review](../fastapi-code-review/SKILL.md)
 
 **Conditionally load based on detection:**
 
 | Condition | Skill |
 |-----------|-------|
-| Test files changed | `beagle-python:pytest-code-review` |
-| Pydantic-AI detected | `beagle-ai:pydantic-ai-common-pitfalls` |
-| SQLAlchemy detected | `beagle-python:sqlalchemy-code-review` |
-| Postgres detected | `beagle-python:postgres-code-review` |
+| Test files changed | [pytest-code-review](../pytest-code-review/SKILL.md) |
+| Pydantic-AI detected | [pydantic-ai-common-pitfalls](../../../beagle-ai/skills/pydantic-ai-common-pitfalls/SKILL.md) |
+| SQLAlchemy detected | [sqlalchemy-code-review](../sqlalchemy-code-review/SKILL.md) |
+| Postgres detected | [postgres-code-review](../postgres-code-review/SKILL.md) |
 
 ## Step 6: Review
 
-**Sequential (default):**
+**If the agent supports subagents**, dispatch one per technology area in parallel; **otherwise** run the same areas sequentially, producing identical output.
+
+**Sequential (default, or when subagents are unavailable):**
 1. Load applicable skills
 2. Review Python quality issues first
 3. Review FastAPI patterns
 4. Review detected technology areas
 5. Consolidate findings
 
-**Parallel (--parallel flag):**
+**Parallel (--parallel flag, when the agent supports subagents):**
 1. Detect all technologies upfront
-2. Spawn one subagent per technology area with `Task` tool
-3. Each agent loads its skill and reviews its domain
-4. Wait for all agents
+2. Dispatch one subagent per technology area
+3. Each subagent loads its skill and reviews its domain
+4. Wait for all subagents
 5. Consolidate findings
 
 ### Before Flagging Optimization or Pattern Issues
 
-1. **Check CLAUDE.md** for documented intentional patterns
+1. **Check project conventions** (e.g. AGENTS.md or CLAUDE.md) for documented intentional patterns
 2. **Check code comments** around the flagged area for "intentional", "optimization", or "NOTE:"
 3. **Trace the code path** before claiming missing coverage or inconsistent handling
 4. **Consider framework idioms** - what looks wrong generically may be correct for the framework

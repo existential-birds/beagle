@@ -17,9 +17,9 @@ The deliverable is always on disk: a written plan the caller can review, one fin
 
 ## When NOT to use
 
-- Codebase lookups ("where is this function defined", "search the repo"). Use Grep/Glob.
-- Local file search or document extraction. Use the file tools or `artifact-analysis`.
-- Comparative evaluation of two implementations. Use `llm-judge`.
+- Codebase lookups ("where is this function defined", "search the repo"). Search the codebase instead.
+- Local file search or document extraction. Use local file search or [artifact-analysis](../artifact-analysis/SKILL.md).
+- Comparative evaluation of two implementations. Use [llm-judge](../llm-judge/SKILL.md).
 - Paywalled or authentication-gated scraping. Out of scope — ask the caller to paste extracted content instead.
 - Reshaping or coaching the research question. That is the caller's job; this skill treats the incoming question as final.
 
@@ -38,7 +38,7 @@ Advance only when the prior gate **passes**. A pass is always evidenced by a fil
 
 | Gate | Blocks | Pass condition |
 | --- | --- | --- |
-| **G0 — Tools** | Slug derivation, `output_dir`, any write | `WebSearch` (or equivalent) is available. On fail: emit JSON per `references/failure-modes.md` (“Fail-fast on missing web tools”); **do not** create `plan.md` or any other artifact. |
+| **G0 — Tools** | Slug derivation, `output_dir`, any write | web search (if web access is available) works. On fail: emit JSON per `references/failure-modes.md` (“Fail-fast on missing web tools”); **do not** create `plan.md` or any other artifact. |
 | **G1 — Re-run** | First write under `output_dir` | `output_dir` has no `plan.md` or `report.md`, **or** `refresh: true` with prior contents archived per “Re-run protection” in `references/failure-modes.md`. |
 | **G2 — Plan artifact** | Subagent dispatch | `plan.md` exists and includes every required bullet under “The research plan (`plan.md`)”. |
 | **G3 — Review** | Dispatch | User has confirmed the plan **or** `auto_proceed: true`. |
@@ -59,7 +59,7 @@ Receive question ──→ Write plan.md ──→ Review gate (unless auto_proc
                                     Return paths to caller
 ```
 
-Before step 1, verify the environment has `WebSearch` (or equivalent). `WebFetch` is desirable for subagents that need full-page content beyond search snippets, but not required — `WebSearch`-only environments can still produce useful findings. If `WebSearch` is absent, fail fast per `references/failure-modes.md` — do not create `plan.md`, do not spawn subagents.
+Before step 1, verify the environment has web search (if web access is available). Page fetch is desirable for subagents that need full-page content beyond search snippets, but not required — search-only environments can still produce useful findings. If web search is absent, fail fast per `references/failure-modes.md` — do not create `plan.md`, do not spawn subagents.
 
 ## Inputs
 
@@ -149,7 +149,7 @@ The report has a fixed four-section layout, in this order. Every section is requ
 ## Failure modes
 
 - **Partial success** — one or more subagents fail. The skill continues with what succeeded and enumerates each failed subtopic under `Gaps & Limitations`, including the last-known brief and the stub-file reason. The run does not abort.
-- **Fail-fast** — `WebSearch` (or equivalent) unavailable. Abort before any disk write (including `plan.md`); return structured JSON per `references/failure-modes.md`. `WebFetch` is optional for subagents and is **not** part of this gate.
+- **Fail-fast** — web search (if web access is available) unavailable. Abort before any disk write (including `plan.md`); return structured JSON per `references/failure-modes.md`. Page fetch is optional for subagents and is **not** part of this gate.
 - **Silent-failure detection** — every subagent writes at least a stub `findings/<slug>.md` with `status:` frontmatter (`ok`, `empty`, `failed`) before returning. Missing file after dispatch = silent failure, recorded in `Gaps & Limitations`.
 - **Re-run protection** — covered under "Output location" above; details in `references/failure-modes.md`.
 

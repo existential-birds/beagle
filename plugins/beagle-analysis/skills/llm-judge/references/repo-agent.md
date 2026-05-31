@@ -84,7 +84,7 @@ Also note positive patterns:
 
 ### 5. Analyze Overengineering
 
-Use patterns from `@beagle:llm-artifacts-detection`:
+Use patterns from the **llm-artifacts-detection** skill ([../../../../beagle-core/skills/llm-artifacts-detection/SKILL.md](../../../../beagle-core/skills/llm-artifacts-detection/SKILL.md)):
 - Unnecessary abstractions (interfaces with single impl)
 - Factory patterns for simple objects
 - Excessive defensive coding
@@ -107,4 +107,4 @@ Return ONLY the JSON object. No markdown, no explanations. The JSON must be vali
 2. **Be thorough** - Check all changed files
 3. **Be specific** - Include file:line references
 4. **Be objective** - Report what you find, not opinions
-5. **Use the skill** - Load `@beagle:llm-artifacts-detection` for dead code/overengineering
+5. **Use the skill** - Load the **llm-artifacts-detection** skill ([../../../../beagle-core/skills/llm-artifacts-detection/SKILL.md](../../../../beagle-core/skills/llm-artifacts-detection/SKILL.md)) for dead code/overengineering

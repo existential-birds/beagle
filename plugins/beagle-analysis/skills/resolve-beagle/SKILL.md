@@ -80,14 +80,14 @@ Each gap gets exactly one research task. Classify each task first — the type d
 
 | Task type | Looks like | Tools |
 |-----------|-----------|-------|
-| Codebase pattern | "How does the existing `--start-at` pattern work?" "Where is `SKILL_MAP` defined?" | Grep, Glob, Read |
-| External / API | "What does the Claude SDK expose for sub-agent spawning?" "Does Codex have hooks?" | WebSearch, WebFetch, Context7 (if available) |
+| Codebase pattern | "How does the existing `--start-at` pattern work?" "Where is `SKILL_MAP` defined?" | search the codebase (grep/glob/read) |
+| External / API | "What does the agent's SDK expose for sub-agent spawning?" "Does Codex have hooks?" | web search and page fetch (if web access is available) |
 | Design tradeoff | "What should the merged report format be?" "How should deduplication work?" | Reasoning + analogous reference points already in the spec |
 | Scope / policy | "Should config/docs files route to a stack or fallback?" | Reasoning tied to the spec's own Core Value and Constraints |
 
 ### With subagents (preferred)
 
-When the Task tool (or equivalent subagent tool) is available, dispatch each research task as an independent subagent — **all in the same turn**, so they run in parallel. Each subagent gets its own context window, which matters: gaps often come with large supporting context (the spec, the codebase) that you don't want crammed into a single conversation.
+**If the agent supports subagents**, dispatch each research task as an independent subagent — **all in the same turn**, so they run in parallel. Each subagent gets its own context window, which matters: gaps often come with large supporting context (the spec, the codebase) that you don't want crammed into a single conversation.
 
 See `references/subagent-prompts.md` for the prompt templates (one per task type).
 

@@ -24,7 +24,7 @@ Advance only when the **pass condition** holds. These are checkable without “I
 | After | Pass condition |
 |-------|----------------|
 | Step 2 (extract) | The subagent response is **valid JSON** with a top-level `decisions` **array** (empty is OK). Each non-empty item has `id`, `title`, and at least one of `context`, `decision`, `alternatives`, or `rationale` present as a non-empty string or non-empty array. If parsing fails or the shape is wrong, **re-run extraction or fix the payload** before Step 3. |
-| Step 4 (pre-allocate) | From repo root, `python plugins/beagle-analysis/skills/adr-writing/scripts/next_adr_number.py --count N` prints **exactly `N` lines** (one number per line). You have a **written mapping** (in the reply draft or notes) from each selected decision to one of those lines **before** launching any `run_in_background` ADR writer Task. |
+| Step 4 (pre-allocate) | From repo root, `python plugins/beagle-analysis/skills/adr-writing/scripts/next_adr_number.py --count N` prints **exactly `N` lines** (one number per line). You have a **written mapping** (in the reply draft or notes) from each selected decision to one of those lines **before** launching any ADR writer unit. |
 | Step 5 (report) | Every file path in the summary table is copied from a subagent completion output (not invented). Optionally **spot-check**: `test -f <path>` for each path before marking success. |
 | Step 6 (verify) | For each ADR path, opening the file shows **line 1 is `---`**, frontmatter parses as YAML, `status` and `date` are present, and the body meets the Step 6 bullets below (alternatives count, Good/Bad consequences). |
 
@@ -49,33 +49,28 @@ This context helps the ADR writer:
 
 ## Step 2: Extract Decisions
 
-Launch a subagent to analyze the current conversation for architectural decisions:
+Analyze the current conversation for architectural decisions. **If the agent supports subagents**, dispatch this as a single extraction subagent; **otherwise** run the same extraction inline — identical output. Use this brief:
 
 ```text
-Task(
-  description: "Analyze conversation and extract architectural decisions",
-  model: "sonnet",
-  prompt: |
-    Load the skill: Skill(skill: "beagle-analysis:adr-decision-extraction")
+Load the **adr-decision-extraction** skill ([../adr-decision-extraction/SKILL.md](../adr-decision-extraction/SKILL.md)).
 
-    Analyze the conversation for decisions that warrant ADRs:
-    - Technology choices, architecture patterns, design trade-offs
-    - Rejected alternatives, significant implementation approaches
+Analyze the conversation for decisions that warrant ADRs:
+- Technology choices, architecture patterns, design trade-offs
+- Rejected alternatives, significant implementation approaches
 
-    Return JSON:
+Return JSON:
+{
+  "decisions": [
     {
-      "decisions": [
-        {
-          "id": 1,
-          "title": "Use PostgreSQL for primary datastore",
-          "context": "Brief context about why this came up",
-          "decision": "What was decided",
-          "alternatives": ["What was considered but rejected"],
-          "rationale": "Why this choice was made"
-        }
-      ]
+      "id": 1,
+      "title": "Use PostgreSQL for primary datastore",
+      "context": "Brief context about why this came up",
+      "decision": "What was decided",
+      "alternatives": ["What was considered but rejected"],
+      "rationale": "Why this choice was made"
     }
-)
+  ]
+}
 ```
 
 If the subagent returns an empty `decisions` array, skip to Step 5 with message: "No architectural decisions detected in this session."
@@ -152,37 +147,31 @@ python plugins/beagle-analysis/skills/adr-writing/scripts/next_adr_number.py --c
 
 **Assign each pre-allocated number to its corresponding decision** before launching subagents.
 
-**Gate:** Meet the Step 4 row in **Gates (objective pass conditions)** before the first `Task(` launch.
+**Gate:** Meet the Step 4 row in **Gates (objective pass conditions)** before launching the first ADR writer unit.
 
-For each confirmed decision, launch an ADR Writer subagent in background with its **pre-assigned number**:
+For each confirmed decision, run an ADR writer unit with its **pre-assigned number**. **If the agent supports subagents**, dispatch one writer per decision in parallel; **otherwise** write each ADR sequentially — identical output. Use this brief:
 
 ```text
-Task(
-  description: "Write ADR for: {decision.title}",
-  model: "sonnet",
-  run_in_background: true,
-  prompt: |
-    Load the skill: Skill(skill: "beagle-analysis:adr-writing")
+Load the **adr-writing** skill ([../adr-writing/SKILL.md](../adr-writing/SKILL.md)).
 
-    Write an ADR for this decision:
-    ```json
-    {decision JSON}
-    ```
-
-    **IMPORTANT: Use this pre-assigned ADR number: {assigned_number}**
-
-    Instructions:
-    1. Explore codebase for additional context
-    2. Write MADR-formatted ADR to docs/adrs/
-    3. Use the pre-assigned number {assigned_number} - DO NOT call next_adr_number.py
-    4. Filename format: {assigned_number}-slugified-title.md
-    5. Return created file path
-)
+Write an ADR for this decision:
+```json
+{decision JSON}
 ```
 
-**Critical:** Pass the pre-allocated number to each subagent. Subagents must NOT call `next_adr_number.py` themselves - this causes duplicate numbers when running in parallel.
+**IMPORTANT: Use this pre-assigned ADR number: {assigned_number}**
 
-All subagents run in parallel. Wait for all to complete before proceeding.
+Instructions:
+1. Explore codebase for additional context
+2. Write MADR-formatted ADR to docs/adrs/
+3. Use the pre-assigned number {assigned_number} - DO NOT call next_adr_number.py
+4. Filename format: {assigned_number}-slugified-title.md
+5. Return created file path
+```
+
+**Critical:** Pass the pre-allocated number to each writer unit. Writers must NOT call `next_adr_number.py` themselves - this causes duplicate numbers when running in parallel.
+
+Wait for all writer units to complete before proceeding.
 
 ## Step 5: Report Results
 
@@ -246,7 +235,7 @@ Legend: E=Evidence, C=Criteria, A=Agreement, D=Documentation, R=Realization
 
 ## Output Location
 
-ADRs are written to `docs/adrs/` (same convention as `beagle-analysis:adr-writing`). If no ADR directory exists, create it with an initial `0000-use-madr.md` template record.
+ADRs are written to `docs/adrs/` (same convention as [adr-writing](../adr-writing/SKILL.md)). If no ADR directory exists, create it with an initial `0000-use-madr.md` template record.
 
 ## MADR Format Reference
 

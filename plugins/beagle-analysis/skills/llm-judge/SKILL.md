@@ -10,8 +10,8 @@ Compare code implementations across multiple repositories using structured evalu
 
 ## Usage
 
-```bash
-/beagle-analysis:llm-judge <spec> <repo1> <repo2> [repo3...] [--labels=...] [--weights=...] [--branch=...]
+```text
+llm-judge <spec> <repo1> <repo2> [repo3...] [--labels=...] [--weights=...] [--branch=...]
 ```
 
 ## Arguments
@@ -30,9 +30,9 @@ Compare code implementations across multiple repositories using structured evalu
 2. Validate the spec file, each repo path, and the minimum repo count.
 3. Read the spec document into memory.
 4. Load this skill and the supporting reference files.
-5. Spawn one Phase 1 repo agent per repository to gather facts only.
+5. Gather facts per repository (one Phase 1 unit per repo) — facts only, no scoring.
 6. Validate the repo-agent JSON results before proceeding.
-7. Spawn one Phase 2 judge agent per dimension.
+7. Score each dimension (one Phase 2 unit per dimension).
 8. Aggregate scores, compute weighted totals, rank repos, and write the report.
 9. Display the markdown summary and verify the JSON report.
 
@@ -94,11 +94,11 @@ SPEC_CONTENT=$(cat "$SPEC_PATH") || { echo "Error: Failed to read spec file: $SP
 
 ### Step 4: Load the Skill
 
-Load the llm-judge skill: `Skill(skill: "beagle-analysis:llm-judge")`
+Load this **llm-judge** skill and its reference files into context.
 
-### Step 5: Phase 1 - Spawn Repo Agents
+### Step 5: Phase 1 - Gather Facts Per Repo
 
-Spawn one Task per repo:
+**If the agent supports subagents**, dispatch one Phase 1 repo agent per repository in parallel; **otherwise** run the same fact-gathering steps sequentially, one repo at a time — the output is identical either way. Give each unit this brief:
 
 ```text
 You are a Phase 1 Repo Agent for the LLM Judge evaluation.
@@ -109,10 +109,9 @@ You are a Phase 1 Repo Agent for the LLM Judge evaluation.
 $SPEC_CONTENT
 
 **Instructions:**
-1. Load skill: Skill(skill: "beagle-analysis:llm-judge")
-2. Read references/repo-agent.md for detailed instructions
-3. Read references/fact-schema.md for the output format
-4. Load Skill(skill: "beagle-core:llm-artifacts-detection") for analysis
+1. Load the **llm-judge** skill's references/repo-agent.md for detailed instructions
+2. Follow references/fact-schema.md for the output format
+3. Load the **llm-artifacts-detection** skill ([../../../beagle-core/skills/llm-artifacts-detection/SKILL.md](../../../beagle-core/skills/llm-artifacts-detection/SKILL.md), if available) for dead-code/overengineering analysis
 
 Explore the repository and gather facts. Return ONLY valid JSON following the fact schema.
 
@@ -127,9 +126,9 @@ Collect all repo outputs into `ALL_FACTS`.
 echo "$FACTS" | python3 -c "import json,sys; json.load(sys.stdin)" 2>/dev/null || { echo "Error: Invalid JSON from $LABEL"; exit 1; }
 ```
 
-### Step 7: Phase 2 - Spawn Judge Agents
+### Step 7: Phase 2 - Score Per Dimension
 
-Spawn five judge agents, one per dimension:
+**If the agent supports subagents**, dispatch one judge agent per dimension (five total) in parallel; **otherwise** score each dimension sequentially — identical output. Give each unit this brief:
 
 ```text
 You are the $DIMENSION Judge for the LLM Judge evaluation.
@@ -141,9 +140,8 @@ $SPEC_CONTENT
 $ALL_FACTS_JSON
 
 **Instructions:**
-1. Load skill: Skill(skill: "beagle-analysis:llm-judge")
-2. Read references/judge-agents.md for detailed instructions
-3. Read references/scoring-rubrics.md for the $DIMENSION rubric
+1. Load the **llm-judge** skill's references/judge-agents.md for detailed instructions
+2. Follow references/scoring-rubrics.md for the $DIMENSION rubric
 
 Score each repo on $DIMENSION. Return ONLY valid JSON with scores and justifications.
 ```
@@ -225,9 +223,9 @@ The generated report should include:
 | 2 | Below Average - Significant issues |
 | 1 | Poor - Fails basic requirements |
 
-## Phase 1: Spawning Repo Agents
+## Phase 1: Gathering Facts Per Repo
 
-For each repository, spawn a Task agent with:
+For each repository (in parallel via subagents if supported, otherwise sequentially), run a fact-gathering unit with:
 
 ```text
 You are a Phase 1 Repo Agent for the LLM Judge evaluation.
@@ -236,20 +234,20 @@ You are a Phase 1 Repo Agent for the LLM Judge evaluation.
 **Spec Document:**
 $SPEC_CONTENT
 
-**Instructions:** Read @beagle:llm-judge references/repo-agent.md
+**Instructions:** Follow the **llm-judge** skill's references/repo-agent.md
 
 Gather facts and return a JSON object following the schema in references/fact-schema.md.
 
-Load @beagle:llm-artifacts-detection for dead code and overengineering analysis.
+Load the **llm-artifacts-detection** skill ([../../../beagle-core/skills/llm-artifacts-detection/SKILL.md](../../../beagle-core/skills/llm-artifacts-detection/SKILL.md), if available) for dead code and overengineering analysis.
 
 Return ONLY valid JSON, no markdown or explanations.
 ```
 
 Collect all repo-agent outputs into `ALL_FACTS`.
 
-## Phase 2: Spawning Judge Agents
+## Phase 2: Scoring Per Dimension
 
-After all Phase 1 agents complete, spawn 5 judge agents, one per dimension:
+After all Phase 1 facts are collected, score the five dimensions (in parallel via subagents if supported, otherwise sequentially), one unit per dimension:
 
 ```text
 You are the $DIMENSION Judge for the LLM Judge evaluation.
@@ -260,7 +258,7 @@ $SPEC_CONTENT
 **Facts from all repos:**
 $ALL_FACTS_JSON
 
-**Instructions:** Read @beagle:llm-judge references/judge-agents.md
+**Instructions:** Follow the **llm-judge** skill's references/judge-agents.md
 
 Score each repo on $DIMENSION using the rubric in references/scoring-rubrics.md.
 
@@ -289,7 +287,7 @@ Before completing (maps to **Hard gates** D and E):
 ## Rules
 
 - Always validate inputs before proceeding
-- Spawn Phase 1 agents in parallel, then wait before Phase 2
-- Spawn Phase 2 agents in parallel, one per dimension
+- Complete all Phase 1 fact-gathering before any Phase 2 scoring (parallel within a phase if subagents are supported, otherwise sequential)
+- Run one Phase 2 unit per dimension
 - Every score must have a justification
 - Write the JSON report before displaying the summary

@@ -1,36 +1,36 @@
 ---
 name: write-plan
-description: "Use when you have a finalized `beagle-analysis:brainstorm-beagle` spec at `.beagle/concepts/<slug>/spec.md` and need a bite-sized, TDD-driven implementation plan before any code is written. Triggers on: \"write a plan\", \"plan this spec\", \"turn the spec into a plan\", \"now plan the implementation\", \"/write-plan\". Reads the spec, designs the file structure, decomposes work into 2-5 minute TDD steps with exact paths and commands, self-reviews against the spec, gets user approval, then writes to `.beagle/concepts/<slug>/plan.md` and offers to generate an execution handoff prompt via `beagle-core:subagent-prompt`. Does NOT brainstorm specs, write code, or execute the plan — produces the plan document (and an optional handoff prompt) only."
+description: "Use when you have a finalized brainstorm-beagle spec at `.beagle/concepts/<slug>/spec.md` and need a bite-sized, TDD-driven implementation plan before any code is written. Triggers on: \"write a plan\", \"plan this spec\", \"turn the spec into a plan\", \"now plan the implementation\", \"write-plan\". Reads the spec, designs the file structure, decomposes work into 2-5 minute TDD steps with exact paths and commands, self-reviews against the spec, gets user approval, then writes to `.beagle/concepts/<slug>/plan.md` and offers to generate an execution handoff prompt via the subagent-prompt skill. Does NOT brainstorm specs, write code, or execute the plan — produces the plan document (and an optional handoff prompt) only."
 ---
 
 # Write Plan: Spec Into Implementation Plan
 
-Turn a `beagle-analysis:brainstorm-beagle` spec into a comprehensive implementation plan that an engineer (or a downstream agent) can execute task-by-task without re-deriving intent.
+Turn a [brainstorm-beagle](../brainstorm-beagle/SKILL.md) spec into a comprehensive implementation plan that an engineer (or a downstream agent) can execute task-by-task without re-deriving intent.
 
 The output is a single markdown plan document at `.beagle/concepts/<slug>/plan.md`, sitting beside the spec in the same concept folder. The plan captures HOW — file structure, task decomposition, exact code, exact commands — while the spec already owns WHAT and WHY.
 
 <hard_gate>
-Do NOT start writing the plan until a brainstorm-beagle spec exists at `.beagle/concepts/<slug>/spec.md`. If one is missing, stop and route the user to `beagle-analysis:brainstorm-beagle` first. Skipping the spec produces plans that bake in unexamined assumptions — the spec is the contract this skill plans against.
+Do NOT start writing the plan until a brainstorm-beagle spec exists at `.beagle/concepts/<slug>/spec.md`. If one is missing, stop and route the user to [brainstorm-beagle](../brainstorm-beagle/SKILL.md) first. Skipping the spec produces plans that bake in unexamined assumptions — the spec is the contract this skill plans against.
 </hard_gate>
 
 ## Workflow
 
 Complete these steps in order:
 
-1. **Locate the spec** — find `.beagle/concepts/<slug>/spec.md`; if absent, stop and route to `beagle-analysis:brainstorm-beagle`
+1. **Locate the spec** — find `.beagle/concepts/<slug>/spec.md`; if absent, stop and route to [brainstorm-beagle](../brainstorm-beagle/SKILL.md)
 2. **Read the spec** — ingest every section; do not paraphrase, do not summarize away requirements
-3. **Read project conventions** — scan `CLAUDE.md` (root and nested) for testing, commenting, and architecture rules the plan must respect
+3. **Read project conventions** — scan project conventions (e.g. AGENTS.md or CLAUDE.md, root and nested) for testing, commenting, and architecture rules the plan must respect
 4. **Explore relevant code** — read existing files the plan will touch or pattern-match against; do not guess at structure
 5. **Design file structure** — map which files will be created or modified before any task is written
 6. **Decompose into tasks** — each task is bite-sized (2-5 minute steps), TDD-driven, with exact paths and code
 7. **Self-review** — check against the spec, scan for placeholders, verify type consistency (see *Self-Review* below)
-8. **Optionally dispatch a reviewer subagent** — only for plans that are long or cover unfamiliar territory (see `references/plan-reviewer.md`)
+8. **Optionally run a reviewer pass** — only for plans that are long or cover unfamiliar territory. **If the agent supports subagents**, dispatch a reviewer subagent; **otherwise** run the same review inline — identical output (see `references/plan-reviewer.md`)
 9. **Present draft to user** — show the draft in chat for review; iterate if needed
 10. **Write to disk** — save to `.beagle/concepts/<slug>/plan.md` only after explicit user approval
 
 ```text
-Spec at .beagle/concepts/<slug>/spec.md? ── No  → STOP, route to beagle-analysis:brainstorm-beagle
-                                          ── Yes → Read spec + CLAUDE.md + relevant code
+Spec at .beagle/concepts/<slug>/spec.md? ── No  → STOP, route to brainstorm-beagle
+                                          ── Yes → Read spec + project conventions + relevant code
                                                    ↓
                                                    Design file structure
                                                    ↓
@@ -45,19 +45,19 @@ Spec at .beagle/concepts/<slug>/spec.md? ── No  → STOP, route to beagle-an
                                                                   └─ Approved? → Write to plan.md
 ```
 
-**The terminal state is a written plan.** This skill does not execute the plan, run tests, or modify production code. After writing, it asks whether to generate an execution handoff prompt and, on yes, invokes `beagle-core:subagent-prompt` to produce one in this session; otherwise it tells the user the plan is ready.
+**The terminal state is a written plan.** This skill does not execute the plan, run tests, or modify production code. After writing, it asks whether to generate an execution handoff prompt and, on yes, loads the **subagent-prompt** skill ([../../../beagle-core/skills/subagent-prompt/SKILL.md](../../../beagle-core/skills/subagent-prompt/SKILL.md)) to produce one in this session; otherwise it tells the user the plan is ready.
 
 ## Locating the Spec
 
 The default input path is `.beagle/concepts/<slug>/spec.md`.
 
 **Slug resolution priorities (in order):**
-1. User-supplied path or slug (`/write-plan auth-rewrite`, "plan the spec at `.beagle/concepts/foo/spec.md`")
+1. User-supplied path or slug (`write-plan auth-rewrite`, "plan the spec at `.beagle/concepts/foo/spec.md`")
 2. Recently-edited spec under `.beagle/concepts/`
 3. Ask the user to disambiguate when multiple specs are plausible
 
 **If no spec exists:**
-> "I can't find a brainstorm-beagle spec at `.beagle/concepts/<slug>/spec.md`. Run `beagle-analysis:brainstorm-beagle` first to produce the spec, then come back to plan it."
+> "I can't find a brainstorm-beagle spec at `.beagle/concepts/<slug>/spec.md`. Run [brainstorm-beagle](../brainstorm-beagle/SKILL.md) first to produce the spec, then come back to plan it."
 
 Do not proceed. The spec is the contract; planning without one re-invents the spec under a different name and skips the review gates `brainstorm-beagle` enforces.
 
@@ -76,11 +76,11 @@ Signs the spec is too broad to plan in one document:
 
 Before designing tasks, scan for project rules that shape the plan:
 
-- **`CLAUDE.md` at repo root and any subdirectory you'll touch** — testing tiers, commenting policy, commit conventions, forbidden patterns
+- **Project conventions (e.g. `AGENTS.md` or `CLAUDE.md`) at repo root and any subdirectory you'll touch** — testing tiers, commenting policy, commit conventions, forbidden patterns
 - **Test framework and runner** — Cargo, pytest, npm test, mix test, etc. Tasks must use the correct command.
 - **Existing patterns** — if the codebase uses a particular file layout, follow it. The spec's *Constraints* and *Reference Points* often pin these.
 
-When CLAUDE.md mandates something specific (e.g., "every user-visible feature needs a tier-3 test driven through the compiled binary"), the plan must include tasks that satisfy that rule. Do not silently produce a plan that violates project policy — call it out and adapt.
+When the project conventions doc mandates something specific (e.g., "every user-visible feature needs a tier-3 test driven through the compiled binary"), the plan must include tasks that satisfy that rule. Do not silently produce a plan that violates project policy — call it out and adapt.
 
 ## Spike Before Plan-Lock
 
@@ -362,13 +362,13 @@ After drafting the complete plan, look at the spec with fresh eyes and check the
 | **Placeholder scan** | Search for the failure patterns above. Fix them inline. |
 | **Type consistency** | Do types, signatures, and names in later tasks match earlier ones? `clearLayers()` in Task 3 vs `clearFullLayers()` in Task 7 is a bug. |
 | **Test discipline** | Does every behavior-changing task have a failing-test step before the implementation step? |
-| **Test-tier coverage** | Enumerate every CLAUDE.md tier-3 (or equivalent project-defined) trigger this plan touches — `main.rs`/entrypoint, CLI arg parsing, env-var resolution, terminal/pty/signal handling, real stdin/stdout piping, shell scripts whose contract is shell semantics, user-visible string literals whose stability is part of the contract. For each trigger, point at the tier-3 (or equivalent) test the plan adds, or mark the task incomplete. A bash credential-leak in a shell-script task is invisible to any in-process test; only a tier-3 test catches it. |
+| **Test-tier coverage** | Enumerate every project-conventions tier-3 (or equivalent project-defined) trigger this plan touches — `main.rs`/entrypoint, CLI arg parsing, env-var resolution, terminal/pty/signal handling, real stdin/stdout piping, shell scripts whose contract is shell semantics, user-visible string literals whose stability is part of the contract. For each trigger, point at the tier-3 (or equivalent) test the plan adds, or mark the task incomplete. A bash credential-leak in a shell-script task is invisible to any in-process test; only a tier-3 test catches it. |
 | **Spike candidates** | Re-read the Assumptions block and the spec's Key Decisions. For every claim of the form "tool X does Y" where neither this repo nor the team has a working example, is there a Task 0 spike? If not, add one or revise the spec. |
 | **Parallel-implementation gate** | Does the plan add a second backend/platform/adapter behind an existing trait or interface? If yes, is there a final task that runs the canonical contract suite against BOTH implementations and asserts byte-identical observable behavior? If not, add it. |
 | **Failure-propagation contracts** | For every task that introduces a new fallible operation (serialize/parse/convert/open/connect), does its behavior contract name the propagation policy? `.unwrap_or(<plausible fallback>)` without explicit contract rationale is a bug class — fix the contract. |
 | **Per-task suite green** | Does every task's Step 4 specify both the single-test command AND the broader-scope suite command? Single-test-only passes hide cross-task regressions. |
 | **Pattern application audit** | If any Pattern applies to many sites, is the final Audit task present (grep + production-config divergence enumeration + 3-site sample-verify)? |
-| **Project conventions** | Does the plan respect the `CLAUDE.md` rules you read? (e.g., real-path test coverage, comment policy, commit format) |
+| **Project conventions** | Does the plan respect the project conventions you read (e.g. AGENTS.md or CLAUDE.md)? (e.g., real-path test coverage, comment policy, commit format) |
 | **Out-of-scope** | Did any task creep into something the spec marks Out of Scope? Remove it. |
 
 If you find issues, fix them inline. No need to re-review — just fix and move on. If you find a spec requirement with no task, add the task.
@@ -411,17 +411,17 @@ If the user requests changes, revise inline and present again. Do not write to d
 - After writing, tell the user:
   > "Plan written to `<path>`. Review it on disk and let me know if you want changes."
 - Then ask exactly: **"Do you want a prompt to execute this plan in a new session?"**
-  - **If yes:** invoke the `beagle-core:subagent-prompt` skill, naming the just-written `plan.md` path as the source material so its source-material and task-decomposition gates resolve from the plan without re-interrogating the user.
-  - **If no:** tell the user the plan is ready and they can hand it off later by running `/beagle-core:subagent-prompt` in a fresh session, then stop.
-  - **If `subagent-prompt` is unavailable** (e.g. `beagle-core` not installed): instruct the user to run `/beagle-core:subagent-prompt` themselves.
+  - **If yes:** load the **subagent-prompt** skill ([../../../beagle-core/skills/subagent-prompt/SKILL.md](../../../beagle-core/skills/subagent-prompt/SKILL.md)), naming the just-written `plan.md` path as the source material so its source-material and task-decomposition gates resolve from the plan without re-interrogating the user.
+  - **If no:** tell the user the plan is ready and they can hand it off later by invoking the **subagent-prompt** skill in a fresh session, then stop.
+  - **If subagent-prompt is unavailable** (e.g. `beagle-core` not installed): instruct the user to invoke the **subagent-prompt** skill themselves.
 - Wait for the next instruction before considering work complete.
 
 ## Execution Handoff
 
 The plan is a handoff document, not an instruction to execute. After writing, write-plan asks whether to generate the handoff prompt now:
 
-- **On yes:** invoke `beagle-core:subagent-prompt` via the `Skill` tool to produce the orchestration prompt in this session, grounded in the just-written `plan.md`. subagent-prompt owns the prompt's contract — do not restate it here.
-- **On no, or if `beagle-core` is unavailable:** point the user at `/beagle-core:subagent-prompt` to run in a fresh session themselves, or at any other downstream executor skill the project provides.
+- **On yes:** load the **subagent-prompt** skill ([../../../beagle-core/skills/subagent-prompt/SKILL.md](../../../beagle-core/skills/subagent-prompt/SKILL.md)) to produce the orchestration prompt in this session, grounded in the just-written `plan.md`. subagent-prompt owns the prompt's contract — do not restate it here.
+- **On no, or if `beagle-core` is unavailable:** point the user at the **subagent-prompt** skill to run in a fresh session themselves, or at any other downstream executor skill the project provides.
 - Otherwise, tell the user the plan is ready and they can drive execution themselves task-by-task.
 
 **Do not start executing.** This skill produces the plan (and optionally the handoff prompt); execution is a separate decision and (often) a separate skill with its own discipline.
@@ -441,13 +441,13 @@ The plan is a handoff document, not an instruction to execute. After writing, wr
 - **YAGNI for tests too** — pin the spec and named bug classes, not every conceivable edge case; speculative input-space exhaustion is overengineering
 - **Sweep on the way out** — every task that modifies a file ends by removing orphaned comments, unused imports, dead params/fields/helpers in that file; describe the sweep targets in plain language, not line numbers — the executor greps
 - **Surface assumptions** — bake them into the plan visibly, not silently into tasks; re-read the files the spec names rather than trusting the spec's characterization of them
-- **Respect project conventions** — every project has its own test commands, commit conventions, comment policy, and test-tier rules; read `CLAUDE.md` (and equivalents like `CONTRIBUTING.md`, `AGENTS.md`) and let those shape the plan
+- **Respect project conventions** — every project has its own test commands, commit conventions, comment policy, and test-tier rules; read project conventions (e.g. AGENTS.md or CLAUDE.md, and equivalents like `CONTRIBUTING.md`) and let those shape the plan
 - **The plan stands alone** — a downstream agent should be able to execute it without re-reading the spec
 
 ## When This Skill Is Wrong For the Job
 
 This skill assumes:
-- A spec exists (use `beagle-analysis:brainstorm-beagle` if not)
+- A spec exists (use [brainstorm-beagle](../brainstorm-beagle/SKILL.md) if not)
 - The work is scoped to one cohesive system (decompose during brainstorming if not)
 - The downstream executor is some kind of TDD-aware agent or engineer
 

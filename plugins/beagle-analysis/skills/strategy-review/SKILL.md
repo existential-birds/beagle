@@ -8,7 +8,7 @@ user-invocable: true
 
 Pressure-test strategy documents to find where they'll break before reality does it for you. The primary job isn't to evaluate prose quality or check formatting — it's to find the gaps, hidden failure paths, and under-accounted risks that will kill the strategy in execution. A strategy that survives this review has a meaningfully better chance of surviving contact with the real world.
 
-This skill complements the `beagle-analysis:strategy-interview` skill. Strategy-interview helps *build* a strategy through guided conversation; strategy-review subjects an existing strategy to rigorous adversarial evaluation using the same kernel framework (diagnosis, guiding policy, coherent actions) and bad-strategy filter.
+This skill complements the [strategy-interview](../strategy-interview/SKILL.md) skill. Strategy-interview helps *build* a strategy through guided conversation; strategy-review subjects an existing strategy to rigorous adversarial evaluation using the same kernel framework (diagnosis, guiding policy, coherent actions) and bad-strategy filter.
 
 ## What makes this different from generic feedback
 
@@ -138,7 +138,7 @@ Write `strategy-review.md` following `references/review-template.md`. The struct
 7. **Lens findings** — If any review lenses were applied, what they revealed that the core dimensions alone didn't catch. Omit this section if no lenses were triggered.
 8. **Recommended next steps** — Concrete actions to strengthen the document, ordered by impact.
 
-**Compose from artifacts, not memory.** If durable review state exists (see below), use those files as the primary source for the final review rather than reconstructing from the conversation. Update `review-composition.md` with the overall assessment and structure decisions, then compose `strategy-review.md` from the artifacts. If subagents are available, spawn one for document assembly — a fresh context reading structured files produces more accurate reviews.
+**Compose from artifacts, not memory.** If durable review state exists (see below), use those files as the primary source for the final review rather than reconstructing from the conversation. Update `review-composition.md` with the overall assessment and structure decisions, then compose `strategy-review.md` from the artifacts. **If the agent supports subagents**, dispatch one for document assembly — a fresh context reading structured files produces more accurate reviews; **otherwise** re-read the artifact files directly and compose them yourself — identical output.
 
 After writing the file, give a brief chat summary: overall assessment in one sentence, the single most important finding, and the recommended next action.
 
@@ -180,7 +180,7 @@ Frame findings as structural observations, not personal criticism: "The diagnosi
 
 ### Don't rewrite the strategy
 
-The review identifies problems and recommends fixes. It does not produce an alternative strategy. If the diagnosis is fundamentally wrong, say so and explain why — but the user needs to rethink it themselves (ideally using the `beagle-analysis:strategy-interview` skill). A reviewer who rewrites the strategy is doing the author's thinking for them, which means the author won't own it.
+The review identifies problems and recommends fixes. It does not produce an alternative strategy. If the diagnosis is fundamentally wrong, say so and explain why — but the user needs to rethink it themselves (ideally using the [strategy-interview](../strategy-interview/SKILL.md) skill). A reviewer who rewrites the strategy is doing the author's thinking for them, which means the author won't own it.
 
 Exception: if the document has a *missing* element (no diagnosis at all, no stated exclusions), offer a concrete example of what a good version might look like, clearly marked as illustrative, to help the author see the gap.
 

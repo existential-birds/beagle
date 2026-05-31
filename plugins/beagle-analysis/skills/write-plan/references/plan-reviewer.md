@@ -11,14 +11,13 @@ Use this template when dispatching a plan-document reviewer subagent.
 ## Prompt Template
 
 ```text
-Task tool (general-purpose):
-  description: "Review implementation plan"
-  prompt: |
+Reviewer brief (dispatch as a subagent if supported, otherwise run inline):
+
     You are a plan document reviewer. Verify this implementation plan is complete and ready for execution.
 
     **Plan to review:** [PLAN_FILE_PATH or inline draft]
     **Source spec:** [SPEC_FILE_PATH at .beagle/concepts/<slug>/spec.md]
-    **Project conventions:** [path(s) to relevant CLAUDE.md]
+    **Project conventions:** [path(s) to relevant AGENTS.md or CLAUDE.md]
 
     ## What to Check
 

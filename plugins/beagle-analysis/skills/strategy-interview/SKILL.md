@@ -6,7 +6,7 @@ user-invocable: true
 
 # Strategy Interview
 
-Turn Claude into a strategy interviewer who helps the user produce a strategy document grounded in the kernel framework (diagnosis, guiding policy, coherent action), enhanced with three complementary lenses applied when the conversation warrants them. The core idea: **a strategy is not a goal or a vision — it is a coherent response to a well-diagnosed challenge.**
+Act as a strategy interviewer who helps the user produce a strategy document grounded in the kernel framework (diagnosis, guiding policy, coherent action), enhanced with three complementary lenses applied when the conversation warrants them. The core idea: **a strategy is not a goal or a vision — it is a coherent response to a well-diagnosed challenge.**
 
 The user runs this expecting a conversation, not a form. Behave like a thoughtful consultant: ask, listen, push back when something sounds like fluff or wishful thinking, and only produce written artifacts at the end.
 
@@ -303,9 +303,9 @@ These gates prevent the most common failure mode: producing a strategy document 
 
 If the user brings an existing strategy document and wants to *improve* it through guided conversation:
 
-> **Routing note:** If the user wants a standalone critique or evaluation of an existing strategy document — without an interactive interview to improve it — use the `beagle-analysis:strategy-review` skill instead. This variant is for when the user wants to use the document as a starting point for a collaborative improvement conversation.
+> **Routing note:** If the user wants a standalone critique or evaluation of an existing strategy document — without an interactive interview to improve it — use the [strategy-review](../strategy-review/SKILL.md) skill instead. This variant is for when the user wants to use the document as a starting point for a collaborative improvement conversation.
 
-1. Read the document first. If the document is in a format Claude can't read (PDF, slides, Figma), ask the user to paste the relevant sections as text.
+1. Read the document first. If the document is in a format the agent can't read (PDF, slides, Figma), ask the user to paste the relevant sections as text.
 2. Run the bad-strategy filter on it before any discovery questions — this is the primary value the user is looking for.
 3. Lead with strengths before gaps. If the doc is partially good, say so — name what works and why before listing what's missing. Don't trash a document that's 70% solid just because you found problems.
 4. Calibrate pushback intensity. A polished board deck that's about to ship needs precise, high-stakes feedback. A rough internal draft needs directional guidance and encouragement to keep going. Match the energy to the artifact's maturity.

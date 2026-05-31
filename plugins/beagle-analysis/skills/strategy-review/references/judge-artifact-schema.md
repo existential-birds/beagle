@@ -361,7 +361,7 @@ This is a 1–4 scale, not 1–5. The strategy-review skill has four levels; the
 | `assumption_risk_map` | array | yes | Load-bearing assumptions. May be empty if none found (unusual). |
 | `failure_paths` | array | yes | Failure scenarios. Minimum 2, typically 3–5. |
 | `review_lenses_applied` | array | no | Omit if no review lenses triggered. |
-| `interview_lens_audit` | array | no | Omit if no interview lenses were used during the `beagle-analysis:strategy-interview`. |
+| `interview_lens_audit` | array | no | Omit if no interview lenses were used during the [strategy-interview](../../strategy-interview/SKILL.md). |
 | `notes_cross_reference` | object | no | Structured signals from a notes-vs-draft cross-read. Omit if no `strategy-notes.md` or interview durable state was available, or if both sub-arrays would be empty. |
 | `strengths` | array | no | Specific strengths the author should protect. 2–4 entries when emitted. Mirrors the prose "What Works" section. |
 | `critical_findings` | array | yes | The 2–4 highest-severity findings. |

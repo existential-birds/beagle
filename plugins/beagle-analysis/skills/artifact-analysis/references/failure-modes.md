@@ -2,7 +2,7 @@
 
 Four failure cases the skill handles explicitly. Silent failures are the worst kind — every rule below exists to make a failure visible to the caller and preserve what succeeded.
 
-Unlike `web-research`, artifact-analysis does **not** fail-fast on missing tools. Filesystem tooling (Read, Glob, Grep) is assumed present in the Claude Code environment. If it is somehow absent, that surfaces as a per-subagent failure under partial-success rather than aborting the whole run.
+Unlike web-research, artifact-analysis does **not** fail-fast on missing tools. Filesystem search (read, glob, grep) is assumed present in the agent's environment. If it is somehow absent, that surfaces as a per-subagent failure under partial-success rather than aborting the whole run.
 
 ## Partial success
 

@@ -73,7 +73,7 @@ You are researching one question for an in-progress project spec.
 Spec path: <absolute path>
 Question: <the exact open question, verbatim>
 
-Your job: use WebSearch, WebFetch, and Context7 (if available) to find authoritative answers — official docs, source repositories, maintainer statements. Avoid blog posts and secondhand summaries.
+Your job: use web search and page fetch (if web access is available) to find authoritative answers — official docs, source repositories, maintainer statements. Avoid blog posts and secondhand summaries.
 
 Focus area: <framework / SDK / tool name>
 Why it matters: <one-line context pulled from the spec's Problem Statement or Key Decisions>

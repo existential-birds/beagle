@@ -17,10 +17,10 @@ The deliverable is always on disk: a written scan plan the caller can audit, one
 
 ## When NOT to use
 
-- Codebase lookups ("where is this function defined", "grep for this symbol"). Use Grep/Glob.
-- Web research. Use `web-research`.
-- Comparative evaluation of two implementations or source credibility adjudication. Use `llm-judge`.
-- Rewriting or editing the scanned documents. Use `humanize-beagle` or the file tools.
+- Codebase lookups ("where is this function defined", "grep for this symbol"). Search the codebase instead.
+- Web research. Use [web-research](../web-research/SKILL.md).
+- Comparative evaluation of two implementations or source credibility adjudication. Use [llm-judge](../llm-judge/SKILL.md).
+- Rewriting or editing the scanned documents. Use humanize-beagle ([../../../beagle-docs/skills/humanize-beagle/SKILL.md](../../../beagle-docs/skills/humanize-beagle/SKILL.md)) or edit the files directly.
 - PDF / image OCR / format conversion. First version reads plain text and markdown only.
 - Paywalled or authentication-gated remote sources. This is a local-filesystem primitive.
 - Coaching, challenge, or reshaping of the caller's question. That belongs to the caller.
@@ -41,7 +41,7 @@ Advance to the next step only when the **pass condition** is true—confirm usin
 | Before return to caller | Every row of `references/failure-modes.md` → **Verification checklist (orchestrator runs at end)** is checked off, *or* any failed check is recorded under `## Gaps & Limitations` in `report.md` as that failure-modes file prescribes. |
 
 1. **Write `plan.md`** — resolved paths (with any auto-discovery applied), intent summary (when provided), per-slice briefs, skip patterns, and how findings will be synthesized.
-2. **Dispatch subagents** — spawn 1-3 parallel subagents over non-overlapping slices of the resolved paths. Each writes `findings/<slice-slug>.md` under `output_dir`.
+2. **Dispatch slices** — **if the agent supports subagents**, spawn 1-3 parallel subagents over non-overlapping slices of the resolved paths; **otherwise** process the same slices sequentially yourself — identical output. Each slice writes `findings/<slice-slug>.md` under `output_dir`.
 3. **Synthesize `report.md`** — fold findings into the seven fixed sections with path-anchored citations.
 4. **Verify before returning** — satisfy the last **Hard gates** row; execute the numbered checklist in `references/failure-modes.md` (**Verification checklist (orchestrator runs at end)**). Any check that fails becomes an entry in `Gaps & Limitations` per that file—do not return a deliverable with silent checklist failures.
 
@@ -59,7 +59,7 @@ Receive paths + optional intent ──→ Auto-discover if paths empty
                                  Return paths to caller
 ```
 
-Unlike `web-research`, artifact-analysis does **not** pause for a plan review gate. Local scanning is cheap; `plan.md` is written for auditability so a reader weeks later can tell what each subagent was told. Unlike web-research, there is no fail-fast on missing tools — filesystem tooling (Read, Glob, Grep) is assumed present in the Claude Code environment.
+Unlike [web-research](../web-research/SKILL.md), artifact-analysis does **not** pause for a plan review gate. Local scanning is cheap; `plan.md` is written for auditability so a reader weeks later can tell what each subagent was told. Unlike web-research, there is no fail-fast on missing tools — filesystem search (read, glob, grep) is assumed present in the agent's environment.
 
 ## Inputs
 
@@ -176,7 +176,7 @@ The report has a fixed seven-section layout, in this order. Every section is req
 - **Silent-failure detection** — every subagent writes at least a stub `findings/<slice-slug>.md` with `status:` frontmatter (`ok`, `empty`, `failed`) before returning. Missing file after dispatch = silent failure, recorded in `Gaps & Limitations`.
 - **Re-run protection** — covered under "Output location" above; details in `references/failure-modes.md`.
 
-Unlike `web-research`, artifact-analysis does **not** fail-fast on missing tools. Filesystem tooling (Read, Glob, Grep) is assumed present in the Claude Code environment. If it is somehow absent, the skill will surface that as a subagent failure under partial-success rather than aborting the whole run.
+Unlike [web-research](../web-research/SKILL.md), artifact-analysis does **not** fail-fast on missing tools. Filesystem search (read, glob, grep) is assumed present in the agent's environment. If it is somehow absent, the skill will surface that as a subagent failure under partial-success rather than aborting the whole run.
 
 Full rules and the structured error shape live in `references/failure-modes.md`.
 

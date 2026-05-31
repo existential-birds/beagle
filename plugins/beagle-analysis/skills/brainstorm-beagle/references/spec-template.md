@@ -111,7 +111,7 @@ Common types: Tech stack, Timeline, Compatibility, Performance, Security, Regula
 - When 2+ viable options existed and one was chosen
 - When the user expressed a strong preference
 - When a direction was explicitly rejected (alternatives section)
-- When the user said "you decide" — record it as "Claude's discretion" with the area
+- When the user said "you decide" — record it as "the agent's discretion" with the area
 
 **Reference Points — good content:**
 - "I want the search to feel like Spotlight — instant, forgiving of typos"

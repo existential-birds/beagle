@@ -1,6 +1,6 @@
 ---
 name: write-plan
-description: "Use when you have a finalized `beagle-analysis:brainstorm-beagle` spec at `.beagle/concepts/<slug>/spec.md` and need a bite-sized, TDD-driven implementation plan before any code is written. Triggers on: \"write a plan\", \"plan this spec\", \"turn the spec into a plan\", \"now plan the implementation\", \"/write-plan\". Reads the spec, designs the file structure, decomposes work into 2-5 minute TDD steps with exact paths and commands, self-reviews against the spec, gets user approval, then writes to `.beagle/concepts/<slug>/plan.md`. Does NOT brainstorm specs, write code, or execute the plan — produces the plan document only."
+description: "Use when you have a finalized `beagle-analysis:brainstorm-beagle` spec at `.beagle/concepts/<slug>/spec.md` and need a bite-sized, TDD-driven implementation plan before any code is written. Triggers on: \"write a plan\", \"plan this spec\", \"turn the spec into a plan\", \"now plan the implementation\", \"/write-plan\". Reads the spec, designs the file structure, decomposes work into 2-5 minute TDD steps with exact paths and commands, self-reviews against the spec, gets user approval, then writes to `.beagle/concepts/<slug>/plan.md` and offers to generate an execution handoff prompt via `beagle-core:subagent-prompt`. Does NOT brainstorm specs, write code, or execute the plan — produces the plan document (and an optional handoff prompt) only."
 ---
 
 # Write Plan: Spec Into Implementation Plan
@@ -45,7 +45,7 @@ Spec at .beagle/concepts/<slug>/spec.md? ── No  → STOP, route to beagle-an
                                                                   └─ Approved? → Write to plan.md
 ```
 
-**The terminal state is a written plan.** This skill does not execute the plan, run tests, or modify production code. After writing, offer execution handoff via `beagle-core:subagent-prompt` if the user wants to run the plan in a fresh session; otherwise tell the user the plan is ready.
+**The terminal state is a written plan.** This skill does not execute the plan, run tests, or modify production code. After writing, it asks whether to generate an execution handoff prompt and, on yes, invokes `beagle-core:subagent-prompt` to produce one in this session; otherwise it tells the user the plan is ready.
 
 ## Locating the Spec
 
@@ -418,13 +418,13 @@ If the user requests changes, revise inline and present again. Do not write to d
 
 ## Execution Handoff
 
-The plan is a handoff document, not an instruction to execute. After writing:
+The plan is a handoff document, not an instruction to execute. After writing, write-plan asks whether to generate the handoff prompt now:
 
-- Offer `beagle-core:subagent-prompt` (see the prompt above) so the user can execute the plan in a fresh session with a clean context window.
-- If the project has another downstream executor skill or workflow, point the user at it as an alternative.
+- **On yes:** invoke `beagle-core:subagent-prompt` via the `Skill` tool to produce the orchestration prompt in this session, grounded in the just-written `plan.md`. subagent-prompt owns the prompt's contract — do not restate it here.
+- **On no, or if `beagle-core` is unavailable:** point the user at `/beagle-core:subagent-prompt` to run in a fresh session themselves, or at any other downstream executor skill the project provides.
 - Otherwise, tell the user the plan is ready and they can drive execution themselves task-by-task.
 
-**Do not start executing.** This skill produces the plan; execution is a separate decision and (often) a separate skill with its own discipline.
+**Do not start executing.** This skill produces the plan (and optionally the handoff prompt); execution is a separate decision and (often) a separate skill with its own discipline.
 
 ## Key Principles
 

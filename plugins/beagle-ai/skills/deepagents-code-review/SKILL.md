@@ -7,6 +7,17 @@ description: Reviews Deep Agents code for bugs, anti-patterns, and improvements.
 
 When reviewing Deep Agents code, check for these categories of issues.
 
+## Anti-confabulation (gate 0 — runs before every other gate)
+
+Before issuing **any** finding — flag a bug, anti-pattern, or improvement — you MUST echo the exact artifact you are judging, quoted from a source you read in **this** turn:
+
+- The code finding: its `file:line` plus the cited code, read freshly now.
+- The agent code under review: the `create_deep_agent`, backend, subagent, or middleware snippet your finding depends on, quoted from the file you just read.
+
+> The artifact is the only source of truth. **Never** infer what you are reviewing from the branch name, the working directory, surrounding files, or recollection. If your mental model differs from the freshly read source, **the source wins.** A finding issued without a same-turn echo of its target is invalid — emit the echo first, or do not emit the finding.
+
+This gate exists because an LLM under contextual priming will confidently flag code that is not in the file. It runs **before** the gates below.
+
 ## Review gates (evidence-bound)
 
 Run these steps in order before and while you write findings. Skipping a step is a failed review.

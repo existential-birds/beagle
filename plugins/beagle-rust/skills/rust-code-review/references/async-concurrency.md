@@ -76,7 +76,7 @@ async fn process(shared: &Mutex<Vec<Item>>) {
 
 Exception: `std::sync::Mutex` is fine when the critical section is very short (no async operations, just field access) because it avoids the overhead of tokio's async mutex. The tokio docs themselves recommend this pattern.
 
-> For a detailed comparison of `tokio::sync::Mutex` vs `std::sync::Mutex` and other sync primitives (`RwLock`, `Semaphore`, `Notify`), see `beagle-rust:tokio-async-code-review` (references/sync-primitives.md).
+> For a detailed comparison of `tokio::sync::Mutex` vs `std::sync::Mutex` and other sync primitives (`RwLock`, `Semaphore`, `Notify`), see the [tokio-async-code-review](../../tokio-async-code-review/SKILL.md) skill (`references/sync-primitives.md`).
 
 ### 4. Spawning Tasks Without Join Handles
 
@@ -167,13 +167,13 @@ When reviewing, check whether `async-trait` usage can be replaced with native sy
 
 Choose channels based on communication shape: `mpsc` for back-pressure, `broadcast` for fan-out, `oneshot` for request-response, `watch` for latest-value. Ensure bounded channels are sized to avoid OOM risks with unbounded alternatives.
 
-> For detailed channel patterns, usage examples, and pitfalls, see `beagle-rust:tokio-async-code-review` (references/channels.md).
+> For detailed channel patterns, usage examples, and pitfalls, see the [tokio-async-code-review](../../tokio-async-code-review/SKILL.md) skill (`references/channels.md`).
 
 ## Graceful Shutdown
 
 Use `CancellationToken` from `tokio_util` with child tokens for hierarchical shutdown. Combine with `tokio::select!` to listen for cancellation alongside work.
 
-> For full shutdown patterns and cancellation token usage, see `beagle-rust:tokio-async-code-review` (references/task-management.md).
+> For full shutdown patterns and cancellation token usage, see the [tokio-async-code-review](../../tokio-async-code-review/SKILL.md) skill (`references/task-management.md`).
 
 ## Review Questions
 

@@ -22,7 +22,7 @@ These steps are **sequenced**: do not skip ahead with “mental verification.”
 1. **Crate context** — Before relying on edition-specific checklist rows (Edition 2024, MSRV-sensitive APIs) or dependency assumptions. **Pass:** You opened the relevant `Cargo.toml` (package or workspace manifest) and can state `edition` and `rust-version` (if set) in one line.
 2. **Expanded read** — Before reporting a **Major** or **Critical** finding. **Pass:** You read the full function, `unsafe` block, or `impl` / trait item that contains the cited line (not only a diff hunk).
 3. **Severity match** — Before each finding line in the report. **Pass:** The **Severity** label matches **Severity Calibration** for that issue class, or you use **Informational** and give a one-line rationale.
-4. **Verification protocol** — Before finalizing the report. **Pass:** `beagle-rust:review-verification-protocol` is loaded and every step in it that applies to this review is completed (do not substitute a vague “I checked”).
+4. **Verification protocol** — Before finalizing the report. **Pass:** the [review-verification-protocol](../review-verification-protocol/SKILL.md) skill is loaded and every step in it that applies to this review is completed (do not substitute a vague “I checked”).
 
 ## Output Format
 
@@ -52,7 +52,7 @@ Description of the issue and why it matters.
 | Unsafe code, API design, derive patterns, clippy patterns | [references/common-mistakes.md](references/common-mistakes.md) |
 | Validity vs safety, drop check, may_dangle, provenance, panic safety in unsafe, MaybeUninit, Miri | [references/unsafe-deep.md](references/unsafe-deep.md) |
 
-> For development guidance on performance, pointer types, type state, clippy config, iterators, generics, and documentation, use the `beagle-rust:rust-best-practices` skill.
+> For development guidance on performance, pointer types, type state, clippy config, iterators, generics, and documentation, load the [rust-best-practices](../rust-best-practices/SKILL.md) skill.
 
 ## Review Checklist
 
@@ -168,7 +168,7 @@ Description of the issue and why it matters.
 - [ ] `#[expect(clippy::...)]` preferred over `#[allow(...)]` for lint suppression
 
 ### Performance
-> Detailed guidance: `beagle-rust:rust-best-practices` skill (references/performance.md)
+> Detailed guidance: the [rust-best-practices](../rust-best-practices/SKILL.md) skill (`references/performance.md`)
 - [ ] No unnecessary allocations in hot paths (prefer `&str` over `String`, `&[T]` over `Vec<T>`)
 - [ ] `collect()` type is specified or inferable
 - [ ] Iterators preferred over indexed loops for collection transforms
@@ -179,7 +179,7 @@ Description of the issue and why it matters.
 - [ ] Static dispatch (`impl Trait`) used over dynamic (`dyn Trait`) unless flexibility required
 
 ### Clippy Configuration
-> Detailed guidance: `beagle-rust:rust-best-practices` skill (references/clippy-config.md)
+> Detailed guidance: the [rust-best-practices](../rust-best-practices/SKILL.md) skill (`references/clippy-config.md`)
 - [ ] Workspace-level lints configured in `Cargo.toml` (`[workspace.lints.clippy]` or `[lints.clippy]`)
 - [ ] `#[expect(clippy::lint)]` used over `#[allow(...)]` — warns when suppression becomes stale
 - [ ] Justification comment present when suppressing any lint
@@ -188,7 +188,7 @@ Description of the issue and why it matters.
 - [ ] Doc lints enabled for library crates (`missing_docs`, `broken_intra_doc_links`)
 
 ### Type State Pattern
-> Detailed guidance: `beagle-rust:rust-best-practices` skill (references/type-state-pattern.md)
+> Detailed guidance: the [rust-best-practices](../rust-best-practices/SKILL.md) skill (`references/type-state-pattern.md`)
 - [ ] `PhantomData<State>` used for zero-cost compile-time state machines (not runtime enums/booleans)
 - [ ] State transitions consume `self` and return new state type (prevents reuse of old state)
 - [ ] Only applicable methods available per state (invalid operations are compile errors)
@@ -240,7 +240,7 @@ Description of the issue and why it matters.
 - Reviewing index-pointer graphs, drop guards, extension traits, crate preludes → patterns-in-the-wild.md
 - Reviewing unsafe code, API design, derive macros, clippy patterns → common-mistakes.md
 - Reviewing validity vs safety, drop check + may_dangle, provenance, panic safety in unsafe, MaybeUninit → unsafe-deep.md
-- Reviewing performance, pointer types, type state, generics, iterators, documentation → `beagle-rust:rust-best-practices` skill
+- Reviewing performance, pointer types, type state, generics, iterators, documentation → the [rust-best-practices](../rust-best-practices/SKILL.md) skill
 
 ## Valid Patterns (Do NOT Flag)
 
@@ -286,4 +286,4 @@ Only flag these issues when the specific conditions apply:
 
 ## Before Submitting Findings
 
-Satisfy **Gates** § verification protocol (step 4). Load and follow `beagle-rust:review-verification-protocol` before reporting any issue.
+Satisfy **Gates** § verification protocol (step 4). Load and follow the [review-verification-protocol](../review-verification-protocol/SKILL.md) skill before reporting any issue.

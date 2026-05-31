@@ -31,7 +31,7 @@ Complete in order. **Do not emit findings** until **Gate 4** passes for each iss
 **PASS when:** Every planned finding has a target `[FILE:LINE]` from a full function/block you read, not only diff hunks or partial snippets.
 
 **Gate 4 — Pre-report protocol**  
-**PASS when:** You loaded and applied `beagle-rust:review-verification-protocol`, including **FFI-Specific Verification** for `repr(C)`, safety comments, ownership/callbacks, or bindgen-heavy code.
+**PASS when:** You loaded and applied the [review-verification-protocol](../review-verification-protocol/SKILL.md) skill, including **FFI-Specific Verification** for `repr(C)`, safety comments, ownership/callbacks, or bindgen-heavy code.
 
 ## Output Format
 
@@ -154,4 +154,4 @@ Description of the issue and why it matters.
 
 ## Before Submitting Findings
 
-Complete **Gates 1-4 in order** before reporting any issue; Gate 4 incorporates `beagle-rust:review-verification-protocol`.
+Complete **Gates 1-4 in order** before reporting any issue; Gate 4 incorporates the [review-verification-protocol](../review-verification-protocol/SKILL.md) skill.

@@ -21,7 +21,7 @@ Run **in order**. Do not write a finding until the step that applies has passed.
 
 2. **Per-finding evidence** — **Pass when:** Each issue cites `[FILE:LINE]` from the **current** tree for the handler, router, layer, or type under review (not from memory, docs-only, or another branch).
 
-3. **Category check vs protocol** — **Pass when:** For the finding type (routing conflict, extractor order, error leak, middleware order, etc.), you ran the matching checks from `beagle-rust:review-verification-protocol` (e.g. full handler signature for extractor order; surrounding error mapping before “raw error to client”). **Then** add the finding.
+3. **Category check vs protocol** — **Pass when:** For the finding type (routing conflict, extractor order, error leak, middleware order, etc.), you ran the matching checks from the [review-verification-protocol](../review-verification-protocol/SKILL.md) skill (e.g. full handler signature for extractor order; surrounding error mapping before “raw error to client”). **Then** add the finding.
 
 4. **Output shape** — **Pass when:** The report lines match **Output Format** below (severity + description).
 
@@ -121,4 +121,4 @@ Description of the issue and why it matters.
 
 ## Before Submitting Findings
 
-Complete **Gates (before reporting findings)** and load `beagle-rust:review-verification-protocol` for category-specific checks before any issue is final.
+Complete **Gates (before reporting findings)** and load the [review-verification-protocol](../review-verification-protocol/SKILL.md) skill for category-specific checks before any issue is final.

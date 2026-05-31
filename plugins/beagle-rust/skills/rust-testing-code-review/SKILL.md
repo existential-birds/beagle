@@ -20,7 +20,7 @@ Do not advance to **Output Format** until each pass condition is satisfied (yes/
 
 1. **Edition recorded** — Open the target crate’s `Cargo.toml` (or workspace `[workspace.package]` / inherited edition) and note the `edition` value. **Pass:** you can quote `edition = "…"` (or document “inherited from workspace”) before citing Rust 2024–specific behavior (`if let` / tail temporary drops, `#[expect]` vs `#[allow]` migration, native `async fn` in traits as default). If edition is not `2024`, do **not** report those items as edition-2024 regressions; at most **Informational** if still useful.
 2. **`dyn` vs static async mocks** — Before suggesting native `async fn` in traits instead of `async-trait`, check whether the mock is used as `dyn Trait`. **Pass:** if `dyn` is required, you either skip that suggestion or align with **Valid Patterns** (`async-trait` still needed).
-3. **Verification protocol** — **Pass:** steps from `beagle-rust:review-verification-protocol` are done before any finding is listed (see **Before Submitting Findings**).
+3. **Verification protocol** — **Pass:** steps from the [review-verification-protocol](../review-verification-protocol/SKILL.md) skill are done before any finding is listed (see **Before Submitting Findings**).
 
 ## Output Format
 
@@ -199,4 +199,4 @@ Description of the issue and why it matters.
 
 ## Before Submitting Findings
 
-Load and follow `beagle-rust:review-verification-protocol` before reporting any issue.
+Load and follow the [review-verification-protocol](../review-verification-protocol/SKILL.md) skill before reporting any issue.

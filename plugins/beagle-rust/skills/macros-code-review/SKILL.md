@@ -30,7 +30,7 @@ Complete in order. **Do not emit findings** until **Gate 4** passes for each iss
 **PASS when:** Each planned issue has `[FILE:LINE]` from the current tree for the macro definition, attribute/derive site, or generated code location you are discussing (not from memory, docs-only, or another branch).
 
 **Gate 4 — Pre-report protocol**  
-**PASS when:** You loaded and applied `beagle-rust:review-verification-protocol`, including **Macro-Specific Verification** for hygiene, fragment type, and proc-macro performance claims. **Then** add findings.
+**PASS when:** You loaded and applied the [review-verification-protocol](../review-verification-protocol/SKILL.md) skill, including **Macro-Specific Verification** for hygiene, fragment type, and proc-macro performance claims. **Then** add findings.
 
 ## Output Format
 

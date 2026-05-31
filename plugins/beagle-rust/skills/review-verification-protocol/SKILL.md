@@ -28,7 +28,7 @@ Before flagging ANY issue, verify:
 - [ ] **I verified syntax against current docs** - Rust edition, crate versions, and API changes
 - [ ] **I checked the project's Rust edition** - Edition 2021 vs 2024 changes what is required vs optional (see [Edition-Aware Review](#edition-aware-review))
 - [ ] **I distinguished "wrong" from "different style"** - Both approaches may be valid
-- [ ] **I considered intentional design** - Checked comments, CLAUDE.md, architectural context
+- [ ] **I considered intentional design** - Checked comments, project conventions (e.g. AGENTS.md or CLAUDE.md), architectural context
 
 ## Verification by Issue Type
 
@@ -277,7 +277,7 @@ Edition 2024 changes that affect review findings:
 
 **If edition is not specified**, Rust defaults to edition 2015. Most modern projects use 2021 or later.
 
-**Cross-reference**: The `beagle-rust:rust-code-review` and `beagle-rust:rust-best-practices` skills provide edition-specific code review guidance and idiomatic patterns.
+**Cross-reference**: The [rust-code-review](../rust-code-review/SKILL.md) and [rust-best-practices](../rust-best-practices/SKILL.md) skills provide edition-specific code review guidance and idiomatic patterns.
 
 ## Macro-Specific Verification
 

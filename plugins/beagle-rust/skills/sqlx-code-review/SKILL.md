@@ -20,7 +20,7 @@ Complete in order; do not assign **Critical** / **Major** until the gate for tha
 1. **Scope** — Identify the crate under review (`Cargo.toml` path) and the `.rs` files (or directory) you opened. **Pass:** At least one concrete path you inspected is named.
 2. **sqlx / compile claims** — Before asserting issues about `query!` / `query_as!`, offline mode, `sqlx.toml`, `DATABASE_URL`, or Cargo features: open the relevant `Cargo.toml` and, if applicable, `sqlx.toml` or documented env. **Pass:** The finding cites a line or you state that those files were absent / out of scope.
 3. **Finding anchors** — Each reported issue includes `[FILE:LINE]` per **Output Format**. **Pass:** No Critical or Major without a line reference.
-4. **Protocol** — Load and complete `beagle-rust:review-verification-protocol` **after** gates 1–3 and **before** final severity labels. **Pass:** Protocol steps satisfied for each retained finding.
+4. **Protocol** — Load and complete the [review-verification-protocol](../review-verification-protocol/SKILL.md) skill **after** gates 1–3 and **before** final severity labels. **Pass:** Protocol steps satisfied for each retained finding.
 
 ## Output Format
 
@@ -124,4 +124,4 @@ Description of the issue and why it matters.
 
 ## Before Submitting Findings
 
-Complete **Gates (evidence before severity)**, then load and follow `beagle-rust:review-verification-protocol` before reporting any issue.
+Complete **Gates (evidence before severity)**, then load and follow the [review-verification-protocol](../review-verification-protocol/SKILL.md) skill before reporting any issue.

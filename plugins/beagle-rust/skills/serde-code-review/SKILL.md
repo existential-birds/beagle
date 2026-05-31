@@ -22,7 +22,7 @@ Run **in order**. Do not write a finding until the step that applies has passed.
 
 2. **Per-finding evidence** — **Pass when:** Each issue cites `[FILE:LINE]` from the **current** tree for the `struct`/`enum`, `Serialize`/`Deserialize` impl, or attribute block in question (not from memory, docs-only, or another branch).
 
-3. **Category check vs protocol** — **Pass when:** For the finding type (derive attrs, enum tagging, `flatten`, custom impl, sqlx + serde alignment), you ran the matching checks from `beagle-rust:review-verification-protocol` (e.g. full type definition + serde attrs before “wrong representation”; confirmed edition in `Cargo.toml` before edition-2024-only findings). **Then** add the finding.
+3. **Category check vs protocol** — **Pass when:** For the finding type (derive attrs, enum tagging, `flatten`, custom impl, sqlx + serde alignment), you ran the matching checks from the [review-verification-protocol](../review-verification-protocol/SKILL.md) skill (e.g. full type definition + serde attrs before “wrong representation”; confirmed edition in `Cargo.toml` before edition-2024-only findings). **Then** add the finding.
 
 4. **Output shape** — **Pass when:** The report lines match **Output Format** below (severity + description).
 
@@ -116,4 +116,4 @@ Description of the issue and why it matters.
 
 ## Before Submitting Findings
 
-Complete **Gates (before reporting findings)** above; gate 3 incorporates `beagle-rust:review-verification-protocol` for serde-related issue types.
+Complete **Gates (before reporting findings)** above; gate 3 incorporates the [review-verification-protocol](../review-verification-protocol/SKILL.md) skill for serde-related issue types.

@@ -215,7 +215,7 @@ impl UserRepository for MockUserRepository {
 }
 ```
 
-**When `async-trait` is still needed:** Native `async fn` in traits does not support `dyn Trait` dispatch. If your code requires `Box<dyn UserRepository>`, keep using `async-trait` for that trait. See `beagle-rust:tokio-async-code-review` for async trait patterns in detail.
+**When `async-trait` is still needed:** Native `async fn` in traits does not support `dyn Trait` dispatch. If your code requires `Box<dyn UserRepository>`, keep using `async-trait` for that trait. See the [tokio-async-code-review](../../tokio-async-code-review/SKILL.md) skill for async trait patterns in detail.
 
 ## `if let` Temporary Scope in Test Assertions (Edition 2024)
 
@@ -258,7 +258,7 @@ if let Some(item) = borrowed.items.first() {
 }
 ```
 
-See `beagle-rust:tokio-async-code-review` for more `if let` temporary scope patterns with async lock guards.
+See the [tokio-async-code-review](../../tokio-async-code-review/SKILL.md) skill for more `if let` temporary scope patterns with async lock guards.
 
 ## Test Configuration
 

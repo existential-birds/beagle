@@ -1,5 +1,5 @@
 ---
-description: Comprehensive Rust code review with optional parallel agents
+description: Comprehensive Rust code review that fans out across detected technology areas, running them in parallel when the agent supports subagents and sequentially otherwise. Use for pre-push or pre-PR review of .rs files.
 name: review-rust
 disable-model-invocation: true
 ---
@@ -8,7 +8,7 @@ disable-model-invocation: true
 
 ## Arguments
 
-- `--parallel`: Spawn specialized subagents per technology area
+- `--parallel`: If the agent supports subagents, dispatch one per technology area in parallel; otherwise run sequentially with identical output.
 - Path: Target directory (default: current working directory)
 
 ## Hard gates
@@ -17,7 +17,7 @@ Complete in order before writing **Issues** in the output (empty scope is allowe
 
 1. **Scope gate:** You have an explicit list of `.rs` paths under review (from Step 1 or the user-provided path). **Pass:** List printed or "No Rust files in scope" — then stop with no Issues.
 2. **Compiler/linter gate:** Step 3 commands were run from the crate or workspace root (`Cargo.toml` present); if they cannot run, one line states why (e.g. missing toolchain, no `Cargo.toml`, sandbox). **Pass:** You do not report a problem already shown as an error/warning in Step 3 output, and you do not duplicate compiler or clippy diagnostics the author must fix first.
-3. **Protocol gate:** `beagle-rust:review-verification-protocol` is loaded before Step 7. **Pass:** Every Critical/Major finding satisfies Step 8 (and the protocol); if there are zero findings, say "Protocol applied; no issues" in the Review Summary.
+3. **Protocol gate:** the [review-verification-protocol](../review-verification-protocol/SKILL.md) skill is loaded before Step 7. **Pass:** Every Critical/Major finding satisfies Step 8 (and the protocol); if there are zero findings, say "Protocol applied; no issues" in the Review Summary.
 4. **Evidence gate (Critical/Major):** For each Critical or Major item, you re-read the file at `FILE:LINE` with full surrounding context (not only the diff hunk). **Pass:** The Issue description matches observable code at that location.
 
 ## Step 1: Identify Changed Files
@@ -135,62 +135,64 @@ git diff $(git merge-base HEAD main)..HEAD -- '*.rs' | grep -cE 'mem::replace|sw
 - If `#[allow(...)]` is used where `#[expect(...)]` would be better (MSRV >= 1.81), note as Minor — `#[expect]` warns when the suppressed lint no longer fires, keeping suppressions clean.
 
 **Concurrency detection notes:**
-- If atomics (`std::sync::atomic`, `compare_exchange`, `fetch_*`), `UnsafeCell`, `unsafe impl Send/Sync`, or `crossbeam` / `arc-swap` / `parking_lot` are present in the diff, load `beagle-rust:rust-code-review` and consult `references/concurrency-primitives.md`, `references/memory-ordering.md`, and `references/lock-free-patterns.md`.
+- If atomics (`std::sync::atomic`, `compare_exchange`, `fetch_*`), `UnsafeCell`, `unsafe impl Send/Sync`, or `crossbeam` / `arc-swap` / `parking_lot` are present in the diff, load the [rust-code-review](../rust-code-review/SKILL.md) skill and consult its `references/concurrency-primitives.md`, `references/memory-ordering.md`, and `references/lock-free-patterns.md`.
 - If the diff introduces or restructures concurrency (worker pools, actor-style channels, `tokio::spawn` patterns, threads-vs-async choices), also consult `references/concurrency-models.md` for design-level review questions.
-- If hand-rolled atomics / lock-free types appear with no `loom` dependency or no `cargo +nightly miri test` in CI, load `beagle-rust:rust-testing-code-review` and consult `references/concurrency-testing.md`.
+- If hand-rolled atomics / lock-free types appear with no `loom` dependency or no `cargo +nightly miri test` in CI, load the [rust-testing-code-review](../rust-testing-code-review/SKILL.md) skill and consult its `references/concurrency-testing.md`.
 
 **Interface design / API surface detection:**
-- If the diff introduces or changes `pub trait`, `pub fn`, `pub struct`, derive impls on public types, `impl Drop` on owning types, or re-exports of foreign types, load `beagle-rust:rust-code-review` and consult `references/interface-design.md` for object-safety, ergonomic-impl, fallible-destructor, and hidden-contract review checks.
+- If the diff introduces or changes `pub trait`, `pub fn`, `pub struct`, derive impls on public types, `impl Drop` on owning types, or re-exports of foreign types, load the [rust-code-review](../rust-code-review/SKILL.md) skill and consult its `references/interface-design.md` for object-safety, ergonomic-impl, fallible-destructor, and hidden-contract review checks.
 - If the diff uses index-pointer graphs (`Vec<Node> + usize`, `slotmap`, `petgraph`), `mem::replace`-style drop guards, extension traits, or modifies a `prelude` module, also consult `references/patterns-in-the-wild.md`.
 
 **Testing detection (criterion / trybuild / clippy strategy):**
-- If `benches/` directory or `criterion` dependency is present, load `beagle-rust:rust-testing-code-review` and consult `references/advanced-testing.md` for criterion baseline, `black_box`, and `iter_batched` review checks.
-- If proc-macro crate (`proc-macro = true`) or `trybuild` in `[dev-dependencies]`, consult `references/advanced-testing.md` for trybuild `.stderr` stability checks plus `beagle-rust:macros-code-review` `references/procedural-macros.md` for span hygiene and `syn` feature audits.
+- If `benches/` directory or `criterion` dependency is present, load the [rust-testing-code-review](../rust-testing-code-review/SKILL.md) skill and consult its `references/advanced-testing.md` for criterion baseline, `black_box`, and `iter_batched` review checks.
+- If proc-macro crate (`proc-macro = true`) or `trybuild` in `[dev-dependencies]`, consult the [rust-testing-code-review](../rust-testing-code-review/SKILL.md) skill's `references/advanced-testing.md` for trybuild `.stderr` stability checks plus the [macros-code-review](../macros-code-review/SKILL.md) skill's `references/procedural-macros.md` for span hygiene and `syn` feature audits.
 
 ## Step 5: Load Verification Protocol
 
-Load `beagle-rust:review-verification-protocol` skill and keep its checklist in mind throughout the review.
+Load the [review-verification-protocol](../review-verification-protocol/SKILL.md) skill and keep its checklist in mind throughout the review.
 
 ## Step 6: Load Skills
 
-Use the `Skill` tool to load each applicable skill (e.g., `Skill(skill: "beagle-rust:rust-code-review")`).
+Load each applicable skill below (e.g. load the [rust-code-review](../rust-code-review/SKILL.md) skill) by reading its `SKILL.md` and applying it.
 
 **Always load:**
-- `beagle-rust:rust-code-review`
+- [rust-code-review](../rust-code-review/SKILL.md)
 
 **Conditionally load based on detection:**
 
 | Condition | Skill |
 |-----------|-------|
-| Tokio detected | `beagle-rust:tokio-async-code-review` |
-| Axum detected | `beagle-rust:axum-code-review` |
-| sqlx detected | `beagle-rust:sqlx-code-review` |
-| Serde detected | `beagle-rust:serde-code-review` |
-| Test files changed | `beagle-rust:rust-testing-code-review` |
-| Macro definitions in diff | `beagle-rust:macros-code-review` |
-| FFI code detected (extern, repr(C), bindgen) | `beagle-rust:ffi-code-review` |
-| Atomics, `UnsafeCell`, `unsafe impl Send/Sync`, `compare_exchange`, `crossbeam`, `arc-swap`, `parking_lot` | `beagle-rust:rust-code-review` (load `references/concurrency-primitives.md`, `references/memory-ordering.md`, `references/lock-free-patterns.md`) |
-| Concurrency design changes (worker pools, channels, threads-vs-async restructuring) | `beagle-rust:rust-code-review` (load `references/concurrency-models.md`) |
-| Public trait / `pub fn` / `pub struct` / `impl Drop` / re-export changes | `beagle-rust:rust-code-review` (load `references/interface-design.md`) |
-| Graph/tree code, `slotmap`, `petgraph`, `mem::replace` drop guards, extension traits, `prelude` module changes | `beagle-rust:rust-code-review` (load `references/patterns-in-the-wild.md`) |
-| `criterion` benchmarks, `benches/` directory | `beagle-rust:rust-testing-code-review` (load `references/advanced-testing.md` — criterion baseline + `black_box` + `iter_batched` checks) |
-| Proc-macro crate (`proc-macro = true`) or `trybuild` in dev-deps | `beagle-rust:rust-testing-code-review` + `beagle-rust:macros-code-review` (load `references/advanced-testing.md` trybuild + `references/procedural-macros.md` span hygiene) |
-| `loom`, `miri`, hand-rolled lock-free code under test | `beagle-rust:rust-testing-code-review` (load `references/concurrency-testing.md`) |
+| Tokio detected | [tokio-async-code-review](../tokio-async-code-review/SKILL.md) |
+| Axum detected | [axum-code-review](../axum-code-review/SKILL.md) |
+| sqlx detected | [sqlx-code-review](../sqlx-code-review/SKILL.md) |
+| Serde detected | [serde-code-review](../serde-code-review/SKILL.md) |
+| Test files changed | [rust-testing-code-review](../rust-testing-code-review/SKILL.md) |
+| Macro definitions in diff | [macros-code-review](../macros-code-review/SKILL.md) |
+| FFI code detected (extern, repr(C), bindgen) | [ffi-code-review](../ffi-code-review/SKILL.md) |
+| Atomics, `UnsafeCell`, `unsafe impl Send/Sync`, `compare_exchange`, `crossbeam`, `arc-swap`, `parking_lot` | [rust-code-review](../rust-code-review/SKILL.md) (load `references/concurrency-primitives.md`, `references/memory-ordering.md`, `references/lock-free-patterns.md`) |
+| Concurrency design changes (worker pools, channels, threads-vs-async restructuring) | [rust-code-review](../rust-code-review/SKILL.md) (load `references/concurrency-models.md`) |
+| Public trait / `pub fn` / `pub struct` / `impl Drop` / re-export changes | [rust-code-review](../rust-code-review/SKILL.md) (load `references/interface-design.md`) |
+| Graph/tree code, `slotmap`, `petgraph`, `mem::replace` drop guards, extension traits, `prelude` module changes | [rust-code-review](../rust-code-review/SKILL.md) (load `references/patterns-in-the-wild.md`) |
+| `criterion` benchmarks, `benches/` directory | [rust-testing-code-review](../rust-testing-code-review/SKILL.md) (load `references/advanced-testing.md` — criterion baseline + `black_box` + `iter_batched` checks) |
+| Proc-macro crate (`proc-macro = true`) or `trybuild` in dev-deps | [rust-testing-code-review](../rust-testing-code-review/SKILL.md) + [macros-code-review](../macros-code-review/SKILL.md) (load `references/advanced-testing.md` trybuild + `references/procedural-macros.md` span hygiene) |
+| `loom`, `miri`, hand-rolled lock-free code under test | [rust-testing-code-review](../rust-testing-code-review/SKILL.md) (load `references/concurrency-testing.md`) |
 
 ## Step 7: Review
 
-**Sequential (default):**
+**If the agent supports subagents**, dispatch one per technology area in parallel; **otherwise** run the areas sequentially in a single context. The output is identical either way.
+
+**Parallel path (agent supports subagents):**
+1. Detect all technologies upfront
+2. Dispatch one subagent per technology area
+3. Each subagent loads its skill and reviews its domain
+4. Wait for all subagents
+5. Consolidate findings
+
+**Sequential path (no subagent support):**
 1. Load applicable skills
 2. Review core Rust quality (ownership, error handling, unsafe, traits)
-3. Review detected technology areas
+3. Review each detected technology area in turn
 4. Consolidate findings
-
-**Parallel (--parallel flag):**
-1. Detect all technologies upfront
-2. Spawn one subagent per technology area with `Task` tool
-3. Each agent loads its skill and reviews its domain
-4. Wait for all agents
-5. Consolidate findings
 
 ## Step 8: Verify Findings
 

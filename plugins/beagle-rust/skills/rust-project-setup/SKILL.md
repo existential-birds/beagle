@@ -200,5 +200,5 @@ Use these as **objective pass conditions** after the checklist—not informal �
 
 ## Related Skills
 
-- `beagle-rust:rust-best-practices` — idiomatic patterns and edition 2024 coding guidance
-- `beagle-rust:rust-code-review` — code review covering ownership, unsafe, and trait design
+- [rust-best-practices](../rust-best-practices/SKILL.md) — idiomatic patterns and edition 2024 coding guidance
+- [rust-code-review](../rust-code-review/SKILL.md) — code review covering ownership, unsafe, and trait design

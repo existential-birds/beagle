@@ -20,7 +20,7 @@ Complete in order for the review scope. Do not assert **Critical** or **Major** 
 1. **Dependency surface** — Read the crate (and workspace, if inherited) `Cargo.toml` that supplies `tokio`. **Pass:** Written note of `tokio` version and enabled features, or explicit statement that there is no direct `tokio` dependency and where it comes from (workspace/path).
 2. **Runtime model** — Locate runtime construction (`#[tokio::main]`, `Runtime::builder`, tests, or library with no owned runtime). **Pass:** One line naming flavor (`multi_thread` / `current_thread` / tests-only / none) and where it is defined.
 3. **Blocking inventory** — Search reviewed paths for blocking APIs (`std::fs::`, `std::net::` without async wrappers, `std::thread::sleep`, heavy CPU loops in `async fn`). **Pass:** Each hit listed as `path:line` (or tool output excerpt), or explicit “no blocking patterns found in reviewed async code” after the search.
-4. **Protocol** — Load `beagle-rust:review-verification-protocol`. **Pass:** Its pass conditions met before any finding is reported (file:line evidence for asserted issues).
+4. **Protocol** — Load the [review-verification-protocol](../review-verification-protocol/SKILL.md) skill. **Pass:** Its pass conditions met before any finding is reported (file:line evidence for asserted issues).
 
 ## Output Format
 
@@ -121,4 +121,4 @@ Description of the issue and why it matters.
 
 ## Before Submitting Findings
 
-After **Gates**, apply `beagle-rust:review-verification-protocol` to every reported issue (evidence and dispositions per that skill).
+After **Gates**, apply the [review-verification-protocol](../review-verification-protocol/SKILL.md) skill to every reported issue (evidence and dispositions per that skill).

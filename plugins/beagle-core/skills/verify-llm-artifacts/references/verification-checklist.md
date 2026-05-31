@@ -2,6 +2,21 @@
 
 Use this **before** marking a review finding as `confirmed_issue`. Skipping steps causes false positives (especially for dead code and “verbose” style).
 
+## Existence precondition (FIRST check, every category)
+
+Run this **before** any symbol/usage check, for **every** finding regardless of category:
+
+- [ ] **Cited file exists at `source_git_head`.** Confirm with `git cat-file -e <source_git_head>:<file>` (or `test -f <file>` when verifying the working tree). Record `file_exists` in `checks_performed`.
+
+Branch on the result:
+
+- **Exists** → proceed to the category checks below.
+- **Does not exist** → **do not** proceed to symbol/usage checks. It is one of:
+  - A finding about a **deleted file** — note it explicitly in `notes` and adjudicate accordingly (often `false_positive` if the cited issue no longer exists, or `inconclusive`).
+  - A sign the report is **corrupt or you are not looking at the real report** — **STOP**, re-read `findings[]` (verify-llm-artifacts step 1a echo), and confirm the file path came from the parsed JSON, not from memory or the branch name.
+
+> A **wall of missing-file results** (most or all findings citing nonexistent files) is an explicit **stop-and-reload trigger**, not routine evidence. It almost always means you are adjudicating confabulated findings rather than the report's `findings[]`. Stop, re-echo the finding table, and restart — do not keep writing `false_positive` rows.
+
 ## Universal
 
 - [ ] Opened the **full** surrounding context (function/class/module), not only the cited line.
@@ -35,8 +50,11 @@ Use this **before** marking a review finding as `confirmed_issue`. Skipping step
 
 | Situation | `status` |
 |-----------|----------|
-| Finding is factually wrong or harmful if “fixed” | `false_positive` |
-| Finding is valid and fix is appropriate | `confirmed_issue` |
+| Finding in the report is factually wrong or harmful if “fixed” | `false_positive` |
+| Finding in the report is valid and fix is appropriate | `confirmed_issue` |
 | Cannot decide without domain/product context | `inconclusive` |
+| Apparent finding has **no matching id in the locked set** (not in the report) | **none — STOP, re-read `findings[]`, restart** |
 
 Prefer `inconclusive` over guessing when evidence is mixed.
+
+`false_positive` means *"the finding in the report is invalid."* It never means *"this finding isn't in the report."* A finding you cannot trace back to a locked id is agent error, not a false positive — do not give it a status.

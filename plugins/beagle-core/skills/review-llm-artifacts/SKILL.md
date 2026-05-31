@@ -160,6 +160,10 @@ Wait for all subagents to complete, then:
 2. Assign unique IDs (1, 2, 3...)
 3. Group by category for display
 
+**Echo before write (anti-confabulation):** Every finding written to JSON MUST come from a subagent's returned `[FILE:LINE] ISSUE_TITLE` output, not from the branch name, directory, or your own inference. After assigning ids, echo the consolidated table — `id | category | file:line | description` — and confirm each row traces to a specific subagent result. Do not add findings that no subagent reported.
+
+**ID lock:** Ids are contiguous `1..N` with no gaps or duplicates. This `1..N` set is the **locked id set** that downstream skills (`verify-llm-artifacts`, `fix-llm-artifacts`) bind to 1:1. `summary.total` MUST equal `N`, and `summary.by_category` counts MUST sum to `N`. State the id set before writing JSON.
+
 ## Step 5: Write JSON Report
 
 Create `.beagle` directory if it doesn't exist:
@@ -244,9 +248,20 @@ Before completing, verify the review executed correctly:
 2. **Subagent success:** All 4 subagents completed without errors
 3. **Git HEAD captured:** The `git_head` field is non-empty in the report
 4. **Staleness check:** If a previous report exists, compare stored `git_head` to current HEAD and warn if different
+5. **ID + count integrity:** Finding ids are contiguous `1..N`; `summary.total == N`; `summary.by_category` sums to `N`. A mismatch means a finding was added, dropped, or duplicated — fix before completing.
 
 ```bash
 python3 -c "import json; json.load(open('.beagle/llm-artifacts-review.json'))" 2>/dev/null && echo "✓ Valid JSON" || echo "✗ Invalid JSON"
+
+python3 - <<'PY'
+import json
+r = json.load(open('.beagle/llm-artifacts-review.json'))
+ids = [x['id'] for x in r['findings']]
+n = len(ids)
+ok = ids == list(range(1, n + 1)) and r['summary']['total'] == n \
+     and sum(r['summary']['by_category'].values()) == n
+print("✓ ids 1..N and counts consistent" if ok else f"✗ id/count mismatch: ids={ids} total={r['summary']['total']}")
+PY
 
 STORED_HEAD=$(jq -r '.git_head' .beagle/llm-artifacts-review.json 2>/dev/null)
 CURRENT_HEAD=$(git rev-parse --short HEAD)
@@ -270,6 +285,7 @@ If any verification fails, report the error and do not proceed.
 ## Rules
 
 - Follow **Hard gates** order; do not skip **G3** (JSON before Step 6).
+- **Anti-confabulation:** every finding must trace to a subagent's `[FILE:LINE]` output (Step 4 echo); never invent findings from the branch name, directory, or inference. See `beagle-core:review-verification-protocol` → Anti-confabulation (gate 0).
 - Always load the `beagle-core:llm-artifacts-detection` skill first
 - Use `Task` tool for parallel subagents when >= 4 files
 - Every finding MUST have file:line reference

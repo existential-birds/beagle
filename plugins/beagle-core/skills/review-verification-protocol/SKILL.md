@@ -8,6 +8,18 @@ user-invocable: false
 
 This protocol MUST be followed before reporting any code review finding. Skipping these steps leads to false positives that waste developer time and erode trust in reviews.
 
+## Anti-confabulation (gate 0 — applies to ALL review/verify skills)
+
+Before issuing **any** verdict — confirm, reject, sever, fix, or adjudicate — you MUST echo the exact artifact you are judging, quoted from a source you read in **this** turn:
+
+- For a code finding: the **file:line** plus the cited code, read freshly now (not recalled from earlier in the session).
+- For a diff review: the actual **diff hunk** under review.
+- For a structured report (e.g. `verify-llm-artifacts` adjudicating `findings[]`): the finding's id + file + line + description, printed from the **parsed source file**, not from memory.
+
+> The artifact is the only source of truth. **Never** infer what you are reviewing from the branch name, the working directory, surrounding files, or recollection. If your mental model differs from the freshly read source, **the source wins.** A verdict issued without a same-turn echo of its target is invalid — emit the echo first, or do not emit the verdict.
+
+This gate exists because an LLM under contextual priming will confidently adjudicate things that are not in the file. It runs **before** the per-finding hard gates below. Skills that consume this protocol implement it concretely: `verify-llm-artifacts` (Load + ECHO + ID-lock gate), `review-llm-artifacts` (echo finding before writing JSON), `llm-artifacts-detection` (anchor `FILE:LINE` from an opened buffer).
+
 ## Hard gates (sequence)
 
 Apply **once per finding** before it may appear in the review. If a gate fails, **omit** the finding, **downgrade** to Informational (per [Severity Calibration](#severity-calibration)), or **rephrase** as a question—do not ship soft accusations.
@@ -215,6 +227,7 @@ Flag missing try/catch **ONLY IF**:
 ## Before Submitting Review
 
 Final verification:
+0. Each finding passed [Anti-confabulation (gate 0)](#anti-confabulation-gate-0--applies-to-all-reviewverify-skills) — its target was echoed from a source read in this turn, not recalled or inferred.
 1. Each finding passed [Hard gates (sequence)](#hard-gates-sequence) (anchor, evidence with artifacts, severity, format).
 2. Re-read each finding and ask: "Did I verify this is actually an issue?"
 3. For each finding, can you point to the specific line that proves the issue exists?

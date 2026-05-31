@@ -27,6 +27,8 @@ Sequence matters. Do not apply fixes until each **pass condition** is satisfied 
 
 1. **Working tree** — `git status --porcelain` is empty **or** a stash was created with message `beagle-core: pre-fix-llm-artifacts backup` and `git stash list` shows it. If the user refuses stash/backup, **stop** or document explicit acceptance of risk in the report before edits.
 2. **Review artifact on disk** — `.beagle/llm-artifacts-review.json` exists, **or** `--all` completed a `review-llm-artifacts` run that wrote that file. Otherwise **stop** (no fixes from memory or guesses).
+2a. **Echo + ID lock (anti-confabulation)** — After loading the review (Section 3), echo the finding table (`id | category | file:line | description`) from the **parsed JSON** and record the exact id set as the **locked id set**. You fix only findings in this set; never fix a finding inferred from the branch name, directory, or memory. Every fix you apply or skip maps 1:1 to a locked id. See `beagle-core:review-verification-protocol` → Anti-confabulation (gate 0).
+2b. **Per-fix existence precondition** — Before editing for any finding, confirm (i) its `id` is in the locked set, and (ii) the cited `file` exists and the cited code is actually present at `file:line` (read it now). If the file or code is absent, **do not edit** — the finding is stale or confabulated; mark it skipped with a reason and move on. Never create or rewrite a file to match a finding.
 3. **Stale review** — If `jq -r '.git_head' .beagle/llm-artifacts-review.json` ≠ `git rev-parse HEAD`, prompt to re-run review. **`y`** → re-run review, then continue. **`n`** → **abort** the fix pass (do not apply fixes against stale findings).
 4. **Verification overlay** — If `.beagle/llm-artifacts-verification.json` exists, it must **parse**; build exclude/inconclusive sets **before** partitioning (Section 4). On parse failure, **stop** and report the error.
 5. **Risky fixes** — No `code_removal`, `logic_change`, `mock_boundary`, `abstraction_change`, or `test_refactor` work without the interactive choice in Section 6 (or `s` to skip all remaining risky items).
@@ -68,6 +70,24 @@ cat .beagle/llm-artifacts-review.json 2>/dev/null
 **If file missing:**
 - If `--all` flag: Run `review-llm-artifacts --all` first to produce a full-project review
 - Otherwise: Fail with: "No review results found. Run `/beagle-core:review-llm-artifacts` first."
+
+**Echo + lock ids (gate 2a):** Once the file is present, print every finding from the parsed JSON and lock the id set before partitioning:
+
+```bash
+python3 - <<'PY'
+import json
+r = json.load(open('.beagle/llm-artifacts-review.json'))
+f = r['findings']
+print("| id | category | file:line | description |")
+print("|----|----------|-----------|-------------|")
+for x in f:
+    desc = (x.get('description') or '').replace('|', '\\|')[:80]
+    print(f"| {x['id']} | {x.get('category')} | {x.get('file')}:{x.get('line')} | {desc} |")
+print("Locked ids: {" + ", ".join(str(x['id']) for x in f) + "}")
+PY
+```
+
+Adjudicate and fix only the ids above. If your sense of what to fix differs from this table, the table wins.
 
 **Optional verification overlay** — if `.beagle/llm-artifacts-verification.json` exists:
 - Build a set of finding ids with `status: false_positive` → **exclude** these from all fix lists.
@@ -134,7 +154,10 @@ Otherwise, spawn parallel agents per category with `Task` tool:
 ```
 Task: Apply safe fixes for category "{category}"
 Files: [list of files with findings in this category]
-Instructions: Apply each fix, preserving surrounding code. Report success/failure per fix.
+Instructions: For EACH finding, first confirm it is in the locked id set and that the
+cited code exists at file:line (read it). If the file or code is absent, skip the finding
+with a reason — do NOT create or rewrite a file to match the finding. Then apply each
+confirmed fix, preserving surrounding code. Report success/failure/skip per fix by id.
 ```
 
 Categories to parallelize:

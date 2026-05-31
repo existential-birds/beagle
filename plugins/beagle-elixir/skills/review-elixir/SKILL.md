@@ -8,7 +8,7 @@ disable-model-invocation: true
 
 ## Arguments
 
-- `--parallel`: Spawn specialized subagents per technology area
+- `--parallel`: If the agent supports subagents, dispatch one specialized subagent per technology area (otherwise reviews run sequentially with identical output)
 - Path: Target directory (default: current working directory)
 
 ## Hard gates
@@ -17,7 +17,7 @@ Complete in order before writing **Issues** in the output (empty scope is allowe
 
 1. **Scope gate:** You have an explicit list of `.ex`/`.exs`/`.heex` paths under review (from Step 1 or user path). **Pass:** List printed or "No Elixir files in scope" — then stop with no Issues.
 2. **Linter gate (style):** Step 2 commands ran for this Mix project; skipped tools are noted in one line (e.g. no `.credo.exs`). **Pass:** You do not report a style issue that already passes the project's formatter/linter for that line.
-3. **Protocol gate:** `beagle-elixir:review-verification-protocol` is loaded before Step 6. **Pass:** At least one reported finding was checked against that checklist (state which item in the Review Summary or first Critical/Major note).
+3. **Protocol gate:** [review-verification-protocol](../review-verification-protocol/SKILL.md) is loaded before Step 6. **Pass:** At least one reported finding was checked against that checklist (state which item in the Review Summary or first Critical/Major note).
 4. **Evidence gate (Critical/Major):** For each Critical or Major item, you re-read the file at `FILE:LINE` (full surrounding context, not only the diff hunk). **Pass:** The Issue description matches observable code at that location.
 
 ## Step 1: Identify Changed Files
@@ -68,26 +68,28 @@ git diff --name-only $(git merge-base HEAD main)..HEAD | grep -E '_test\.exs$'
 
 ## Step 4: Load Verification Protocol
 
-Load `beagle-elixir:review-verification-protocol` skill and keep its checklist in mind throughout the review.
+Load the [review-verification-protocol](../review-verification-protocol/SKILL.md) skill and keep its checklist in mind throughout the review.
 
 ## Step 5: Load Skills
 
-Use the `Skill` tool to load each applicable skill.
+Load each applicable skill below (read its SKILL.md and apply its rules).
 
 **Always load:**
-- `beagle-elixir:elixir-code-review`
+- [elixir-code-review](../elixir-code-review/SKILL.md)
 
 **Conditionally load based on detection:**
 
 | Condition | Skill |
 |-----------|-------|
-| Phoenix detected | `beagle-elixir:phoenix-code-review` |
-| LiveView detected | `beagle-elixir:liveview-code-review` |
-| Performance focus requested | `beagle-elixir:elixir-performance-review` |
-| Security focus requested | `beagle-elixir:elixir-security-review` |
-| Test files changed | `beagle-elixir:exunit-code-review` |
+| Phoenix detected | [phoenix-code-review](../phoenix-code-review/SKILL.md) |
+| LiveView detected | [liveview-code-review](../liveview-code-review/SKILL.md) |
+| Performance focus requested | [elixir-performance-review](../elixir-performance-review/SKILL.md) |
+| Security focus requested | [elixir-security-review](../elixir-security-review/SKILL.md) |
+| Test files changed | [exunit-code-review](../exunit-code-review/SKILL.md) |
 
 ## Step 6: Review
+
+**If the agent supports subagents** (and `--parallel` is set), dispatch one subagent per technology area in parallel; **otherwise** run sequentially. Both paths produce identical output.
 
 **Sequential (default):**
 1. Load applicable skills
@@ -97,16 +99,16 @@ Use the `Skill` tool to load each applicable skill.
 5. Review detected technology areas
 6. Consolidate findings
 
-**Parallel (--parallel flag):**
+**Parallel (when subagents are available and `--parallel` is set):**
 1. Detect all technologies upfront
-2. Spawn one subagent per technology area with `Task` tool
-3. Each agent loads its skill and reviews its domain
-4. Wait for all agents
+2. Dispatch one subagent per technology area
+3. Each subagent loads its skill and reviews its domain
+4. Wait for all subagents
 5. Consolidate findings
 
 ### Before Flagging Issues
 
-1. **Check CLAUDE.md** for documented intentional patterns
+1. **Check project conventions** (e.g. AGENTS.md or CLAUDE.md) for documented intentional patterns
 2. **Check code comments** around the flagged area for "intentional", "optimization", or "NOTE:"
 3. **Trace the code path** before claiming missing coverage
 4. **Consider framework idioms** - what looks wrong generically may be correct for Elixir/Phoenix

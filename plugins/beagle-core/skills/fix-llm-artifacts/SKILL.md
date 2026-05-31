@@ -78,12 +78,19 @@ python3 - <<'PY'
 import json
 r = json.load(open('.beagle/llm-artifacts-review.json'))
 f = r['findings']
+if not isinstance(f, list) or not f:
+    raise SystemExit("No findings to lock; aborting.")
+ids = [x.get('id') for x in f]
+if any(not isinstance(i, int) for i in ids):
+    raise SystemExit("All finding ids must be integers; aborting.")
+if len(set(ids)) != len(ids):
+    raise SystemExit("Duplicate finding ids detected; aborting.")
 print("| id | category | file:line | description |")
 print("|----|----------|-----------|-------------|")
 for x in f:
     desc = (x.get('description') or '').replace('|', '\\|')[:80]
     print(f"| {x['id']} | {x.get('category')} | {x.get('file')}:{x.get('line')} | {desc} |")
-print("Locked ids: {" + ", ".join(str(x['id']) for x in f) + "}")
+print("Locked ids: {" + ", ".join(str(i) for i in sorted(set(ids))) + "}")
 PY
 ```
 

@@ -409,9 +409,11 @@ If the user requests changes, revise inline and present again. Do not write to d
 - **Slug source:** inherit from the spec's parent folder (the `<slug>` segment under `.beagle/concepts/`). User preferences override the default path.
 - If the user explicitly asks to commit, use: `docs: add <slug> implementation plan`
 - After writing, tell the user:
-  > "Plan written to `<path>`. Review it on disk and let me know if you want changes, or hand it off to your executor."
-- Then point the user at `beagle-core:subagent-prompt` for execution in a fresh session. That skill has `disable-model-invocation: true` and cannot be launched via a Skill tool call from here — instruct the user to invoke it themselves:
-  > "Ready to execute? Run `/beagle-core:subagent-prompt` in a fresh session to hand this off to sub-agents."
+  > "Plan written to `<path>`. Review it on disk and let me know if you want changes."
+- Then ask exactly: **"Do you want a prompt to execute this plan in a new session?"**
+  - **If yes:** invoke `Skill(skill: "beagle-core:subagent-prompt")`, naming the just-written `plan.md` path as the source material so its source-material and task-decomposition gates resolve from the plan without re-interrogating the user. This call works even though `subagent-prompt` sets `disable-model-invocation: true` — that flag blocks only automatic, context-triggered invocation, not an explicit `Skill`-tool call (see `beagle-analysis:write-adr` for the same pattern).
+  - **If no:** tell the user the plan is ready and they can hand it off later by running `/beagle-core:subagent-prompt` in a fresh session, then stop.
+  - **If `subagent-prompt` is unavailable** (e.g. `beagle-core` not installed): instruct the user to run `/beagle-core:subagent-prompt` themselves.
 - Wait for the next instruction before considering work complete.
 
 ## Execution Handoff

@@ -12,6 +12,17 @@ Above all, this skill should push the reviewer to be **ambitious** about code st
 
 The structural lens is **repo-wide**: read and search any file in the codebase as needed to judge whether canonical helpers already exist, whether file-size budgets are honored, and whether the change makes the codebase easier or harder to live with.
 
+## Anti-confabulation (gate 0 — runs before every other gate)
+
+Before issuing **any** verdict — flag, propose a restructuring, or assert a structural claim — you MUST echo the exact artifact you are judging, quoted from a source you read in **this** turn:
+
+- For a code finding: the **file:line** plus the cited code, read freshly now (not recalled from earlier in the session).
+- For a structural claim ("no canonical helper exists", "file exceeds 1 000 lines"): the **search pattern + result** or **`wc -l`/read-based count** that backs it.
+
+> The artifact is the only source of truth. **Never** infer what you are reviewing from the branch name, the working directory, surrounding files, or recollection. If your mental model differs from the freshly read source, **the source wins.** A verdict issued without a same-turn echo of its target is invalid — emit the echo first, or do not emit the verdict.
+
+This gate exists because an LLM under contextual priming will confidently flag code that is not in the file. It runs **before** the hard gates below.
+
 ## Hard gates (sequence)
 
 Advance only when each **pass condition** is objectively satisfied (artifact path, tool output, or labeled capture — not "I checked it mentally"):

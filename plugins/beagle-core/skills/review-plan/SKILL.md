@@ -12,6 +12,17 @@ Review implementation plans (such as those produced by a plan-writing skill) bef
 
 - Path: Plan file to review (e.g., `docs/plans/2025-01-15-auth-feature.md`)
 
+## Anti-confabulation (gate 0 — runs before every other gate)
+
+Before issuing **any** verdict — flag a gap, raise an issue, or assign a verdict — you MUST echo the exact artifact you are judging, quoted from a source you read in **this** turn:
+
+- For a plan finding: the **plan step or section text** under review, quoted from the plan file read freshly now (not recalled from earlier in the session) — cite the heading or step number it came from.
+- For a claim about the codebase the plan touches (a type, API, or file the plan references): the **file:line** plus cited code, read freshly now.
+
+> The artifact is the only source of truth. **Never** infer what the plan says from the branch name, the working directory, surrounding files, or recollection. If your mental model differs from the freshly read source, **the source wins.** A verdict issued without a same-turn echo of its target is invalid — emit the echo first, or do not emit the verdict.
+
+This gate exists because an LLM under contextual priming will confidently flag content that is not in the plan. It runs **before** the hard gates below.
+
 ## Hard gates (sequence)
 
 Do not skip ahead; each step **passes** only when the condition is objectively satisfied (artifact path, tool success, or labeled capture—not “I read it mentally”).

@@ -8,6 +8,17 @@ user-invocable: false
 
 This protocol MUST be followed before reporting any code review finding. Skipping these steps leads to false positives that waste developer time and erode trust in reviews.
 
+## Anti-confabulation (gate 0 — runs before every other gate)
+
+Before issuing **any** verdict — flag, reject, or downgrade a finding — you MUST echo the exact artifact you are judging, quoted from a source you read in **this** turn:
+
+- For a code finding: the **file:line** plus the cited code, read freshly now (not recalled from earlier in the session).
+- For a diff review: the actual **diff hunk** under review.
+
+> The artifact is the only source of truth. **Never** infer what you are reviewing from the branch name, the working directory, surrounding files, or recollection. If your mental model differs from the freshly read source, **the source wins.** A verdict issued without a same-turn echo of its target is invalid — emit the echo first, or do not emit the verdict.
+
+This gate exists because an LLM under contextual priming will confidently flag code that is not in the file. It runs **before** the hard gates below.
+
 ## Hard gates (sequenced)
 
 Run these **in order**. Do not move to the next gate until its **pass** condition is met (objective evidence, not internal certainty).

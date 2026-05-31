@@ -126,7 +126,7 @@ For each issue found, report: [FILE:LINE] ISSUE_TITLE
 
 ## Gates (reporting)
 
-Run these in order so findings are evidence-bound, not inferred. This is the detection-side instance of the **Anti-confabulation gate** in `beagle-core:review-verification-protocol`: every `[FILE:LINE]` must be echoed from a freshly read buffer in this turn, never inferred from the branch name, directory, or memory.
+Run these in order so findings are evidence-bound, not inferred. This is the detection-side instance of the **Anti-confabulation gate** in the [review-verification-protocol](../review-verification-protocol/SKILL.md) skill: every `[FILE:LINE]` must be echoed from a freshly read buffer in this turn, never inferred from the branch name, directory, or memory.
 
 1. **Anchor** — Set `FILE` and `LINE` from an opened buffer, `read_file`, or equivalent; do not rely only on stale search snippets. **Pass:** `LINE` is in range for `FILE`, and the described issue is visible on that line or its immediate neighbors.
 2. **Title** — `ISSUE_TITLE` states the defect in plain language (about one short sentence), not a proposed fix. **Pass:** someone opening `FILE` at `LINE` can see why the title applies.
@@ -135,7 +135,7 @@ Run these in order so findings are evidence-bound, not inferred. This is the det
 ## Usage
 
 1. Load this skill when reviewing AI-generated code
-2. Spawn agents for specific detection categories as needed
+2. **If the agent supports subagents**, dispatch one per detection category in parallel; **otherwise** work through the categories sequentially yourself, producing the same `[FILE:LINE] ISSUE_TITLE` findings.
 3. Use reference files for detailed criteria and examples
 4. Apply **Gates (reporting)** above, then emit findings as `[FILE:LINE] ISSUE_TITLE`
 

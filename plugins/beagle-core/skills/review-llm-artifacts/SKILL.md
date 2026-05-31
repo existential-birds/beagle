@@ -1,6 +1,6 @@
 ---
 name: review-llm-artifacts
-description: Detects common LLM coding agent artifacts by spawning four parallel subagents over the project or changed files. Scans files changed since main by default; use --all for full-project scan. Triggers on LLM cruft cleanup, agent-generated code review, dead code sweeps, test-quality passes, or when the user asks to scan the whole repo.
+description: Detects common LLM coding agent artifacts across four categories (tests, dead code, abstraction, style) over the project or changed files — using parallel subagents when the agent supports them, otherwise four sequential passes. Scans files changed since main by default; use --all for full-project scan. Triggers on LLM cruft cleanup, agent-generated code review, dead code sweeps, test-quality passes, or when the user asks to scan the whole repo.
 disable-model-invocation: true
 ---
 
@@ -15,7 +15,7 @@ Advance only when each **pass condition** is objectively true (prevents “revie
 | Gate | Pass condition |
 |------|----------------|
 | **G1 — Scope** | File list is non-empty *or* you exit with exactly the Step 1 message; `scope` is set to `all` or `changed`. |
-| **G2 — Four categories** | Tests, dead code, abstraction, and style are each reviewed (four `Task` runs when Step 3 applies, or four sequential passes covering the same categories). **Stop** if any category did not complete; do not write JSON or a summary that implies a full pass. |
+| **G2 — Four categories** | Tests, dead code, abstraction, and style are each reviewed (four parallel subagent runs when supported, or four sequential passes covering the same categories). **Stop** if any category did not complete; do not write JSON or a summary that implies a full pass. |
 | **G3 — JSON before summary** | `.beagle/llm-artifacts-review.json` exists and is valid JSON **before** Step 6 markdown. |
 | **G4 — Integrity** | Step 7 checks pass before treating the run as complete. |
 
@@ -27,7 +27,7 @@ Parse `$ARGUMENTS` for flags and optional path:
 |------|--------|
 | *(default)* | **Changed-files scope** — only files changed since `git merge-base HEAD main` (PR-style scope) |
 | `--all` | Full project scan — all matching source files under the target path |
-| `--parallel` | Force parallel execution (default when 4+ files in scope) |
+| `--parallel` | Force parallel execution where subagents are supported (default when 4+ files in scope) |
 | Path | Root directory to scan (default: current working directory) |
 
 ## Step 1: Determine Scope
@@ -98,16 +98,15 @@ Map extensions to language names for the report:
 - `.swift` -> Swift
 - `.kt` -> Kotlin
 
-## Step 3: Spawn Parallel Subagents
+## Step 3: Review the Four Categories
 
-If file count >= 4 OR `--parallel` flag is set, spawn 4 subagents via `Task` tool.
+Cover all four categories below. **If the agent supports subagents** and file count >= 4 (or `--parallel` is set), dispatch one subagent per category in parallel. **Otherwise**, run the four category reviews sequentially yourself, producing the same findings. Either way:
 
-Each subagent MUST:
-1. Load the skill: `Skill(skill: "beagle-core:llm-artifacts-detection")`
-2. Review only its assigned category
-3. Return findings in the structured format below
+1. Load the [llm-artifacts-detection](../llm-artifacts-detection/SKILL.md) skill
+2. Review each category (one per subagent when parallel, one pass at a time when sequential)
+3. Collect findings in the structured format below
 
-### Subagent 1: Tests Agent
+### Category 1: Tests
 
 **Focus:** Testing anti-patterns from LLM generation
 
@@ -117,7 +116,7 @@ Each subagent MUST:
 - Overly verbose test names that describe implementation
 - Tests that just mirror the implementation
 
-### Subagent 2: Dead Code Agent
+### Category 2: Dead Code
 
 **Focus:** Unused or obsolete code
 
@@ -128,7 +127,7 @@ Each subagent MUST:
 - Commented-out code blocks
 - Feature flags that are always on/off
 
-### Subagent 3: Abstraction Agent
+### Category 3: Abstraction
 
 **Focus:** Over-engineering patterns
 
@@ -139,7 +138,7 @@ Each subagent MUST:
 - Factory/Builder patterns for simple object creation
 - Deep inheritance hierarchies
 
-### Subagent 4: Style Agent
+### Category 4: Style
 
 **Focus:** Verbose or defensive patterns
 
@@ -154,15 +153,15 @@ Each subagent MUST:
 
 **Prerequisite:** **G2** satisfied (all four category reviews finished successfully).
 
-Wait for all subagents to complete, then:
+Once all four category reviews have completed (parallel subagents or sequential passes), then:
 
 1. Merge all findings into a single list
 2. Assign unique IDs (1, 2, 3...)
 3. Group by category for display
 
-**Echo before write (anti-confabulation):** Every finding written to JSON MUST come from a subagent's returned `[FILE:LINE] ISSUE_TITLE` output, not from the branch name, directory, or your own inference. After assigning ids, echo the consolidated table — `id | category | file:line | description` — and confirm each row traces to a specific subagent result. Do not add findings that no subagent reported.
+**Echo before write (anti-confabulation):** Every finding written to JSON MUST come from a category review's `[FILE:LINE] ISSUE_TITLE` output, not from the branch name, directory, or your own inference. After assigning ids, echo the consolidated table — `id | category | file:line | description` — and confirm each row traces to a specific category result. Do not add findings that no category review reported.
 
-**ID lock:** Ids are contiguous `1..N` with no gaps or duplicates. This `1..N` set is the **locked id set** that downstream skills (`verify-llm-artifacts`, `fix-llm-artifacts`) bind to 1:1. `summary.total` MUST equal `N`, and `summary.by_category` counts MUST sum to `N`. State the id set before writing JSON.
+**ID lock:** Ids are contiguous `1..N` with no gaps or duplicates. This `1..N` set is the **locked id set** that downstream skills ([verify-llm-artifacts](../verify-llm-artifacts/SKILL.md), [fix-llm-artifacts](../fix-llm-artifacts/SKILL.md)) bind to 1:1. `summary.total` MUST equal `N`, and `summary.by_category` counts MUST sum to `N`. State the id set before writing JSON.
 
 ## Step 5: Write JSON Report
 
@@ -235,8 +234,8 @@ Write findings to `.beagle/llm-artifacts-review.json`:
 ...
 ### Next Steps
 
-- Run `/beagle-core:verify-llm-artifacts` to confirm findings and drop false positives before fixing.
-- Run `/beagle-core:fix-llm-artifacts` after verification (or to preview safe-only fixes).
+- Run the [verify-llm-artifacts](../verify-llm-artifacts/SKILL.md) skill to confirm findings and drop false positives before fixing.
+- Run the [fix-llm-artifacts](../fix-llm-artifacts/SKILL.md) skill after verification (or to preview safe-only fixes).
 - Review the JSON report at `.beagle/llm-artifacts-review.json`
 ```
 
@@ -245,7 +244,7 @@ Write findings to `.beagle/llm-artifacts-review.json`:
 Before completing, verify the review executed correctly:
 
 1. **JSON validity:** Confirm `.beagle/llm-artifacts-review.json` exists and is parseable
-2. **Subagent success:** All 4 subagents completed without errors
+2. **Category coverage:** All 4 category reviews completed without errors (parallel subagents or sequential passes)
 3. **Git HEAD captured:** The `git_head` field is non-empty in the report
 4. **Staleness check:** If a previous report exists, compare stored `git_head` to current HEAD and warn if different
 5. **ID + count integrity:** Finding ids are contiguous `1..N`; `summary.total == N`; `summary.by_category` sums to `N`. A mismatch means a finding was added, dropped, or duplicated — fix before completing.
@@ -272,7 +271,7 @@ fi
 
 If any verification fails, report the error and do not proceed.
 
-**Finding-level verification** (precision, not JSON syntax) is a **separate** skill: `/beagle-core:verify-llm-artifacts` — run it before mass deletes or `--fix` on risky items.
+**Finding-level verification** (precision, not JSON syntax) is a **separate** skill: [verify-llm-artifacts](../verify-llm-artifacts/SKILL.md) — run it before mass deletes or `--fix` on risky items.
 
 ## Output Format for Each Finding
 
@@ -285,9 +284,9 @@ If any verification fails, report the error and do not proceed.
 ## Rules
 
 - Follow **Hard gates** order; do not skip **G3** (JSON before Step 6).
-- **Anti-confabulation:** every finding must trace to a subagent's `[FILE:LINE]` output (Step 4 echo); never invent findings from the branch name, directory, or inference. See `beagle-core:review-verification-protocol` → Anti-confabulation (gate 0).
-- Always load the `beagle-core:llm-artifacts-detection` skill first
-- Use `Task` tool for parallel subagents when >= 4 files
+- **Anti-confabulation:** every finding must trace to a category review's `[FILE:LINE]` output (Step 4 echo); never invent findings from the branch name, directory, or inference. See the [review-verification-protocol](../review-verification-protocol/SKILL.md) skill → Anti-confabulation (gate 0).
+- Always load the [llm-artifacts-detection](../llm-artifacts-detection/SKILL.md) skill first
+- Use parallel subagents (when the agent supports them) for the four category reviews when >= 4 files; otherwise run them sequentially
 - Every finding MUST have file:line reference
 - Categorize risk honestly (don't inflate or deflate)
 - Mark fix safety as "Safe" only if change is mechanical and reversible

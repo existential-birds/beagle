@@ -1,6 +1,6 @@
 # Skill Builder
 
-Create, validate, and refine Claude Code skills following official best practices.
+Create, validate, and refine Agent Skills following official best practices.
 
 ## Workflow Overview
 
@@ -16,8 +16,8 @@ Before writing any skill, collect this information from the user:
 
 **Required:**
 - What capability should the skill provide?
-- When should Claude invoke this skill (triggers)?
-- What domain knowledge is needed that Claude doesn't have?
+- When should the agent invoke this skill (triggers)?
+- What domain knowledge is needed that the agent doesn't have?
 
 **Optional:**
 - Are there utility scripts needed?
@@ -113,7 +113,7 @@ Use this template:
 
 ## Workflows
 
-<For complex tasks, provide checklists Claude can track>
+<For complex tasks, provide checklists the agent can track>
 
 ## Examples
 
@@ -129,11 +129,11 @@ For detailed reference, see [reference.md](reference.md).
 
 #### Conciseness Principle
 
-**Default assumption:** Claude is already very smart.
+**Default assumption:** the agent is already very smart.
 
-Only add context Claude doesn't have. Challenge each piece of information:
-- "Does Claude really need this explanation?"
-- "Can I assume Claude knows this?"
+Only add context the agent doesn't have. Challenge each piece of information:
+- "Does the agent really need this explanation?"
+- "Can I assume the agent knows this?"
 - "Does this paragraph justify its token cost?"
 
 **Bad (verbose):**
@@ -279,11 +279,9 @@ Before finalizing, verify:
 
 After creating the skill:
 
-1. **Place in correct location:**
-   - Personal: `~/.claude/skills/skill-name/SKILL.md`
-   - Project: `.claude/skills/skill-name/SKILL.md`
+1. **Place in correct location** for your agent (e.g. a personal or project-level skills directory such as `~/.claude/skills/skill-name/SKILL.md`, `.claude/skills/skill-name/SKILL.md`, or `~/.agents/skills/skill-name/SKILL.md` — follow your harness's convention).
 
-2. **Restart Claude Code** to load the skill
+2. **Reload the agent** so it discovers the skill.
 
 3. **Test with natural language** that matches your description triggers:
    ```
@@ -291,11 +289,11 @@ After creating the skill:
    → Should invoke skill with "PDF" trigger
    ```
 
-4. **Verify Claude navigates correctly** to reference files when needed
+4. **Verify the agent navigates correctly** to reference files when needed
 
 5. **Iterate based on observation:**
-   - Does Claude find the right information?
-   - Does Claude apply rules correctly?
+   - Does the agent find the right information?
+   - Does the agent apply rules correctly?
    - Are there missing examples or edge cases?
 
 ## Anti-Patterns to Avoid
@@ -307,7 +305,7 @@ After creating the skill:
 - Use inconsistent terminology
 - Create deeply nested file references
 - Assume tools are installed without documenting
-- Write overly verbose explanations Claude already knows
+- Write overly verbose explanations the agent already knows
 - Use first or second person in descriptions
 
 **DO:**
@@ -315,8 +313,8 @@ After creating the skill:
 - Use consistent terminology throughout
 - Structure longer files with table of contents
 - Document package requirements explicitly
-- Trust Claude's existing knowledge
-- Write descriptions that help Claude select the right skill
+- Trust the agent's existing knowledge
+- Write descriptions that help the agent select the right skill
 
 ## Template: Simple Skill
 
@@ -401,7 +399,7 @@ Description: "Reviews code changes for production readiness, checking code quali
 
 Next steps:
 1. Review the generated files
-2. Restart Claude Code to load the skill
+2. Reload the agent to discover the skill
 3. Test with: "Review the changes in my current branch"
 ```
 

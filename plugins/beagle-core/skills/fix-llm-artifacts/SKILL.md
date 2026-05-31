@@ -6,12 +6,14 @@ disable-model-invocation: true
 
 # Fix LLM Artifacts
 
-Apply fixes from a previous `review-llm-artifacts` run with automatic safe/risky classification. If `.beagle/llm-artifacts-verification.json` exists, **skip** findings marked `false_positive` and treat `inconclusive` like risky fixes (prompt or skip per user).
+Apply fixes from a previous [review-llm-artifacts](../review-llm-artifacts/SKILL.md) run with automatic safe/risky classification. If `.beagle/llm-artifacts-verification.json` exists, **skip** findings marked `false_positive` and treat `inconclusive` like risky fixes (prompt or skip per user).
 
 ## Usage
 
+Invoke the **fix-llm-artifacts** skill, optionally passing these flags:
+
 ```
-/beagle-core:fix-llm-artifacts [--dry-run] [--all] [--category <name>]
+fix-llm-artifacts [--dry-run] [--all] [--category <name>]
 ```
 
 **Flags:**
@@ -27,7 +29,7 @@ Sequence matters. Do not apply fixes until each **pass condition** is satisfied 
 
 1. **Working tree** — `git status --porcelain` is empty **or** a stash was created with message `beagle-core: pre-fix-llm-artifacts backup` and `git stash list` shows it. If the user refuses stash/backup, **stop** or document explicit acceptance of risk in the report before edits.
 2. **Review artifact on disk** — `.beagle/llm-artifacts-review.json` exists, **or** `--all` completed a `review-llm-artifacts` run that wrote that file. Otherwise **stop** (no fixes from memory or guesses).
-2a. **Echo + ID lock (anti-confabulation)** — After loading the review (Section 3), echo the finding table (`id | category | file:line | description`) from the **parsed JSON** and record the exact id set as the **locked id set**. You fix only findings in this set; never fix a finding inferred from the branch name, directory, or memory. Every fix you apply or skip maps 1:1 to a locked id. See `beagle-core:review-verification-protocol` → Anti-confabulation (gate 0).
+2a. **Echo + ID lock (anti-confabulation)** — After loading the review (Section 3), echo the finding table (`id | category | file:line | description`) from the **parsed JSON** and record the exact id set as the **locked id set**. You fix only findings in this set; never fix a finding inferred from the branch name, directory, or memory. Every fix you apply or skip maps 1:1 to a locked id. See the [review-verification-protocol](../review-verification-protocol/SKILL.md) skill → Anti-confabulation (gate 0).
 2b. **Per-fix existence precondition** — Before editing for any finding, confirm (i) its `id` is in the locked set, and (ii) the cited `file` exists and the cited code is actually present at `file:line` (read it now). If the file or code is absent, **do not edit** — the finding is stale or confabulated; mark it skipped with a reason and move on. Never create or rewrite a file to match a finding.
 3. **Stale review** — If `jq -r '.git_head' .beagle/llm-artifacts-review.json` ≠ `git rev-parse HEAD`, prompt to re-run review. **`y`** → re-run review, then continue. **`n`** → **abort** the fix pass (do not apply fixes against stale findings).
 4. **Verification overlay** — If `.beagle/llm-artifacts-verification.json` exists, it must **parse**; build exclude/inconclusive sets **before** partitioning (Section 4). On parse failure, **stop** and report the error.
@@ -69,7 +71,7 @@ cat .beagle/llm-artifacts-review.json 2>/dev/null
 
 **If file missing:**
 - If `--all` flag: Run `review-llm-artifacts --all` first to produce a full-project review
-- Otherwise: Fail with: "No review results found. Run `/beagle-core:review-llm-artifacts` first."
+- Otherwise: Fail with: "No review results found. Run the review-llm-artifacts skill first."
 
 **Echo + lock ids (gate 2a):** Once the file is present, print every finding from the parsed JSON and lock the id set before partitioning:
 
@@ -101,7 +103,7 @@ Adjudicate and fix only the ids above. If your sense of what to fix differs from
 - Finding ids with `status: inconclusive` → **always** follow risky-fix handling (Section 6), even if `fix_safety` was `Safe` in the review.
 - Finding ids with `status: confirmed_issue` → use review JSON `fix_safety` / `risk` as usual.
 
-If verification is missing, warn when applying deletes or `dead-code` fixes: "For fewer false positives, run `/beagle-core:verify-llm-artifacts` first."
+If verification is missing, warn when applying deletes or `dead-code` fixes: "For fewer false positives, run the verify-llm-artifacts skill first."
 
 **If file exists, validate freshness:**
 ```bash
@@ -121,7 +123,7 @@ If stale, prompt: "Review results are stale. Re-run review? (y/n)".
   - `scope == "changed"` → invoke `review-llm-artifacts "$stored_target"` (default scope is already changed-files).
   - `scope == "all"`     → invoke `review-llm-artifacts --all "$stored_target"`.
   - If `scope` or `target` is missing from the JSON (pre-schema review), **do not abort.** Assume `scope = "all"` and `target = "."`, then warn:
-    > "Review JSON predates the scope/target schema; re-running as a full-project scan (`--all`). If you meant a narrower scope (the default changed-files diff, or a subdirectory), cancel now and re-run `/beagle-core:review-llm-artifacts` explicitly."
+    > "Review JSON predates the scope/target schema; re-running as a full-project scan (`--all`). If you meant a narrower scope (the default changed-files diff, or a subdirectory), cancel now and re-run the review-llm-artifacts skill explicitly."
     Proceed only if the user does not cancel.
 - **`n`** → **abort** (do not apply fixes; stale findings are not trustworthy).
 
@@ -156,10 +158,10 @@ If `--dry-run`:
 ...
 ```
 
-Otherwise, spawn parallel agents per category with `Task` tool:
+Otherwise, apply the safe fixes per category. **If the agent supports subagents**, dispatch one per category in parallel; **otherwise** work through the categories sequentially yourself, applying the identical per-finding contract below and producing the same per-fix report.
 
 ```
-Task: Apply safe fixes for category "{category}"
+Apply safe fixes for category "{category}"
 Files: [list of files with findings in this category]
 Instructions: For EACH finding, first confirm it is in the locked id set and that the
 cited code exists at file:line (read it). If the file or code is absent, skip the finding
@@ -167,7 +169,7 @@ with a reason — do NOT create or rewrite a file to match the finding. Then app
 confirmed fix, preserving surrounding code. Report success/failure/skip per fix by id.
 ```
 
-Categories to parallelize:
+Categories (parallelized across subagents when supported, otherwise handled sequentially):
 - `style` - Comments, formatting
 - `dead-code` - Imports, unreachable code
 - `tests` - Test-related safe fixes
@@ -285,16 +287,16 @@ Fix issues and re-run, or restore with: git stash pop
 
 ## Example
 
-```bash
+```
 # Preview all fixes without applying
-/beagle-core:fix-llm-artifacts --dry-run
+fix-llm-artifacts --dry-run
 
 # Fix only dead code issues
-/beagle-core:fix-llm-artifacts --category dead-code
+fix-llm-artifacts --category dead-code
 
 # Full codebase scan and fix
-/beagle-core:fix-llm-artifacts --all
+fix-llm-artifacts --all
 
 # Fix style issues only, preview first
-/beagle-core:fix-llm-artifacts --category style --dry-run
+fix-llm-artifacts --category style --dry-run
 ```

@@ -10,7 +10,7 @@ Use this skill for an unusually strict review focused on implementation quality,
 
 Above all, this skill should push the reviewer to be **ambitious** about code structure. Do not merely identify local cleanup opportunities. Actively search for "code judo" moves: restructurings that preserve behavior while making the implementation dramatically simpler, smaller, more direct, and more elegant.
 
-The structural lens is **repo-wide**: read any file in the codebase as needed (Read/Grep/Bash) to judge whether canonical helpers already exist, whether file-size budgets are honored, and whether the change makes the codebase easier or harder to live with.
+The structural lens is **repo-wide**: read and search any file in the codebase as needed to judge whether canonical helpers already exist, whether file-size budgets are honored, and whether the change makes the codebase easier or harder to live with.
 
 ## Hard gates (sequence)
 
@@ -19,8 +19,8 @@ Advance only when each **pass condition** is objectively satisfied (artifact pat
 | Gate | Pass condition |
 |------|----------------|
 | **G1 — Changed-file list** | `git diff --name-only` (or equivalent) returns a non-empty list *or* you exit with an explicit "no changed files" message; the list is recorded before any review step begins. |
-| **G2 — Full file reads** | Every file in scope has been opened with `Read`; for each file you record the path and line count (e.g. `src/foo.ts — 342 lines`). Do **not** proceed to findings until all reads are logged. |
-| **G3 — Canonical-helper and 1k-line claims verified** | Any finding that asserts "no canonical helper exists" must cite a `Grep` artifact showing the search pattern and result. Any finding that asserts a file exceeds 1 000 lines must cite a `wc -l` or `Read` line-count artifact. Findings lacking these artifacts are **blocked** from the report. |
+| **G2 — Full file reads** | Every file in scope has been read in full; for each file you record the path and line count (e.g. `src/foo.ts — 342 lines`). Do **not** proceed to findings until all reads are logged. |
+| **G3 — Canonical-helper and 1k-line claims verified** | Any finding that asserts "no canonical helper exists" must cite a codebase-search artifact showing the search pattern and result. Any finding that asserts a file exceeds 1 000 lines must cite a `wc -l` or read-based line-count artifact. Findings lacking these artifacts are **blocked** from the report. |
 
 ## Core Prompt
 
@@ -237,7 +237,7 @@ Rationale: [1-2 sentences]
 
 ## Rules
 
-- Read repo-wide (Read/Grep/Bash) before claiming a canonical helper does not exist
+- Read and search repo-wide before claiming a canonical helper does not exist
 - Number every issue sequentially (1, 2, 3...)
 - Include FILE:LINE for each issue
 - Separate Issue/Why/Fix clearly

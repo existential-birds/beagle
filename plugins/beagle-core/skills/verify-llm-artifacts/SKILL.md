@@ -10,8 +10,8 @@ Second-pass verification for `.beagle/llm-artifacts-review.json`. The detection 
 
 ## When to run
 
-- After `/beagle-core:review-llm-artifacts` (especially full-project scans).
-- Before `/beagle-core:fix-llm-artifacts` when findings include **deletions**, **dead code**, or **High** risk.
+- After the [review-llm-artifacts](../review-llm-artifacts/SKILL.md) skill (especially full-project scans).
+- Before the [fix-llm-artifacts](../fix-llm-artifacts/SKILL.md) skill when findings include **deletions**, **dead code**, or **High** risk.
 - Whenever past runs flagged artifacts that should not have been removed.
 
 ## Inputs
@@ -19,12 +19,12 @@ Second-pass verification for `.beagle/llm-artifacts-review.json`. The detection 
 - **Required:** `.beagle/llm-artifacts-review.json` from a completed review.
 - **Optional:** `$ARGUMENTS` — `--priority-only` (verify `dead_code` and any `fix_action` of `delete` first; then others), `--id N` (single finding id).
 
-If the review file is missing, exit with: `Run /beagle-core:review-llm-artifacts first.`
+If the review file is missing, exit with: `Run the review-llm-artifacts skill first.`
 
 ## Prerequisite skills
 
-1. Load `Skill(skill: "beagle-core:review-verification-protocol")` — general anti–false-positive discipline, including the **Anti-confabulation gate** (echo the artifact from a freshly read source before any verdict). The Load + ECHO gate in step 1 is this skill's concrete instance of that rule.
-2. Load `Skill(skill: "beagle-core:llm-artifacts-detection")` — category criteria for what counts as a real issue.
+1. Load the [review-verification-protocol](../review-verification-protocol/SKILL.md) skill — general anti–false-positive discipline, including the **Anti-confabulation gate** (echo the artifact from a freshly read source before any verdict). The Load + ECHO gate in step 1 is this skill's concrete instance of that rule.
+2. Load the [llm-artifacts-detection](../llm-artifacts-detection/SKILL.md) skill — category criteria for what counts as a real issue.
 
 ## Instructions
 

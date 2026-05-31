@@ -116,13 +116,11 @@ gh pr create --title "<type>(<scope>): <description>" --body "$(cat <<'EOF'
 - [ ] Tests pass locally
 - [ ] Linting passes
 - [ ] Documentation updated (if needed)
-
----
-
-Generated with [Claude Code](https://claude.com/claude-code)
 EOF
 )"
 ```
+
+Optionally append a footer trailer per project convention (e.g. a tool-attribution line). Omit it when the project has no such convention.
 
 ### 5. Title Format
 

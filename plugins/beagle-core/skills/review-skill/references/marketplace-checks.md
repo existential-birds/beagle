@@ -2,7 +2,7 @@
 
 All marketplace checks emit **HIGH confidence** issues. These are verifiable by reading manifest files and enumerating directories.
 
-This document is marketplace-agnostic — it works against any Claude Code skill marketplace that uses `plugin.json` manifests. It does not hardcode marketplace names, directory conventions, or organization-specific rules.
+This document is marketplace-agnostic — it works against any Agent Skills marketplace that uses `plugin.json` manifests. It does not hardcode marketplace names, directory conventions, or organization-specific rules.
 
 ## Discovering the Marketplace Structure
 

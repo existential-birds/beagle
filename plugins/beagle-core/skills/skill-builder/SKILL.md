@@ -1,12 +1,12 @@
 ---
 name: skill-builder
-description: Create Claude Code skills with best practices, structure, validation, and testing. Use when designing or refining skills, prompts, references, or supporting files.
+description: Create Agent Skills with best practices, structure, validation, and testing. Use when designing or refining skills, prompts, references, or supporting files.
 disable-model-invocation: true
 ---
 
 # Skill Builder
 
-Create, validate, and refine Claude Code skills.
+Create, validate, and refine Agent Skills.
 
 ## Quick Start
 

@@ -1,16 +1,16 @@
 ---
 name: review-skill
-description: Reviews PRs that add or modify Claude Code skills, checking structural validity, design quality, and marketplace consistency. Use when reviewing skill file changes, auditing SKILL.md quality, or running automated skill PR reviews via daydream.
+description: Reviews PRs that add or modify Agent Skills, checking structural validity, design quality, and marketplace consistency. Use when reviewing skill file changes, auditing SKILL.md quality, or running automated skill PR reviews.
 disable-model-invocation: true
 ---
 
 # Skill Review
 
-Review Claude Code skill PRs for structural validity, design quality, and marketplace consistency.
+Review Agent Skill PRs for structural validity, design quality, and marketplace consistency.
 
 ## Arguments
 
-- `$ARGUMENTS`: Output file path for review results (required, passed by daydream or user)
+- `$ARGUMENTS`: Output file path for review results (required, passed by the calling harness or the user)
 - `--base <branch>`: Base branch for diff comparison (default: `main`)
 
 ## Workflow
@@ -54,7 +54,7 @@ Marketplace violations are HIGH confidence because they can be verified by readi
 
 ### Step 7: Load and Apply Verification Protocol
 
-Load `beagle-core:review-verification-protocol`. Before reporting any finding, verify:
+Load the [review-verification-protocol](../review-verification-protocol/SKILL.md) skill. Before reporting any finding, verify:
 
 1. You read the actual skill content, not just the diff context
 2. The issue is real, not a style preference

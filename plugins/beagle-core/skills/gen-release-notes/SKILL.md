@@ -16,7 +16,7 @@ $ARGUMENTS
 
 ---
 
-Use extended thinking to analyze the changes thoroughly before generating release notes.
+Analyze the changes thoroughly before generating release notes.
 
 ## Gates
 

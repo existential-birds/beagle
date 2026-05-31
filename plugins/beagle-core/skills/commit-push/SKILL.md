@@ -89,10 +89,6 @@ type(scope): description
 Optional body explaining the motivation.
 
 Closes #123
-
-Generated with [Claude Code](https://claude.com/claude-code)
-
-Co-Authored-By: Claude <noreply@anthropic.com>
 EOF
 )"
 
@@ -114,10 +110,6 @@ The previous implementation did not account for tokens expiring
 during the processing of long-running requests.
 
 Fixes #42
-
-Generated with [Claude Code](https://claude.com/claude-code)
-
-Co-Authored-By: Claude <noreply@anthropic.com>
 EOF
 )"
 
@@ -127,13 +119,11 @@ feat!(api): change response format for user endpoints
 
 BREAKING CHANGE: The `status` field is now an object with `state` and
 `message` properties instead of a plain string.
-
-Generated with [Claude Code](https://claude.com/claude-code)
-
-Co-Authored-By: Claude <noreply@anthropic.com>
 EOF
 )"
 ```
+
+Optionally append a co-author or footer trailer per project convention (e.g. a `Co-Authored-By:` line or a tool-attribution footer). Omit it when the project has no such convention.
 
 ## Step 5: Verify
 

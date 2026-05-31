@@ -6,7 +6,7 @@ disable-model-invocation: true
 
 # Review Plan
 
-Review implementation plans created by `superpowers:writing-plans` before execution.
+Review implementation plans (such as those produced by a plan-writing skill) before execution.
 
 ## Arguments
 
@@ -16,10 +16,10 @@ Review implementation plans created by `superpowers:writing-plans` before execut
 
 Do not skip ahead; each step **passes** only when the condition is objectively satisfied (artifact path, tool success, or labeled capture—not “I read it mentally”).
 
-1. **Plan file reachable** — **Pass:** `Read` (or equivalent) succeeds on `Path`; if not, stop and report the missing path. **Pass:** You can quote or point to where `**Goal:**`, `**Architecture:**`, and `**Tech Stack:**` appear, *or* you record “header field X absent” as a finding before Step 2.
-2. **Skills loaded before agents** — **Pass:** For each row you will rely on in Step 2’s table, the corresponding skill is loaded via the `Skill` tool (or you record explicit `N/A` with reason, e.g. stack not present). Do **not** spawn Step 3 `Task` runs until this gate passes.
-3. **Five reviews captured** — **Pass:** You have five labeled artifacts (one per agent): pasted outputs, task transcripts, or saved snippet files. **Pass:** Each of the five INVESTIGATE/CHECK/VERIFY prompts has a corresponding response block before Step 4.
-4. **Review file on disk before user prompt** — **Pass:** The file at `[plan-dir]/[plan-basename]-review.md` exists; **Pass:** `Read` succeeds on that path. Only then run the “Next Steps” / options prompt in Step 5.
+1. **Plan file reachable** — **Pass:** reading `Path` succeeds; if not, stop and report the missing path. **Pass:** You can quote or point to where `**Goal:**`, `**Architecture:**`, and `**Tech Stack:**` appear, *or* you record “header field X absent” as a finding before Step 2.
+2. **Skills loaded before reviews** — **Pass:** For each row you will rely on in Step 2’s table, the corresponding skill is loaded (or you record explicit `N/A` with reason, e.g. stack not present). Do **not** start the Step 3 reviews until this gate passes.
+3. **Five reviews captured** — **Pass:** You have five labeled artifacts (one per review lens): pasted outputs, subagent transcripts, or saved snippet files. **Pass:** Each of the five INVESTIGATE/CHECK/VERIFY prompts has a corresponding response block before Step 4.
+4. **Review file on disk before user prompt** — **Pass:** The file at `[plan-dir]/[plan-basename]-review.md` exists; **Pass:** reading that path succeeds. Only then run the “Next Steps” / options prompt in Step 5.
 
 ## Step 1: Read and Parse Plan
 
@@ -40,32 +40,32 @@ Read the plan file and extract:
 
 ## Step 2: Load Skills
 
-Use the `Skill` tool to load each applicable skill (e.g., `Skill(skill: "beagle-python:python-code-review")`).
+Load each applicable skill (e.g. the **python-code-review** skill).
 
 Based on detected tech stack, load relevant skills:
 
 | Detected | Skill |
 |----------|-------|
-| Python | `beagle-python:python-code-review` |
-| FastAPI | `beagle-python:fastapi-code-review` |
-| SQLAlchemy | `beagle-python:sqlalchemy-code-review` |
-| PostgreSQL | `beagle-python:postgres-code-review` |
-| pytest | `beagle-python:pytest-code-review` |
-| React Router | `beagle-react:react-router-code-review` |
-| React Flow | `beagle-react:react-flow-code-review` |
-| shadcn/ui | `beagle-react:shadcn-code-review` |
-| vitest | `beagle-react:vitest-testing` |
-| Go | `beagle-go:go-code-review` |
-| BubbleTea | `beagle-go:bubbletea-code-review` |
+| Python | [python-code-review](../../../beagle-python/skills/python-code-review/SKILL.md) |
+| FastAPI | [fastapi-code-review](../../../beagle-python/skills/fastapi-code-review/SKILL.md) |
+| SQLAlchemy | [sqlalchemy-code-review](../../../beagle-python/skills/sqlalchemy-code-review/SKILL.md) |
+| PostgreSQL | [postgres-code-review](../../../beagle-python/skills/postgres-code-review/SKILL.md) |
+| pytest | [pytest-code-review](../../../beagle-python/skills/pytest-code-review/SKILL.md) |
+| React Router | [react-router-code-review](../../../beagle-react/skills/react-router-code-review/SKILL.md) |
+| React Flow | [react-flow-code-review](../../../beagle-react/skills/react-flow-code-review/SKILL.md) |
+| shadcn/ui | [shadcn-code-review](../../../beagle-react/skills/shadcn-code-review/SKILL.md) |
+| vitest | [vitest-testing](../../../beagle-react/skills/vitest-testing/SKILL.md) |
+| Go | [go-code-review](../../../beagle-go/skills/go-code-review/SKILL.md) |
+| BubbleTea | [bubbletea-code-review](../../../beagle-go/skills/bubbletea-code-review/SKILL.md) |
 
-## Step 3: Launch 5 Parallel Agents
+## Step 3: Run the Five Review Lenses
 
-Use the `Task` tool to spawn 5 agents simultaneously. Each receives:
+Run all five review lenses below. **If the agent supports subagents**, dispatch the five in parallel as separate subagents; **otherwise** work through them sequentially yourself, producing the same five labeled outputs. Each review receives:
 - Full plan content
 - Detected tech stack
 - Relevant skill content from Step 2
 
-### Agent 1: Parallelization Analysis
+### Lens 1: Parallelization Analysis
 
 ```
 Analyze whether this implementation plan can be executed by parallel subagents.
@@ -82,7 +82,7 @@ Return:
 - Any blocking issues that prevent parallelization
 ```
 
-### Agent 2: TDD & Over-Engineering Check
+### Lens 2: TDD & Over-Engineering Check
 
 ```
 Verify TDD discipline in this implementation plan.
@@ -102,7 +102,7 @@ LOOK FOR over-engineering:
 Return: TDD adherence assessment and over-engineering concerns.
 ```
 
-### Agent 3: Type & API Verification
+### Lens 3: Type & API Verification
 
 ```
 Verify types and APIs in the plan match the actual codebase.
@@ -122,7 +122,7 @@ VERIFY:
 Return: List of mismatches with file:line references.
 ```
 
-### Agent 4: Library Best Practices
+### Lens 4: Library Best Practices
 
 ```
 Verify library usage in this plan follows best practices.
@@ -138,7 +138,7 @@ Check against loaded skills for technology-specific guidance.
 Return: Incorrect API usage with recommendations.
 ```
 
-### Agent 5: Security & Edge Cases
+### Lens 5: Security & Edge Cases
 
 ```
 Check for security gaps and missing error handling.
@@ -154,7 +154,7 @@ Return: Security gaps and missing error handling.
 
 ## Step 4: Synthesize Report
 
-**Gate:** Hard gate 3 must pass (five labeled agent outputs present). After all agents complete, create consolidated report:
+**Gate:** Hard gate 3 must pass (five labeled review outputs present). Once all five lenses complete (parallel subagents or sequential passes), create the consolidated report:
 
 ```markdown
 ## Plan Review: [Feature Name from plan]
@@ -207,7 +207,7 @@ Return: Security gaps and missing error handling.
 
 ## Step 5: Save Review and Prompt
 
-**Gate:** After writing the review file, satisfy Hard gate 4 (`Read` succeeds on the review path) before prompting the user.
+**Gate:** After writing the review file, satisfy Hard gate 4 (reading the review path succeeds) before prompting the user.
 
 **Save review** to same directory as plan:
 - Plan: `docs/plans/2025-01-15-feature.md`
@@ -248,8 +248,8 @@ Which option?
 ## Rules
 
 - Satisfy Hard gates 1–2 before Step 3; Hard gate 3 before Step 4; Hard gate 4 before the Step 5 options prompt
-- Load skills BEFORE launching agents (Hard gate 2)
-- All 5 agents run in parallel via Task tool
+- Load skills BEFORE running the review lenses (Hard gate 2)
+- Run all 5 review lenses — in parallel via subagents when the agent supports them, otherwise sequentially
 - Reference Task:Step for each issue
 - Provide copyable suggested edits for Critical/Major issues
 - Save review before prompting user (Hard gate 4)

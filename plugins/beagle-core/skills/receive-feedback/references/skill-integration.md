@@ -23,7 +23,7 @@ to verify against established codebase patterns.
 ## Integration Workflow
 
 1. **Identify domain** - What technology does the feedback concern?
-2. **Load skill** - Use Skill tool: `Skill(skill: "beagle:<skill-name>")`
+2. **Load skill** - Load the matching `<skill-name>` skill from the relevant beagle plugin
 3. **Cross-reference** - Does feedback align with skill guidance?
 4. **Resolve conflicts** - If feedback contradicts skill, flag for discussion
 

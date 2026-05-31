@@ -6,7 +6,7 @@ Every feedback item is exactly one of:
 
 | Classification | Meaning | Action |
 |----------------|---------|--------|
-| **VALID** | Verification confirmed the claim holds and the suggested change (or a clear equivalent) is implementable | Add to the `launch fixes for ...` confirmation prompt. On confirm, spawn a dedicated subagent. |
+| **VALID** | Verification confirmed the claim holds and the suggested change (or a clear equivalent) is implementable | Add to the `launch fixes for ...` confirmation prompt. On confirm, fix it — a dedicated subagent if subagents are supported, otherwise a focused sequential pass. |
 | **INVALID** | Verification disproved the claim — the code is correct, the symbol is used, the bug does not reproduce | Reject with cited verification evidence. |
 | **NEEDS CLARIFICATION** | The feedback is genuinely unparseable (e.g., "fix the auth flow" with no further detail) | Ask one specific clarifying question. Do not use this bucket to dodge a fix. |
 

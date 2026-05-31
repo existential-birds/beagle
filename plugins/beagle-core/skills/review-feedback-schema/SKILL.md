@@ -128,7 +128,7 @@ Explain when/why it will be addressed:
 ### For ACKNOWLEDGE
 
 Explain why it's intentional:
-- "Performance-critical path per CLAUDE.md"
+- "Performance-critical path per project conventions (e.g. AGENTS.md or CLAUDE.md)"
 - "Legacy API compatibility requirement"
 - "Matches upstream library pattern"
 
@@ -186,7 +186,7 @@ Reference: [review-verification-protocol](../review-verification-protocol/SKILL.
 3. **Update skills**: Add exceptions, clarifications, or verification steps
 4. **Track impact**: Measure if changes reduce rejection rate
 
-See `review-skill-improver` skill for the full analysis workflow.
+See the [review-skill-improver](../review-skill-improver/SKILL.md) skill for the full analysis workflow.
 
 ### Improvement Signals
 

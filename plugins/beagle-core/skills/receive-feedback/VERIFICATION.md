@@ -57,7 +57,7 @@ Verification:
 Contrast — feedback: "Null check missing on `session` at `auth.py:42`"
 
 Verification:
-1. `Read` `auth.py` around line 42
+1. Read `auth.py` around line 42
 2. Confirmed: `session.user_id` is dereferenced with no prior `if session is None` guard
 3. Classification: **VALID**
-4. Action: Add to the `launch fixes for ...` prompt; on confirm, spawn a subagent to add the guard. Do not edit `auth.py` from the orchestrator.
+4. Action: Add to the `launch fixes for ...` prompt; on confirm, fix the guard — via a dedicated subagent if subagents are supported (do not edit `auth.py` from the orchestrator in that branch), otherwise apply the fix sequentially yourself.

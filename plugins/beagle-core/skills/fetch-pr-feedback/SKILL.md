@@ -6,12 +6,14 @@ disable-model-invocation: true
 
 # Fetch PR Feedback
 
-Fetch review comments from all reviewers on the current PR, format them, and evaluate using the receive-feedback skill. Excludes the PR author and current user by default. Line-specific comments belonging to resolved review threads are also excluded by default.
+Fetch review comments from all reviewers on the current PR, format them, and evaluate using the [receive-feedback](../receive-feedback/SKILL.md) skill. Excludes the PR author and current user by default. Line-specific comments belonging to resolved review threads are also excluded by default.
 
 ## Usage
 
-```bash
-/beagle-core:fetch-pr-feedback [--pr <number>] [--include-author] [--include-resolved]
+Invoke the **fetch-pr-feedback** skill, optionally passing these flags:
+
+```
+fetch-pr-feedback [--pr <number>] [--include-author] [--include-resolved]
 ```
 
 **Flags:**
@@ -28,7 +30,7 @@ Advance only after each **Pass when** is satisfied.
 1. **PR context** — **Pass when:** `$PR_NUMBER` is set to a positive integer and `gh pr view` / `gh api` for that PR completed with exit code **0**, **or** you stop in **Get PR Context** with only the failure given there (“No PR found for current branch…”).
 2. **Fetch** — **Pass when:** the resolved-thread GraphQL call (skipped if `--include-resolved`) and both paginated `gh api … | jq -s -f …` runs (issue comments + review comments) exit **0** and parse as JSON (empty `[]` is valid). On non-zero exit or jq error, stop; surface command stderr—do not invent comments.
 3. **Formatted artifact** — **Pass when:** output is either (a) markdown matching **Format Feedback Document** (header `# PR #$PR_NUMBER Review Feedback`, per-reviewer `## Reviewer: …` with Summary / Line-Specific sections), **or** (b) exactly: `No review comments found on this PR (excluding PR author, current user, and resolved threads).`
-4. **Load receive-feedback** — **Pass when:** the Skill tool successfully loads `beagle-core:receive-feedback`; only then run that skill’s verify → evaluate → execute loop on that formatted document.
+4. **Load receive-feedback** — **Pass when:** the [receive-feedback](../receive-feedback/SKILL.md) skill is loaded; only then run that skill’s verify → evaluate → execute loop on that formatted document.
 
 ### 1. Parse Arguments
 
@@ -200,7 +202,7 @@ If no comments found from any reviewer, output: "No review comments found on thi
 
 ### 5. Evaluate with receive-feedback
 
-Use the Skill tool to load the receive-feedback skill: `Skill(skill: "beagle-core:receive-feedback")`
+Load the [receive-feedback](../receive-feedback/SKILL.md) skill.
 
 Then process the formatted feedback document:
 
@@ -210,19 +212,19 @@ Then process the formatted feedback document:
 
 ## Example
 
-```bash
+```
 # Fetch unresolved reviewer comments on current branch's PR (default)
-/beagle-core:fetch-pr-feedback
+fetch-pr-feedback
 
 # Fetch from a specific PR
-/beagle-core:fetch-pr-feedback --pr 123
+fetch-pr-feedback --pr 123
 
 # Include PR author's own comments
-/beagle-core:fetch-pr-feedback --include-author
+fetch-pr-feedback --include-author
 
 # Include line-specific comments from resolved review threads
-/beagle-core:fetch-pr-feedback --include-resolved
+fetch-pr-feedback --include-resolved
 
 # Combined
-/beagle-core:fetch-pr-feedback --pr 456 --include-author --include-resolved
+fetch-pr-feedback --pr 456 --include-author --include-resolved
 ```

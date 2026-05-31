@@ -6,9 +6,17 @@ Format follows [Keep a Changelog](https://keepachangelog.com/en/1.1.0/). Version
 
 ## [Unreleased]
 
+## [4.1.0] - 2026-05-31
+
 ### Changed
 - **All active plugins (agent-agnostic skills):** Made every skill across the 10 active plugins (144 `SKILL.md` files) portable to non-Claude agents (Codex, opencode) and conformant to the [Agent Skills spec](https://agentskills.io/specification). Converted `<plugin>:<skill>` namespace tokens to relative `../<skill>/SKILL.md` links; replaced named harness tools (`Skill(skill:…)`, the Task/Skill/Edit/etc. tools, `AskUserQuestion`) and slash-command invocations with generic verbs; rewrote subagent fan-out in every review/orchestrator skill to a hedged-optional pattern ("if the agent supports subagents, dispatch in parallel; otherwise run sequentially with identical output"); neutralized "Claude Code"-as-agent and `CLAUDE.md` references; and made commit/PR attribution a generic optional footer. Removed wholly non-spec frontmatter keys (`autoContext`, `dependencies`, `triggers`) and split `agent-architecture-analysis` (558→130 lines) into `references/`. The Claude Code extensions `disable-model-invocation` and `user-invocable` are retained at top level as documented, accepted extensions (other agents ignore unknown keys). Added `scripts/check-portability.sh`, which gates all 493 skill `.md` files (entrypoints + references) against regressions ([#124](https://github.com/existential-birds/beagle/issues/124)).
 - **beagle-analysis:write-plan**: after writing the plan, prompts "Do you want a prompt to execute this plan in a new session?" and, on yes, invokes `beagle-core:subagent-prompt` to generate the handoff prompt in-session instead of only instructing the user to run it manually.
+- **beagle-analysis:write-plan**: skill is now model-invocable so it can auto-trigger when relevant, instead of being user-invocation-only ([#117](https://github.com/existential-birds/beagle/pull/117))
+
+### Fixed
+- **beagle-ai:** Add an anti-confabulation "gate 0" to the `beagle-ai` code-review skills so reviewers ground every finding in the actual diff before emitting it ([#127](https://github.com/existential-birds/beagle/pull/127))
+- **all review skills:** Propagate anti-confabulation gate 0 to the remaining review skills across the marketplace, blocking confabulated findings consistently ([#126](https://github.com/existential-birds/beagle/pull/126))
+- **beagle-core:** Harden the LLM-artifacts skills against confabulated findings ([#122](https://github.com/existential-birds/beagle/pull/122))
 
 ## [4.0.0] - 2026-05-27
 
@@ -496,7 +504,8 @@ Format follows [Keep a Changelog](https://keepachangelog.com/en/1.1.0/). Version
 - Development commands: `skill-builder`, `ensure-docs`
 - Cursor IDE command equivalents
 
-[Unreleased]: https://github.com/existential-birds/beagle/compare/v4.0.0...HEAD
+[Unreleased]: https://github.com/existential-birds/beagle/compare/v4.1.0...HEAD
+[4.1.0]: https://github.com/existential-birds/beagle/compare/v4.0.0...v4.1.0
 [4.0.0]: https://github.com/existential-birds/beagle/compare/v3.11.0...v4.0.0
 [3.11.0]: https://github.com/existential-birds/beagle/compare/v3.10.0...v3.11.0
 [3.10.0]: https://github.com/existential-birds/beagle/compare/v3.9.1...v3.10.0

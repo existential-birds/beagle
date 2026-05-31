@@ -1,6 +1,6 @@
 # Action Review Reference
 
-Anti-patterns and review prompts for `export async function action` in Remix v2 route modules. See [beagle-react:remix-v2-data-flow](../../remix-v2-data-flow/SKILL.md) for canonical action patterns.
+Anti-patterns and review prompts for `export async function action` in Remix v2 route modules. See [remix-v2-data-flow](../../remix-v2-data-flow/SKILL.md) for canonical action patterns.
 
 ## 1. Unvalidated FormData
 

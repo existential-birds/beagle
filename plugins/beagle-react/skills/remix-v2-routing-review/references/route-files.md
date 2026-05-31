@@ -2,7 +2,7 @@
 
 Flat-routes v2 reads filenames literally: dots become URL slashes, `_` prefixes hide segments, brackets escape, and anything under `app/routes/` without a folder wrapper is treated as a route module. The smells below are violations of that grammar.
 
-See [beagle-react:remix-v2-routing](../../remix-v2-routing/SKILL.md) for the canonical filename table.
+See [remix-v2-routing](../../remix-v2-routing/SKILL.md) for the canonical filename table.
 
 ---
 

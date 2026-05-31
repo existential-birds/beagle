@@ -5,7 +5,7 @@ description: Reviews Remix v2 loaders and actions for mutations-in-loader, missi
 
 # Remix v2 Data Flow Code Review
 
-Targets TypeScript route modules importing from `@remix-run/*`. See [beagle-react:remix-v2-data-flow](../remix-v2-data-flow/SKILL.md) for canonical patterns.
+Targets TypeScript route modules importing from `@remix-run/*`. See [remix-v2-data-flow](../remix-v2-data-flow/SKILL.md) for canonical patterns.
 
 ## Scope
 
@@ -81,7 +81,7 @@ Run these in order. **Do not draft user-facing findings until every gate passes*
 
 4. **v1 holdover check** — **Pass:** Before flagging "missing pending state," grep the file for `useTransition`, `transition.submission`, `fetcher.type`, `formMethod === "post"` or `formMethod==='post'` (lowercase, any whitespace/quote variation), and `LoaderArgs` / `ActionArgs`. If present, the finding is a v1-holdover migration issue, not a missing-feature issue — label it accordingly.
 
-5. **Protocol** — **Pass:** You completed the Pre-Report Verification Checklist in [beagle-core:review-verification-protocol](../../../beagle-core/skills/review-verification-protocol/SKILL.md) for this review.
+5. **Protocol** — **Pass:** You completed the Pre-Report Verification Checklist in [review-verification-protocol](../../../beagle-core/skills/review-verification-protocol/SKILL.md) for this review.
 
 ## When to Load References
 
@@ -103,9 +103,9 @@ Run these in order. **Do not draft user-facing findings until every gate passes*
 
 ## Additional Documentation
 
-- Canonical Remix v2 data-flow patterns and v1 → v2 diff → [beagle-react:remix-v2-data-flow](../remix-v2-data-flow/SKILL.md)
-- Pre-report verification checklist → [beagle-core:review-verification-protocol](../../../beagle-core/skills/review-verification-protocol/SKILL.md)
+- Canonical Remix v2 data-flow patterns and v1 → v2 diff → [remix-v2-data-flow](../remix-v2-data-flow/SKILL.md)
+- Pre-report verification checklist → [review-verification-protocol](../../../beagle-core/skills/review-verification-protocol/SKILL.md)
 
 ## Before Submitting Findings
 
-Complete [Hard gates](#hard-gates-before-writing-findings) (especially gate 5), then report only issues that still pass the [beagle-core:review-verification-protocol](../../../beagle-core/skills/review-verification-protocol/SKILL.md) pre-report checks.
+Complete [Hard gates](#hard-gates-before-writing-findings) (especially gate 5), then report only issues that still pass the [review-verification-protocol](../../../beagle-core/skills/review-verification-protocol/SKILL.md) pre-report checks.

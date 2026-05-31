@@ -2,7 +2,7 @@
 
 Remix v2 re-exports its router surface from `@remix-run/react`. Imports from `react-router-dom`, double-underscore folders, and v1 file shapes are nearly always migration leftovers that bypass Remix's loader/action wiring. The v1-convention adapter is legitimate when wired explicitly — flag it only when its presence is inconsistent with the rest of the tree.
 
-See [beagle-react:remix-v2-routing](../../remix-v2-routing/SKILL.md) for canonical v2 imports and filename grammar.
+See [remix-v2-routing](../../remix-v2-routing/SKILL.md) for canonical v2 imports and filename grammar.
 
 ---
 

@@ -1,6 +1,6 @@
 # Revalidation & Pending State Review Reference
 
-Anti-patterns and review prompts for `useNavigation`, `useTransition` (v1 holdover), `shouldRevalidate`, and `useRevalidator` in Remix v2. See [beagle-react:remix-v2-data-flow](../../remix-v2-data-flow/SKILL.md) for canonical patterns.
+Anti-patterns and review prompts for `useNavigation`, `useTransition` (v1 holdover), `shouldRevalidate`, and `useRevalidator` in Remix v2. See [remix-v2-data-flow](../../remix-v2-data-flow/SKILL.md) for canonical patterns.
 
 ## 1. `useTransition` — v1 holdover
 

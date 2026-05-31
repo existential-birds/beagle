@@ -6,7 +6,7 @@ user-invocable: false
 
 # Remix v2 Routing Code Review
 
-Loaded by `review-remix-v2` (umbrella) to flag routing anti-patterns in `app/routes/` modules. See [beagle-react:remix-v2-routing](../remix-v2-routing/SKILL.md) for canonical patterns.
+Loaded by `review-remix-v2` (umbrella) to flag routing anti-patterns in `app/routes/` modules. See [remix-v2-routing](../remix-v2-routing/SKILL.md) for canonical patterns.
 
 ## Quick Reference
 

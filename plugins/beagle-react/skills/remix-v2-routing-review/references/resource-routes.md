@@ -2,7 +2,7 @@
 
 A route module without a `default` export is a **resource route**: it returns raw `Response` objects (PDF, JSON, RSS, sitemap, webhook). Parent loaders do not run, no UI mounts, and `<Link>` cannot navigate to it client-side without a full document request.
 
-See [beagle-react:remix-v2-routing](../../remix-v2-routing/SKILL.md) for canonical resource-route shape.
+See [remix-v2-routing](../../remix-v2-routing/SKILL.md) for canonical resource-route shape.
 
 ---
 

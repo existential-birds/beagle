@@ -12,7 +12,7 @@ by the umbrella `review-remix-v2` reviewer when a diff touches any of:
 loaders/actions reading or writing `session`, or `<Form>`/`useFetcher`
 mutations.
 
-See [beagle-react:remix-v2-meta-sessions](../remix-v2-meta-sessions/SKILL.md) for canonical patterns.
+See [remix-v2-meta-sessions](../remix-v2-meta-sessions/SKILL.md) for canonical patterns.
 
 ## Quick Reference
 

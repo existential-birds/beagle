@@ -5,7 +5,7 @@ skill. v2 returns `MetaDescriptor[]` (an array). The v1 object shape still
 typechecks in stale codebases and via loose `MetaFunction` aliases, but the
 runtime ignores it: the route renders with **no title and no meta tags**.
 
-See [beagle-react:remix-v2-meta-sessions](../../remix-v2-meta-sessions/SKILL.md)
+See [remix-v2-meta-sessions](../../remix-v2-meta-sessions/SKILL.md)
 for canonical descriptor reference.
 
 ## 1. v1 object shape used in a v2 codebase (BREAKING — flag as CRITICAL)

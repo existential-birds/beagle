@@ -7,7 +7,7 @@ every mutating action. The common failure modes are no protection at all,
 shared session/CSRF cookies, manual `fetch` POSTs that bypass token
 injection, and shared secrets.
 
-See [beagle-react:remix-v2-meta-sessions](../../remix-v2-meta-sessions/SKILL.md)
+See [remix-v2-meta-sessions](../../remix-v2-meta-sessions/SKILL.md)
 for the canonical wiring.
 
 ## 1. No CSRF protection at all

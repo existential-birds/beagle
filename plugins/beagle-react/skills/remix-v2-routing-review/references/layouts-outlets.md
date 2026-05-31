@@ -2,7 +2,7 @@
 
 Parent route modules must render `<Outlet />` so children can mount inside them. Pathless layouts (`_auth.tsx`) wrap URLs without adding a segment. Misuse shows up as blank pages, duplicated chrome, and dotted routes whose authors *thought* there was a layout.
 
-See [beagle-react:remix-v2-routing](../../remix-v2-routing/SKILL.md) for canonical layout shape.
+See [remix-v2-routing](../../remix-v2-routing/SKILL.md) for canonical layout shape.
 
 ---
 

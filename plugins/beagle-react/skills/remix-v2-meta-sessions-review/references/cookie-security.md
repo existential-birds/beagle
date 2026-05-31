@@ -5,7 +5,7 @@ responsibility. The common failure mode is a `createCookieSessionStorage`
 config that ships to production missing `httpOnly`, `secure`, or rotation
 support.
 
-See [beagle-react:remix-v2-meta-sessions](../../remix-v2-meta-sessions/SKILL.md)
+See [remix-v2-meta-sessions](../../remix-v2-meta-sessions/SKILL.md)
 for the canonical setup.
 
 ## 1. Missing `httpOnly`

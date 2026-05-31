@@ -2,7 +2,7 @@
 
 Flag code that re-implements pending state Remix already owns, or wires
 the wrong observer to the wrong submission. See
-[beagle-react:remix-v2-forms](../../remix-v2-forms/SKILL.md) for the
+[remix-v2-forms](../../remix-v2-forms/SKILL.md) for the
 `useNavigation` vs `fetcher.state` decision gates.
 
 ## Anti-pattern 1 — `useState` loading flag alongside `<Form>` / `useFetcher`

@@ -1,6 +1,6 @@
 # Defer & Await Review Reference
 
-Anti-patterns and review prompts for `defer()`, `<Await>`, and `<Suspense>` in Remix v2. See [beagle-react:remix-v2-data-flow](../../remix-v2-data-flow/SKILL.md) for canonical streaming patterns.
+Anti-patterns and review prompts for `defer()`, `<Await>`, and `<Suspense>` in Remix v2. See [remix-v2-data-flow](../../remix-v2-data-flow/SKILL.md) for canonical streaming patterns.
 
 ## 1. `defer` for already-fast data
 

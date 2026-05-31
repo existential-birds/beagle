@@ -1,6 +1,6 @@
 # Loader Review Reference
 
-Anti-patterns and review prompts for `export async function loader` in Remix v2 route modules. See [beagle-react:remix-v2-data-flow](../../remix-v2-data-flow/SKILL.md) for canonical loader patterns.
+Anti-patterns and review prompts for `export async function loader` in Remix v2 route modules. See [remix-v2-data-flow](../../remix-v2-data-flow/SKILL.md) for canonical loader patterns.
 
 ## 1. `useEffect` data fetching that belongs in a loader
 

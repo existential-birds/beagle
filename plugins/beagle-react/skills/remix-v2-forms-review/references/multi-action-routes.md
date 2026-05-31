@@ -3,7 +3,7 @@
 Flag route file sprawl that the intent pattern would collapse, missing
 submit buttons that break progressive enhancement, and `method="put"` /
 `"patch"` / `"delete"` without a JS-only acknowledgement. See
-[beagle-react:remix-v2-forms](../../remix-v2-forms/SKILL.md) for the
+[remix-v2-forms](../../remix-v2-forms/SKILL.md) for the
 canonical intent pattern.
 
 ## Anti-pattern 1 — Separate routes for sibling mutations
@@ -121,7 +121,7 @@ choice itself.
 **Exemptions — do NOT flag:**
 
 - The route is explicitly an internal admin tool with a JS requirement
-  documented in `CLAUDE.md`, README, or a comment.
+  documented in project conventions (e.g. `AGENTS.md` or `CLAUDE.md`), README, or a comment.
 - The form is `method="get"` — GET is the only other HTML-native verb
   and works fine without JS.
 
@@ -153,8 +153,9 @@ constraint; controlled wizard step where the parent owns submit.
    compatible auth and validation. False positives are common when the
    routes look similar but encapsulate different domains.
 2. For PUT/PATCH/DELETE findings, check whether the project has a
-   declared no-JS-fallback stance (`CLAUDE.md`, repo README, or
-   per-file comments). If so, downgrade to a low-severity note.
+   declared no-JS-fallback stance (project conventions such as `AGENTS.md`
+   or `CLAUDE.md`, repo README, or per-file comments). If so, downgrade to
+   a low-severity note.
 3. For intent-inference findings, confirm there is at least one
    `<button name="intent">` somewhere — many codebases mix patterns
    inconsistently.

@@ -5,7 +5,7 @@ description: Reviews Remix v2 code for caching header misuse, missing server/cli
 
 # Remix v2 Performance / SSR Code Review
 
-Targets TypeScript route modules importing from `@remix-run/*`. See [beagle-react:remix-v2-perf-ssr](../remix-v2-perf-ssr/SKILL.md) for canonical patterns.
+Targets TypeScript route modules importing from `@remix-run/*`. See [remix-v2-perf-ssr](../remix-v2-perf-ssr/SKILL.md) for canonical patterns.
 
 ## Quick Reference
 
@@ -120,4 +120,4 @@ Complete [Hard gates](#hard-gates-before-writing-findings) (especially gate 3 �
 - Reviewing render-time `Date`/`Math.random`/locale issues, `useId`, `suppressHydrationWarning` scope → [references/hydration.md](references/hydration.md)
 - Reviewing `<Link prefetch>` modes, `<PrefetchPageLinks>` targets, `defer`/`<Await>`/`<Suspense>` structure → [references/prefetch-streaming.md](references/prefetch-streaming.md)
 - Reviewing `dangerouslySetInnerHTML`, image `loading`/`width`/`height`, font/CSS preload, stylesheet placement → [references/assets.md](references/assets.md)
-- Canonical patterns and decision gates → [beagle-react:remix-v2-perf-ssr](../remix-v2-perf-ssr/SKILL.md)
+- Canonical patterns and decision gates → [remix-v2-perf-ssr](../remix-v2-perf-ssr/SKILL.md)

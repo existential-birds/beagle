@@ -3,7 +3,7 @@
 Flag upload handlers that can be weaponized for DoS, file inputs that
 silently strip their contents, FormData consumed without validation,
 and optimistic UI that drifts from `fetcher.formData`. See
-[beagle-react:remix-v2-forms](../../remix-v2-forms/SKILL.md) for the
+[remix-v2-forms](../../remix-v2-forms/SKILL.md) for the
 canonical upload and optimistic patterns.
 
 ## Anti-pattern 1 — Unbounded `unstable_createMemoryUploadHandler`

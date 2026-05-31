@@ -1,5 +1,5 @@
 ---
-description: Comprehensive React/TypeScript frontend code review with optional parallel agents
+description: Comprehensive React/TypeScript frontend code review with per-area review skills, run in parallel where the agent supports subagents and sequentially otherwise.
 name: review-frontend
 disable-model-invocation: true
 ---
@@ -8,7 +8,7 @@ disable-model-invocation: true
 
 ## Arguments
 
-- `--parallel`: Spawn specialized subagents per technology area
+- `--parallel`: Hint to fan out per technology area when the agent supports subagents (see Step 5). When unsupported, the review runs sequentially with identical output.
 - Path: Target directory (default: current working directory)
 
 ## Step 1: Identify Changed Files
@@ -21,7 +21,7 @@ git diff --name-only $(git merge-base HEAD main)..HEAD | grep -E '\.(tsx?|jsx?|m
 
 ```bash
 # Detect Remix v2 (any official adapter). When matched, the Remix-specific
-# surface is delegated to beagle-react:review-remix-v2 in Step 4.
+# surface is delegated to the review-remix-v2 skill in Step 4.
 grep -E '"@remix-run/(react|node|cloudflare|deno|serve)"' package.json | head -3
 
 # Detect React Flow
@@ -39,48 +39,49 @@ git diff --name-only $(git merge-base HEAD main)..HEAD | grep -E '\.test\.tsx?$'
 
 ## Step 3: Load Verification Protocol
 
-Load `beagle-react:review-verification-protocol` before any substantive judgment on code.
+Load the [review-verification-protocol](../review-verification-protocol/SKILL.md) skill before any substantive judgment on code.
 
 **Pass before Step 5:** The skill is loaded (or its checklist is open in context). Do not classify severity or write findings until this gate clears.
 
 ## Step 4: Load Skills
 
-Use the `Skill` tool to load each applicable skill (e.g., `Skill(skill: "beagle-react:react-router-code-review")`).
+Read each applicable skill below (open its `SKILL.md`) so its guidance is in context before you review that area.
 
 **Remix v2 branch (Step 2 detected `@remix-run/*` in package.json):**
 
-- Load `beagle-react:review-remix-v2` — umbrella orchestrator that loads all six Remix v2 area review skills (routing, data-flow, forms, error-boundaries, perf/SSR, meta+sessions) with its own detection telemetry. Run it for the Remix-specific surface and consolidate its findings into this review's output.
-- Do NOT also load `beagle-react:react-router-code-review` — Remix v2 sits on React Router v6 but routes through Remix's route module conventions, which `beagle-react:remix-v2-routing-review` (loaded via the umbrella) covers in that context.
-- Still load `beagle-react:shadcn-code-review` and the conditional skills below — they're orthogonal to the Remix layer and apply to component/styling/state code regardless of router.
+- Load [review-remix-v2](../review-remix-v2/SKILL.md) — umbrella orchestrator that loads all six Remix v2 area review skills (routing, data-flow, forms, error-boundaries, perf/SSR, meta+sessions) with its own detection telemetry. Run it for the Remix-specific surface and consolidate its findings into this review's output.
+- Do NOT also load [react-router-code-review](../react-router-code-review/SKILL.md) — Remix v2 sits on React Router v6 but routes through Remix's route module conventions, which [remix-v2-routing-review](../remix-v2-routing-review/SKILL.md) (loaded via the umbrella) covers in that context.
+- Still load [shadcn-code-review](../shadcn-code-review/SKILL.md) and the conditional skills below — they're orthogonal to the Remix layer and apply to component/styling/state code regardless of router.
 
 **Non-Remix branch (default):**
 
-- `beagle-react:react-router-code-review`
-- `beagle-react:shadcn-code-review`
+- [react-router-code-review](../react-router-code-review/SKILL.md)
+- [shadcn-code-review](../shadcn-code-review/SKILL.md)
 
 **Conditionally load based on detection (both branches):**
 
 | Condition | Skill |
 |-----------|-------|
-| @xyflow/react detected | `beagle-react:react-flow-code-review` |
-| Zustand detected | `beagle-react:zustand-state` |
-| Tailwind v4 detected | `beagle-react:tailwind-v4` |
-| Test files changed | `beagle-react:vitest-testing` |
+| @xyflow/react detected | [react-flow-code-review](../react-flow-code-review/SKILL.md) |
+| Zustand detected | [zustand-state](../zustand-state/SKILL.md) |
+| Tailwind v4 detected | [tailwind-v4](../tailwind-v4/SKILL.md) |
+| Test files changed | [vitest-testing](../vitest-testing/SKILL.md) |
 
 ## Step 5: Review
 
-**Sequential (default):**
+**If the agent supports subagents** (and `--parallel` is requested or appropriate), dispatch one subagent per technology area in parallel; **otherwise** run the same areas sequentially in a single context. Both paths produce identical output.
+
+Parallel path:
+1. Detect all technologies upfront
+2. Dispatch one subagent per technology area, each loading its skill and reviewing its domain
+3. Wait for all subagents to return
+4. Consolidate findings
+
+Sequential path:
 1. Load applicable skills
 2. Review React Router patterns first
 3. Review shadcn/ui patterns
 4. Review detected technology areas
-5. Consolidate findings
-
-**Parallel (--parallel flag):**
-1. Detect all technologies upfront
-2. Spawn one subagent per technology area with `Task` tool
-3. Each agent loads its skill and reviews its domain
-4. Wait for all agents
 5. Consolidate findings
 
 ## Step 6: Verify Findings
@@ -196,7 +197,7 @@ All checks must pass before approval.
 Advance in order; do not skip a **pass condition** by restating it informally.
 
 1. **Scope recorded** — **Pass when:** You have the output of the Step 1 command (or an explicit substitute path list) naming what is in scope for this review.
-2. **Protocol + branch skills loaded** — **Pass when:** `beagle-react:review-verification-protocol` and `beagle-react:shadcn-code-review` are loaded, **and** either (a) Step 2 found Remix v2 and `beagle-react:review-remix-v2` is loaded (without `beagle-react:react-router-code-review`), or (b) Step 2 found no Remix v2 and `beagle-react:react-router-code-review` is loaded — before first severity judgment.
+2. **Protocol + branch skills loaded** — **Pass when:** [review-verification-protocol](../review-verification-protocol/SKILL.md) and [shadcn-code-review](../shadcn-code-review/SKILL.md) are loaded, **and** either (a) Step 2 found Remix v2 and [review-remix-v2](../review-remix-v2/SKILL.md) is loaded (without [react-router-code-review](../react-router-code-review/SKILL.md)), or (b) Step 2 found no Remix v2 and [react-router-code-review](../react-router-code-review/SKILL.md) is loaded — before first severity judgment.
 3. **Conditional skills** — **Pass when:** For each Step 2 detection row (Remix v2, @xyflow/react, Zustand, Tailwind v4, test files), you either loaded the listed skill or recorded that detection was negative (which command returned no matches).
 4. **Critical/Major evidence** — **Pass when:** Each such finding cites `FILE:LINE` that exists in the tree and meets the Step 6 pass rule for that finding type.
 5. **Single output** — **Pass when:** The Issues section uses one continuous numbering sequence and this deliverable satisfies Step 7 single-pass completeness (no withheld issue types or rounds).

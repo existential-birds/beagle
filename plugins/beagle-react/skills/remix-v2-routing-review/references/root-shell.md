@@ -2,7 +2,7 @@
 
 `app/root.tsx` owns the entire document. The six elements (`<Meta />`, `<Links />`, `<Outlet />`, `<ScrollRestoration />`, `<Scripts />`, and `<LiveReload />` for Classic Compiler only) are load-bearing. Each smell below is a missing or misplaced shell element that breaks a documented Remix feature.
 
-See [beagle-react:remix-v2-routing/references/root.md](../../remix-v2-routing/references/root.md) for the canonical scaffold and the `Layout` export pattern.
+See [remix-v2-routing root.md](../../remix-v2-routing/references/root.md) for the canonical scaffold and the `Layout` export pattern.
 
 ---
 

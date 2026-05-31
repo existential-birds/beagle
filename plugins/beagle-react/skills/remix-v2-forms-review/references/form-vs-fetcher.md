@@ -2,7 +2,7 @@
 
 Flag code that bypasses Remix's mutation lifecycle or picks the wrong
 primitive for the job. See
-[beagle-react:remix-v2-forms](../../remix-v2-forms/SKILL.md) for the
+[remix-v2-forms](../../remix-v2-forms/SKILL.md) for the
 decision gates and canonical patterns.
 
 ## Anti-pattern 1 — Manual `fetch()` for in-app mutations

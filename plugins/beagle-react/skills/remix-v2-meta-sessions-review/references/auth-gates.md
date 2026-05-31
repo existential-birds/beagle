@@ -6,7 +6,7 @@ with `commitSession`/`destroySession` on every mutation. The common failure
 modes are gating in the wrong layer (component instead of loader), missing
 `commitSession`, and logout-as-GET (CSRF-able).
 
-See [beagle-react:remix-v2-meta-sessions](../../remix-v2-meta-sessions/SKILL.md)
+See [remix-v2-meta-sessions](../../remix-v2-meta-sessions/SKILL.md)
 for the canonical pattern.
 
 ## 1. Auth check in a React component (instead of loader)

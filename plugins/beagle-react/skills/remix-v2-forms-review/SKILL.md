@@ -5,7 +5,7 @@ description: Reviews Remix v2 form code for manual fetch() mutations, native <fo
 
 # Remix v2 Forms Code Review
 
-See [beagle-react:remix-v2-forms](../remix-v2-forms/SKILL.md) for canonical
+See [remix-v2-forms](../remix-v2-forms/SKILL.md) for canonical
 patterns. This skill flags violations; the sibling skill teaches the patterns.
 
 ## Quick Reference
@@ -81,7 +81,7 @@ Run these in order. **Do not draft user-facing findings until every gate passes*
 - **Pending state anti-patterns** — `useState` flags, page-global vs per-row, missing entirely: [references/pending-state.md](references/pending-state.md)
 - **Uploads & FormData validation** — unbounded handlers, missing `encType`, unvalidated keys, mirrored optimistic state: [references/uploads-validation.md](references/uploads-validation.md)
 - **Multi-action routes** — intent-pattern violations, PUT/DELETE without PE fallback, missing submit button: [references/multi-action-routes.md](references/multi-action-routes.md)
-- **Canonical patterns** — see sibling [beagle-react:remix-v2-forms](../remix-v2-forms/SKILL.md)
+- **Canonical patterns** — see sibling [remix-v2-forms](../remix-v2-forms/SKILL.md)
 
 ## When to Load References
 

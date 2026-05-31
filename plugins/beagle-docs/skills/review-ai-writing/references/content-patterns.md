@@ -68,7 +68,7 @@ Experts agree that the Result pattern is the preferred approach.
 After:
 ```markdown
 Uses the Result pattern (`Ok`/`Err`) instead of exceptions.
-See [ADR-0012](../decisions/0012-result-pattern.md) for the tradeoff discussion.
+See ADR-0012 (the Result-pattern decision record) for the tradeoff discussion.
 ```
 
 **PR descriptions**:

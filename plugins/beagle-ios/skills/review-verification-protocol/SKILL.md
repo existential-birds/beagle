@@ -38,7 +38,7 @@ Before flagging ANY issue, verify:
 - [ ] **I checked surrounding code** - The issue may be handled elsewhere (guards, earlier checks)
 - [ ] **I verified syntax against current docs** - Apple APIs evolve (Swift concurrency, SwiftUI lifecycle, new SDKs); when syntax may have changed, confirm against current Apple documentation
 - [ ] **I distinguished "wrong" from "different style"** - Both approaches may be valid
-- [ ] **I considered intentional design** - Checked comments, CLAUDE.md, architectural context
+- [ ] **I considered intentional design** - Checked comments, project conventions (e.g. AGENTS.md or CLAUDE.md), architectural context
 
 ## Verification by Issue Type
 

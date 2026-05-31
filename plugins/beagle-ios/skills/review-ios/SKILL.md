@@ -8,7 +8,7 @@ disable-model-invocation: true
 
 ## Arguments
 
-- `--parallel`: Spawn specialized subagents per technology area
+- `--parallel`: If the agent supports subagents, dispatch one specialized subagent per technology area
 - Path: Target directory (default: current working directory)
 
 ## Hard gates
@@ -17,7 +17,7 @@ Complete in order before writing **Issues** in the output (empty scope is allowe
 
 1. **Scope gate:** You have an explicit list of `.swift` paths under review (from Step 1 or a user-provided path). **Pass:** List captured in working notes **or** one line: `No Swift files in scope` — then stop with no Issues.
 2. **Linter gate (style):** Step 2 commands ran for this tree; if no `.swiftlint.yml` / `.swiftlint.yaml`, note that in one line. **Pass:** You do not report a style issue that SwiftLint would already enforce for that line when config exists and `swiftlint` succeeds.
-3. **Protocol gate:** `beagle-ios:review-verification-protocol` is loaded before Step 6. **Pass:** If you report any Issues, at least one finding was checked against that checklist (name the item in Review Summary or on that Issue); if you report zero Issues, state `Protocol applied; no issues` in Review Summary.
+3. **Protocol gate:** [review-verification-protocol](../review-verification-protocol/SKILL.md) is loaded before Step 6. **Pass:** If you report any Issues, at least one finding was checked against that checklist (name the item in Review Summary or on that Issue); if you report zero Issues, state `Protocol applied; no issues` in Review Summary.
 4. **Evidence gate (Critical/Major):** For each Critical or Major item, you re-read the file at `FILE:LINE` (full surrounding context, not only the diff hunk). **Pass:** The Issue text matches observable code at that location.
 
 Do not begin Step 6 until **Gates 1–3** are satisfied (skills load order stays Steps 4–5).
@@ -83,32 +83,34 @@ grep -r "PhaseAnimator\|KeyframeAnimator\|matchedGeometryEffect\|navigationTrans
 
 ## Step 4: Load Verification Protocol
 
-Load `beagle-ios:review-verification-protocol` skill and keep its checklist in mind throughout the review.
+Load the [review-verification-protocol](../review-verification-protocol/SKILL.md) skill and keep its checklist in mind throughout the review.
 
 ## Step 5: Load Skills
 
-Use the `Skill` tool to load each applicable skill (e.g., `Skill(skill: "beagle-ios:swift-code-review")`).
+Load each applicable skill below (read its `SKILL.md`).
 
 **Always load:**
-- `beagle-ios:swift-code-review`
-- `beagle-ios:swiftui-code-review`
+- [swift-code-review](../swift-code-review/SKILL.md)
+- [swiftui-code-review](../swiftui-code-review/SKILL.md)
 
 **Conditionally load based on detection:**
 
 | Condition | Skill |
 |-----------|-------|
-| SwiftData detected | `beagle-ios:swiftdata-code-review` |
-| Swift Testing detected | `beagle-ios:swift-testing-code-review` |
-| Combine detected | `beagle-ios:combine-code-review` |
-| URLSession detected | `beagle-ios:urlsession-code-review` |
-| CloudKit detected | `beagle-ios:cloudkit-code-review` |
-| WidgetKit detected | `beagle-ios:widgetkit-code-review` |
-| App Intents detected | `beagle-ios:app-intents-code-review` |
-| HealthKit detected | `beagle-ios:healthkit-code-review` |
-| WatchKit detected | `beagle-ios:watchos-code-review` |
-| Animation code detected | `beagle-ios:ios-animation-code-review` |
+| SwiftData detected | [swiftdata-code-review](../swiftdata-code-review/SKILL.md) |
+| Swift Testing detected | [swift-testing-code-review](../swift-testing-code-review/SKILL.md) |
+| Combine detected | [combine-code-review](../combine-code-review/SKILL.md) |
+| URLSession detected | [urlsession-code-review](../urlsession-code-review/SKILL.md) |
+| CloudKit detected | [cloudkit-code-review](../cloudkit-code-review/SKILL.md) |
+| WidgetKit detected | [widgetkit-code-review](../widgetkit-code-review/SKILL.md) |
+| App Intents detected | [app-intents-code-review](../app-intents-code-review/SKILL.md) |
+| HealthKit detected | [healthkit-code-review](../healthkit-code-review/SKILL.md) |
+| WatchKit detected | [watchos-code-review](../watchos-code-review/SKILL.md) |
+| Animation code detected | [ios-animation-code-review](../ios-animation-code-review/SKILL.md) |
 
 ## Step 6: Review
+
+**If the agent supports subagents** (and `--parallel` is requested), dispatch one subagent per technology area in parallel; **otherwise** run sequentially. Both paths produce identical output — the same consolidated findings.
 
 **Sequential (default):**
 1. Load applicable skills
@@ -117,9 +119,9 @@ Use the `Skill` tool to load each applicable skill (e.g., `Skill(skill: "beagle-
 4. Review detected technology areas
 5. Consolidate findings
 
-**Parallel (--parallel flag):**
+**Parallel (when supported, via --parallel):**
 1. Detect all technologies upfront
-2. Spawn one subagent per technology area with `Task` tool
+2. Dispatch one subagent per technology area
 3. Each agent loads its skill and reviews its domain
 4. Wait for all agents
 5. Consolidate findings

@@ -1,12 +1,6 @@
 ---
 name: urlsession-code-review
-description: Reviews URLSession networking code for iOS/macOS. Covers async/await patterns, request building, error handling, caching, and background sessions.
-triggers:
-  - URLSession
-  - URLRequest
-  - URLCache
-  - URLError
-  - iOS networking
+description: Reviews URLSession networking code for iOS/macOS. Covers async/await patterns, request building, error handling, caching, and background sessions. Use when reviewing code that uses URLSession, URLRequest, URLCache, or URLError, or any iOS networking path.
 ---
 
 # URLSession Code Review

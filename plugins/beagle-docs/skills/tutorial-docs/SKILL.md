@@ -1,20 +1,7 @@
 ---
 name: tutorial-docs
-description: Tutorial patterns for documentation - learning-oriented guides that teach through guided doing
+description: "Tutorial patterns for documentation - learning-oriented guides that teach through guided doing. Use when writing a tutorial, learning guide, getting-started or onboarding guide, beginner/introductory guide, or any learn-by-doing hands-on guide. Builds on the docs-style core writing principles."
 user-invocable: false
-autoContext:
-  whenUserAsks:
-    - tutorial
-    - tutorials
-    - learning guide
-    - getting started guide
-    - onboarding guide
-    - beginner guide
-    - introductory guide
-    - learn by doing
-    - hands-on guide
-dependencies:
-  - docs-style
 ---
 
 # Tutorial Documentation Skill
@@ -372,7 +359,7 @@ Run these **in order**. Start the next gate only after the previous **pass** is 
 
 ## Related Skills
 
-- **docs-style**: Core writing conventions and components
-- **howto-docs**: How-To guide patterns for task-oriented content
-- **reference-docs**: Reference documentation patterns
-- **explanation-docs**: Conceptual documentation patterns
+- **[docs-style](../docs-style/SKILL.md)**: Core writing conventions and components
+- **[howto-docs](../howto-docs/SKILL.md)**: How-To guide patterns for task-oriented content
+- **[reference-docs](../reference-docs/SKILL.md)**: Reference documentation patterns
+- **[explanation-docs](../explanation-docs/SKILL.md)**: Conceptual documentation patterns

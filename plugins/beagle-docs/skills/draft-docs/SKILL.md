@@ -15,9 +15,7 @@ Generate Reference or How-To documentation drafts to `docs/drafts/` for review b
 
 ## Mode 1: Generate Draft
 
-```
-/beagle-docs:draft-docs "Document the authentication middleware"
-```
+Invoke the **draft-docs** skill with a topic prompt, e.g. `draft-docs "Document the authentication middleware"`.
 
 ### Step 0: Gather Context
 
@@ -52,8 +50,8 @@ Extract from the prompt:
 
 | Keywords | Type | Skill |
 |----------|------|-------|
-| "how to", "guide", "steps", "configure", "set up" | How-To | `howto-docs` |
-| "API", "reference", "parameters", "function", "endpoint" | Reference | `reference-docs` |
+| "how to", "guide", "steps", "configure", "set up" | How-To | [howto-docs](../howto-docs/SKILL.md) |
+| "API", "reference", "parameters", "function", "endpoint" | Reference | [reference-docs](../reference-docs/SKILL.md) |
 
 If ambiguous, ask: "Should this be a Reference doc (technical lookup) or How-To guide (task completion)?"
 
@@ -61,10 +59,10 @@ If ambiguous, ask: "Should this be a Reference doc (technical lookup) or How-To 
 
 Always load both:
 
-1. `beagle-docs:docs-style` - Core writing principles
+1. [docs-style](../docs-style/SKILL.md) - Core writing principles
 2. Detected type skill:
-   - `beagle-docs:reference-docs` for Reference
-   - `beagle-docs:howto-docs` for How-To
+   - [reference-docs](../reference-docs/SKILL.md) for Reference
+   - [howto-docs](../howto-docs/SKILL.md) for How-To
 
 ### Step 3: Analyze Code
 
@@ -122,10 +120,7 @@ Apply the loaded skills to generate documentation:
 
    1. Review the draft for accuracy
    2. Add any missing context or examples
-   3. When ready, publish with:
-      ```
-      /beagle-docs:draft-docs --publish docs/drafts/{slug}.md
-      ```
+   3. When ready, publish by invoking the **draft-docs** skill with `--publish docs/drafts/{slug}.md`
    ```
 
 ### Step 6: End-of-Run Verification
@@ -154,9 +149,7 @@ If any verification fails, report the specific issue and offer to regenerate.
 
 ## Mode 2: Publish Draft
 
-```
-/beagle-docs:draft-docs --publish docs/drafts/websocket-api.md
-```
+Invoke the **draft-docs** skill with the `--publish` flag, e.g. `draft-docs --publish docs/drafts/websocket-api.md`.
 
 ### Step 1: Read Draft
 
@@ -278,7 +271,7 @@ Do not skip ahead: each **Pass** must be true before the next step. Use commands
 
 1. **Context gate — Pass:** Step 0 commands ran (or equivalent) and you recorded at least one concrete outcome: e.g. `docs/` listing snippet, or explicit note that `docs/` is missing and will be created.
 2. **Type gate — Pass:** Reference vs How-To is decided using the keyword table **or** the user’s explicit answer (quote or paraphrase with “user chose …”). Do not start **Step 3: Analyze Code** until this is locked.
-3. **Skills gate — Pass:** Before analysis, both are in play: `beagle-docs:docs-style` and the type skill (`beagle-docs:reference-docs` or `beagle-docs:howto-docs`). In your run, name the two skills loaded (IDs/paths)—not “I reviewed writing guidelines.”
+3. **Skills gate — Pass:** Before analysis, both are in play: [docs-style](../docs-style/SKILL.md) and the type skill ([reference-docs](../reference-docs/SKILL.md) or [howto-docs](../howto-docs/SKILL.md)). In your run, name the two skills loaded (paths)—not “I reviewed writing guidelines.”
 4. **Write gate — Pass:** After writing the draft, `test -f docs/drafts/{slug}.md` succeeds (or `ls` shows the file). Only then emit the **Draft Created** block.
 
 ### Publish draft (Mode 2)

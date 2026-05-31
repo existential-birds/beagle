@@ -2,7 +2,7 @@
 
 Detecting AI-generated writing in developer documentation: docstrings, code comments, commit messages, and PR descriptions.
 
-> **Overlap note:** Tautological docstrings and obvious comments also appear in `beagle-core:llm-artifacts-detection` (style-criteria.md). This file focuses on the AI writing style aspect; the artifacts skill focuses on unnecessary code artifacts.
+> **Overlap note:** Tautological docstrings and obvious comments also appear in [llm-artifacts-detection](../../../../beagle-core/skills/llm-artifacts-detection/SKILL.md) (style-criteria.md). This file focuses on the AI writing style aspect; the artifacts skill focuses on unnecessary code artifacts.
 
 ---
 

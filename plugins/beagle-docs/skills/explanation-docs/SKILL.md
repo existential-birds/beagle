@@ -1,21 +1,7 @@
 ---
 name: explanation-docs
-description: Explanation documentation patterns for understanding-oriented content - conceptual guides that explain why things work the way they do
+description: "Explanation documentation patterns for understanding-oriented content - conceptual guides that explain why things work the way they do. Use when writing an explanation doc, conceptual guide, understanding/background doc, design rationale, or architecture explanation, or when asked how/why something works. Builds on the docs-style core writing principles."
 user-invocable: false
-autoContext:
-  whenUserAsks:
-    - explanation doc
-    - explanation documentation
-    - conceptual guide
-    - conceptual documentation
-    - understanding doc
-    - background doc
-    - design rationale
-    - architecture explanation
-    - how does it work
-    - why does it work
-dependencies:
-  - docs-style
 ---
 
 # Explanation Documentation Skill
@@ -464,7 +450,7 @@ If users need to accomplish something while reading, it's not an explanation:
 
 ## Related Skills
 
-- **docs-style**: Core writing conventions and components
-- **howto-docs**: How-To guide patterns for task-oriented content
-- **reference-docs**: Reference documentation patterns for lookups
-- **tutorial-docs**: Tutorial patterns for learning-oriented content
+- **[docs-style](../docs-style/SKILL.md)**: Core writing conventions and components
+- **[howto-docs](../howto-docs/SKILL.md)**: How-To guide patterns for task-oriented content
+- **[reference-docs](../reference-docs/SKILL.md)**: Reference documentation patterns for lookups
+- **[tutorial-docs](../tutorial-docs/SKILL.md)**: Tutorial patterns for learning-oriented content

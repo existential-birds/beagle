@@ -1,18 +1,7 @@
 ---
 name: howto-docs
-description: How-To guide patterns for documentation - task-oriented guides for users with specific goals
+description: "How-To guide patterns for documentation - task-oriented guides for users with specific goals. Use when writing a how-to/howto guide, task guide, procedural guide, step-by-step guide, or how-to documentation. Builds on the docs-style core writing principles."
 user-invocable: false
-autoContext:
-  whenUserAsks:
-    - how to guide
-    - how-to guide
-    - howto guide
-    - task guide
-    - procedural guide
-    - step-by-step guide
-    - how to documentation
-dependencies:
-  - docs-style
 ---
 
 # How-To Documentation Skill
@@ -345,7 +334,7 @@ Before publishing, verify:
 
 ## Related Skills
 
-- **docs-style**: Core writing conventions and components
-- **tutorial-docs**: Tutorial patterns for learning-oriented content
-- **reference-docs**: Reference documentation patterns
-- **explanation-docs**: Conceptual documentation patterns
+- **[docs-style](../docs-style/SKILL.md)**: Core writing conventions and components
+- **[tutorial-docs](../tutorial-docs/SKILL.md)**: Tutorial patterns for learning-oriented content
+- **[reference-docs](../reference-docs/SKILL.md)**: Reference documentation patterns
+- **[explanation-docs](../explanation-docs/SKILL.md)**: Conceptual documentation patterns

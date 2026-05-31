@@ -14,7 +14,7 @@ Verify code documentation coverage across a codebase, report gaps, and interacti
 ## Workflow Overview
 
 1. **Detect** languages present in the codebase
-2. **Spawn** parallel verification agents per language
+2. **Verify** each language (one subagent per language in parallel if the agent supports subagents; otherwise sequentially)
 3. **Merge** and present consolidated findings
 4. **Offer** interactive generation choices
 5. **Generate** missing docs if requested
@@ -157,13 +157,13 @@ func ProcessRequest(data map[string]any, timeout int) (*Response, error) {
 - Comment doesn't start with symbol name
 - Comment is too terse (single generic sentence)
 
-## Phase 2: Parallel Verification
+## Phase 2: Verification
 
-Spawn verification agents in parallel for each detected language using the `Task` tool.
+Verify each detected language against its standard. **If the agent supports subagents**, run one verifier per language in parallel; **otherwise** run the same checks sequentially with identical output.
 
-### Agent Prompt Template
+### Verifier Prompt Template
 
-For each detected language, spawn an agent with:
+For each detected language, run a verifier with:
 
 **Python Agent:**
 ```
@@ -237,19 +237,19 @@ OUTPUT FORMAT:
 }
 ```
 
-### Spawning Agents
+### Running Verifiers
 
-Use the `Task` tool to spawn agents in parallel:
+If the agent supports subagents, dispatch them in parallel; otherwise run each verifier sequentially:
 
 1. For each detected language with files > 0
-2. Spawn agent with subagent_type="general-purpose"
+2. Run a verifier (a general-purpose subagent when available)
 3. Include the language-specific prompt and standard
-4. Set run_in_background=false to wait for results
-5. Collect JSON output from each agent
+4. Wait for results before consolidating
+5. Collect JSON output from each verifier
 
 ## Phase 3: Consolidate Results
 
-After all agents complete, merge their findings.
+After all verifiers complete, merge their findings.
 
 ### Categorize by Severity
 
@@ -329,9 +329,9 @@ Use `AskUserQuestion` with these options:
 3. "Show detailed report first" - Display full findings before deciding
 4. "Skip generation" - Exit with report only
 
-### Generation Agent Prompts
+### Generation Prompts
 
-For each language needing generation, spawn a generation agent:
+For each language needing generation, run a generation pass (a subagent if the agent supports them, otherwise inline):
 
 **Python Generation Agent:**
 ```
@@ -436,8 +436,8 @@ staticcheck -checks "ST1000,ST1020,ST1021,ST1022" ./...
 
 ## Rules
 
-- Always detect languages before spawning agents
-- Spawn agents in parallel for efficiency
+- Always detect languages before running verifiers
+- Run verifiers in parallel for efficiency when the agent supports subagents
 - Present clear summary before offering generation
 - Don't generate docs for test files (except test helpers)
 - Respect `--report-only` flag

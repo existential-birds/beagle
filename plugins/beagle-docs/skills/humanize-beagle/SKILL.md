@@ -3,20 +3,15 @@ name: humanize-beagle
 description: Rewrite AI-generated developer text to sound human — fix inflated language, filler, tautological docs, and robotic tone. Use after review-ai-writing identifies issues.
 disable-model-invocation: true
 user-invocable: true
-dependencies:
-  - docs-style
-  - review-ai-writing
 ---
 
 # Humanize
 
-Apply fixes from a previous `review-ai-writing` run with automatic safe/risky classification.
+Apply fixes from a previous [review-ai-writing](../review-ai-writing/SKILL.md) run with automatic safe/risky classification. Builds on the writing principles in [docs-style](../docs-style/SKILL.md).
 
 ## Usage
 
-```text
-/beagle-docs:humanize-beagle [--dry-run] [--all] [--category <name>]
-```
+Invoke the **humanize-beagle** skill with optional flags: `humanize-beagle [--dry-run] [--all] [--category <name>]`.
 
 **Flags:**
 - `--dry-run` - Show what would be fixed without changing files
@@ -70,8 +65,8 @@ cat .beagle/ai-writing-review.json 2>/dev/null
 ```
 
 **If file missing:**
-- If `--all` flag: Run `/beagle-docs:review-ai-writing --all` first
-- Otherwise: Fail with: "No review results found. Run `/beagle-docs:review-ai-writing` first."
+- If `--all` flag: Invoke the **[review-ai-writing](../review-ai-writing/SKILL.md)** skill with `--all` first
+- Otherwise: Fail with: "No review results found. Invoke the review-ai-writing skill first."
 
 **If file exists, validate JSON and freshness (G2):**
 ```bash
@@ -272,19 +267,12 @@ Fix issues and re-run, or restore with: git stash pop
 
 ## Example
 
-```bash
-# Preview all fixes without applying
-/beagle-docs:humanize-beagle --dry-run
+Invoke the **humanize-beagle** skill with flags:
 
-# Fix only vocabulary issues
-/beagle-docs:humanize-beagle --category vocabulary
-
-# Full codebase scan and fix
-/beagle-docs:humanize-beagle --all
-
-# Preview filler fixes only
-/beagle-docs:humanize-beagle --category filler --dry-run
-```
+- `--dry-run` — preview all fixes without applying
+- `--category vocabulary` — fix only vocabulary issues
+- `--all` — full codebase scan and fix
+- `--category filler --dry-run` — preview filler fixes only
 
 ## Rules
 

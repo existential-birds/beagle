@@ -6,20 +6,20 @@ disable-model-invocation: true
 
 # Ensure Documentation Coverage
 
-Verify documentation coverage across a codebase, report gaps, and generate missing docs with parallel language-specific agents.
+Verify documentation coverage across a codebase, report gaps, and generate missing docs. **If the agent supports subagents**, dispatch one verifier per detected language in parallel; **otherwise** run the same per-language verification sequentially — the output is identical either way.
 
 ## Workflow
 
 Complete steps in order. Do not advance until each step’s **Pass** is satisfied.
 
 1. **Language detection** — Follow Phase 1 (language detection) in [`references/workflow.md`](references/workflow.md).
-   - **Pass:** For each language you will verify, you have evidence of at least one matching source file (counts or command output); if none qualify, stop with a short “no applicable languages” message and do not spawn verifiers.
+   - **Pass:** For each language you will verify, you have evidence of at least one matching source file (counts or command output); if none qualify, stop with a short “no applicable languages” message and do not run verifiers.
 
 2. **Load standards** — Read the sections for your detected languages (language standards, verifier prompts, consolidation format) in the same reference file.
-   - **Pass:** You can state which standard applies per language (e.g. Google docstrings, JSDoc, GoDoc) before spawning agents.
+   - **Pass:** You can state which standard applies per language (e.g. Google docstrings, JSDoc, GoDoc) before verification begins.
 
-3. **Parallel verification** — Spawn one verifier per qualifying language using the agent prompts and JSON output shape in the reference (Phase 2).
-   - **Pass:** Each completed agent returns parseable JSON including `language`, `files_scanned`, and `findings` (array, possibly empty).
+3. **Verification** — Verify each qualifying language using the verifier prompts and JSON output shape in the reference (Phase 2). If the agent supports subagents, run one verifier per language in parallel; otherwise run them sequentially.
+   - **Pass:** Each completed verification returns parseable JSON including `language`, `files_scanned`, and `findings` (array, possibly empty).
 
 4. **Consolidated report** — Merge results per Phase 3 (summary table, severity grouping, detailed findings if requested).
    - **Pass:** The user sees the merged report (inline or written to an agreed path) before you claim the audit is done or propose fixes.

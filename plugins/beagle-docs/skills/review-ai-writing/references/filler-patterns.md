@@ -6,7 +6,7 @@ Patterns for detecting AI-generated filler in developer documentation, commit me
 
 Dev-specific filler phrases that add no information. These weaken technical writing by burying the actual point.
 
-> Cross-reference: See `beagle-docs:docs-style` for the core phrase simplification table.
+> Cross-reference: See [docs-style](../../docs-style/SKILL.md) for the core phrase simplification table.
 
 The following are dev-specific additions commonly found in AI-generated output:
 

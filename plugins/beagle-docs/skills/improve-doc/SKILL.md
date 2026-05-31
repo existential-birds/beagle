@@ -14,11 +14,9 @@ Analyze an existing markdown document, classify sections by Diataxis type, ident
 
 ## Workflow Overview
 
-```
-/beagle-docs:improve-doc docs/guides/getting-started.md
-```
+Invoke the **improve-doc** skill with a document path, e.g. `improve-doc docs/guides/getting-started.md`.
 
-The command runs in two phases:
+The skill runs in two phases:
 
 1. **Analysis Phase:** Parse document, classify sections, identify issues
 2. **Refinement Phase:** Interactive loop to improve each section
@@ -31,7 +29,7 @@ Hard sequencing — advance only when the **pass condition** is met (artifact or
 
 1. **Read** — Full contents of the file at **Path** are loaded.
    - **Pass:** Enumerated sections (from `#` / `##` / `###` headings) cover every heading in the file; titles match the source.
-2. **Core skill** — `beagle-docs:docs-style` is loaded (or its path read) before classification.
+2. **Core skill** — [docs-style](../docs-style/SKILL.md) is loaded (or its path read) before classification.
    - **Pass:** Analysis output reflects at least one concrete principle from that skill (name it or quote briefly).
 3. **Handoff** — User saw an analysis summary (template in Step 5 or equivalent) and entered **`start`** to begin refinement, or **`abort`** to exit.
    - **Pass:** If `abort`, no writes to **Path**. If `start`, proceed to Phase 2.
@@ -59,7 +57,7 @@ Read the target markdown file and parse into sections based on headings:
 
 ### Step 2: Load Core Skill
 
-Load `beagle-docs:docs-style` for core writing principles that apply to all documentation types.
+Load [docs-style](../docs-style/SKILL.md) for core writing principles that apply to all documentation types.
 
 ### Step 3: Classify Each Section
 
@@ -158,10 +156,10 @@ Type "start" to begin refinement, or "abort" to exit without changes.
 
 As you encounter each section type, load the relevant skill if not already loaded:
 
-- Tutorial sections: `beagle-docs:tutorial-docs`
-- How-To sections: `beagle-docs:howto-docs`
-- Reference sections: `beagle-docs:reference-docs`
-- Explanation sections: `beagle-docs:explanation-docs`
+- Tutorial sections: [tutorial-docs](../tutorial-docs/SKILL.md)
+- How-To sections: [howto-docs](../howto-docs/SKILL.md)
+- Reference sections: [reference-docs](../reference-docs/SKILL.md)
+- Explanation sections: [explanation-docs](../explanation-docs/SKILL.md)
 
 ### Step 2: Refinement Loop
 

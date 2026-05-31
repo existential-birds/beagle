@@ -1,29 +1,16 @@
 ---
 name: review-ai-writing
-description: Detect AI-generated writing patterns in developer text — docs, docstrings, commit messages, PR descriptions, and code comments. Use when reviewing any text artifact for authenticity and clarity.
+description: "Detect AI-generated writing patterns in developer text — docs, docstrings, commit messages, PR descriptions, and code comments. Use when reviewing any text artifact for authenticity and clarity, or when the user mentions ai writing, ai-generated or robotic writing, text that sounds like AI or ChatGPT, or writing quality. Builds on the docs-style core writing principles."
 disable-model-invocation: true
-autoContext:
-  whenUserAsks:
-    - ai writing
-    - ai-generated
-    - sounds like ai
-    - writing quality
-    - humanize-beagle
-    - robotic writing
-    - chatgpt
-dependencies:
-  - docs-style
 ---
 
 # Review AI Writing
 
-Detect AI-generated writing patterns across developer text artifacts using parallel subagents.
+Detect AI-generated writing patterns across developer text artifacts, parallelizing across artifact groups when the agent supports it.
 
 ## Usage
 
-```text
-/beagle-docs:review-ai-writing [--all] [--category <name>] [path]
-```
+Invoke the **review-ai-writing** skill with optional flags: `review-ai-writing [--all] [--category <name>] [path]`.
 
 **Flags:**
 - `--all` - Scan entire codebase (default: changed files from main)
@@ -41,12 +28,7 @@ Extract flags from `$ARGUMENTS`:
 
 ### 2. Load Skills
 
-Load required skills:
-
-```text
-Skill(skill: "beagle-docs:review-ai-writing")
-Skill(skill: "beagle-core:review-verification-protocol")
-```
+Load the [review-verification-protocol](../../../beagle-core/skills/review-verification-protocol/SKILL.md) skill before reporting findings. The AI-writing pattern catalog lives in this file's Reference Material section and the `references/*.md` files — read the categories you intend to check.
 
 ### 3. Determine Scope
 
@@ -88,43 +70,40 @@ For Git artifacts, collect recent commits:
 git log --format="%H %s" $(git merge-base HEAD main)..HEAD
 ```
 
-### 6. Spawn Parallel Subagents
+### 6. Scan Each Artifact Group
 
-If total items >= 4, spawn up to 3 subagents via `Task` tool. If `--category` is set, spawn a single agent for that category only.
+There are three artifact groups below (Prose, Code Docs, Git). **If the agent supports subagents** and total items >= 4, dispatch one subagent per in-scope group in parallel (up to 3); **otherwise** run the same group instructions sequentially yourself — identical output either way. If `--category` is set, handle only the matching category. Every subagent (or sequential pass) reads this skill's Reference Material and the relevant `references/*.md` patterns before scanning.
 
-#### Subagent 1: Prose Agent
+#### Group 1: Prose
 
 **Scope:** Markdown files only
 **Check:** All 6 pattern categories
 **Instructions:**
-1. Load `beagle-docs:review-ai-writing` skill
-2. Read each markdown file
-3. Scan for all pattern categories
-4. Apply false positive checks from the skill
-5. Return findings in the structured format
+1. Read each markdown file
+2. Scan for all pattern categories
+3. Apply the false positive checks from this skill
+4. Return findings in the structured format
 
-#### Subagent 2: Code Docs Agent
+#### Group 2: Code Docs
 
 **Scope:** Source code files
 **Check:** vocabulary, communication, filler, code_docs categories
 **Instructions:**
-1. Load `beagle-docs:review-ai-writing` skill
-2. Extract docstrings and comments from each file
-3. Scan for applicable pattern categories
-4. Skip code itself — only check text in comments and docstrings
-5. Return findings in the structured format
+1. Extract docstrings and comments from each file
+2. Scan for applicable pattern categories
+3. Skip code itself — only check text in comments and docstrings
+4. Return findings in the structured format
 
-#### Subagent 3: Git Agent
+#### Group 3: Git
 
 **Scope:** Commit messages and PR descriptions
 **Check:** content, vocabulary, communication, filler categories
 **Instructions:**
-1. Load `beagle-docs:review-ai-writing` skill
-2. Read commit messages from the branch
-3. If on a PR branch, read the PR description via `gh pr view --json body`
-4. Scan for applicable pattern categories
-5. Use synthetic paths: `git:commit:<sha>` with line 0, `git:pr:<number>` with line 0
-6. Return findings in the structured format
+1. Read commit messages from the branch
+2. If on a PR branch, read the PR description via `gh pr view --json body`
+3. Scan for applicable pattern categories
+4. Use synthetic paths: `git:commit:<sha>` with line 0, `git:pr:<number>` with line 0
+5. Return findings in the structured format
 
 ### 7. Consolidate Findings
 
@@ -253,8 +232,8 @@ Write findings to `.beagle/ai-writing-review.json`:
 
 ### Next Steps
 
-- Run `/beagle-docs:humanize-beagle` to apply fixes
-- Run `/beagle-docs:humanize-beagle --dry-run` to preview changes first
+- Invoke the humanize-beagle skill to apply fixes
+- Invoke the humanize-beagle skill with --dry-run to preview changes first
 - Review the JSON report at `.beagle/ai-writing-review.json`
 ```
 
@@ -264,7 +243,7 @@ Before completing, all of the following must **pass** (objective checks):
 
 1. **JSON file exists and parses:** `.beagle/ai-writing-review.json` is present **or** you exited at Gate 1 with no scan (then no JSON is required).
 2. **JSON validity:** If the file exists, `python3 -c "import json; json.load(open('.beagle/ai-writing-review.json'))"` exits 0.
-3. **Subagent success:** If you used `Task` subagents, each returned without tool/runtime failure (failed spawn = do not write final JSON as if complete).
+3. **Subagent success:** If you dispatched subagents, each returned without tool/runtime failure (a failed dispatch = do not write final JSON as if complete).
 4. **Git HEAD captured:** When JSON exists, `git_head` matches `git rev-parse HEAD` (non-empty string).
 5. **No double-flagging:** If `.beagle/llm-artifacts-review.json` exists, no finding duplicates its file:line + overlapping type for the skip rules in §4.
 
@@ -289,8 +268,8 @@ If any check fails, report the error and do not proceed.
 
 ## Rules
 
-- Always load `beagle-docs:review-ai-writing` and `beagle-core:review-verification-protocol` first
-- Use `Task` tool for parallel subagents when >= 4 items to scan
+- Always read this skill's pattern catalog and load [review-verification-protocol](../../../beagle-core/skills/review-verification-protocol/SKILL.md) first
+- If the agent supports subagents, parallelize across artifact groups when >= 4 items to scan; otherwise scan sequentially
 - Every finding MUST have file:line reference (use synthetic paths for git artifacts)
 - Do not flag false positives listed in the skill
 - Do not duplicate findings from `.beagle/llm-artifacts-review.json`
@@ -314,7 +293,7 @@ Advance only when each **pass condition** is satisfied using artifacts (paths, e
    - **Pass:** `python3 -c "import json; json.load(open('.beagle/ai-writing-review.json'))"` exits 0.
 
 5. **Finding → verification protocol**
-   - **Pass:** For each reported issue, you can cite the surrounding paragraph or function you used so the flag is evidence-backed (see `beagle-core:review-verification-protocol`).
+   - **Pass:** For each reported issue, you can cite the surrounding paragraph or function you used so the flag is evidence-backed (see [review-verification-protocol](../../../beagle-core/skills/review-verification-protocol/SKILL.md)).
 
 ## Reference Material
 
@@ -402,7 +381,7 @@ Do NOT flag these as AI-generated:
 
 ## Integration
 
-### With `beagle-core:review-verification-protocol`
+### With [review-verification-protocol](../../../beagle-core/skills/review-verification-protocol/SKILL.md)
 
 Before reporting any finding:
 
@@ -411,7 +390,7 @@ Before reporting any finding:
 3. Check if the project has established conventions that match the pattern
 4. Verify the suggestion improves clarity without changing meaning
 
-### With `beagle-core:llm-artifacts-detection`
+### With [llm-artifacts-detection](../../../beagle-core/skills/llm-artifacts-detection/SKILL.md)
 
 Code-level patterns (tautological docstrings, obvious comments) overlap with `llm-artifacts-detection`'s style criteria. When both skills are loaded:
 

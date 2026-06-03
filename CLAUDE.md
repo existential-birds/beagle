@@ -4,7 +4,7 @@ This file provides guidance to Claude Code (claude.ai/code) when working with co
 
 ## What This Is
 
-Beagle is a Claude Code plugin marketplace providing framework-aware code review skills and verification workflows for pre-push reviews and GitHub bot feedback handling. It contains 10 focused plugins with 131 skills.
+Beagle is a Claude Code plugin marketplace providing framework-aware code review skills and verification workflows for pre-push reviews and GitHub bot feedback handling. It contains 10 focused plugins with 144 skills.
 
 ## Marketplace Architecture
 
@@ -39,17 +39,15 @@ Test the marketplace during development:
 }
 ```
 
-Restart Claude Code after changes to reload. Skills are discovered from plugin `skills/` directories and trigger keywords in skill frontmatter. Codex users can install the same skills by linking each plugin into `~/.agents/skills/` (see [.codex/INSTALL.md](.codex/INSTALL.md)).
+Restart Claude Code after changes to reload. Skills are discovered from plugin `skills/` directories and trigger keywords in skill frontmatter. Codex support files are in [.codex/INSTALL.md](.codex/INSTALL.md) and [docs/README.codex.md](docs/README.codex.md).
 
 ## Skills vs Commands
 
 See [Agent Skills](https://docs.claude.com/en/docs/agents-and-tools/agent-skills/overview) for the canonical format.
 
-Beagle now treats skills as the canonical format. Former command workflows were unified into `SKILL.md` files under each plugin's `skills/` directory, where frontmatter controls user exposure and behavior.
-
 **Skills** (`plugins/<name>/skills/` folders): Auto-loaded by Claude when relevant. Structure: `skill-name/SKILL.md` with optional `references/` folder and frontmatter such as `disable-model-invocation` and `user-invocable`.
 
-Legacy command workflows were merged into skills and are no longer stored separately.
+Commands have been unified into the skills format. All 144 SKILL.md files across 10 plugins constitute the canonical source; no separate `commands/` directories exist in the codebase.
 
 ## Creating New Skills
 

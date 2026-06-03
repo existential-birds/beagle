@@ -6,6 +6,14 @@ Format follows [Keep a Changelog](https://keepachangelog.com/en/1.1.0/). Version
 
 ## [Unreleased]
 
+### Changed
+- **All plugins (commands → skills migration):** Unified all 28 former command workflows into the skills format across 144 total SKILL.md files, removing all `commands/` directories from the repository — skills are now the canonical source for all user-invocable workflows
+- **beagle-core, beagle-docs, beagle-analysis:** Merged 4 commands into existing skills: `receive-feedback` (merged into `beagle-core:receive-feedback` skill), `review-ai-writing` (merged into `beagle-docs:review-ai-writing` skill), `humanize-beagle` (merged into `beagle-docs:humanize-beagle` skill), `llm-judge` (merged into `beagle-analysis:llm-judge` skill)
+- **15 internal-only skills:** Marked as `user-invocable: false` to prevent unintended user triggering while preserving programmatic access
+
+### Added
+- **Codex support:** Added `.codex/INSTALL.md` installation guide and `docs/README.codex.md` reference for non-Claude agents
+
 ## [4.1.0] - 2026-05-31
 
 ### Changed

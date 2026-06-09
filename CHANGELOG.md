@@ -6,6 +6,11 @@ Format follows [Keep a Changelog](https://keepachangelog.com/en/1.1.0/). Version
 
 ## [Unreleased]
 
+## [4.2.0] - 2026-06-08
+
+### Changed
+- **beagle-core:subagent-prompt**: skill is now model-invocable (`disable-model-invocation: false`) so it can auto-trigger when relevant, instead of being user-invocation-only ([#132](https://github.com/existential-birds/beagle/pull/132))
+
 ## [4.1.0] - 2026-05-31
 
 ### Changed
@@ -504,7 +509,8 @@ Format follows [Keep a Changelog](https://keepachangelog.com/en/1.1.0/). Version
 - Development commands: `skill-builder`, `ensure-docs`
 - Cursor IDE command equivalents
 
-[Unreleased]: https://github.com/existential-birds/beagle/compare/v4.1.0...HEAD
+[Unreleased]: https://github.com/existential-birds/beagle/compare/v4.2.0...HEAD
+[4.2.0]: https://github.com/existential-birds/beagle/compare/v4.1.0...v4.2.0
 [4.1.0]: https://github.com/existential-birds/beagle/compare/v4.0.0...v4.1.0
 [4.0.0]: https://github.com/existential-birds/beagle/compare/v3.11.0...v4.0.0
 [3.11.0]: https://github.com/existential-birds/beagle/compare/v3.10.0...v3.11.0

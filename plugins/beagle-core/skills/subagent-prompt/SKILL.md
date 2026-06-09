@@ -1,7 +1,7 @@
 ---
 name: subagent-prompt
 description: Produce a comprehensive prompt that hands off the current session's work to a fresh session for sub-agent-orchestrated execution. Use when the user wants to execute discussed/planned work in a new session, run a job to completion via sub-agents, or generate a portable handoff prompt with per-task verification. Assumes the target session supports sub-agents. Triggers on "subagent-prompt", "give me a prompt to run this in a new session", "hand this off to sub-agents", "execute this with sub-agents".
-disable-model-invocation: true
+disable-model-invocation: false
 user-invocable: true
 ---
 

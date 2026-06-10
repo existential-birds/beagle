@@ -4,7 +4,7 @@ This file provides guidance to Claude Code (claude.ai/code) when working with co
 
 ## What This Is
 
-Beagle is a Claude Code plugin marketplace providing framework-aware code review skills and verification workflows for pre-push reviews and GitHub bot feedback handling. It contains 10 focused plugins with 144 skills.
+Beagle is a Claude Code plugin marketplace providing framework-aware code review skills and verification workflows for pre-push reviews and GitHub bot feedback handling. It contains 10 focused plugins with 131 skills.
 
 ## Marketplace Architecture
 
@@ -47,7 +47,7 @@ See [Agent Skills](https://docs.claude.com/en/docs/agents-and-tools/agent-skills
 
 **Skills** (`plugins/<name>/skills/` folders): Auto-loaded by Claude when relevant. Structure: `skill-name/SKILL.md` with optional `references/` folder and frontmatter such as `disable-model-invocation` and `user-invocable`.
 
-Commands have been unified into the skills format. All 144 SKILL.md files across 10 plugins constitute the canonical source; no separate `commands/` directories exist in the codebase.
+Former command workflows have been unified into the skills format. The 10 active marketplace plugins contain 131 canonical `SKILL.md` entry points; the deprecated `beagle-ai` skill files remain on disk for backward compatibility. No separate plugin `commands/` directories exist under `plugins/`.
 
 ## Creating New Skills
 

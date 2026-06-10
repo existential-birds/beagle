@@ -6,7 +6,7 @@
 
 *Image: NASA, Public Domain. [Source](https://www.nasa.gov/multimedia/imagegallery/image_feature_572.html)*
 
-Beagle is a Claude Code plugin marketplace with 144 skills across code review, documentation, testing, architectural analysis, and git workflows. Use it to review before you push, detect AI-generated artifacts, draft and improve docs, generate test plans, and analyze codebases — across Python, Go, Rust, Elixir, React, Remix v2, iOS/Swift, and AI frameworks.
+Beagle is a Claude Code plugin marketplace with 131 active skills across code review, documentation, testing, architectural analysis, and git workflows. Use it to review before you push, detect AI-generated artifacts, draft and improve docs, generate test plans, and analyze codebases — across Python, Go, Rust, Elixir, React, Remix v2, and iOS/Swift.
 
 Used with [Amelia](https://github.com/existential-birds/amelia) for agent-based workflows and [Daydream](https://github.com/existential-birds/daydream) for automated review-fix-test loops.
 
@@ -63,7 +63,7 @@ This downloads the skills and configures them for your agent.
 | **beagle-docs** | 10 | Documentation quality, AI writing detection (Diataxis) |
 | **beagle-analysis** | 13 | Brainstorming, ADRs, strategy, LLM-as-judge, spec gap resolution, TDD plan writing |
 | **beagle-testing** | 2 | Test plan generation and execution |
-| **Total** | **144** | — |
+| **Total** | **131** | — |
 
 ## Skills
 

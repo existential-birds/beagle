@@ -39,7 +39,7 @@ Test the marketplace during development:
 }
 ```
 
-Restart Claude Code after changes to reload. Skills are discovered from plugin `skills/` directories and trigger keywords in skill frontmatter. Codex users can install the same skills by linking each plugin into `~/.agents/skills/` (see [.codex/INSTALL.md](.codex/INSTALL.md)).
+Restart Claude Code after changes to reload. Skills are discovered from plugin `skills/` directories and trigger keywords in skill frontmatter. Codex users can install the same skills by linking active skill directories into `~/.agents/skills/` (see [.codex/INSTALL.md](.codex/INSTALL.md)).
 
 ## Skills
 

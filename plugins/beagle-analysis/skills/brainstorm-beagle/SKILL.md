@@ -19,6 +19,7 @@ Complete these steps in order:
 
 1. **Check for a concept brief** — if `.beagle/concepts/<slug>/brief.md` exists for this idea, ingest it and skip most of steps 2-4 (see *Concept brief ingestion* below)
 2. **Explore context** — read project files, docs, git history, existing specs (lighter pass if a brief is present)
+   - **Prior art check (brownfield only):** before specing a feature onto an existing codebase, run a neutral capability sweep to confirm the thing doesn't already exist (see *Prior Art Check* below). Runs regardless of whether a brief is present.
 3. **Assess scope** — is this one spec or does it need decomposition?
 4. **Ask clarifying questions** — one at a time, follow the thread (few to none if a brief is present)
 5. **Propose 2-3 directions** — high-level product approaches with tradeoffs
@@ -33,6 +34,9 @@ Brief present? ──→ Yes → Ingest brief (skip most discovery) ──┐
                                             ├─ Too large? → Decompose → Brainstorm first sub-project
                                             └─ Right size? → Clarifying questions ─┘
                                                                                    │
+Brownfield? ──→ Yes → Prior art check (neutral capability sweep) ─→ Already exists? ─→ surface, reshape/kill spec
+            ──→ No  → skip ─────────────────────────────────────────────────────────────────────┐
+                                                                                                  │
 Both paths converge → Propose directions → Draft spec → Self-review (fix inline) → User review
                                                                                         ├─ Changes? → Revise
                                                                                         └─ Approved? → Write to concept folder
@@ -52,6 +56,26 @@ If the user invokes brainstorm-beagle on a concept that already has `.beagle/con
 The brief is a context handoff, not a gate. Run your own Self-Review on the spec you produce — brainstorm-beagle remains responsible for implementation-leakage detection, requirement testability, and scope discipline regardless of how much discovery was pre-done upstream.
 
 **When there is no brief:** proceed through steps 2-9 normally. Not every idea comes from PRFAQ.
+
+**The brief does not exempt you from the prior art check.** A brief (or the issue behind it) frames the feature as something to build — that framing is exactly the bias the *Prior Art Check* exists to neutralize. Run the sweep even when ingesting a brief.
+
+## Prior Art Check
+
+This step exists because of a specific, expensive failure: drafting a spec that reinvents a capability the codebase already has. It applies whenever the idea is a feature being added to an **existing codebase** (brownfield). For greenfield ideas with no existing code, skip it.
+
+**The failure mode it prevents:** An issue or brief frames a feature as new ("we removed the old truncation, design fresh") or simply omits that prior work exists. You — or a subagent you delegate exploration to — inherit that framing, look only where the framing points, confirm the framing, and spec a feature that duplicates code already shipped and tested. The spec then teaches the downstream planner and executor to rebuild something that exists.
+
+**The discipline: search neutrally, independent of framing.**
+
+1. **Run a capability-keyword sweep across the WHOLE workspace** — every crate/package/module, not just the directory the issue points at. Search for the *capability* by its likely names, synonyms, and abbreviations, not the issue's vocabulary. For a truncation feature: `grep -riE 'truncat|spill|cap|max_bytes|head_bytes|limit|trim|elide'` across all source roots. Cast wide; one matching file kills the assumption.
+2. **Do not trust "this doesn't exist" claims.** Issues and briefs go stale relative to the code — someone may have built the thing after the issue was filed. The issue's "we removed X / X doesn't exist yet" is a hypothesis to disprove with grep, not a fact to inherit.
+3. **If you delegate exploration to a subagent, give it the neutral sweep, not the narrative scope.** Brief it as "grep the entire workspace for these capability keywords and report every hit," not "look in `module/foo` for where X is written." A scoped brief reproduces the framing bias inside the subagent. Pass the keyword list; do not pass the issue's theory of where the code lives.
+4. **Surface what you find.** If the capability (or a large part of it) already exists:
+   - Say so plainly, citing the file(s) — "`agent/src/spill.rs` already implements head-tail capping with a sidecar, and it's tested."
+   - Reframe the spec around the gap, not the whole feature: extend/fix/wire-up what exists rather than rebuild it. Often this shrinks the spec dramatically or dissolves the need for one.
+   - Record the discovery as a Key Decision ("Build on existing `spill.rs` rather than a fresh truncation module") so the downstream planner doesn't re-litigate.
+
+This is distinct from *Explore context* (step 2), which reads to understand the project. The prior art check is adversarial: its job is to disprove the assumption that the feature is new, before that assumption hardens into a spec.
 
 ## Questioning
 
@@ -203,6 +227,7 @@ After drafting the spec, review it for:
 4. **Untestable requirements** — could someone verify this was met? Make it concrete.
 5. **Missing rationale** — do constraints and out-of-scope items explain WHY? Add reasons.
 6. **Scope** — is this focused enough for a single planning cycle?
+7. **Reinvention (brownfield)** — does any must-have rebuild a capability that already exists in the codebase? If the prior art check wasn't run, run it now. Reframe duplicated requirements around the actual gap.
 
 Fix issues inline. Then present to the user for review.
 
@@ -211,7 +236,7 @@ See `references/spec-reviewer.md` for the detailed review checklist.
 **Pass before presenting the draft (user review step):** Advance only when every item is honestly **yes** — not “feels fine.”
 
 1. **Template:** The draft follows the section structure in `references/spec-template.md` (or you note deliberate omissions and why).
-2. **No honor-system completeness:** Steps 1–6 above are satisfied; unresolved placeholders/TODOs are confined to *Open Questions* (not smuggled into must-haves).
+2. **No honor-system completeness:** Steps 1–7 above are satisfied; unresolved placeholders/TODOs are confined to *Open Questions* (not smuggled into must-haves).
 3. **Leakage check:** Every must-have / should-have passes the two-approach test under **Implementation Leakage** in `references/spec-reviewer.md`, except items explicitly listed under *Constraints* with rationale.
 4. **Artifact:** The draft text exists in the conversation (or a single attached buffer) so the user is reviewing concrete prose, not a summary.
 

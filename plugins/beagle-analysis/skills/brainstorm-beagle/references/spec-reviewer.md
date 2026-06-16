@@ -66,6 +66,18 @@ Is this focused enough for a single planning cycle?
 - Requirements spanning multiple independent subsystems? Decompose.
 - Could you explain the core loop in 30 seconds? If not, it's too broad.
 
+### 7. Reinvention (brownfield only)
+
+For a feature being added to an existing codebase, the most expensive miss is specing a capability the code already has. The *Prior Art Check* step (in SKILL.md) should have run before drafting — this is the backstop.
+
+| Check | What to look for |
+|-------|-----------------|
+| No duplicated capability | No must-have rebuilds something a neutral capability-keyword grep across the whole workspace would surface |
+| Framing not trusted | The spec didn't inherit an issue/brief claim that "X was removed / doesn't exist" without disproving it against current code |
+| Build-on recorded | Where prior art exists, a Key Decision says whether to extend it or replace it, and why |
+
+If the prior art check was skipped, run it now: `grep -riE '<capability synonyms>'` across all source roots before approving. One matching file means a requirement needs reframing from "build X" to "extend/fix/wire-up the existing X."
+
 ## Calibration
 
 **Only fix issues that would cause real problems downstream.**

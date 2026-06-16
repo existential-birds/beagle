@@ -8,6 +8,21 @@ user-invocable: false
 
 Apply these principles when writing or reviewing documentation to ensure clarity, consistency, and accessibility for both human readers and LLMs.
 
+## Choose the Right Documentation Type First
+
+Style serves a purpose, and the purpose depends on which of the four Diataxis types you are writing. Before applying the conventions below, decide whether the document is a **Tutorial** (learning), **How-To guide** (a task), **Reference** (looking up), or **Explanation** (understanding) — these are not interchangeable, and mixing them in one document weakens all of them.
+
+To choose, ask the two compass questions: *action or cognition? acquisition or application?*
+
+| The reader's stance | Type |
+|---|---|
+| "I'm learning — guide my hands" | **Tutorial** |
+| "I have a goal — help me reach it" | **How-To** |
+| "I'm working — let me look something up" | **Reference** |
+| "I'm reflecting — help me understand why" | **Explanation** |
+
+For the full decision procedure, the 2×2 map, the two distinctions that resolve most ambiguity (Tutorial vs. How-To, Reference vs. Explanation), and the quality model, see [references/diataxis-compass.md](references/diataxis-compass.md). The type-specific skills (`tutorial-docs`, `howto-docs`, `reference-docs`, `explanation-docs`) build on the principles in this guide once the type is chosen.
+
 ## Voice and Tone
 
 ### Use Second Person
@@ -308,10 +323,20 @@ This will blow your mind.
 Let's dive in!
 ```
 
+## Two Kinds of Quality
+
+Good documentation has two layers of quality, and the second depends on the first:
+
+- **Functional quality** — objective and measurable: accuracy, completeness, consistency, usefulness, precision. This is the prerequisite. The principles in this guide and the type-specific skills target functional quality.
+- **Deep quality** — subjective and human-centred: it feels good to use, anticipates the reader, and fits how people actually work. You cannot reach it without functional quality first; choosing the right type (above) and writing it cleanly lays the conditions for it.
+
+See [references/diataxis-compass.md](references/diataxis-compass.md) for the full quality model and the "work by improvement" approach (improve one real piece at a time; never build empty section skeletons).
+
 ## Quick Reference Checklist
 
 When writing documentation, verify:
 
+- [ ] The document is one clear Diataxis type, not a mix (see [the compass](references/diataxis-compass.md))
 - [ ] Using "you" instead of "the user"
 - [ ] Active voice throughout
 - [ ] No unnecessary words

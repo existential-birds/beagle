@@ -8,6 +8,8 @@ user-invocable: false
 
 This skill provides patterns for writing effective How-To guides in documentation. How-To guides are task-oriented content for users who have a specific goal in mind.
 
+**Dependency:** Use this skill with `docs-style` for core writing principles. To confirm a how-to is the right type — rather than a tutorial, reference, or explanation — see [docs-style/references/diataxis-compass.md](../docs-style/references/diataxis-compass.md).
+
 ## Purpose & Audience
 
 **Target readers:**
@@ -109,6 +111,18 @@ Brief intro (1-2 sentences): what you'll accomplish and why it's useful.
 - Don't explain why things work - just show how to do them
 - Link to explanations for users who want deeper understanding
 - Keep each step focused on the immediate action
+
+### Use Conditional Imperatives and Address the Real World
+
+Unlike a tutorial — which controls a single, guaranteed path — a how-to meets the user in the messy real world. Diataxis frames steps as **conditional imperatives**: "*If you want X, do Y.*" This respects that the reader arrives with their own context and goal.
+
+- **Branch where reality branches.** When the right action depends on the user's situation, say so ("If you deploy to staging, set `ENV=staging`; for production, use…") rather than pretending one path fits all.
+- **Prepare for the unexpected.** Note the failure modes and detours a competent user will actually hit (the Troubleshooting section is where these live).
+- **Omit the unnecessary.** A how-to aims at practical usability, not completeness. Leave out anything that doesn't move the reader toward the goal; link to Reference for exhaustive detail.
+
+### Name the Guide by What It Achieves
+
+Titles state exactly what the guide accomplishes, using the user's goal: "How to integrate Stripe payments," not "Payments" or "The Stripe module." If you cannot name the concrete outcome, the scope is not yet clear enough to write.
 
 ### User Perspective
 
@@ -332,9 +346,12 @@ Before publishing, verify:
 | "I want to understand" | Explanation | "How our caching works" |
 | "I need to look up Y" | Reference | "API endpoint reference" |
 
+For the full compass procedure and the other type distinctions, see [docs-style/references/diataxis-compass.md](../docs-style/references/diataxis-compass.md).
+
 ## Related Skills
 
 - **[docs-style](../docs-style/SKILL.md)**: Core writing conventions and components
+- **[Diataxis compass](../docs-style/references/diataxis-compass.md)**: Type selection, the 2×2 map, and the quality model
 - **[tutorial-docs](../tutorial-docs/SKILL.md)**: Tutorial patterns for learning-oriented content
 - **[reference-docs](../reference-docs/SKILL.md)**: Reference documentation patterns
 - **[explanation-docs](../explanation-docs/SKILL.md)**: Conceptual documentation patterns

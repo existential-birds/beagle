@@ -6,7 +6,7 @@ disable-model-invocation: true
 
 # Draft Docs
 
-Generate Reference, How-To, or Explanation documentation drafts to `docs/drafts/` for review before publishing.
+Generate Tutorial, How-To, Reference, or Explanation documentation drafts to `docs/drafts/` for review before publishing. These are the four [Diataxis](https://diataxis.fr/) types — see [docs-style/references/diataxis-compass.md](../docs-style/references/diataxis-compass.md) for the full type-selection procedure.
 
 ## Arguments
 
@@ -50,16 +50,17 @@ Extract from the prompt:
 
 | Keywords | Type | Skill |
 |----------|------|-------|
+| "tutorial", "learn", "getting started", "first", "onboarding", "introduction", "build a/your" | Tutorial | [tutorial-docs](../tutorial-docs/SKILL.md) |
 | "how to", "guide", "steps", "configure", "set up" | How-To | [howto-docs](../howto-docs/SKILL.md) |
 | "API", "reference", "parameters", "function", "endpoint" | Reference | [reference-docs](../reference-docs/SKILL.md) |
 | "why", "how does it work", "concept", "background", "rationale", "design decision", "architecture", "trade-offs" | Explanation | [explanation-docs](../explanation-docs/SKILL.md) |
 
-These three types map to three quadrants of the [Diátaxis](https://diataxis.fr/) framework — Reference (information), How-To (task), and Explanation (understanding). Two distinctions resolve most ambiguity:
+These four types are the quadrants of the [Diátaxis](https://diataxis.fr/) framework — Tutorial (learning), How-To (task), Reference (information), and Explanation (understanding). Decide with the two compass questions — *action or cognition? acquisition or application?* — detailed in [docs-style/references/diataxis-compass.md](../docs-style/references/diataxis-compass.md). Two distinctions resolve most ambiguity:
 
+- **Tutorial vs. How-To** both give action steps, but a Tutorial teaches a beginner through a guaranteed-to-succeed lesson (study), while a How-To directs a competent user toward a real goal (work). If the reader is learning the product for the first time, it's a Tutorial; if they already know it and want to get a task done, it's a How-To.
 - **Reference vs. Explanation** both serve theoretical knowledge, but Reference *states* neutral facts to consult at the keyboard, while Explanation *discusses* reasoning and context to read away from it. If the request wants opinions, history, or trade-offs, it's Explanation; if it wants an authoritative spec, it's Reference.
-- **How-To vs. Explanation** split on practice vs. theory: How-To answers "how do I accomplish this task?" and is followed at the keyboard; Explanation answers "why does this work this way?" and builds a mental model.
 
-If ambiguous, ask: "Should this be a Reference doc (technical lookup), a How-To guide (task completion), or an Explanation (understanding the why behind a concept)?"
+If ambiguous, ask: "Should this be a Tutorial (learning by doing), a How-To guide (task completion), a Reference doc (technical lookup), or an Explanation (understanding the why behind a concept)?"
 
 ### Step 2: Load Skills
 
@@ -67,8 +68,9 @@ Always load both:
 
 1. [docs-style](../docs-style/SKILL.md) - Core writing principles
 2. Detected type skill:
-   - [reference-docs](../reference-docs/SKILL.md) for Reference
+   - [tutorial-docs](../tutorial-docs/SKILL.md) for Tutorial
    - [howto-docs](../howto-docs/SKILL.md) for How-To
+   - [reference-docs](../reference-docs/SKILL.md) for Reference
    - [explanation-docs](../explanation-docs/SKILL.md) for Explanation
 
 ### Step 3: Analyze Code
@@ -88,6 +90,14 @@ Gather:
 ### Step 4: Generate Draft
 
 Apply the loaded skills to generate documentation:
+
+**For Tutorial docs:**
+- Follow `tutorial-docs` template structure
+- Title names what the reader will build ("Build your first X"), not what they'll learn
+- Use first-person plural — "In this tutorial, we will…" — to keep the teacher/learner narrative
+- Give one clear path with no choices or alternatives
+- After every step, state what the reader should see ("You should see…")
+- Ruthlessly minimize explanation; link out to Explanation docs for the "why"
 
 **For Reference docs:**
 - Follow `reference-docs` template structure
@@ -128,7 +138,7 @@ Apply the loaded skills to generate documentation:
    ## Draft Created
 
    **File:** `docs/drafts/{slug}.md`
-   **Type:** Reference | How-To | Explanation
+   **Type:** Tutorial | How-To | Reference | Explanation
    **Based on:** [list of analyzed symbols/files]
 
    ### Next Steps
@@ -156,8 +166,9 @@ markdownlint docs/drafts/{slug}.md 2>/dev/null || echo "markdownlint not availab
 **Verification Checklist:**
 - [ ] Draft file created at `docs/drafts/{slug}.md`
 - [ ] Frontmatter includes `title` and `description`
-- [ ] Content type matches detected type (Reference, How-To, or Explanation)
-- [ ] Code examples are complete and runnable (Reference/How-To); concepts grounded in real design decisions (Explanation)
+- [ ] Content type matches detected type (Tutorial, How-To, Reference, or Explanation)
+- [ ] Code examples are complete and runnable (Tutorial/How-To/Reference); concepts grounded in real design decisions (Explanation)
+- [ ] Tutorial drafts give a single path with observable "You should see…" outcomes at each step
 - [ ] All analyzed symbols referenced in draft
 
 If any verification fails, report the specific issue and offer to regenerate.
@@ -179,11 +190,12 @@ Ask user which section:
 ```markdown
 Where should this document go?
 
-1. **API Reference** → `docs/api/{slug}.md`
-2. **Guides** → `docs/guides/{slug}.md`
-3. **How-To** → `docs/how-to/{slug}.md`
-4. **Concepts / Explanation** → `docs/concepts/{slug}.md`
-5. **Other** → Specify path
+1. **Tutorials** → `docs/tutorials/{slug}.md`
+2. **API Reference** → `docs/api/{slug}.md`
+3. **Guides** → `docs/guides/{slug}.md`
+4. **How-To** → `docs/how-to/{slug}.md`
+5. **Concepts / Explanation** → `docs/concepts/{slug}.md`
+6. **Other** → Specify path
 ```
 
 ### Step 3: Move File
@@ -257,6 +269,12 @@ If any verification fails, report the specific issue and offer remediation steps
 
 ## Content Type Detection
 
+### Tutorial Indicators
+
+- Prompt mentions: tutorial, learn, getting started, first, onboarding, introduction, "build a/your"
+- Target is a beginner's first successful experience with the product
+- User wants a guided, learn-by-doing lesson, not a task or a lookup
+
 ### Reference Indicators
 
 - Prompt mentions: API, endpoint, function, method, class, type, parameters, returns
@@ -292,8 +310,8 @@ Do not skip ahead: each **Pass** must be true before the next step. Use commands
 ### Generate draft (Mode 1)
 
 1. **Context gate — Pass:** Step 0 commands ran (or equivalent) and you recorded at least one concrete outcome: e.g. `docs/` listing snippet, or explicit note that `docs/` is missing and will be created.
-2. **Type gate — Pass:** Reference vs How-To vs Explanation is decided using the keyword table **or** the user’s explicit answer (quote or paraphrase with “user chose …”). Do not start **Step 3: Analyze Code** until this is locked.
-3. **Skills gate — Pass:** Before analysis, both are in play: [docs-style](../docs-style/SKILL.md) and the type skill ([reference-docs](../reference-docs/SKILL.md), [howto-docs](../howto-docs/SKILL.md), or [explanation-docs](../explanation-docs/SKILL.md)). In your run, name the two skills loaded (paths)—not “I reviewed writing guidelines.”
+2. **Type gate — Pass:** Tutorial vs How-To vs Reference vs Explanation is decided using the keyword table and the two compass questions **or** the user’s explicit answer (quote or paraphrase with “user chose …”). Do not start **Step 3: Analyze Code** until this is locked.
+3. **Skills gate — Pass:** Before analysis, both are in play: [docs-style](../docs-style/SKILL.md) and the type skill ([tutorial-docs](../tutorial-docs/SKILL.md), [howto-docs](../howto-docs/SKILL.md), [reference-docs](../reference-docs/SKILL.md), or [explanation-docs](../explanation-docs/SKILL.md)). In your run, name the two skills loaded (paths)—not “I reviewed writing guidelines.”
 4. **Write gate — Pass:** After writing the draft, `test -f docs/drafts/{slug}.md` succeeds (or `ls` shows the file). Only then emit the **Draft Created** block.
 
 ### Publish draft (Mode 2)

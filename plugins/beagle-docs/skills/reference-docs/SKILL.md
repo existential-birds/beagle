@@ -8,7 +8,7 @@ user-invocable: false
 
 Reference documentation is information-oriented - helping experienced users find precise technical details quickly. This skill provides patterns for writing clear, scannable reference pages.
 
-**Dependency:** Always use this skill in conjunction with `docs-style` for core writing principles.
+**Dependency:** Always use this skill in conjunction with `docs-style` for core writing principles. To confirm reference is the right type — rather than a tutorial, how-to, or explanation — see [docs-style/references/diataxis-compass.md](../docs-style/references/diataxis-compass.md).
 
 ## Purpose and Audience
 
@@ -66,6 +66,16 @@ console.log(result);
 ```
 
 ## Writing Principles
+
+### Describe, and Only Describe
+
+Reference is austere, neutral, and authoritative — a map the reader can trust without independent verification. Its one job is to describe the machinery: commands, options, parameters, return values, limits, warnings. It does not instruct (that's How-To), teach (Tutorial), or argue (Explanation). When you feel the urge to explain *why* or walk the reader through a task, link out instead of inlining it; a digression interrupts and obscures the facts the reader came to consult.
+
+### Structure Mirrors the Product
+
+> "The structure of the documentation should mirror the structure of the product."
+
+Organise reference so a reader can navigate the code and the docs in parallel — one reference entry per module, class, endpoint, or command, in the product's own order. Don't impose a narrative or thematic structure the product doesn't have; consistency of placement is what makes reference fast to consult.
 
 ### Brevity Over Explanation
 
@@ -340,3 +350,22 @@ After the **Gates (completion order)** above, confirm:
 - [ ] Example uses realistic values
 - [ ] Related pages linked
 - [ ] Format matches other reference pages in the docs
+
+## When to Use Reference vs Other Doc Types
+
+| User's mindset | Doc type | Example |
+|---------------|----------|---------|
+| "I want to learn" | Tutorial | "Build your first integration" |
+| "I want to do X" | How-To | "How to configure SSO" |
+| "I want to understand" | Explanation | "How our caching works" |
+| "I need to look up Y" | **Reference** | "API endpoint reference" |
+
+Reference and Explanation are the two cognition-oriented types and are easily confused: Reference *states* neutral facts to consult while working; Explanation *discusses* reasoning to read while reflecting. For the full compass procedure and distinctions, see [docs-style/references/diataxis-compass.md](../docs-style/references/diataxis-compass.md).
+
+## Related Skills
+
+- **[docs-style](../docs-style/SKILL.md)**: Core writing conventions and components
+- **[Diataxis compass](../docs-style/references/diataxis-compass.md)**: Type selection, the 2×2 map, and the quality model
+- **[tutorial-docs](../tutorial-docs/SKILL.md)**: Tutorial patterns for learning-oriented content
+- **[howto-docs](../howto-docs/SKILL.md)**: How-To guide patterns for task-oriented content
+- **[explanation-docs](../explanation-docs/SKILL.md)**: Conceptual documentation patterns

@@ -6,7 +6,7 @@ disable-model-invocation: true
 
 # Draft Docs
 
-Generate Reference or How-To documentation drafts to `docs/drafts/` for review before publishing.
+Generate Reference, How-To, or Explanation documentation drafts to `docs/drafts/` for review before publishing.
 
 ## Arguments
 
@@ -52,8 +52,14 @@ Extract from the prompt:
 |----------|------|-------|
 | "how to", "guide", "steps", "configure", "set up" | How-To | [howto-docs](../howto-docs/SKILL.md) |
 | "API", "reference", "parameters", "function", "endpoint" | Reference | [reference-docs](../reference-docs/SKILL.md) |
+| "why", "how does it work", "concept", "background", "rationale", "design decision", "architecture", "trade-offs" | Explanation | [explanation-docs](../explanation-docs/SKILL.md) |
 
-If ambiguous, ask: "Should this be a Reference doc (technical lookup) or How-To guide (task completion)?"
+These three types map to three quadrants of the [Diátaxis](https://diataxis.fr/) framework — Reference (information), How-To (task), and Explanation (understanding). Two distinctions resolve most ambiguity:
+
+- **Reference vs. Explanation** both serve theoretical knowledge, but Reference *states* neutral facts to consult at the keyboard, while Explanation *discusses* reasoning and context to read away from it. If the request wants opinions, history, or trade-offs, it's Explanation; if it wants an authoritative spec, it's Reference.
+- **How-To vs. Explanation** split on practice vs. theory: How-To answers "how do I accomplish this task?" and is followed at the keyboard; Explanation answers "why does this work this way?" and builds a mental model.
+
+If ambiguous, ask: "Should this be a Reference doc (technical lookup), a How-To guide (task completion), or an Explanation (understanding the why behind a concept)?"
 
 ### Step 2: Load Skills
 
@@ -63,6 +69,7 @@ Always load both:
 2. Detected type skill:
    - [reference-docs](../reference-docs/SKILL.md) for Reference
    - [howto-docs](../howto-docs/SKILL.md) for How-To
+   - [explanation-docs](../explanation-docs/SKILL.md) for Explanation
 
 ### Step 3: Analyze Code
 
@@ -95,6 +102,14 @@ Apply the loaded skills to generate documentation:
 - Break into single-action steps
 - Include verification section
 
+**For Explanation docs:**
+- Follow `explanation-docs` template structure
+- Frame the title around understanding a concept ("Understanding X"), not a task
+- Open by stating what the reader will understand after reading
+- Explain the *why* behind design decisions, not just what exists
+- Discuss trade-offs honestly and acknowledge alternatives that were considered
+- Write flowing prose for reading away from the keyboard — no steps to follow
+
 ### Step 5: Write Draft
 
 1. **Create output path:**
@@ -113,7 +128,7 @@ Apply the loaded skills to generate documentation:
    ## Draft Created
 
    **File:** `docs/drafts/{slug}.md`
-   **Type:** Reference | How-To
+   **Type:** Reference | How-To | Explanation
    **Based on:** [list of analyzed symbols/files]
 
    ### Next Steps
@@ -141,8 +156,8 @@ markdownlint docs/drafts/{slug}.md 2>/dev/null || echo "markdownlint not availab
 **Verification Checklist:**
 - [ ] Draft file created at `docs/drafts/{slug}.md`
 - [ ] Frontmatter includes `title` and `description`
-- [ ] Content type matches detected type (Reference or How-To)
-- [ ] Code examples are complete and runnable
+- [ ] Content type matches detected type (Reference, How-To, or Explanation)
+- [ ] Code examples are complete and runnable (Reference/How-To); concepts grounded in real design decisions (Explanation)
 - [ ] All analyzed symbols referenced in draft
 
 If any verification fails, report the specific issue and offer to regenerate.
@@ -167,7 +182,8 @@ Where should this document go?
 1. **API Reference** → `docs/api/{slug}.md`
 2. **Guides** → `docs/guides/{slug}.md`
 3. **How-To** → `docs/how-to/{slug}.md`
-4. **Other** → Specify path
+4. **Concepts / Explanation** → `docs/concepts/{slug}.md`
+5. **Other** → Specify path
 ```
 
 ### Step 3: Move File
@@ -253,6 +269,12 @@ If any verification fails, report the specific issue and offer remediation steps
 - Target is a task or workflow
 - User wants procedural instructions
 
+### Explanation Indicators
+
+- Prompt mentions: why, how it works, concept, background, rationale, design decision, architecture, trade-offs
+- Target is a concept or system the reader wants to understand, not operate
+- User wants context and reasoning to read away from the keyboard, not steps to follow
+
 ## Rules
 
 - Always load `docs-style` skill for every draft
@@ -270,8 +292,8 @@ Do not skip ahead: each **Pass** must be true before the next step. Use commands
 ### Generate draft (Mode 1)
 
 1. **Context gate — Pass:** Step 0 commands ran (or equivalent) and you recorded at least one concrete outcome: e.g. `docs/` listing snippet, or explicit note that `docs/` is missing and will be created.
-2. **Type gate — Pass:** Reference vs How-To is decided using the keyword table **or** the user’s explicit answer (quote or paraphrase with “user chose …”). Do not start **Step 3: Analyze Code** until this is locked.
-3. **Skills gate — Pass:** Before analysis, both are in play: [docs-style](../docs-style/SKILL.md) and the type skill ([reference-docs](../reference-docs/SKILL.md) or [howto-docs](../howto-docs/SKILL.md)). In your run, name the two skills loaded (paths)—not “I reviewed writing guidelines.”
+2. **Type gate — Pass:** Reference vs How-To vs Explanation is decided using the keyword table **or** the user’s explicit answer (quote or paraphrase with “user chose …”). Do not start **Step 3: Analyze Code** until this is locked.
+3. **Skills gate — Pass:** Before analysis, both are in play: [docs-style](../docs-style/SKILL.md) and the type skill ([reference-docs](../reference-docs/SKILL.md), [howto-docs](../howto-docs/SKILL.md), or [explanation-docs](../explanation-docs/SKILL.md)). In your run, name the two skills loaded (paths)—not “I reviewed writing guidelines.”
 4. **Write gate — Pass:** After writing the draft, `test -f docs/drafts/{slug}.md` succeeds (or `ls` shows the file). Only then emit the **Draft Created** block.
 
 ### Publish draft (Mode 2)

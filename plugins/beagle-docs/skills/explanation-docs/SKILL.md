@@ -179,6 +179,14 @@ Explanations are read linearly, away from the keyboard. Structure them like essa
 - **Allow for depth** - it's okay if sections are longer than in how-to guides
 - **Include context** that would be distracting in task-focused docs
 
+### Keep Explanation Bounded
+
+Diátaxis warns that explanation is "the most easily neglected and most easily mistaken" type — it tends to absorb material that belongs elsewhere. A paragraph of setup steps creeps in, or a parameter table, and the document quietly stops being an explanation.
+
+Guard the boundary: if you find yourself writing instructions the reader should *follow*, that belongs in a How-To; if you're listing exact signatures or options to *consult*, that belongs in Reference. Link to those docs instead of inlining them. The discipline of staying within "why" and "how it works" is what makes an explanation worth reading away from the keyboard.
+
+A useful tell that you're on track: explanation reads naturally with discursive openings like "The reason for X is that historically…", "X is better than Y because…", or "Some teams prefer Z, which works well when… but…". If a section can't be phrased that way, it may not be explanation.
+
 ### Connect to the Bigger Picture
 
 Show how this concept relates to other parts of the system or to broader industry patterns.

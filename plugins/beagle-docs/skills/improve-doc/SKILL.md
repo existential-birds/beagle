@@ -61,7 +61,7 @@ Load [docs-style](../docs-style/SKILL.md) for core writing principles that apply
 
 ### Step 3: Classify Each Section
 
-For each section, determine the Diataxis type using these indicators:
+For each section, determine the Diataxis type using these indicators (for the full decision procedure and the two key distinctions, see [docs-style/references/diataxis-compass.md](../docs-style/references/diataxis-compass.md)):
 
 | Type | Indicators |
 |------|------------|

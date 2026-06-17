@@ -8,6 +8,8 @@ user-invocable: false
 
 This skill provides patterns for writing effective tutorials following the Diataxis framework. Tutorials are learning-oriented content where the reader learns by doing under the guidance of a teacher.
 
+**Dependency:** Use this skill with `docs-style` for core writing principles. To confirm a tutorial is the right type — rather than a how-to, reference, or explanation — see [docs-style/references/diataxis-compass.md](../docs-style/references/diataxis-compass.md).
+
 ## Purpose & Audience
 
 **Target readers:**
@@ -79,6 +81,15 @@ If you see "command not found", return to Step 2 to verify the installation.
 
 Repeating similar actions in slightly different contexts helps cement learning. Don't try to be efficient.
 
+### 6. Write in the First-Person Plural
+
+Diataxis prescribes the "we" voice for tutorials — "In this tutorial, we will build…", "Now we add…", "Let's check the output." It affirms the bond between teacher and learner: you are doing this *together*, and the teacher takes responsibility for the outcome. Reserve bare second-person imperatives ("Run this command") for the individual actions the reader performs; frame the journey itself with "we."
+
+| Avoid | Prefer |
+|-------|--------|
+| "You will build a dashboard." | "In this tutorial, we'll build a dashboard." |
+| "Next, configure the API." | "Now let's configure the API." |
+
 ## Tutorial Template
 
 Use this structure for all tutorials:
@@ -91,7 +102,7 @@ description: "Learn the basics of [product] by building a working [thing]"
 
 # Build Your First [Thing]
 
-In this tutorial, you'll build a [concrete deliverable]. By the end, you'll have a working [thing] that [does something visible].
+In this tutorial, we'll build a [concrete deliverable]. By the end, you'll have a working [thing] that [does something visible].
 
 <Note>
 This tutorial takes approximately [X] minutes to complete.
@@ -345,6 +356,8 @@ Run these **in order**. Start the next gate only after the previous **pass** is 
 | "I want to understand" | Explanation | "How our caching works" |
 | "I need to look up Y" | Reference | "API endpoint reference" |
 
+For the full compass procedure and the other type distinctions, see [docs-style/references/diataxis-compass.md](../docs-style/references/diataxis-compass.md).
+
 ### Tutorial vs How-To: Key Differences
 
 | Aspect | Tutorial | How-To |
@@ -360,6 +373,7 @@ Run these **in order**. Start the next gate only after the previous **pass** is 
 ## Related Skills
 
 - **[docs-style](../docs-style/SKILL.md)**: Core writing conventions and components
+- **[Diataxis compass](../docs-style/references/diataxis-compass.md)**: Type selection, the 2×2 map, and the quality model
 - **[howto-docs](../howto-docs/SKILL.md)**: How-To guide patterns for task-oriented content
 - **[reference-docs](../reference-docs/SKILL.md)**: Reference documentation patterns
 - **[explanation-docs](../explanation-docs/SKILL.md)**: Conceptual documentation patterns

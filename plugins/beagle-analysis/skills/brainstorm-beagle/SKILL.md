@@ -74,6 +74,7 @@ This step exists because of a specific, expensive failure: drafting a spec that 
    - Say so plainly, citing the file(s) — "`agent/src/spill.rs` already implements head-tail capping with a sidecar, and it's tested."
    - Reframe the spec around the gap, not the whole feature: extend/fix/wire-up what exists rather than rebuild it. Often this shrinks the spec dramatically or dissolves the need for one.
    - Record the discovery as a Key Decision ("Build on existing `spill.rs` rather than a fresh truncation module") so the downstream planner doesn't re-litigate.
+5. **Composition check.** For each existing mechanism the sweep surfaced, ask: does it sit **upstream or downstream in the same data pipeline** as the feature, and does it transform (truncate, filter, buffer, reorder, dedupe) the data this feature depends on? If yes, "the mechanism exists" is not the end of the inquiry — its *composition* with the new feature is the load-bearing question. Record the interaction as a Key Decision ("bash already caps output to 50 KiB upstream; the spill must capture before that cap or it cannot deliver full output") AND flag it as a Task 0 spike candidate for the plan. A new mechanism that composes wrongly with an existing one in the same pipeline ships broken even though neither piece was reinvented.
 
 This is distinct from *Explore context* (step 2), which reads to understand the project. The prior art check is adversarial: its job is to disprove the assumption that the feature is new, before that assumption hardens into a spec.
 
@@ -228,6 +229,7 @@ After drafting the spec, review it for:
 5. **Missing rationale** — do constraints and out-of-scope items explain WHY? Add reasons.
 6. **Scope** — is this focused enough for a single planning cycle?
 7. **Reinvention (brownfield)** — does any must-have rebuild a capability that already exists in the codebase? If the prior art check wasn't run, run it now. Reframe duplicated requirements around the actual gap.
+8. **Consumer (brownfield)** — does any must-have introduce a new externally-facing capability (API surface, command, endpoint, exported contract) that nothing else in the spec consumes? If who/what consumes it isn't named, either name the consumer or move the item to *Future Considerations*. Unconsumed externally-facing surface is speculative — fix it before presenting.
 
 Fix issues inline. Then present to the user for review.
 
@@ -264,4 +266,5 @@ See `references/spec-reviewer.md` for the detailed review checklist.
 - **No implementation** — WHAT and WHY, never HOW
 - **Capture everything** — ideas outside scope go to Future Considerations, never lost
 - **Incremental validation** — confirm understanding before moving on
+- **Every capability has a consumer** — a must-have that introduces externally-facing surface names who/what consumes it, or it moves to Future Considerations; unconsumed surface is speculation
 - **The spec stands alone** — anyone should be able to read it and understand the project

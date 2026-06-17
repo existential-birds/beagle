@@ -98,6 +98,7 @@ Task 0 is non-optional when the spec's Key Decisions rest on tool behavior the t
 - "Library Y's default test attribute uses the same pool config production uses."
 - "CLI Z's introspection covers every query shape we'll write."
 - "Migration framework W handles concurrent migrators against a fresh DB idempotently."
+- **Input-shape assumption:** the spec assumes upstream input arrives in shape X — whole / sorted / deduped / complete / already-validated — but nobody verified that shape holds in *this* repo. (The retention spec assumed "tool output arrives whole"; for streaming tools it doesn't — a rolling buffer had already evicted the prefix upstream before the new layer saw it.) A load-bearing assumption about upstream data shape is a spike candidate, not a given.
 
 If the spike fails or surfaces caveats, **stop and revise the spec** — do not paper over the discovery with extra plan tasks. A spec that locks a Key Decision on a tool that does not behave as assumed is a spec that needs another brainstorm pass, not a plan that needs more workarounds.
 
@@ -282,6 +283,8 @@ Four rules for the test code you write into Step 1 of each task.
 
 **Pin the spec, not every conceivable edge case.** A test exists to prove a specific spec requirement is met or a specific failure mode (named in the spec or in your Assumption Audit) is closed. One precise test per behavior the spec calls out, plus one test per named bug class, is the target. If you find yourself writing the 5th boundary test for the same function "just in case," stop — the marginal coverage is probably negative once you count maintenance cost and the noise it adds to the suite. Speculative input-space exhaustion belongs in property-based tests or fuzz harnesses if the project has them; otherwise it's overengineering. YAGNI applies to tests, not just impl.
 
+**Exception — payload-preservation invariants.** When a test pins a preserve/recover/transform invariant (output survives truncation, data round-trips, ordering holds), the set of structurally-distinct producers and the corrupted region are NOT speculative edge cases — they ARE the spec. Enumerate every producer whose data path differs (streaming-with-eviction vs. whole-string) and assert the sentinel in the damaged region for each. YAGNI does not license collapsing these to one happy-path producer — that is exactly how a recovery test passes against the one tool without the bug.
+
 ## Behavior Contract Discipline
 
 Two rules for the behavior contract under each implementation step.
@@ -366,6 +369,8 @@ After drafting the complete plan, look at the spec with fresh eyes and check the
 | **Spike candidates** | Re-read the Assumptions block and the spec's Key Decisions. For every claim of the form "tool X does Y" where neither this repo nor the team has a working example, is there a Task 0 spike? If not, add one or revise the spec. |
 | **Parallel-implementation gate** | Does the plan add a second backend/platform/adapter behind an existing trait or interface? If yes, is there a final task that runs the canonical contract suite against BOTH implementations and asserts byte-identical observable behavior? If not, add it. |
 | **Failure-propagation contracts** | For every task that introduces a new fallible operation (serialize/parse/convert/open/connect), does its behavior contract name the propagation policy? `.unwrap_or(<plausible fallback>)` without explicit contract rationale is a bug class — fix the contract. |
+| **Consumer check** | Every new public API surface this plan introduces (trait method, exported fn, public field, endpoint, CLI flag) has at least one named **production consumer** — a caller on a non-test path — *in this same plan*. A contract/unit test is NOT a consumer. If the only caller is a test, either name the production consumer or cut the surface (tagging it deferred with the consuming work as a numbered follow-up). Fail the plan otherwise — a primitive that exists only to satisfy a contract test is dead surface forcing dead impls. |
+| **Discriminating assertion** | For each test, describe a plausible broken/no-op impl that still passes its assertion. If one exists, the assertion is on the wrong target — move it to the region/shape the bug would corrupt. For preserve/recover/transform invariants: assert a sentinel in the region the bug *damages* (the dropped middle, never the surviving head/tail), exercised through **every structurally-distinct producer** (a streaming producer whose buffer evicts is not the same path as a whole-string producer). Fail the plan if any test admits a false-pass impl. |
 | **Per-task suite green** | Does every task's Step 4 specify both the single-test command AND the broader-scope suite command? Single-test-only passes hide cross-task regressions. |
 | **Pattern application audit** | If any Pattern applies to many sites, is the final Audit task present (grep + production-config divergence enumeration + 3-site sample-verify)? |
 | **Project conventions** | Does the plan respect the project conventions you read (e.g. AGENTS.md or CLAUDE.md)? (e.g., real-path test coverage, comment policy, commit format) |
@@ -438,7 +443,7 @@ The plan is a handoff document, not an instruction to execute. After writing, wr
 - **References point, they do not paste** — `file.ext:line-line` is the reference; inline code blocks under "Reference:" rot the moment the underlying code shifts
 - **DRY repetition with Patterns** — when a transformation applies to N sites, name the pattern once; each task still owns its own files, test, and commit
 - **Tests reuse existing scaffolding** — grep before inventing; new helpers in the plan need a named existing one that didn't fit
-- **YAGNI for tests too** — pin the spec and named bug classes, not every conceivable edge case; speculative input-space exhaustion is overengineering
+- **YAGNI for tests too — except payload-preservation invariants** — pin the spec and named bug classes, not every conceivable edge case; speculative input-space exhaustion is overengineering. But for preserve/recover/transform invariants, the structurally-distinct producers and the corrupted region *are* the spec — enumerate every producer and assert the sentinel in the damaged region
 - **Sweep on the way out** — every task that modifies a file ends by removing orphaned comments, unused imports, dead params/fields/helpers in that file; describe the sweep targets in plain language, not line numbers — the executor greps
 - **Surface assumptions** — bake them into the plan visibly, not silently into tasks; re-read the files the spec names rather than trusting the spec's characterization of them
 - **Respect project conventions** — every project has its own test commands, commit conventions, comment policy, and test-tier rules; read project conventions (e.g. AGENTS.md or CLAUDE.md, and equivalents like `CONTRIBUTING.md`) and let those shape the plan

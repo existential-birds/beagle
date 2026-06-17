@@ -6,9 +6,17 @@ Format follows [Keep a Changelog](https://keepachangelog.com/en/1.1.0/). Version
 
 ## [Unreleased]
 
+## [4.3.0] - 2026-06-16
+
+### Added
+- **beagle-docs:draft-docs**: Made the full Diataxis doc suite spec-compliant so it can draft and refine all four Diataxis types. `draft-docs` now drafts Tutorials and Explanations (previously only Reference/How-To) — keyword detection, ambiguity prompt, skill loading, generation guidance, publish menu, type gate, and checklist all cover the added types. Added a self-contained canonical reference (`docs-style/references/diataxis-compass.md`) with the two axes, 2×2 map, compass decision procedure, and quality model; `docs-style` now leads with type selection; `ensure-docs` gains a Diataxis type-balance lens; and the four type skills got fidelity polish ([#136](https://github.com/existential-birds/beagle/pull/136))
+
+### Changed
+- **beagle-analysis:brainstorm-beagle**: Added a Prior Art Check step — a neutral capability-keyword sweep across the whole workspace, run independent of issue/brief framing, so brownfield features can't be framed as new work that duplicates already-shipped, tested code. Treats "X was removed / doesn't exist" as a hypothesis to disprove, briefs any subagent with the keyword sweep rather than the narrative scope, and is wired into the workflow, self-review, and the spec-reviewer backstop checklist ([#135](https://github.com/existential-birds/beagle/pull/135))
+
 ### Fixed
-- **Codex install:** Reworked `.codex/INSTALL.md` to link each skill directory individually into Codex's flat `~/.agents/skills/` path instead of linking whole plugin `skills/` directories, so each skill resolves as a top-level entry in Codex's namespace-free discovery. The installer now fails on unexpected duplicate skill names and links the canonical `beagle-core` copy of `review-verification-protocol`; `docs/README.codex.md` updated to match
-- **Docs:** Corrected the marketplace skill count from 144 to 131 active skills in `README.md`, `CLAUDE.md`, and `AGENTS.md` (144 includes the 13 deprecated `beagle-ai` skills still on disk) and fixed the same counts in the 4.1.0 changelog entry. The commands → skills migration these docs describe shipped in [2.9.0]
+- **Codex install:** Reworked `.codex/INSTALL.md` to link each skill directory individually into Codex's flat `~/.agents/skills/` path instead of linking whole plugin `skills/` directories, so each skill resolves as a top-level entry in Codex's namespace-free discovery. The installer now fails on unexpected duplicate skill names and links the canonical `beagle-core` copy of `review-verification-protocol`; `docs/README.codex.md` updated to match ([#134](https://github.com/existential-birds/beagle/pull/134))
+- **Docs:** Corrected the marketplace skill count from 144 to 131 active skills in `README.md`, `CLAUDE.md`, and `AGENTS.md` (144 includes the 13 deprecated `beagle-ai` skills still on disk) and fixed the same counts in the 4.1.0 changelog entry. The commands → skills migration these docs describe shipped in [2.9.0] ([#134](https://github.com/existential-birds/beagle/pull/134))
 
 ## [4.2.0] - 2026-06-08
 
@@ -513,7 +521,8 @@ Format follows [Keep a Changelog](https://keepachangelog.com/en/1.1.0/). Version
 - Development commands: `skill-builder`, `ensure-docs`
 - Cursor IDE command equivalents
 
-[Unreleased]: https://github.com/existential-birds/beagle/compare/v4.2.0...HEAD
+[Unreleased]: https://github.com/existential-birds/beagle/compare/v4.3.0...HEAD
+[4.3.0]: https://github.com/existential-birds/beagle/compare/v4.2.0...v4.3.0
 [4.2.0]: https://github.com/existential-birds/beagle/compare/v4.1.0...v4.2.0
 [4.1.0]: https://github.com/existential-birds/beagle/compare/v4.0.0...v4.1.0
 [4.0.0]: https://github.com/existential-birds/beagle/compare/v3.11.0...v4.0.0

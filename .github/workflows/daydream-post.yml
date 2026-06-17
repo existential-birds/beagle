@@ -1,0 +1,174 @@
+# Daydream — Phase B: POST (privileged).
+#
+# Fires when "Daydream Review" (Phase A) completes, downloads its findings
+# artifact, and posts the findings to the PR as the operator's App bot. This
+# job holds the App key, so it NEVER checks out or executes PR code — only the
+# base repo's default branch (trusted), per the locked privilege split: no
+# single job ever holds both PR code and the App key. The artifact is passive
+# data, validated by `daydream post-findings` against a strict schema before
+# anything is posted.
+#
+# Target derivation (Task 0 spike, Step 2 — the event payload is NOT uniform):
+#   - pull_request runs: `workflow_run.head_sha` IS the PR head.
+#     `pull_requests[0].number` is populated for same-repo PRs but EMPTY for
+#     fork PRs, where the open-PR list filtered by head SHA resolves it.
+#   - workflow_dispatch runs (the `@<bot> review` path): `pull_requests` is
+#     empty and `head_sha` is the default-branch tip (useless). The PR number
+#     travels in the findings artifact; the LIVE PR fetched from the GitHub
+#     API is the trust anchor — `daydream post-findings` validates the
+#     artifact's declared head_sha against that live value and aborts on
+#     mismatch, so a forged artifact can only point at the real current head
+#     of the PR it names.
+#
+# Token (footgun 3): minted via actions/create-github-app-token with exactly
+# `pull-requests: write, contents: read, metadata: read`, reaches `gh` via
+# `env:` only, and never appears in a `run:` body or log.
+
+name: Daydream Post
+
+on:
+  workflow_run:
+    workflows: ["Daydream Review"]
+    types: [completed]
+
+# GITHUB_TOKEN only downloads the artifact; the App token carries the writes.
+permissions:
+  actions: read
+
+jobs:
+  post:
+    runs-on: blacksmith-2vcpu-ubuntu-2404
+    if: github.event.workflow_run.conclusion == 'success'
+    steps:
+      # Trusted code only: the base repo's default branch, no ref override.
+      - name: Check out repository
+        uses: actions/checkout@v4
+
+      - name: Set up uv
+        uses: astral-sh/setup-uv@v4
+
+      - name: Install daydream
+        run: uv tool install git+https://github.com/existential-birds/daydream
+
+      - name: Mint posting token
+        id: token
+        uses: actions/create-github-app-token@v2
+        with:
+          app-id: ${{ secrets.DAYDREAM_APP_ID }}
+          private-key: ${{ secrets.DAYDREAM_APP_PRIVATE_KEY }}
+          permission-pull-requests: write
+          permission-contents: read
+          permission-metadata: read
+
+      - name: Download findings artifact
+        uses: actions/download-artifact@v4
+        with:
+          name: daydream-findings
+          path: findings
+          run-id: ${{ github.event.workflow_run.id }}
+          github-token: ${{ github.token }}
+
+      # All event values enter the shell via env only (footgun 2). No PR
+      # resolvable -> fail the job (and surface below), never post blind.
+      - name: Derive target PR and head SHA
+        id: target
+        env:
+          GH_TOKEN: ${{ steps.token.outputs.token }}
+          REPO: ${{ github.repository }}
+          RUN_EVENT: ${{ github.event.workflow_run.event }}
+          EVENT_HEAD_SHA: ${{ github.event.workflow_run.head_sha }}
+          EVENT_PR_NUMBER: ${{ github.event.workflow_run.pull_requests[0].number }}
+        run: |
+          if [ "$RUN_EVENT" = "pull_request" ]; then
+            HEAD_SHA="$EVENT_HEAD_SHA"
+            PR_NUMBER="$EVENT_PR_NUMBER"
+            if [ -z "$PR_NUMBER" ]; then
+              # Fork PRs leave pull_requests empty (spike Shape 2); the
+              # open-PR list filtered by head SHA resolves both PR shapes.
+              PR_NUMBER="$(gh api "repos/${REPO}/pulls?state=open&per_page=100" \
+                --jq ".[] | select(.head.sha == \"${HEAD_SHA}\") | .number" | head -n 1)"
+            fi
+          else
+            # workflow_dispatch (spike Shape 3): the event cannot identify the
+            # PR — read pr_number from the artifact, then trust the LIVE PR
+            # head from the API; post-findings validates the artifact against
+            # it and aborts on mismatch.
+            PR_NUMBER="$(jq -r '.pr_number // empty' findings/findings.json)"
+            HEAD_SHA="$(gh api "repos/${REPO}/pulls/${PR_NUMBER}" --jq .head.sha)"
+          fi
+          if [ -z "$PR_NUMBER" ] || [ -z "$HEAD_SHA" ]; then
+            echo "could not resolve a target PR for this run" >&2
+            exit 1
+          fi
+          echo "pr_number=${PR_NUMBER}" >> "$GITHUB_OUTPUT"
+          echo "head_sha=${HEAD_SHA}" >> "$GITHUB_OUTPUT"
+
+      # Validates the artifact (strict schema, size cap, PR/SHA match) and
+      # posts only new findings; validation failure exits non-zero.
+      - name: Post findings
+        env:
+          GH_TOKEN: ${{ steps.token.outputs.token }}
+          REPO: ${{ github.repository }}
+          PR_NUMBER: ${{ steps.target.outputs.pr_number }}
+          HEAD_SHA: ${{ steps.target.outputs.head_sha }}
+        run: |
+          daydream post-findings findings/findings.json \
+            --pr "$PR_NUMBER" --head-sha "$HEAD_SHA" --repo "$REPO"
+
+      - name: Surface failure on the PR
+        if: failure()
+        env:
+          GH_TOKEN: ${{ steps.token.outputs.token }}
+          REPO: ${{ github.repository }}
+          DERIVED_PR_NUMBER: ${{ steps.target.outputs.pr_number }}
+          EVENT_PR_NUMBER: ${{ github.event.workflow_run.pull_requests[0].number }}
+          RUN_URL: ${{ github.server_url }}/${{ github.repository }}/actions/runs/${{ github.run_id }}
+        run: |
+          PR_NUMBER="${DERIVED_PR_NUMBER:-$EVENT_PR_NUMBER}"
+          if [ -z "$PR_NUMBER" ] && [ -f findings/findings.json ]; then
+            PR_NUMBER="$(jq -r '.pr_number // empty' findings/findings.json)"
+          fi
+          if [ -z "$PR_NUMBER" ]; then
+            echo "no PR resolvable; cannot surface the failure" >&2
+            exit 0
+          fi
+          gh api "repos/${REPO}/issues/${PR_NUMBER}/comments" \
+            -f body="daydream review failed — see run ${RUN_URL}"
+
+  # An analyze failure routes here instead of silently skipping the post job.
+  surface-analyze-failure:
+    runs-on: blacksmith-2vcpu-ubuntu-2404
+    if: github.event.workflow_run.conclusion == 'failure'
+    steps:
+      - name: Mint posting token
+        id: token
+        uses: actions/create-github-app-token@v2
+        with:
+          app-id: ${{ secrets.DAYDREAM_APP_ID }}
+          private-key: ${{ secrets.DAYDREAM_APP_PRIVATE_KEY }}
+          permission-pull-requests: write
+          permission-contents: read
+          permission-metadata: read
+
+      - name: Comment on the PR
+        env:
+          GH_TOKEN: ${{ steps.token.outputs.token }}
+          REPO: ${{ github.repository }}
+          RUN_EVENT: ${{ github.event.workflow_run.event }}
+          EVENT_HEAD_SHA: ${{ github.event.workflow_run.head_sha }}
+          EVENT_PR_NUMBER: ${{ github.event.workflow_run.pull_requests[0].number }}
+          RUN_URL: ${{ github.event.workflow_run.html_url }}
+        run: |
+          PR_NUMBER="$EVENT_PR_NUMBER"
+          if [ -z "$PR_NUMBER" ] && [ "$RUN_EVENT" = "pull_request" ]; then
+            PR_NUMBER="$(gh api "repos/${REPO}/pulls?state=open&per_page=100" \
+              --jq ".[] | select(.head.sha == \"${EVENT_HEAD_SHA}\") | .number" | head -n 1)"
+          fi
+          if [ -z "$PR_NUMBER" ]; then
+            # A failed dispatch run leaves no artifact and a default-branch
+            # head_sha, so there is nothing to resolve — log and stop.
+            echo "no PR resolvable for the failed analyze run; skipping comment" >&2
+            exit 0
+          fi
+          gh api "repos/${REPO}/issues/${PR_NUMBER}/comments" \
+            -f body="daydream review failed — see run ${RUN_URL}"

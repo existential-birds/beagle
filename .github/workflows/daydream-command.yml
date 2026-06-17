@@ -1,0 +1,78 @@
+# Daydream — `@<bot> review` gatekeeper.
+#
+# Listens for PR comments, gates on author trust, and dispatches
+# daydream-review.yml. This workflow NEVER checks out code — it may therefore
+# hold App credentials without violating the locked privilege split (no job
+# ever holds both PR code and the App key).
+#
+# Why the App token for the dispatch (Task 0 spike, Step 1): a run dispatched
+# with GITHUB_TOKEN completes without ever firing the downstream
+# `workflow_run` trigger, so daydream-post.yml would never run on the
+# `@<bot> review` path. The dispatch is therefore made with a short-lived App
+# installation token minted with exactly `actions: write` — the token reaches
+# `gh` via `env:` only and never appears in a `run:` body or log.
+#
+# GITHUB_TOKEN permissions (Task 0 spike, Step 4): the 👀 reaction on a PR
+# comment needs `pull-requests: write` (`issues: write` is neither sufficient
+# nor necessary, even though the endpoint lives under /issues/).
+#
+# Setup: repo variable DAYDREAM_BOT_HANDLE (the mention handle, no `@`),
+# secrets DAYDREAM_APP_ID / DAYDREAM_APP_PRIVATE_KEY; the App must request
+# the `actions: write` repository permission.
+
+name: Daydream Command
+
+on:
+  issue_comment:
+    types: [created]
+
+permissions:
+  pull-requests: write
+
+jobs:
+  dispatch:
+    runs-on: ubuntu-latest
+    if: >-
+      github.event.issue.pull_request &&
+      contains(fromJSON('["OWNER", "MEMBER", "COLLABORATOR"]'), github.event.comment.author_association) &&
+      github.event.comment.user.type != 'Bot'
+    steps:
+      # Exact-command match. The comment body is untrusted: it enters the
+      # shell via env only, never `${{ }}` interpolation (footgun 2). A
+      # non-matching comment exits 0 (neutral) and the remaining steps skip.
+      - name: Match review command
+        id: match
+        env:
+          BODY: ${{ github.event.comment.body }}
+          BOT_HANDLE: ${{ vars.DAYDREAM_BOT_HANDLE }}
+        run: |
+          if printf '%s' "$BODY" | grep -Eq "(^|[[:space:]])@${BOT_HANDLE}[[:space:]]+review([[:space:]]|$)"; then
+            echo "matched=true" >> "$GITHUB_OUTPUT"
+          else
+            echo "matched=false" >> "$GITHUB_OUTPUT"
+          fi
+
+      - name: Acknowledge with eyes reaction
+        if: steps.match.outputs.matched == 'true'
+        env:
+          GH_TOKEN: ${{ github.token }}
+          REPO: ${{ github.repository }}
+          COMMENT_ID: ${{ github.event.comment.id }}
+        run: gh api -X POST "repos/${REPO}/issues/comments/${COMMENT_ID}/reactions" -f content=eyes
+
+      - name: Mint dispatch token
+        id: token
+        if: steps.match.outputs.matched == 'true'
+        uses: actions/create-github-app-token@v2
+        with:
+          app-id: ${{ secrets.DAYDREAM_APP_ID }}
+          private-key: ${{ secrets.DAYDREAM_APP_PRIVATE_KEY }}
+          permission-actions: write
+
+      - name: Dispatch review workflow
+        if: steps.match.outputs.matched == 'true'
+        env:
+          GH_TOKEN: ${{ steps.token.outputs.token }}
+          REPO: ${{ github.repository }}
+          PR_NUMBER: ${{ github.event.issue.number }}
+        run: gh workflow run daydream-review.yml --repo "$REPO" -f pr_number="$PR_NUMBER"

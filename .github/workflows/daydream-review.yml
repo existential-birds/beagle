@@ -1,0 +1,127 @@
+# Daydream — Phase A: ANALYZE (unprivileged).
+#
+# Runs the daydream reviewer over the checked-out PR head and uploads a
+# findings artifact. This job touches untrusted PR code, so it holds NO App
+# credentials — `OPENAI_API_KEY` is the only secret in this file, and the
+# GITHUB_TOKEN is read-only (`contents: read`). Posting happens in the
+# separate privileged `daydream-post.yml` (workflow_run), per the locked
+# privilege split: no single job ever holds both PR code and the App key.
+#
+# Triggers:
+#   - pull_request (opened, ready_for_review): auto-review for same-repo PRs,
+#     unless the operator sets the repo variable DAYDREAM_AUTO_REVIEW=false.
+#   - workflow_dispatch (pr_number): on-demand review, dispatched by
+#     daydream-command.yml on `@<bot> review`. Dispatch runs sit on the
+#     default branch, so the PR head ref is fetched explicitly.
+
+name: Daydream Review
+
+on:
+  pull_request:
+    types: [opened, ready_for_review]
+  workflow_dispatch:
+    inputs:
+      pr_number:
+        description: Number of the pull request to review
+        required: true
+        type: string
+
+permissions:
+  contents: read
+
+jobs:
+  analyze:
+    runs-on: ubuntu-latest
+    if: >-
+      github.event_name == 'workflow_dispatch' ||
+      (github.event.pull_request.head.repo.full_name == github.repository &&
+      vars.DAYDREAM_AUTO_REVIEW != 'false')
+    steps:
+      - name: Check out PR head (pull_request)
+        if: github.event_name == 'pull_request'
+        uses: actions/checkout@v4
+        with:
+          ref: ${{ github.event.pull_request.head.sha }}
+          fetch-depth: 0
+
+      - name: Check out repository (workflow_dispatch)
+        if: github.event_name == 'workflow_dispatch'
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      # Dispatch runs sit on the default branch and the PR number arrives as
+      # an input, so the PR head must be fetched explicitly (via env, never
+      # inline interpolation).
+      - name: Check out PR head (workflow_dispatch)
+        if: github.event_name == 'workflow_dispatch'
+        env:
+          PR_NUMBER: ${{ inputs.pr_number }}
+        run: |
+          git fetch origin "refs/pull/${PR_NUMBER}/head"
+          git checkout --detach FETCH_HEAD
+
+      - name: Resolve PR number and base ref
+        id: pr
+        env:
+          GH_TOKEN: ${{ github.token }}
+          EVENT_NAME: ${{ github.event_name }}
+          EVENT_PR_NUMBER: ${{ github.event.pull_request.number }}
+          EVENT_BASE_REF: ${{ github.event.pull_request.base.ref }}
+          INPUT_PR_NUMBER: ${{ inputs.pr_number }}
+        run: |
+          if [ "$EVENT_NAME" = "workflow_dispatch" ]; then
+            PR_NUMBER="$INPUT_PR_NUMBER"
+            BASE_REF="$(gh pr view "$PR_NUMBER" --repo "$GITHUB_REPOSITORY" --json baseRefName --jq .baseRefName)"
+          else
+            PR_NUMBER="$EVENT_PR_NUMBER"
+            BASE_REF="$EVENT_BASE_REF"
+          fi
+          echo "number=${PR_NUMBER}" >> "$GITHUB_OUTPUT"
+          echo "base_ref=${BASE_REF}" >> "$GITHUB_OUTPUT"
+
+      - name: Fetch base ref
+        env:
+          BASE_REF: ${{ steps.pr.outputs.base_ref }}
+        run: git fetch origin "+refs/heads/${BASE_REF}:refs/remotes/origin/${BASE_REF}"
+
+      - name: Set up uv
+        uses: astral-sh/setup-uv@v4
+
+      - name: Install daydream
+        run: uv tool install git+https://github.com/existential-birds/daydream
+
+      # Codex backend: daydream spawns `codex exec` as a subprocess, so the CLI
+      # must be on PATH. Pinned because the backend parses `codex exec
+      # --experimental-json` output, whose event shape can change between CLI
+      # releases. Node/npm are preinstalled on the GitHub-hosted runner.
+      - name: Install Codex CLI
+        run: npm install -g @openai/codex@0.139.0
+
+      # `codex exec` does NOT read OPENAI_API_KEY from the environment for its
+      # own model-API auth (verified against CLI 0.139.0): with the key set but
+      # no auth state on disk, `codex login status` reports "Not logged in" and
+      # requests go out with no bearer → 401. It requires persisted auth in
+      # $CODEX_HOME/auth.json. Pipe the key into `codex login --with-api-key`
+      # (the documented non-interactive path) so the review step authenticates
+      # with no ChatGPT login state on disk.
+      - name: Authenticate Codex CLI
+        env:
+          OPENAI_API_KEY: ${{ secrets.OPENAI_API_KEY }}
+        run: printenv OPENAI_API_KEY | codex login --with-api-key
+
+      - name: Run daydream review
+        env:
+          GH_TOKEN: ${{ github.token }}
+          PR_NUMBER: ${{ steps.pr.outputs.number }}
+          BASE_REF: ${{ steps.pr.outputs.base_ref }}
+        run: |
+          mkdir -p findings
+          daydream --review --backend codex --non-interactive --pr-number "$PR_NUMBER" \
+            --findings-out findings/findings.json --base "origin/$BASE_REF" .
+
+      - name: Upload findings artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: daydream-findings
+          path: findings/

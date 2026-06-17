@@ -9,6 +9,7 @@ Format follows [Keep a Changelog](https://keepachangelog.com/en/1.1.0/). Version
 ## [4.3.0] - 2026-06-16
 
 ### Added
+- **CI:** Added the daydream review bot as three GitHub Actions workflows under `.github/workflows/` (analyze → command → post), so beagle PRs are reviewed by [daydream](https://github.com/existential-birds/daydream) with findings posted as inline comments via a GitHub App. The review job is Codex-backed (`daydream --review --backend codex`); all jobs run on Blacksmith runners. This is repo infrastructure and does not change any installable plugin ([#138](https://github.com/existential-birds/beagle/pull/138))
 - **beagle-docs:draft-docs**: Made the full Diataxis doc suite spec-compliant so it can draft and refine all four Diataxis types. `draft-docs` now drafts Tutorials and Explanations (previously only Reference/How-To) — keyword detection, ambiguity prompt, skill loading, generation guidance, publish menu, type gate, and checklist all cover the added types. Added a self-contained canonical reference (`docs-style/references/diataxis-compass.md`) with the two axes, 2×2 map, compass decision procedure, and quality model; `docs-style` now leads with type selection; `ensure-docs` gains a Diataxis type-balance lens; and the four type skills got fidelity polish ([#136](https://github.com/existential-birds/beagle/pull/136))
 
 ### Changed

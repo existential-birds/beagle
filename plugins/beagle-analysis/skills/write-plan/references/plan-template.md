@@ -123,6 +123,8 @@ git commit -m "<type>(<scope>): <imperative one-line summary>"
 - **Spec coverage:** [confirmed / list of gaps closed]
 - **Placeholders:** [none / list of fixes]
 - **Type consistency:** [verified across tasks]
+- **Consumer check:** [every new public surface has a named production consumer in this plan / list of surfaces cut or tagged deferred]
+- **Discriminating assertion:** [no test admits a false-pass impl; payload-preservation tests assert the sentinel in the damaged region through every structurally-distinct producer]
 - **Project conventions:** [list the specific project rules followed — testing tier rules, comment policy, commit conventions]
 
 ````
@@ -155,7 +157,7 @@ git commit -m "<type>(<scope>): <imperative one-line summary>"
 - **Recoverability rule** — after drafting each step, ask "can the executor recover this by reading the referenced file?" If yes, delete it. Verbosity is not specificity.
 - **Test step bodies show assertions + call site, not setup ceremony** — ~15 lines or less; the seed loop is recovered from existing types and helpers
 - **Tests reuse existing scaffolding** — grep for an existing helper/fixture/mock before inventing one in the plan; if no existing helper fits, name a specific one that was considered and why it didn't
-- **YAGNI for tests** — one test per spec requirement and per named bug class; no speculative input-space exhaustion
+- **YAGNI for tests — except payload-preservation invariants** — one test per spec requirement and per named bug class; no speculative input-space exhaustion. For preserve/recover/transform invariants, enumerate every structurally-distinct producer and assert the sentinel in the damaged region — those producers and the corrupted region *are* the spec, not speculative edge cases
 - **Behavior contracts: 3-5 bullets, past 5 replace with reference** — the contract is the new/changed behavior, not a re-derivation of the impl
 - **References point, they do not paste** — `file.ext:line-line` is the reference; do not inline the cited code
 - **Modify-file tasks include a sweep step** — remove orphaned comments, unused imports, dead helpers in the modified files; describe targets in plain language, not line numbers

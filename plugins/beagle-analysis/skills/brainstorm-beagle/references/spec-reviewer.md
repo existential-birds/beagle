@@ -78,6 +78,28 @@ For a feature being added to an existing codebase, the most expensive miss is sp
 
 If the prior art check was skipped, run it now: `grep -riE '<capability synonyms>'` across all source roots before approving. One matching file means a requirement needs reframing from "build X" to "extend/fix/wire-up the existing X."
 
+### 8. Consumer (brownfield only)
+
+A must-have that introduces new externally-facing surface with no named consumer is speculative — it can't be planned or verified.
+
+| Check | What to look for |
+|-------|-----------------|
+| Surface has a consumer | A must-have introduces new externally-facing surface (API surface, command, endpoint, exported contract) but nothing else in the spec consumes it |
+| Consumer is named | Where such surface exists, the spec names who/what consumes it — not left implicit |
+
+If who/what consumes the surface isn't named, either name the consumer or move the item to *Future Considerations* before approving.
+
+### 9. Composition (brownfield only)
+
+For an existing mechanism the prior-art sweep surfaced that sits upstream or downstream in the same data pipeline, "the mechanism exists" is not the end — its composition with the new feature is the load-bearing question.
+
+| Check | What to look for |
+|-------|-----------------|
+| Pipeline interaction surfaced | A surfaced mechanism sits upstream/downstream in the same data pipeline and transforms (truncate, filter, buffer, reorder, dedupe) the data the feature depends on |
+| Composition recorded | The interaction is recorded as a Key Decision tagged `needs-spike-before-planning`, not left as an unexamined assumption |
+
+A new mechanism that composes wrongly with an existing one in the same pipeline ships broken even though neither piece was reinvented.
+
 ## Calibration
 
 **Only fix issues that would cause real problems downstream.**

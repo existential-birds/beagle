@@ -69,6 +69,8 @@ Two categories count as gaps:
 | Contradiction | Requirement conflicts with another requirement, with a constraint, or with Out of Scope |
 | Untestable success | No observable way to verify the requirement was met |
 | Implementation leakage | A requirement prescribes HOW instead of describing WHAT |
+| Unconsumed surface | A must-have introduces new externally-facing surface (API surface, command, endpoint, exported contract) that nothing else in the spec consumes |
+| Unresolved composition | An existing mechanism sits upstream/downstream in the same data pipeline and transforms (truncate, filter, buffer, reorder, dedupe) the data the feature depends on, but its composition with the feature is left unexamined |
 
 The reason to treat latent gaps as first-class: a spec that says "fast" or "good UX" hasn't been answered just because nothing was explicitly flagged. Planning will trip over those same words. Close them here.
 
@@ -143,6 +145,8 @@ Run the checks from `../brainstorm-beagle/references/spec-reviewer.md`:
 - No implementation leakage
 - All requirements testable
 - Constraints and Out-of-Scope items have rationale
+- No new externally-facing surface (API surface, command, endpoint, exported contract) without a named consumer — name it or move it to Future Considerations
+- Any existing upstream/downstream pipeline mechanism that transforms the feature's data is recorded as a Key Decision tagged `needs-spike-before-planning`, not left unexamined
 
 Fix anything that surfaces inline before handing back to the user. If new gaps appear during the rewrite (they sometimes do), add them to a "new gaps surfaced" list and ask the user whether to resolve them now or leave for a later pass.
 

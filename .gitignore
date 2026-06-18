@@ -47,3 +47,7 @@ build/
 .planning/
 .beagle/
 skill_research/
+
+# Review tooling
+.daydream/
+.review-output.md

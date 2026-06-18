@@ -6,6 +6,19 @@ Format follows [Keep a Changelog](https://keepachangelog.com/en/1.1.0/). Version
 
 ## [Unreleased]
 
+## [4.4.0] - 2026-06-17
+
+### Changed
+- **beagle-analysis (planning guardrails):** Added four fail-the-plan/spec guardrails to the planning workflow, derived from a post-mortem of two bugs in a single shipped feature (Osprey issue-124 retention) built through the beagle planning workflow. All four are hard gates, not advisory notes, and propagate into the downstream review paths ([#140](https://github.com/existential-birds/beagle/pull/140)):
+  - **G1 Consumer/YAGNI gate** — every new public API surface a plan introduces must name a production consumer in the same plan (a test is not a consumer); `brainstorm-beagle` gets the parallel spec-level check.
+  - **G2 Discriminating-assertion gate** — a construct-a-false-pass-impl check in `write-plan`, plus a payload-preservation carve-out so YAGNI-for-tests no longer collapses structurally-distinct producers and the corrupted region.
+  - **G3 Composition check** — `brainstorm-beagle` Prior Art Check step 5 escalates upstream/downstream data-transforming mechanisms to a Key Decision + spike, emitting a structured `needs-spike-before-planning` marker.
+  - **G4 Input-shape spike trigger** — `write-plan` Task 0 gains the upstream-data-shape assumption trigger.
+  - Propagated into the shared review checklists: `spec-reviewer.md` (imported by `brainstorm-beagle` self-review and `resolve-beagle`) gains Consumer (§8) and Composition (§9) review dimensions, and `resolve-beagle` gains both gap types in its latent-gap extraction table and self-review checklist.
+
+### Chore
+- **Repo tooling:** Gitignore review tooling artifacts so local review scratch files stay out of the working tree. Repo infrastructure only; no installable plugin changes ([#141](https://github.com/existential-birds/beagle/pull/141))
+
 ## [4.3.0] - 2026-06-16
 
 ### Added
@@ -522,7 +535,8 @@ Format follows [Keep a Changelog](https://keepachangelog.com/en/1.1.0/). Version
 - Development commands: `skill-builder`, `ensure-docs`
 - Cursor IDE command equivalents
 
-[Unreleased]: https://github.com/existential-birds/beagle/compare/v4.3.0...HEAD
+[Unreleased]: https://github.com/existential-birds/beagle/compare/v4.4.0...HEAD
+[4.4.0]: https://github.com/existential-birds/beagle/compare/v4.3.0...v4.4.0
 [4.3.0]: https://github.com/existential-birds/beagle/compare/v4.2.0...v4.3.0
 [4.2.0]: https://github.com/existential-birds/beagle/compare/v4.1.0...v4.2.0
 [4.1.0]: https://github.com/existential-birds/beagle/compare/v4.0.0...v4.1.0

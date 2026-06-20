@@ -1,46 +1,39 @@
 # beagle-docs
 
-Documentation quality, generation, and improvement using [Diataxis](https://diataxis.fr/) principles for [Claude Code](https://claude.ai/code). Part of the [beagle](https://github.com/existential-birds/beagle) plugin marketplace.
+Write, improve, and audit technical documentation using the Diataxis framework, and detect or humanize AI-generated writing. Part of the [beagle](https://github.com/existential-birds/beagle) Agent Skills marketplace — see the [full skill catalog](../../SKILLS.md).
 
 ## Installation
 
-```bash
-# Add the marketplace (if not already added)
-claude plugin marketplace add https://github.com/existential-birds/beagle
+For any coding agent that supports [Agent Skills](https://agentskills.io):
 
-# Install the plugin
-claude plugin install beagle-docs@existential-birds
+```bash
+npx skills add existential-birds/beagle
 ```
 
-## Commands
+For Claude Code:
 
-| Command | Usage | Description |
-|---------|-------|-------------|
-| **draft-docs** | `/beagle-docs:draft-docs` | Generate first-draft technical documentation from code analysis. Outputs Reference or How-To drafts to `docs/drafts/` for review before publishing. |
-| **improve-doc** | `/beagle-docs:improve-doc` | Analyze an existing markdown document, classify sections by Diataxis type, identify issues, and interactively refine each section. |
-| **ensure-docs** | `/beagle-docs:ensure-docs` | Verify documentation coverage across a codebase, report gaps, and interactively generate missing documentation. |
-| **review-ai-writing** | `/beagle-docs:review-ai-writing` | Detect AI-generated writing patterns in docs, docstrings, commits, PR descriptions, and code comments using parallel subagents. |
-| **humanize-beagle** | `/beagle-docs:humanize-beagle` | Apply fixes from a prior review-ai-writing run to humanize AI-generated developer text with safe/risky classification. |
+```bash
+claude plugin marketplace add https://github.com/existential-birds/beagle
+claude plugin install beagle-docs@existential-birds
+```
 
 ## Skills
 
 | Skill | Description |
 |-------|-------------|
-| **docs-style** | Core technical documentation writing principles for voice, tone, structure, and LLM-friendly patterns |
-| **tutorial-docs** | Tutorial patterns for learning-oriented guides that teach through guided doing |
-| **howto-docs** | How-To guide patterns for task-oriented guides for users with specific goals |
-| **explanation-docs** | Explanation documentation patterns for understanding-oriented content: conceptual guides that explain why things work the way they do |
-| **reference-docs** | Reference documentation patterns for API and symbol documentation, parameter tables, and technical specifications |
-| **review-ai-writing** | Detect AI-generated writing patterns in developer text: inflated language, filler phrases, tautological docs, chat leaks, and robotic tone |
-| **humanize-beagle** | Rewrite AI-generated developer text to sound human: fix strategies by category with safe/risky classification and developer voice guidelines |
-
-### Reference Material
-
-**tutorial-docs**: complete example tutorial (Weather API Integration) demonstrating all tutorial writing principles
-
-**review-ai-writing**: 6 reference files covering content, vocabulary, formatting, communication, filler, and code docs patterns
+| `improve-doc` | Classify an existing markdown doc by Diataxis type and interactively refine each section |
+| `draft-docs` | Generate first-draft Tutorial, How-To, Reference, or Explanation docs to `docs/drafts/` from code analysis |
+| `ensure-docs` | Verify symbol and Diataxis-balance coverage across a codebase, report gaps, and generate missing docs |
+| `review-ai-writing` | Detect AI-generated writing patterns in docs, docstrings, commits, PR descriptions, and code comments |
+| `humanize-beagle` | Rewrite AI-generated developer text to sound human, with safe/risky fix classification |
+| `docs-style` | Core writing principles for voice, tone, structure, and LLM-friendly patterns |
+| `tutorial-docs` | Learning-oriented patterns for guides that teach through guided doing |
+| `howto-docs` | Task-oriented patterns for guides that help users reach a specific goal |
+| `reference-docs` | Information-oriented patterns for API docs, parameter tables, and technical specs |
+| `explanation-docs` | Understanding-oriented patterns for conceptual guides that explain why things work |
 
 ## See Also
 
-- [beagle-core](../beagle-core) - Shared workflows, verification protocol, and git commands
-- [beagle marketplace](https://github.com/existential-birds/beagle) - Full plugin marketplace with 10 focused plugins
+- [Skill catalog](../../SKILLS.md) — every skill in the marketplace
+- [beagle-core](../beagle-core/README.md) — shared workflows, verification, and git skills
+- [beagle marketplace](https://github.com/existential-birds/beagle) — the full Agent Skills marketplace

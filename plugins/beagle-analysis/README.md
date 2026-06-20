@@ -1,50 +1,43 @@
 # beagle-analysis
 
-Architecture analysis, 12-Factor compliance, ADR generation, and LLM-as-judge comparison for [Claude Code](https://claude.ai/code). Part of the [beagle](https://github.com/existential-birds/beagle) plugin marketplace.
+Pre-code thinking and decision tools: brainstorm a fuzzy idea into a spec, write ADRs, run strategy interviews, turn specs into TDD implementation plans, research the web with citations, audit agent architectures against 12-Factor Agents, and compare implementations with LLM-as-judge. Part of the [beagle](https://github.com/existential-birds/beagle) Agent Skills marketplace — see the [full skill catalog](../../SKILLS.md).
 
 ## Installation
 
-```bash
-# Add the marketplace (if not already added)
-claude plugin marketplace add https://github.com/existential-birds/beagle
+For any coding agent that supports [Agent Skills](https://agentskills.io):
 
-# Install the plugin
-claude plugin install beagle-analysis@existential-birds
+```bash
+npx skills add existential-birds/beagle
 ```
 
-## Commands
+For Claude Code:
 
-| Command | Usage | Description |
-|---------|-------|-------------|
-| **llm-judge** | `/beagle-analysis:llm-judge` | Compare code implementations across 2+ repos using LLM-as-judge methodology with weighted scoring |
-| **write-adr** | `/beagle-analysis:write-adr` | Generate ADRs from decisions made in the current session |
+```bash
+claude plugin marketplace add https://github.com/existential-birds/beagle
+claude plugin install beagle-analysis@existential-birds
+```
 
 ## Skills
 
 | Skill | Description |
 |-------|-------------|
-| **adr-decision-extraction** | Extract architectural decisions from conversations, identifying problem-solution pairs and trade-off discussions |
-| **adr-writing** | Write Architectural Decision Records following the MADR template with Definition of Done criteria |
-| **agent-architecture-analysis** | 12-Factor Agents compliance analysis for evaluating agent architecture and LLM-powered systems |
-| **llm-judge** | LLM-as-judge methodology for comparing code implementations using weighted rubrics across functionality, security, test quality, overengineering, and dead code |
-| **strategy-interview** | Structured strategy interview using kernel framework with landscape mapping, choice cascade, and value innovation lenses |
-| **strategy-review** | Pressure-test strategy documents for kernel integrity, bad-strategy patterns, coherence gaps, and untested assumptions |
-
-### Reference Material
-
-The **adr-writing** skill includes references for:
-
-- `madr-template.md`: MADR (Markdown Any Decision Records) template structure
-- `definition-of-done.md`: E.C.A.D.R. criteria checklist for ADR completeness
-
-The **llm-judge** skill includes references for:
-
-- `fact-schema.md`: JSON schema for structured facts gathered by repo agents
-- `judge-agents.md`: Instructions for Phase 2 scoring agents
-- `repo-agent.md`: Instructions for Phase 1 fact-gathering agents
-- `scoring-rubrics.md`: Detailed 1-5 rubrics for each judging dimension
+| `prfaq-beagle` | Working Backwards PRFAQ gauntlet that pressure-tests a concept to a binary pass/fail, handing survivors to brainstorm-beagle |
+| `brainstorm-beagle` | Shapes a fuzzy idea into a WHAT/WHY project spec through structured dialogue |
+| `resolve-beagle` | Closes open questions and latent gaps in a brainstorm spec, rewriting it implementation-ready |
+| `write-plan` | Turns a finalized spec into a bite-sized, TDD-driven implementation plan with exact paths and commands |
+| `quick-plan` | Produces the same TDD-driven plan from the conversation when no spec exists, fanning out exploration subagents |
+| `write-adr` | Orchestrates the full extract-confirm-write ADR workflow from the current session |
+| `adr-writing` | Writes and quality-checks an ADR using the MADR template and E.C.A.D.R. Definition of Done |
+| `adr-decision-extraction` | Mines a conversation or transcript for architectural decisions, trade-offs, and technology choices |
+| `strategy-interview` | Builds a strategy via guided conversation using the kernel framework and complementary lenses |
+| `strategy-review` | Pressure-tests an existing strategy document across seven dimensions for gaps and hidden failure paths |
+| `web-research` | Gathers cited, multi-angle web evidence via parallel subagents into an on-disk synthesis report |
+| `artifact-analysis` | Scans local docs and project knowledge into a cited, structured extraction on disk |
+| `agent-architecture-analysis` | Audits an agent codebase against the 12-Factor Agents methodology with file-level evidence |
+| `llm-judge` | Compares two or more implementations against a spec using weighted rubrics and structured scoring |
 
 ## See Also
 
-- [beagle-core](../beagle-core) - Shared workflows, verification protocol, and git commands
-- [beagle marketplace](https://github.com/existential-birds/beagle) - Full plugin marketplace with 10 focused plugins
+- [Skill catalog](../../SKILLS.md) — every skill in the marketplace
+- [beagle-core](../beagle-core/README.md) — shared workflows, verification, and git skills
+- [beagle marketplace](https://github.com/existential-birds/beagle) — the full Agent Skills marketplace

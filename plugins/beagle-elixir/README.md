@@ -1,63 +1,40 @@
 # beagle-elixir
 
-Elixir, Phoenix, and LiveView code review and documentation skills for [Claude Code](https://claude.ai/code). Part of the [beagle](https://github.com/existential-birds/beagle) plugin marketplace.
+Elixir, Phoenix, LiveView, ExUnit, and ExDoc code review. Part of the [beagle](https://github.com/existential-birds/beagle) Agent Skills marketplace — see the [full skill catalog](../../SKILLS.md).
 
 ## Installation
 
-```bash
-# Add the marketplace (if not already added)
-claude plugin marketplace add https://github.com/existential-birds/beagle
+For any coding agent that supports [Agent Skills](https://agentskills.io):
 
-# Install the plugin
-claude plugin install beagle-elixir@existential-birds
+```bash
+npx skills add existential-birds/beagle
 ```
 
-## Commands
+For Claude Code:
 
-| Command | Usage | Description |
-|---------|-------|-------------|
-| **review-elixir** | `/beagle-elixir:review-elixir` | Comprehensive Elixir/Phoenix code review with automatic framework detection |
-
-Reviews changed `.ex`, `.exs`, and `.heex` files against `main`. Runs `mix format --check-formatted` and Credo (if configured) before flagging style issues. Use `--parallel` to spawn specialized subagents per technology area.
+```bash
+claude plugin marketplace add https://github.com/existential-birds/beagle
+claude plugin install beagle-elixir@existential-birds
+```
 
 ## Skills
 
 | Skill | Description |
 |-------|-------------|
-| **elixir-code-review** | Idiomatic patterns, OTP basics, and documentation |
-| **phoenix-code-review** | Controller patterns, context boundaries, routing, and plugs |
-| **liveview-code-review** | Lifecycle patterns, assigns/streams, components, and security |
-| **exunit-code-review** | Test patterns, boundary mocking with Mox, and test adapters |
-| **elixir-security-review** | Code injection, atom exhaustion, secret handling, process exposure |
-| **elixir-performance-review** | GenServer bottlenecks, ETS patterns, memory, and concurrency |
-| **elixir-writing-docs** | Writing @moduledoc, @doc, @typedoc, doctests, cross-references, and metadata |
-| **exdoc-config** | ExDoc project setup: mix.exs config, extras, groups, cheatsheets, livebooks |
-| **elixir-docs-review** | Documentation quality review: completeness, @spec coverage, doctest correctness |
-| **review-verification-protocol** | Mandatory verification steps to reduce false positives |
-
-### Reference Material
-
-Each review skill includes detailed reference documents:
-
-**elixir-code-review**: code style, pattern matching, OTP basics, documentation
-
-**phoenix-code-review**: contexts, controllers, routing, plugs
-
-**liveview-code-review**: lifecycle, assigns/streams, components, security
-
-**exunit-code-review**: ExUnit patterns, Mox boundaries, test adapters, integration tests
-
-**elixir-security-review**: code injection, atom exhaustion, secrets, process exposure
-
-**elixir-performance-review**: GenServer bottlenecks, ETS patterns, memory, concurrency
-
-**elixir-writing-docs**: doctests, cross-references, admonitions and formatting
-
-**exdoc-config**: extras formats (md, cheatmd, livemd), advanced configuration
-
-**elixir-docs-review**: documentation quality, spec coverage
+| `review-elixir` | Comprehensive Elixir/Phoenix review with framework detection and optional parallel subagents |
+| `elixir-code-review` | Idiomatic patterns, OTP basics, and module documentation |
+| `phoenix-code-review` | Controller patterns, context boundaries, routing, and plugs |
+| `liveview-code-review` | Lifecycle patterns, assigns/streams, components, and security |
+| `exunit-code-review` | Test patterns, boundary mocking with Mox, and test adapters |
+| `elixir-performance-review` | GenServer bottlenecks, ETS patterns, memory, and concurrency |
+| `elixir-security-review` | Code injection, atom exhaustion, secret handling, and process exposure |
+| `elixir-docs-review` | Documentation completeness, @spec coverage, and doctest correctness |
+| `elixir-writing-docs` | Writing @moduledoc, @doc, @typedoc, doctests, cross-references, and metadata |
+| `exdoc-config` | ExDoc setup: mix.exs config, extras, groups, cheatsheets, and livebooks |
+| `review-verification-protocol` | Reference: mandatory verification steps to reduce false positives |
 
 ## See Also
 
-- [beagle-core](../beagle-core) - Shared workflows, verification protocol, and git commands
-- [beagle marketplace](https://github.com/existential-birds/beagle) - Full plugin marketplace with 10 focused plugins
+- [Skill catalog](../../SKILLS.md) — every skill in the marketplace
+- [beagle-core](../beagle-core/README.md) — shared workflows, verification, and git skills
+- [beagle marketplace](https://github.com/existential-birds/beagle) — the full Agent Skills marketplace

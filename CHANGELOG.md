@@ -6,6 +6,9 @@ Format follows [Keep a Changelog](https://keepachangelog.com/en/1.1.0/). Version
 
 ## [Unreleased]
 
+### Added
+- **beagle-analysis (`quick-plan`):** New skill that produces the same bite-sized, TDD-driven implementation plan as `write-plan` but without requiring a `brainstorm-beagle` spec. It reconstructs intent from the current conversation into an Intent Brief, runs an adaptive gap check (asks the user only where intent has real holes), and fans out parallel domain-expert exploration subagents that double as the spec's *Reference Points* and *Key Decisions* — returning file maps, exact test commands, `file:line` analogs, and stack idioms/pitfalls. Reuses `write-plan`'s `plan-template.md` and full TDD/self-review discipline verbatim (single source of truth for the output format) and tightens the spike + parallel-implementation gates, since reconstructed intent carries more unverified claims than a vetted spec. Writes to `.beagle/plans/<slug>/plan.md` and offers the same `subagent-prompt` execution handoff.
+
 ## [4.4.0] - 2026-06-17
 
 ### Changed

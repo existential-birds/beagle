@@ -36,21 +36,8 @@ claude plugin install beagle-analysis@existential-birds
 | `agent-architecture-analysis` | Audits an agent codebase against the 12-Factor Agents methodology with file-level evidence |
 | `llm-judge` | Compares two or more implementations against a spec using weighted rubrics and structured scoring |
 
-### Reference Material
-
-The `adr-writing` skill includes references for:
-
-- `madr-template.md`: MADR (Markdown Any Decision Records) template structure
-- `definition-of-done.md`: E.C.A.D.R. criteria checklist for ADR completeness
-
-The `llm-judge` skill includes references for:
-
-- `fact-schema.md`: JSON schema for structured facts gathered by repo agents
-- `judge-agents.md`: Instructions for Phase 2 scoring agents
-- `repo-agent.md`: Instructions for Phase 1 fact-gathering agents
-- `scoring-rubrics.md`: Detailed 1-5 rubrics for each judging dimension
-
 ## See Also
 
-- [beagle-core](../beagle-core) - Shared workflows, verification protocol, and git commands
-- [beagle marketplace](https://github.com/existential-birds/beagle) - Full Agent Skills marketplace
+- [Skill catalog](../../SKILLS.md) — every skill in the marketplace
+- [beagle-core](../beagle-core/README.md) — shared workflows, verification, and git skills
+- [beagle marketplace](https://github.com/existential-birds/beagle) — the full Agent Skills marketplace

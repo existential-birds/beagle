@@ -43,4 +43,5 @@ claude plugin install beagle-core@existential-birds
 
 ## See Also
 
-- [beagle marketplace](https://github.com/existential-birds/beagle) — full Agent Skills marketplace
+- [Skill catalog](../../SKILLS.md) — every skill in the marketplace
+- [beagle marketplace](https://github.com/existential-birds/beagle) — the full Agent Skills marketplace

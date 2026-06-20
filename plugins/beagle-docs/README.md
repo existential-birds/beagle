@@ -32,13 +32,8 @@ claude plugin install beagle-docs@existential-birds
 | `reference-docs` | Information-oriented patterns for API docs, parameter tables, and technical specs |
 | `explanation-docs` | Understanding-oriented patterns for conceptual guides that explain why things work |
 
-### Reference Material
-
-- `docs-style`: the Diataxis compass for choosing the right doc type before writing
-- `tutorial-docs`: a complete example tutorial demonstrating all tutorial writing principles
-- `review-ai-writing`: reference files covering content, vocabulary, formatting, communication, filler, and code-doc patterns
-
 ## See Also
 
-- [beagle-core](../beagle-core) - Shared workflows, verification protocol, and git commands
-- [beagle marketplace](https://github.com/existential-birds/beagle) - Full Agent Skills marketplace
+- [Skill catalog](../../SKILLS.md) — every skill in the marketplace
+- [beagle-core](../beagle-core/README.md) — shared workflows, verification, and git skills
+- [beagle marketplace](https://github.com/existential-birds/beagle) — the full Agent Skills marketplace

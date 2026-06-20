@@ -33,3 +33,9 @@ claude plugin install beagle-rust@existential-birds
 | `ffi-code-review` | Reviews extern blocks, `#[repr(C)]` types, string handling, callbacks, and unsafe boundary correctness |
 | `macros-code-review` | Reviews `macro_rules!` and procedural, derive, and attribute macros for hygiene, fragment misuse, and compile-time impact |
 | `review-verification-protocol` | Reference: mandatory verification steps loaded before reporting any review findings to reduce false positives |
+
+## See Also
+
+- [Skill catalog](../../SKILLS.md) — every skill in the marketplace
+- [beagle-core](../beagle-core/README.md) — shared workflows, verification, and git skills
+- [beagle marketplace](https://github.com/existential-birds/beagle) — the full Agent Skills marketplace

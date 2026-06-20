@@ -40,5 +40,6 @@ claude plugin install beagle-ios@existential-birds
 
 ## See Also
 
-- [beagle-core](../beagle-core) - Shared workflows, verification protocol, and git commands
-- [beagle marketplace](https://github.com/existential-birds/beagle) - Full plugin marketplace
+- [Skill catalog](../../SKILLS.md) — every skill in the marketplace
+- [beagle-core](../beagle-core/README.md) — shared workflows, verification, and git skills
+- [beagle marketplace](https://github.com/existential-birds/beagle) — the full Agent Skills marketplace

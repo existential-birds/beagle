@@ -29,12 +29,8 @@ claude plugin install beagle-python@existential-birds
 | `pytest-code-review` | Async test patterns, fixtures, parametrize, and mocking |
 | `review-verification-protocol` | Reference: mandatory verification steps to reduce false positives |
 
-### Reference Material
+## See Also
 
-Each per-tech review skill ships detailed reference documents:
-
-- `python-code-review`: pep8 style, type safety, async patterns, error handling, common mistakes
-- `fastapi-code-review`: routes, dependencies, validation, async
-- `sqlalchemy-code-review`: sessions, relationships, queries, migrations
-- `postgres-code-review`: indexes, JSONB, connections, transactions
-- `pytest-code-review`: async testing, fixtures, parametrize, mocking
+- [Skill catalog](../../SKILLS.md) — every skill in the marketplace
+- [beagle-core](../beagle-core/README.md) — shared workflows, verification, and git skills
+- [beagle marketplace](https://github.com/existential-birds/beagle) — the full Agent Skills marketplace

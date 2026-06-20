@@ -35,16 +35,8 @@ claude plugin install beagle-go@existential-birds
 | `go-middleware` | HTTP middleware with context propagation, slog logging, centralized error handling, and panic recovery |
 | `review-verification-protocol` | Reference: mandatory verification steps loaded before reporting any review findings |
 
-### Reference Material
-
-Each review skill includes detailed reference documents:
-
-- **go-code-review**: error handling, concurrency, interfaces, common mistakes
-- **go-testing-code-review**: test structure, mocking
-- **bubbletea-code-review**: Elm architecture, model/update, view/styling, composition, Bubbles components
-- **wish-ssh-code-review**: server setup/middleware, session handling/security
-
 ## See Also
 
-- [beagle-core](../beagle-core) - Shared workflows, verification protocol, and git commands
-- [beagle marketplace](https://github.com/existential-birds/beagle) - Full Agent Skills marketplace
+- [Skill catalog](../../SKILLS.md) — every skill in the marketplace
+- [beagle-core](../beagle-core/README.md) — shared workflows, verification, and git skills
+- [beagle marketplace](https://github.com/existential-birds/beagle) — the full Agent Skills marketplace

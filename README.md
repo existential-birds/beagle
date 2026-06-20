@@ -48,7 +48,7 @@ Each plugin's README lists its skills. For every skill in one place, see the [fu
 | Plugin | Coverage |
 |--------|----------|
 | [beagle-core](plugins/beagle-core/README.md) | Shared workflows, verification, git, skill tooling |
-| [beagle-python](plugins/beagle-python/README.md) | Python, FastAPI, SQLAlchemy, pytest |
+| [beagle-python](plugins/beagle-python/README.md) | Python, FastAPI, SQLAlchemy, PostgreSQL, pytest |
 | [beagle-go](plugins/beagle-go/README.md) | Go, BubbleTea, Wish SSH, Prometheus |
 | [beagle-elixir](plugins/beagle-elixir/README.md) | Elixir, Phoenix, LiveView, ExUnit, ExDoc |
 | [beagle-ios](plugins/beagle-ios/README.md) | Swift, SwiftUI, SwiftData, iOS frameworks |

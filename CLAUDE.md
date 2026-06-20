@@ -4,7 +4,7 @@ This file provides guidance to Claude Code (claude.ai/code) when working with co
 
 ## What This Is
 
-Beagle is a Claude Code plugin marketplace providing framework-aware code review skills and verification workflows for pre-push reviews and GitHub bot feedback handling. It contains 10 focused plugins with 131 skills.
+Beagle is a Claude Code plugin marketplace providing framework-aware code review skills and verification workflows for pre-push reviews and GitHub bot feedback handling. It contains 10 focused plugins with 132 skills.
 
 ## Marketplace Architecture
 
@@ -22,7 +22,7 @@ beagle/
     ├── beagle-rust/             # Rust, tokio, axum, sqlx, serde (12 skills)
     ├── beagle-ai/               # Pydantic AI, LangGraph, DeepAgents, Vercel AI SDK (deprecated)
     ├── beagle-docs/             # Documentation quality, AI writing detection (10 skills)
-    ├── beagle-analysis/         # Brainstorming, ADRs, strategy, LLM-as-judge, spec resolution, PRFAQ filter, TDD plan writing (13 skills)
+    ├── beagle-analysis/         # Brainstorming, ADRs, strategy, LLM-as-judge, spec resolution, PRFAQ filter, TDD plan writing (14 skills)
     └── beagle-testing/          # Test plan generation and execution (2 skills)
 ```
 
@@ -94,6 +94,7 @@ Beagle-specific:
 | beagle-analysis | `artifact-analysis` | Parallel-subagent scan of local docs with cited, structured extraction |
 | beagle-analysis | `prfaq-beagle` | Hardcore Working Backwards PRFAQ coach — 5-stage filter (Ignition → Press Release → Customer FAQ → Internal FAQ → Verdict) producing binary pass/fail; on pass hands off to `brainstorm-beagle` via a concept brief |
 | beagle-analysis | `write-plan` | Turn a finalized `brainstorm-beagle` spec at `.beagle/concepts/<slug>/spec.md` into a bite-sized, TDD-driven implementation plan at `.beagle/concepts/<slug>/plan.md` |
+| beagle-analysis | `quick-plan` | Produce the same TDD-driven plan as `write-plan` but with no spec — reconstructs intent from the conversation, fans out domain-expert exploration subagents, writes to `.beagle/plans/<slug>/plan.md` |
 | beagle-docs | `draft-docs` | Generate documentation drafts |
 | beagle-docs | `improve-doc` | Improve docs using Diataxis principles |
 | beagle-docs | `ensure-docs` | Documentation coverage check |

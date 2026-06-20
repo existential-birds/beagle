@@ -4,7 +4,7 @@ This file provides guidance to Codex when working with code in this repository.
 
 ## What This Is
 
-Beagle is a Claude Code plugin marketplace providing framework-aware code review skills and verification workflows for pre-push reviews and GitHub bot feedback handling. It contains 10 focused plugins with 131 skills.
+Beagle is a Claude Code plugin marketplace providing framework-aware code review skills and verification workflows for pre-push reviews and GitHub bot feedback handling. It contains 10 focused plugins with 132 skills.
 
 ## Marketplace Architecture
 
@@ -22,7 +22,7 @@ beagle/
     ├── beagle-rust/             # Rust, tokio, axum, sqlx, serde (12 skills)
     ├── beagle-ai/               # Pydantic AI, LangGraph, DeepAgents, Vercel AI SDK (deprecated)
     ├── beagle-docs/             # Documentation quality, AI writing detection (10 skills)
-    ├── beagle-analysis/         # Brainstorming, ADRs, strategy, LLM-as-judge, spec resolution, PRFAQ filter (13 skills)
+    ├── beagle-analysis/         # Brainstorming, ADRs, strategy, LLM-as-judge, spec resolution, PRFAQ filter (14 skills)
     └── beagle-testing/          # Test plan generation and execution (2 skills)
 ```
 

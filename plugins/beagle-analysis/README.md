@@ -1,6 +1,6 @@
 # beagle-analysis
 
-Brainstorming, ADRs, strategy, LLM-as-judge, planning, and research. Part of the [beagle](https://github.com/existential-birds/beagle) Agent Skills marketplace — see the [full skill catalog](../../SKILLS.md).
+Pre-code thinking and decision tools: brainstorm a fuzzy idea into a spec, write ADRs, run strategy interviews, turn specs into TDD implementation plans, research the web with citations, audit agent architectures against 12-Factor Agents, and compare implementations with LLM-as-judge. Part of the [beagle](https://github.com/existential-birds/beagle) Agent Skills marketplace — see the [full skill catalog](../../SKILLS.md).
 
 ## Installation
 

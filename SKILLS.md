@@ -6,7 +6,7 @@ Skills are invoked automatically by any compatible coding agent, or run directly
 
 ## beagle-core
 
-Shared workflows, verification, git, and skill tooling.
+Language-agnostic developer workflows: code review, git, PR/feedback handling, LLM-artifact cleanup, and skill tooling.
 
 | Skill | Description |
 |-------|-------------|
@@ -199,7 +199,7 @@ Brainstorming, ADRs, strategy, LLM-as-judge, planning, research.
 
 ## beagle-testing
 
-Test plan generation and execution.
+Generate and execute language-agnostic end-to-end test plans, including browser tests via agent-browser.
 
 | Skill | Description |
 |-------|-------------|

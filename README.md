@@ -8,6 +8,8 @@
 
 Beagle is an [Agent Skills](https://agentskills.io/specification) marketplace: framework-aware code review, documentation, testing, architectural analysis, and git workflows for any compatible coding agent. Skills cover Python, Go, Rust, Elixir, React, Remix v2, and iOS/Swift.
 
+Install for any agent: `npx skills add existential-birds/beagle`. Then your agent loads the right skill automatically, or you run one by name (for example `review-python`).
+
 Pairs with [Amelia](https://github.com/existential-birds/amelia) for agent-based workflows and [Daydream](https://github.com/existential-birds/daydream) for automated review-fix-test loops.
 
 ## Installation
@@ -60,7 +62,7 @@ Each plugin's README lists its skills. For every skill in one place, see the [fu
 
 ## Key skills
 
-Your agent discovers every skill automatically; these are the headline ones. The [full catalog](SKILLS.md) lists them all.
+Your agent discovers every skill automatically; these are the headline ones, grouped by task. The [full catalog](SKILLS.md) lists them all.
 
 **Code review** — `review-python`, `review-frontend`, `review-remix-v2` (beagle-react); `review-go`, `review-tui` (beagle-go); `review-rust`, `review-elixir`, `review-ios`.
 

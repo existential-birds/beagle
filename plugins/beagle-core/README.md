@@ -1,6 +1,6 @@
 # beagle-core
 
-Shared workflows, verification, git, and skill tooling. Part of the [beagle](https://github.com/existential-birds/beagle) Agent Skills marketplace — see the [full skill catalog](../../SKILLS.md).
+Language-agnostic developer workflows shared across every beagle plugin: commit and push, open pull requests, generate release notes, review implementation plans and repo structure, detect and fix LLM coding artifacts, process PR and reviewer feedback, and build new skills. Part of the [beagle](https://github.com/existential-birds/beagle) Agent Skills marketplace — see the [full skill catalog](../../SKILLS.md).
 
 ## Installation
 

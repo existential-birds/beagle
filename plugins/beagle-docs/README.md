@@ -1,6 +1,6 @@
 # beagle-docs
 
-Documentation quality and AI-writing detection, built on Diataxis. Part of the [beagle](https://github.com/existential-birds/beagle) Agent Skills marketplace — see the [full skill catalog](../../SKILLS.md).
+Write, improve, and audit technical documentation using the Diataxis framework, and detect or humanize AI-generated writing. Part of the [beagle](https://github.com/existential-birds/beagle) Agent Skills marketplace — see the [full skill catalog](../../SKILLS.md).
 
 ## Installation
 

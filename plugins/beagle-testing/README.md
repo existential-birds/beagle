@@ -1,6 +1,6 @@
 # beagle-testing
 
-Test plan generation and execution. Part of the [beagle](https://github.com/existential-birds/beagle) Agent Skills marketplace — see the [full skill catalog](../../SKILLS.md).
+Generate and execute language-agnostic end-to-end test plans: detect the stack, trace branch changes to user-facing flows, and run them step by step — including browser tests via [agent-browser](https://github.com/vercel-labs/agent-browser). Part of the [beagle](https://github.com/existential-birds/beagle) Agent Skills marketplace — see the [full skill catalog](../../SKILLS.md).
 
 ## Installation
 

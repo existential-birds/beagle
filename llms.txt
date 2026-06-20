@@ -1,0 +1,30 @@
+# Beagle
+
+> Beagle is an Agent Skills marketplace: framework-aware code review, documentation, testing, architectural analysis, and git workflows for any compatible coding agent. It ships 10 plugins and 130+ skills covering Python, Go, Rust, Elixir, React, Remix v2, and iOS/Swift.
+
+Skills follow the [Agent Skills specification](https://agentskills.io/specification) and are invoked automatically by any compatible agent, or run by name (for example `review-python`). Install for any agent with `npx skills add existential-birds/beagle`; for Claude Code, `claude plugin marketplace add https://github.com/existential-birds/beagle`. Browse skills by task below — code review, test-plan generation, documentation, TDD planning, ADRs, LLM-artifact cleanup, and git/PR workflows.
+
+## Docs
+
+- [README](https://github.com/existential-birds/beagle/blob/main/README.md): What beagle is, installation for any agent and for Claude Code, and the plugin index.
+- [Skill catalog](https://github.com/existential-birds/beagle/blob/main/SKILLS.md): Every skill in the marketplace, grouped by plugin, each with a one-line description.
+
+## Plugins
+
+- [beagle-core](https://github.com/existential-birds/beagle/blob/main/plugins/beagle-core/README.md): Cross-language workflows — commit/push, open PRs, generate release notes, review implementation plans and repo structure, detect and fix LLM coding artifacts, process PR/review feedback, and build new skills.
+- [beagle-python](https://github.com/existential-birds/beagle/blob/main/plugins/beagle-python/README.md): Code review for Python, FastAPI, SQLAlchemy, PostgreSQL, and pytest.
+- [beagle-go](https://github.com/existential-birds/beagle/blob/main/plugins/beagle-go/README.md): Code review and architecture guidance for Go, BubbleTea TUIs, Wish SSH, and Prometheus.
+- [beagle-rust](https://github.com/existential-birds/beagle/blob/main/plugins/beagle-rust/README.md): Code review and best practices for Rust, tokio, axum, sqlx, and serde.
+- [beagle-elixir](https://github.com/existential-birds/beagle/blob/main/plugins/beagle-elixir/README.md): Code review for Elixir, Phoenix, LiveView, ExUnit, and ExDoc.
+- [beagle-react](https://github.com/existential-birds/beagle/blob/main/plugins/beagle-react/README.md): Code review and implementation guidance for React, Remix v2, React Flow, shadcn/ui, Tailwind, Vitest, and Zustand.
+- [beagle-ios](https://github.com/existential-birds/beagle/blob/main/plugins/beagle-ios/README.md): Code review for Swift, SwiftUI, SwiftData, and iOS frameworks (Combine, CloudKit, HealthKit, WidgetKit, watchOS).
+- [beagle-docs](https://github.com/existential-birds/beagle/blob/main/plugins/beagle-docs/README.md): Write, improve, and audit documentation with Diataxis, and detect or humanize AI-generated writing.
+- [beagle-analysis](https://github.com/existential-birds/beagle/blob/main/plugins/beagle-analysis/README.md): Brainstorm specs, write ADRs, run strategy interviews, plan TDD implementations, research the web, and compare implementations with LLM-as-judge.
+- [beagle-testing](https://github.com/existential-birds/beagle/blob/main/plugins/beagle-testing/README.md): Generate and execute language-agnostic end-to-end test plans, including browser tests via agent-browser.
+
+## Optional
+
+- [Agent Skills specification](https://agentskills.io/specification): The open spec these skills implement.
+- [skills CLI](https://skills.sh/docs/cli): Install skills into any compatible agent.
+- [Amelia](https://github.com/existential-birds/amelia): Agent-based workflows that pair with beagle.
+- [Daydream](https://github.com/existential-birds/daydream): Automated review-fix-test loops that pair with beagle.

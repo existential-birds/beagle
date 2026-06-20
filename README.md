@@ -43,22 +43,24 @@ If a marketplace file is reported missing, remove stale entries from `~/.claude/
 
 ## Plugins
 
+Each plugin's README lists its skills. For every skill in one place, see the [full catalog](SKILLS.md).
+
 | Plugin | Coverage |
 |--------|----------|
-| beagle-core | Shared workflows, verification, git, skill tooling |
-| beagle-python | Python, FastAPI, SQLAlchemy, pytest |
-| beagle-go | Go, BubbleTea, Wish SSH, Prometheus |
-| beagle-elixir | Elixir, Phoenix, LiveView, ExUnit, ExDoc |
-| beagle-ios | Swift, SwiftUI, SwiftData, iOS frameworks |
-| beagle-react | React, React Flow, shadcn/ui, Tailwind, Remix v2 |
-| beagle-rust | Rust, tokio, axum, sqlx, serde |
-| beagle-docs | Documentation quality, AI-writing detection (Diataxis) |
-| beagle-analysis | Brainstorming, ADRs, strategy, LLM-as-judge, TDD planning |
-| beagle-testing | Test plan generation and execution |
+| [beagle-core](plugins/beagle-core/README.md) | Shared workflows, verification, git, skill tooling |
+| [beagle-python](plugins/beagle-python/README.md) | Python, FastAPI, SQLAlchemy, pytest |
+| [beagle-go](plugins/beagle-go/README.md) | Go, BubbleTea, Wish SSH, Prometheus |
+| [beagle-elixir](plugins/beagle-elixir/README.md) | Elixir, Phoenix, LiveView, ExUnit, ExDoc |
+| [beagle-ios](plugins/beagle-ios/README.md) | Swift, SwiftUI, SwiftData, iOS frameworks |
+| [beagle-react](plugins/beagle-react/README.md) | React, React Flow, shadcn/ui, Tailwind, Remix v2 |
+| [beagle-rust](plugins/beagle-rust/README.md) | Rust, tokio, axum, sqlx, serde |
+| [beagle-docs](plugins/beagle-docs/README.md) | Documentation quality, AI-writing detection (Diataxis) |
+| [beagle-analysis](plugins/beagle-analysis/README.md) | Brainstorming, ADRs, strategy, LLM-as-judge, TDD planning |
+| [beagle-testing](plugins/beagle-testing/README.md) | Test plan generation and execution |
 
 ## Key skills
 
-Your agent discovers every skill automatically; these are the headline ones.
+Your agent discovers every skill automatically; these are the headline ones. The [full catalog](SKILLS.md) lists them all.
 
 **Code review** — `review-python`, `review-frontend`, `review-remix-v2` (beagle-react); `review-go`, `review-tui` (beagle-go); `review-rust`, `review-elixir`, `review-ios`.
 

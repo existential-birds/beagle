@@ -1,56 +1,46 @@
 # beagle-core
 
-Shared code review workflows, verification protocol, git commands, and feedback handling for [Claude Code](https://claude.ai/code). Part of the [beagle](https://github.com/existential-birds/beagle) plugin marketplace. Recommended as a base for all beagle plugins.
+Shared workflows, verification, git, and skill tooling. Part of the [beagle](https://github.com/existential-birds/beagle) Agent Skills marketplace — see the [full skill catalog](../../SKILLS.md).
 
 ## Installation
 
-```bash
-# Add the marketplace (if not already added)
-claude plugin marketplace add https://github.com/existential-birds/beagle
+For any coding agent that supports [Agent Skills](https://agentskills.io):
 
-# Install the plugin
-claude plugin install beagle-core@existential-birds
+```bash
+npx skills add existential-birds/beagle
 ```
 
-## Commands
+For Claude Code:
 
-| Command | Usage | Description |
-|---------|-------|-------------|
-| **commit-push** | `/beagle-core:commit-push` | Commit and push all local changes using Conventional Commits format |
-| **create-pr** | `/beagle-core:create-pr` | Create a pull request with a standardized description template |
-| **review-plan** | `/beagle-core:review-plan` | Review implementation plans for parallelization, TDD, types, libraries, and security |
-| **review-llm-artifacts** | `/beagle-core:review-llm-artifacts` | Scan for LLM agent artifacts via 4 parallel subagents. Default: files changed since merge-base with main; `--all` opt-in for full-project scan |
-| **verify-llm-artifacts** | `/beagle-core:verify-llm-artifacts` | Confirm or reject review findings before deletes — reduces false positives |
-| **fix-llm-artifacts** | `/beagle-core:fix-llm-artifacts` | Apply fixes from a prior review (optionally after verification) with safe/risky classification |
-| **receive-feedback** | `/beagle-core:receive-feedback` | Process code review feedback from a file with verification-first discipline |
-| **fetch-pr-feedback** | `/beagle-core:fetch-pr-feedback` | Fetch bot review comments from a PR and evaluate with receive-feedback skill |
-| **respond-pr-feedback** | `/beagle-core:respond-pr-feedback` | Post replies to bot review comments after evaluation and fixes |
-| **gen-release-notes** | `/beagle-core:gen-release-notes` | Generate release notes for changes since a given tag |
-| **prompt-improver** | `/beagle-core:prompt-improver` | Optimize prompts for code-related tasks following Claude best practices |
+```bash
+claude plugin marketplace add https://github.com/existential-birds/beagle
+claude plugin install beagle-core@existential-birds
+```
 
 ## Skills
 
 | Skill | Description |
 |-------|-------------|
-| **review-verification-protocol** | Mandatory verification steps for all code reviews to reduce false positives |
-| **receive-feedback** | Process external code review feedback with technical rigor and verification-first discipline |
-| **review-feedback-schema** | Schema for tracking code review outcomes to enable feedback-driven skill improvement |
-| **review-skill-improver** | Analyzes feedback logs to identify patterns and suggest improvements to review skills |
-| **llm-artifacts-detection** | Detects common LLM coding agent artifacts: test quality issues, dead code, over-abstraction, and verbose style |
-| **verify-llm-artifacts** | Second-pass adjudication of review-llm-artifacts JSON; marks confirmed vs false positive vs inconclusive |
-| **skill-builder** | Guided skill creation workflow |
-| **review-skill** | Automated skill PR review for structural validity, design quality, and marketplace consistency |
-
-### Reference Material
-
-Each skill with a `references/` directory includes detailed reference documents:
-
-**llm-artifacts-detection**: dead code criteria, test quality criteria, abstraction criteria, style criteria
-
-**verify-llm-artifacts**: per-finding verification checklist (false positives vs confirmed issues)
-
-**receive-feedback**: skill integration patterns
+| `commit-push` | Commit and push all local changes using Conventional Commits format |
+| `create-pr` | Create a pull request with a standardized description template |
+| `gen-release-notes` | Generate release notes for changes since a given tag |
+| `review-plan` | Review implementation plans for parallelization, TDD, types, libraries, and security before execution |
+| `review-structure` | Repo-wide structural-maintainability review — code-judo restructurings, 1k-line file guard, anti-spaghetti branching, canonical-layer enforcement, anti-magic abstractions, explicit type and boundary contracts |
+| `review-skill` | Review PRs that add or modify Agent Skills for structural validity, design quality, and marketplace consistency |
+| `skill-builder` | Create Agent Skills with best-practice structure, references, validation, and testing |
+| `subagent-prompt` | Hand off the current session's work to a fresh session as a portable orchestrator-plus-subagents prompt with per-task verification |
+| `prompt-improver` | Optimize prompts for code-related tasks following prompt-engineering best practices |
+| `receive-feedback` | Process external code review feedback with verification-first discipline, verifying claims before implementing and tracking disposition |
+| `fetch-pr-feedback` | Fetch unresolved review comments from a PR and evaluate them with the `receive-feedback` skill |
+| `respond-pr-feedback` | Post replies to PR review comments after evaluation and fixes |
+| `review-llm-artifacts` | Scan for LLM coding-agent artifacts across tests, dead code, abstraction, and style — changed files by default, `--all` for full-project |
+| `verify-llm-artifacts` | Adjudicate `review-llm-artifacts` findings as confirmed, false positive, or inconclusive before deletes |
+| `fix-llm-artifacts` | Apply fixes from a prior `review-llm-artifacts` run with safe/risky classification, respecting verification output |
+| `llm-artifacts-detection` | Reference: detection criteria for test quality, dead code, over-abstraction, and verbose LLM style |
+| `review-verification-protocol` | Reference: mandatory verification steps loaded before reporting any code review findings |
+| `review-feedback-schema` | Reference: schema for tracking code review outcomes to enable feedback-driven skill improvement |
+| `review-skill-improver` | Reference: analyzes feedback logs to surface patterns and suggest improvements to review skills |
 
 ## See Also
 
-- [beagle marketplace](https://github.com/existential-birds/beagle) - Full plugin marketplace with 12 focused plugins
+- [beagle marketplace](https://github.com/existential-birds/beagle) — full Agent Skills marketplace

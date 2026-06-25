@@ -26,7 +26,7 @@ beagle/
     └── beagle-testing/          # Test plan generation and execution (2 skills)
 ```
 
-Each plugin is self-contained with its own `plugin.json` and `skills/` directory.
+Each active plugin is a directory under `plugins/` with its own `README.md` and `skills/` directory. The marketplace manifest at `.claude-plugin/marketplace.json` is the only plugin manifest; individual plugin directories do not have `plugin.json` files.
 
 ## Local Development
 
@@ -45,7 +45,7 @@ Restart Claude Code after changes to reload. Skills are discovered from plugin `
 
 See [Agent Skills](https://docs.claude.com/en/docs/agents-and-tools/agent-skills/overview) for the canonical format.
 
-Beagle treats skills as the canonical format. Former command workflows were unified into `SKILL.md` files under each plugin's `skills/` directory, where frontmatter controls user exposure and behavior.
+Beagle treats skills as the canonical format. Former command workflows were unified into `SKILL.md` files under each plugin's `skills/` directory, where frontmatter controls user exposure and behavior. The 10 active marketplace plugins contain 132 canonical `SKILL.md` entry points; the deprecated `beagle-ai` skill files remain on disk for backward compatibility and are not listed in the main catalog.
 
 **Skills** (`plugins/<name>/skills/` folders): Auto-loaded when relevant. Structure: `skill-name/SKILL.md` with optional `references/` folder and frontmatter such as `disable-model-invocation` and `user-invocable`.
 
@@ -106,7 +106,7 @@ Beagle-specific:
 ## Conventions
 
 - **Commits**: Conventional Commits format (feat, fix, docs, refactor, test, chore)
-- **Versioning**: Semantic versioning in marketplace.json and each plugin's `plugin.json`
+- **Versioning**: Semantic versioning in `.claude-plugin/marketplace.json`
 - **Release notes**: Keep a Changelog format, generated via `/beagle-core:gen-release-notes`
 - **Skill references**: Use `<plugin-name>:<skill-name>` format (e.g., `beagle-python:python-code-review`)
 
@@ -117,7 +117,7 @@ This is a pure markdown plugin marketplace. No npm, no build, no tests. Validati
 ## Release Process
 
 1. **Update CHANGELOG.md** - Add new version section with changes (Keep a Changelog format)
-2. **Bump version** - Update `version` in `.claude-plugin/marketplace.json` and affected plugin.json files (semver)
+2. **Bump version** - Update `metadata.version` in `.claude-plugin/marketplace.json` (semver)
 3. **Commit** - `chore(release): bump version to X.Y.Z`
 4. **Push** - `git push origin main`
 5. **Tag** - `git tag -a vX.Y.Z -m "Release vX.Y.Z - Summary"` and `git push origin vX.Y.Z`

@@ -2,7 +2,7 @@
 
 _Last updated: May 26, 2026_
 
-Beagle is a [Claude Code](https://claude.com/claude-code) plugin marketplace distributed as Markdown skill files (plus one local helper script for numbering ADRs). It runs entirely inside your local Claude Code session.
+Beagle is an Agent Skills marketplace distributed as static Markdown skill files, plus local helper scripts such as the ADR numbering helper. It runs entirely inside your local coding-agent session.
 
 ## What we collect
 
@@ -10,9 +10,9 @@ Nothing. Beagle does not collect, store, transmit, or sell any personal data. It
 
 ## How Beagle works
 
-The plugins are static Markdown instructions that Claude Code reads locally. Beagle makes no network requests of its own.
+The plugins are static Markdown instructions that your coding agent reads locally. Beagle makes no network requests of its own.
 
-Some skills instruct Claude Code to use its own built-in tools — for example web search, `git`, or the GitHub CLI (`gh`) — but only when you invoke those skills. Any such activity is performed by Claude Code and the tools you have configured, under your control. That activity is governed by the privacy policies of those tools and services (for example [Anthropic](https://www.anthropic.com/legal/privacy) and [GitHub](https://docs.github.com/en/site-policy/privacy-policies/github-general-privacy-statement)), not by Beagle.
+Some skills instruct your agent to use its configured tools — for example web search, `git`, or the GitHub CLI (`gh`) — but only when you invoke those skills. Any such activity is performed by your agent and the tools you have configured, under your control. That activity is governed by the privacy policies of those tools and services, not by Beagle.
 
 ## Your data
 

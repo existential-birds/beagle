@@ -6,7 +6,7 @@ user-invocable: false
 
 # Verification Budget
 
-Every verification loop needs a **cost ceiling**. Without one, ambiguity always resolves toward "verify again" — a loop with no bound and no observable exit. This skill defines the three primitives that bound it. Skills **import these by name** (`verification-budget: tier 1`, `verification-budget: one-echo`) rather than restating gates in their own text.
+Every verification loop needs a **cost ceiling**. Without one, ambiguity always resolves toward "verify again" — a loop with no bound and no observable exit. This skill defines the three primitives that bound it. Skills **import these by name** (`verification-budget: IRREVERSIBLE`, `verification-budget: one-echo`) rather than restating gates in their own text. Tiers are always named, never numbered — a bare "tier 2" means nothing to a reader who has not memorized this file.
 
 ## 1. Risk tiers
 
@@ -51,7 +51,7 @@ Downstream stages in the same pipeline **trust the upstream stage's recorded ech
 
 **Rationale, stated honestly:** per-verdict echo gates were built to defend against a single long-lived context confabulating about code it never read. That threat was real when one context carried an entire review end to end. With fresh, narrowly-scoped subagent contexts — where the agent has read little else and the artifact dominates its window — the confabulation risk is much lower, and repeated echoing now costs more than it saves.
 
-**One exception:** an IRREVERSIBLE action (tier 1) re-reads its target immediately before acting. Not for confabulation — for **staleness**. The tree may have moved since the upstream echo, and a delete against a stale line number destroys the wrong thing unrecoverably.
+**One exception:** an IRREVERSIBLE action re-reads its target immediately before acting. Not for confabulation — for **staleness**. The tree may have moved since the upstream echo, and a delete against a stale line number destroys the wrong thing unrecoverably.
 
 ## 4. Prove-a-negative ban
 

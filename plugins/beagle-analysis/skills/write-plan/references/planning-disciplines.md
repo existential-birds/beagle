@@ -141,7 +141,7 @@ The audit is **one bounded check**, not a sweep:
 
 The audit task body must, at planning time, **enumerate the converted sites** (`file:line` each) and mark which depend on production-specific configuration the new pattern does not replicate — pool settings, timeouts, isolation levels, env, signal handlers. Not "check the sites": "site A at `file:line` depends on X; site B at `file:line` depends on Y." Fix each named divergence in the audit task or open a numbered follow-up task.
 
-Then the executor picks 3 of the enumerated sites, runs the corresponding production-wiring test (the project's tier-2/tier-3 equivalent), and records pass/fail per site. If a sampled site regresses, the pattern needs a per-site escape hatch — name it and stop.
+Then the executor picks 3 of the enumerated sites, runs the corresponding production-wiring test (whatever the project calls that level), and records pass/fail per site. If a sampled site regresses, the pattern needs a per-site escape hatch — name it and stop.
 
 Do **not** ask for "grep-confirm zero remaining old-pattern sites." Exhaustive absence over an open search space has no terminating check (`beagle-core:verification-budget`, prove-a-negative ban). The planner's enumerated site list *is* the completeness check; the sample is the correctness check.
 

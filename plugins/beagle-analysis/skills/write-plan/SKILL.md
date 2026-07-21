@@ -75,7 +75,7 @@ Before designing tasks, scan for the rules that shape the plan:
 - **Test framework and runner** — Cargo, pytest, npm test, mix test. Tasks must use the correct command, and the plan header must name the baseline suite command.
 - **Existing patterns** — follow the codebase's file layout. The spec's *Constraints* and *Reference Points* often pin these.
 
-When project conventions mandate something specific ("every user-visible feature needs a tier-3 test driven through the compiled binary"), the plan must include tasks that satisfy it. Do not silently produce a plan that violates project policy — call it out and adapt.
+When project conventions mandate something specific — a required test level, a naming rule, a forbidden dependency — the plan must include tasks that satisfy it. Read the rule from the project's own `AGENTS.md`/`CLAUDE.md` and use that project's vocabulary; do not import a tiering scheme or test taxonomy the project has not defined. Do not silently produce a plan that violates project policy — call it out and adapt.
 
 ## File Structure
 

@@ -7,7 +7,7 @@ description: Reviews Go code for idiomatic patterns, error handling, concurrency
 
 ## Review Workflow
 
-Follow this sequence **in order**. Do not emit findings until every **Pass** below is satisfied.
+An enumerated sequence, run **once** in order. Record each **Pass** outcome, then emit findings; if a Pass cannot be satisfied, drop or downgrade the affected findings and flag why — do not re-run the sequence.
 
 1. **Baseline `go.mod`** — Open `go.mod` and read the `go` directive.  
    **Pass:** You can state the exact `go X.YY` value (in the review preamble or working notes). Apply version-gated advice only when it matches this baseline (loop capture pre-1.22, `slog`/structured logging from 1.21, `errors.Join` from 1.20).
@@ -18,8 +18,8 @@ Follow this sequence **in order**. Do not emit findings until every **Pass** bel
 3. **Scope the checklist** — Decide which [Review Checklist](#review-checklist) blocks apply (error handling, concurrency, interfaces/types, resources, naming). Load [references](#quick-reference) for those blocks; skip blocks that are irrelevant to the diff.  
    **Pass:** The review (or working notes) lists which checklist blocks you applied, or marks blocks N/A with a one-line reason tied to the diff (e.g. “no concurrency in change”).
 
-4. **Pre-report verification** — Load and follow [review-verification-protocol](../review-verification-protocol/SKILL.md).  
-   **Pass:** The protocol’s **Pre-Report Verification Checklist** is satisfied for each finding you will report (actual code read, surrounding context checked, “wrong” vs “different style” distinguished, etc.).
+4. **Pre-report verification** — Load `beagle-core:review-verification-protocol` plus the Go delta at [review-verification-protocol](../review-verification-protocol/SKILL.md). Apply the protocol **once over the assembled finding list**, not once per finding — reporting a finding is `beagle-core:verification-budget` tier REVERSIBLE, so cite the evidence you already have and move on. Only a finding whose recommended action is IRREVERSIBLE (deleting code, rewriting a file) earns the full evidence gate.  
+   **Pass:** One pass over the finding list is recorded — actual code read, surrounding context checked, “wrong” vs “different style” distinguished. Budget: max **1** pass. Tie-break: ship any still-uncertain finding as a question or drop it, and proceed.
 
 ## Hard gates (same sequence, shorter)
 
@@ -28,7 +28,7 @@ Follow this sequence **in order**. Do not emit findings until every **Pass** bel
 | 1 | `go X.YY` from `go.mod` is recorded before version-specific advice. |
 | 2 | Full enclosing context read per changed file, not diff-only. |
 | 3 | In-scope checklist blocks listed or N/A with diff-tied reason; references opened as needed. |
-| 4 | `review-verification-protocol` completed for every reported issue. |
+| 4 | `review-verification-protocol` applied once over the finding list (per-finding evidence gate only for IRREVERSIBLE-action findings). |
 
 ## Output Format
 
@@ -151,4 +151,4 @@ Only flag these issues when the specific conditions apply:
 
 ## Before Submitting Findings
 
-Satisfy **step 4** in [Review Workflow](#review-workflow): load [review-verification-protocol](../review-verification-protocol/SKILL.md) and complete its pre-report checks for each issue.
+Satisfy **step 4** in [Review Workflow](#review-workflow): load `beagle-core:review-verification-protocol` plus the [Go delta](../review-verification-protocol/SKILL.md) and run its pre-report checks in a single pass over the finding list.

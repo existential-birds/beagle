@@ -17,7 +17,7 @@ Complete in order before writing **Issues** in the output (empty scope is allowe
 
 1. **Scope gate:** You have an explicit list of `.swift` paths under review (from Step 1 or a user-provided path). **Pass:** List captured in working notes **or** one line: `No Swift files in scope` — then stop with no Issues.
 2. **Linter gate (style):** Step 2 commands ran for this tree; if no `.swiftlint.yml` / `.swiftlint.yaml`, note that in one line. **Pass:** You do not report a style issue that SwiftLint would already enforce for that line when config exists and `swiftlint` succeeds.
-3. **Protocol gate:** [review-verification-protocol](../review-verification-protocol/SKILL.md) is loaded before Step 6. **Pass:** If you report any Issues, at least one finding was checked against that checklist (name the item in Review Summary or on that Issue); if you report zero Issues, state `Protocol applied; no issues` in Review Summary.
+3. **Protocol gate:** `beagle-core:review-verification-protocol` and the [Swift / iOS delta](../review-verification-protocol/SKILL.md) are loaded **once**, before Step 6 — applied per review, not per finding. **Pass:** If you report any Issues, the finding list went through one protocol pass (name one checklist item you applied in Review Summary); if you report zero Issues, state `Protocol applied; no issues` in Review Summary.
 4. **Evidence gate (Critical/Major):** For each Critical or Major item, you re-read the file at `FILE:LINE` (full surrounding context, not only the diff hunk). **Pass:** The Issue text matches observable code at that location.
 
 Do not begin Step 6 until **Gates 1–3** are satisfied (skills load order stays Steps 4–5).
@@ -83,7 +83,7 @@ grep -r "PhaseAnimator\|KeyframeAnimator\|matchedGeometryEffect\|navigationTrans
 
 ## Step 4: Load Verification Protocol
 
-Load the [review-verification-protocol](../review-verification-protocol/SKILL.md) skill and keep its checklist in mind throughout the review.
+Load `beagle-core:review-verification-protocol` plus the [Swift / iOS delta](../review-verification-protocol/SKILL.md) once here. Its checklist is applied in a single pass over the finding list at Step 6 — not re-run per finding.
 
 ## Step 5: Load Skills
 
@@ -135,9 +135,10 @@ Load each applicable skill below (read its `SKILL.md`).
 
 ## Step 7: Verify Findings
 
-Before reporting any issue:
+Budget: exactly **one** pass over the finding list. Stop when every finding has an answer for items 1–5. Tie-break: anything still uncertain ships as a question or is dropped — do not open another pass.
+
 1. Re-read the actual code (not just diff context)
-2. For "unused" claims - did you search all references?
+2. For "unused" claims - did you run the core protocol's four enumerated reference patterns (direct reference, re-export/module surface, string-literal or `@objc`/`#selector`/key-path reference, framework-invoked contract) and report the count for each? Report "no matches across the 4 enumerated patterns", never "unused anywhere"
 3. For "missing" claims - did you check framework/parent handling?
 4. For syntax issues - did you verify against current version docs?
 5. Remove any findings that are style preferences, not actual issues

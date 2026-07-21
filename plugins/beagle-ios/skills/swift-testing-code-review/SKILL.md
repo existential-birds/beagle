@@ -7,11 +7,11 @@ description: Reviews Swift Testing code for proper use of #expect/#require, para
 
 ## Hard gates
 
-Complete **in order** before recording Swift Testing review findings. Stack with [review-verification-protocol](../review-verification-protocol/SKILL.md) for universal review rules.
+Complete **in order** before recording Swift Testing review findings. Load `beagle-core:review-verification-protocol` plus the [Swift / iOS delta](../review-verification-protocol/SKILL.md) **once, at review entry** for the universal review rules.
 
 1. **Scope:** You have an explicit list of `.swift` paths under review (or a user-named single file). **Pass:** Paths captured in working notes **or** one line: `No Swift files in scope` — then stop with no findings.
 2. **Swift Testing surface:** For each path you treat as Swift Testing code, confirm `import Testing` **or** `@Test` / `#expect` / `#require` / `@Suite` appears in that file (open or search). **Pass:** At least one match per critiqued file, or you exclude that file from Swift Testing review with a one-line reason (e.g. XCTest-only).
-3. **Evidence + protocol:** Load [review-verification-protocol](../review-verification-protocol/SKILL.md) before asserting any issue. **Pass:** Each finding meets that skill’s anchor rules; any violated [Review Checklist](#review-checklist) item cites `[FILE:LINE]` evidence. If you report zero issues, state `Protocol applied; no Swift Testing issues` (or equivalent) in the review summary.
+3. **Evidence:** Reporting a finding is `beagle-core:verification-budget` tier REVERSIBLE — cite the evidence you already have rather than re-running the protocol per finding. **Pass:** Any violated [Review Checklist](#review-checklist) item cites `[FILE:LINE]` evidence. If you report zero issues, state `Protocol applied; no Swift Testing issues` (or equivalent) in the review summary.
 
 ## Quick Reference
 

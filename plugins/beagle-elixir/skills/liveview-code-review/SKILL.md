@@ -102,12 +102,12 @@ end
 
 ## Hard gates (sequence)
 
-Advance only when each **pass condition** is objectively true (prevents reporting without evidence):
+Record an outcome for each gate once per review. Budget: max **1** pass over this table. Tie-break: ship with the unmet gate stated alongside the findings — do not loop.
 
-| Gate | Pass condition |
+| Gate | Recorded outcome |
 |------|----------------|
 | **G1 — Files in evidence** | You have an explicit list of paths under review (e.g. `*.ex`, `*.heex`, or the paths the user named). **Every** finding names a file from that list. |
-| **G2 — Verification protocol** | You loaded [review-verification-protocol](../review-verification-protocol/SKILL.md) and applied its Pre-Report Verification (and issue-type sections where relevant) **before** treating something as a finding. |
+| **G2 — Verification protocol** | You loaded `beagle-core:review-verification-protocol` (plus this plugin's [Elixir delta](../review-verification-protocol/SKILL.md)) **once**, at review entry, and applied its Pre-Report Verification Checklist to the finding list before shipping. Reporting is `beagle-core:verification-budget` tier REVERSIBLE — no per-finding gate unless the verdict authorizes an IRREVERSIBLE action. |
 | **G3 — Line anchors** | Each finding uses `[FILE:LINE]` where that line exists in the current file (confirmed by read/grep output, not inferred). |
 | **G4 — Valid-pattern screen** | You checked the finding against **Valid Patterns (Do NOT Flag)** and **Context-Sensitive Rules**; if it matches a “do not flag” case or fails a “Flag ONLY IF,” you **do not** report it. |
 

@@ -147,14 +147,16 @@ date,file,line,rule_source,category,severity,issue,verdict,rationale
 
 ## Pre-Review Verification Checklist
 
-Before reporting ANY finding, reviewers MUST verify:
+Reporting a finding is `beagle-core:verification-budget` tier REVERSIBLE. This is an enumerated check list run **once per review**, not a gate applied per finding: record the outcome of each item across the finding list and proceed.
+
+**Budget:** max **1** pass. Stop when each of the six items below has a recorded outcome. Tie-break: ship an unresolved item's finding as a question, or drop it — do not open another pass.
 
 ### Verification Steps
 
 1. **Confirm the issue exists**: Read the actual code, don't infer from context
 2. **Check surrounding code**: The issue may be handled elsewhere (guards, earlier checks)
-3. **Trace state/variable usage**: Search for all references before claiming "unused"
-4. **Verify assertions**: If claiming "X is missing", confirm X isn't present
+3. **Trace identifier usage**: Before claiming "unused", search the enumerated reference patterns — direct call, re-export or barrel entry, string-literal/dynamic reference — and report each count. Never claim absence beyond the patterns you searched.
+4. **Verify assertions**: If claiming "X is missing", cite the file:line range you read where X would appear
 5. **Check framework handling**: Many frameworks handle validation/errors automatically
 6. **Validate syntax understanding**: Verify against current docs (Tailwind v4, TS 5.x, etc.)
 
@@ -171,13 +173,14 @@ Before reporting ANY finding, reviewers MUST verify:
 
 ### Signals of False Positive Risk
 
-If you're about to flag any of these, double-check:
-- "This variable appears unused" → Search for ALL references first
-- "Missing error handling" → Check parent/framework handling
-- "Should use X instead of Y" → Both may be valid
-- "This syntax looks wrong" → Verify against current version docs
+Findings of these shapes carry the highest REJECT rate. Handle them during the single pass above:
 
-Reference: [review-verification-protocol](../review-verification-protocol/SKILL.md) for full verification workflow.
+- "This variable appears unused" → report the enumerated reference-pattern counts
+- "Missing error handling" → check parent/framework handling
+- "Should use X instead of Y" → both may be valid; downgrade or drop
+- "This syntax looks wrong" → verify against current version docs
+
+Reference: `beagle-core:review-verification-protocol` for the language-neutral gates and severity calibration, and `beagle-core:verification-budget` for tier, budget, and one-echo definitions.
 
 ## How This Feeds Into Skill Improvement
 

@@ -50,15 +50,15 @@ description: Reviews Elixir code for security vulnerabilities including code inj
 
 ## Hard gates (before reporting)
 
-Complete **in order** for each finding you intend to report. Do not advance until the pass condition is satisfied.
+Complete **in order**, once over the assembled finding list. Budget: max **1** pass. Stop when each gate has a recorded outcome. Tie-break: ship the remainder as questions, or drop them — do not re-run the gates.
 
-1. **Location artifact** — The finding includes `[FILE:LINE]` (or a line range) that you copied from the current file contents; the path resolves in this repo.
+1. **Location artifact** — Each finding includes `[FILE:LINE]` (or a line range) that you copied from the current file contents; the path resolves in this repo.
 2. **Scope read** — You read the full surrounding function or module section that contains the flagged code, not only a diff hunk or summary.
-3. **External-data claim** (only if the finding depends on “user/untrusted input”) — You can name one concrete ingress (for example `conn.params`, `Jason.decode!/1` result, uploaded file path, message from another node) **or** you drop the finding because the value is compile-time, test-only, or internal per Context-Sensitive Rules.
-4. **Protocol** — Pre-report steps in [review-verification-protocol](../review-verification-protocol/SKILL.md) are satisfied for this item (no finding if they are not).
+3. **External-data claim** (only for findings that depend on “user/untrusted input”) — You can name one concrete ingress (for example `conn.params`, `Jason.decode!/1` result, uploaded file path, message from another node) **or** you drop the finding because the value is compile-time, test-only, or internal per Context-Sensitive Rules.
+4. **Protocol** — `beagle-core:review-verification-protocol`'s Pre-Report Verification Checklist is applied **once** to the finding list. Reporting is `beagle-core:verification-budget` tier REVERSIBLE; a verdict authorizing an IRREVERSIBLE action re-reads its target immediately before acting.
 
 ## Before Submitting Findings
 
 Use the issue format: `[FILE:LINE] ISSUE_TITLE` for each finding.
 
-Hard gate 4 requires [review-verification-protocol](../review-verification-protocol/SKILL.md); use it as the full pre-report checklist and issue-type verification (it extends beyond this skill’s summary).
+Gate 4 draws on `beagle-core:review-verification-protocol` for the pre-report checklist, severity calibration, and issue-type verification (it extends beyond this skill’s summary). Elixir-specific reference patterns live in this plugin's [Elixir delta](../review-verification-protocol/SKILL.md).

@@ -31,7 +31,7 @@ description: Reviews shadcn/ui components for CVA patterns, composition with asC
 
 ## Hard gates (before writing findings)
 
-Run these in order. **Do not draft user-facing findings until every gate passes** for the batch you are about to report.
+Run these in order over the batch you are about to report. Budget: max **1** pass over the batch; stop when every issue has an answer for gates 1–3; tie-break: drop the issue or ship it as a question and proceed — do not open another pass.
 
 1. **Location evidence** — **Pass:** Each issue lists a repo path and either a line range or a short verbatim quote from the file you read (not from memory or diff-only guesswork).
 
@@ -39,7 +39,7 @@ Run these in order. **Do not draft user-facing findings until every gate passes*
 
 3. **Context-sensitive claims** — **Pass:** For accessibility or Radix-related flags, you checked the file for imports/wrappers showing what actually runs (or you cite the concrete gap).
 
-4. **Protocol** — **Pass:** You completed the Pre-Report Verification Checklist in [review-verification-protocol](../review-verification-protocol/SKILL.md) for this review.
+4. **Protocol** — **Pass:** `beagle-core:review-verification-protocol` (plus the [React / TypeScript delta](../review-verification-protocol/SKILL.md)) was loaded once at review entry, and its Pre-Report Verification Checklist was walked **once for this review** — not once per finding. Reporting a finding is `beagle-core:verification-budget` tier REVERSIBLE.
 
 ## Valid Patterns (Do NOT Flag)
 
@@ -91,4 +91,4 @@ Do NOT flag:
 
 ## Before Submitting Findings
 
-Complete [Hard gates](#hard-gates-before-writing-findings) (especially gate 4), then report only issues that still pass the [review-verification-protocol](../review-verification-protocol/SKILL.md) pre-report checks.
+Complete the single [Hard gates](#hard-gates-before-writing-findings) pass, then report the issues that survived it. No second protocol pass.

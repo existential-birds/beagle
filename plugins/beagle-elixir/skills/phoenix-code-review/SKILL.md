@@ -60,13 +60,15 @@ description: Reviews Phoenix code for controller patterns, context boundaries, r
 | Controller too large | More than 7 actions OR actions > 20 lines |
 | Missing authorization | Route is not public AND no auth plug in pipeline |
 
-## Gates (run in order; each step has a pass condition)
+## Gates (run in order, once per review)
 
-1. **Anchored evidence** — For every planned finding, open the source and note **file path + line number** from that read (not from memory or diff snippets alone). **Pass:** each finding cites `path:line` that you opened.
-2. **“Handled elsewhere” sweep** — Before reporting “missing validation,” “missing auth,” or “wrong status,” search the router (pipelines/scopes), controller (`action_fallback`, `plug`), and relevant context for existing checks. **Pass:** you recorded whether handling exists elsewhere (yes + where, or no after search).
-3. **Verification protocol** — Load and apply [review-verification-protocol](../review-verification-protocol/SKILL.md) for the issue type. **Pass:** that skill’s pre-report checks for that finding class are satisfied before you write the finding.
-4. **Finding shape** — Emit each issue as `[FILE:LINE] ISSUE_TITLE` with a one-line rationale tied to the cited code. **Pass:** every line matches that pattern.
+Budget: max **1** pass over these gates. Stop when each gate has a recorded outcome for the finding list. Tie-break: ship the unresolved findings as questions, or drop them — do not re-run the gates.
+
+1. **Anchored evidence** — Open the source for the findings you plan to report and note **file path + line number** from that read (not from memory or diff snippets alone). Each finding cites `path:line` that you opened.
+2. **“Handled elsewhere” sweep** — Before reporting “missing validation,” “missing auth,” or “wrong status,” search these three places: the router (pipelines/scopes), the controller (`action_fallback`, `plug`), and the relevant context module. Record each result. Report as "no handling across the 3 enumerated locations" — never as "handled nowhere."
+3. **Verification protocol** — Load `beagle-core:review-verification-protocol` **once** (plus this plugin's [Elixir delta](../review-verification-protocol/SKILL.md)) and apply its Pre-Report Verification Checklist to the finding list as a whole. Reporting is `beagle-core:verification-budget` tier REVERSIBLE; reserve the full per-finding evidence gate for verdicts authorizing an IRREVERSIBLE action.
+4. **Finding shape** — Emit each issue as `[FILE:LINE] ISSUE_TITLE` with a one-line rationale tied to the cited code.
 
 ## Before Submitting Findings
 
-Do not report until **Gates** above pass. For full anti-false-positive steps, follow [review-verification-protocol](../review-verification-protocol/SKILL.md).
+Record an outcome for each gate above, then ship. Language-neutral anti-false-positive steps live in `beagle-core:review-verification-protocol`.

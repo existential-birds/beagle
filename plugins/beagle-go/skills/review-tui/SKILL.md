@@ -13,14 +13,14 @@ disable-model-invocation: true
 
 ## Gates (sequence)
 
-Advance only when each **pass condition** is true (reduces scope drift and unsubstantiated blocking claims):
+An enumerated check list, evaluated **once** in order (reduces scope drift and unsubstantiated blocking claims). Record each **pass condition**'s outcome and proceed; if one cannot be satisfied, drop or downgrade the affected findings and flag why — do not re-run the sequence.
 
 | Gate | Pass condition |
 |------|----------------|
 | **G1 — Scope** | Step 1 produced a concrete list of target `.go` paths (from the git command or an explicit user path). If the list is empty, you **stopped** for scope clarification **or** recorded an agreed non-git scope (e.g. single file/dir) before reviewing. |
-| **G2 — Skills before review** | [review-verification-protocol](../review-verification-protocol/SKILL.md), [go-code-review](../go-code-review/SKILL.md), and [bubbletea-code-review](../bubbletea-code-review/SKILL.md) are loaded; Step 4 conditionals (tests → [go-testing-code-review](../go-testing-code-review/SKILL.md), Wish → [wish-ssh-code-review](../wish-ssh-code-review/SKILL.md)) are loaded **before** Step 5. |
+| **G2 — Skills before review** | `beagle-core:review-verification-protocol` and its Go delta [review-verification-protocol](../review-verification-protocol/SKILL.md), [go-code-review](../go-code-review/SKILL.md), and [bubbletea-code-review](../bubbletea-code-review/SKILL.md) are loaded; Step 4 conditionals (tests → [go-testing-code-review](../go-testing-code-review/SKILL.md), Wish → [wish-ssh-code-review](../wish-ssh-code-review/SKILL.md)) are loaded **before** Step 5. |
 | **G3 — Evidence for Critical/Major** | Each Critical/Major finding cites **file path + line** (or a short quoted snippet) from the **opened** source—not from diff hunks alone. |
-| **G4 — Pre-output hygiene** | Each retained finding was checked against Step 7 **and** the loaded verification protocol **before** writing the Issues section. |
+| **G4 — Pre-output hygiene** | Step 7's single pass over the consolidated finding list ran **before** the Issues section was written. One pass total, not one per finding. |
 
 Do not start Step 5 until **G2** passes. Do not publish Critical/Major until **G3** and **G4** pass.
 
@@ -51,7 +51,7 @@ git diff --name-only $(git merge-base HEAD main)..HEAD | grep -E '_test\.go$'
 
 ## Step 3: Load Verification Protocol
 
-Load the **[review-verification-protocol](../review-verification-protocol/SKILL.md)** skill and keep its checklist in mind throughout the review.
+Load `beagle-core:review-verification-protocol` plus the Go delta at **[review-verification-protocol](../review-verification-protocol/SKILL.md)** once, here, at review entry. Its checklist is applied **once over the consolidated finding list** in Step 7 — not once per finding. Reporting a finding is `beagle-core:verification-budget` tier REVERSIBLE: cite the evidence you already have and move on.
 
 ## Step 4: Load Skills
 
@@ -120,9 +120,10 @@ Load each applicable skill below (open its `SKILL.md` and follow it).
 
 ## Step 7: Verify Findings
 
-Before reporting any issue:
+One pass over the consolidated finding list. Budget: max **1** pass. Stop when every finding has an answer for items 1–5. Tie-break: ship a still-uncertain finding as a question or drop it — do not open another pass.
+
 1. Re-read the actual code (not just diff context)
-2. For "unused" claims - did you search all references?
+2. For "unused" claims — search the four enumerated reference patterns from the core protocol (direct call, re-export/package surface, string-literal or reflection reference, implicit interface satisfaction) and report the count per pattern. Never claim "unused anywhere."
 3. For "missing" claims - did you check framework/parent handling?
 4. For syntax issues - did you verify against current version docs?
 5. Remove any findings that are style preferences, not actual issues

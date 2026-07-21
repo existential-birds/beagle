@@ -13,12 +13,12 @@ disable-model-invocation: true
 
 ## Hard gates
 
-Complete in order before writing **Issues** in the output (empty scope is allowed; fabricated findings are not).
+Complete in order before writing **Issues** in the output (empty scope is allowed; fabricated findings are not). Budget: max **1** pass over these gates per review. Stop when each has a recorded outcome. Tie-break: ship with the unmet gate named in the Review Summary — do not re-run.
 
-1. **Scope gate:** You have an explicit list of `.ex`/`.exs`/`.heex` paths under review (from Step 1 or user path). **Pass:** List printed or "No Elixir files in scope" — then stop with no Issues.
-2. **Linter gate (style):** Step 2 commands ran for this Mix project; skipped tools are noted in one line (e.g. no `.credo.exs`). **Pass:** You do not report a style issue that already passes the project's formatter/linter for that line.
-3. **Protocol gate:** [review-verification-protocol](../review-verification-protocol/SKILL.md) is loaded before Step 6. **Pass:** At least one reported finding was checked against that checklist (state which item in the Review Summary or first Critical/Major note).
-4. **Evidence gate (Critical/Major):** For each Critical or Major item, you re-read the file at `FILE:LINE` (full surrounding context, not only the diff hunk). **Pass:** The Issue description matches observable code at that location.
+1. **Scope gate:** You have an explicit list of `.ex`/`.exs`/`.heex` paths under review (from Step 1 or user path). Print the list or "No Elixir files in scope" — then stop with no Issues.
+2. **Linter gate (style):** Step 2 commands ran for this Mix project; skipped tools are noted in one line (e.g. no `.credo.exs`). Do not report a style issue that already passes the project's formatter/linter for that line.
+3. **Protocol gate:** `beagle-core:review-verification-protocol` (plus the [Elixir delta](../review-verification-protocol/SKILL.md)) is loaded **once**, before Step 6, and its Pre-Report Verification Checklist is applied to the finding list before it ships. Reporting is `beagle-core:verification-budget` tier REVERSIBLE — no per-finding recitation of which subsection you satisfied.
+4. **Evidence gate (Critical/Major):** For each Critical or Major item, you re-read the file at `FILE:LINE` (full surrounding context, not only the diff hunk). The Issue description matches observable code at that location.
 
 ## Step 1: Identify Changed Files
 
@@ -68,7 +68,7 @@ git diff --name-only $(git merge-base HEAD main)..HEAD | grep -E '_test\.exs$'
 
 ## Step 4: Load Verification Protocol
 
-Load the [review-verification-protocol](../review-verification-protocol/SKILL.md) skill and keep its checklist in mind throughout the review.
+Load `beagle-core:review-verification-protocol` **once** here, plus this plugin's [Elixir delta](../review-verification-protocol/SKILL.md). Apply its checklist to the finding list at the end of the review, not once per finding.
 
 ## Step 5: Load Skills
 
@@ -115,11 +115,12 @@ Load each applicable skill below (read its SKILL.md and apply its rules).
 
 ## Step 7: Verify Findings
 
-Satisfy **Hard gates** items 2–4 before finalizing Issues. Before reporting any issue:
+One pass over the assembled finding list. Budget: max **1** pass. Stop when each item below has a recorded outcome for the list. Tie-break: ship anything still unresolved as a question, or drop it — do not open a second pass.
+
 1. Re-read the actual code (not just diff context)
-2. For "unused" claims - did you search all references?
-3. For "missing" claims - did you check framework/parent handling?
-4. For syntax issues - did you verify against current version docs?
+2. For "unused" claims — run the four enumerated reference patterns from `beagle-core:review-verification-protocol` (direct call, re-export or public module surface, dynamic/`apply/3`/config reference, `@behaviour` or macro-generated callback) and report each count. Never claim "unused anywhere."
+3. For "missing" claims — did you check framework/parent handling?
+4. For syntax issues — did you verify against current version docs?
 5. Remove any findings that are style preferences, not actual issues
 
 ## Step 8: Review Convergence

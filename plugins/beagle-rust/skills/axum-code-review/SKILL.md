@@ -21,7 +21,7 @@ Run **in order**. Do not write a finding until the step that applies has passed.
 
 2. **Per-finding evidence** — **Pass when:** Each issue cites `[FILE:LINE]` from the **current** tree for the handler, router, layer, or type under review (not from memory, docs-only, or another branch).
 
-3. **Category check vs protocol** — **Pass when:** For the finding type (routing conflict, extractor order, error leak, middleware order, etc.), you ran the matching checks from the [review-verification-protocol](../review-verification-protocol/SKILL.md) skill (e.g. full handler signature for extractor order; surrounding error mapping before “raw error to client”). **Then** add the finding.
+3. **Category check vs protocol** — **Pass when:** In **one** pass over the assembled finding list, each finding's category (routing conflict, extractor order, error leak, middleware order, etc.) was matched against `beagle-core:review-verification-protocol` and the Rust delta at [review-verification-protocol](../review-verification-protocol/SKILL.md) (e.g. full handler signature for extractor order; surrounding error mapping before “raw error to client”). One pass over the list, not a fresh protocol load per finding — reporting is `beagle-core:verification-budget` tier REVERSIBLE. Budget: max **1** pass; tie-break: ship a still-uncertain finding as a question or drop it.
 
 4. **Output shape** — **Pass when:** The report lines match **Output Format** below (severity + description).
 
@@ -121,4 +121,4 @@ Description of the issue and why it matters.
 
 ## Before Submitting Findings
 
-Complete **Gates (before reporting findings)** and load the [review-verification-protocol](../review-verification-protocol/SKILL.md) skill for category-specific checks before any issue is final.
+Complete **Gates (before reporting findings)**; gate 3 is the single verification pass over the finding list, using `beagle-core:review-verification-protocol` plus the [Rust delta](../review-verification-protocol/SKILL.md).

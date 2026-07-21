@@ -61,12 +61,12 @@ description: Reviews Elixir documentation for completeness, quality, and ExDoc b
 
 ## Gates (sequenced — do not skip)
 
-Work in order. **Do not draft or ship a finding until the prior step passes.**
+Work in order, once over the assembled finding list. Budget: max **1** pass. Stop when each gate has a recorded outcome. Tie-break: ship the remainder as questions, or drop them — do not re-run the gates.
 
-1. **Scope lock** — **Pass when:** You listed the exact `.ex`/`.exs` file paths (or `Module` names) under review; no vague “the project” scope.
-2. **Full-context read** — **Pass when:** For each candidate issue, you read the full surrounding definition (all clauses for multi-clause functions; full `@moduledoc` block for module-level claims), not only a diff hunk or search snippet.
-3. **Evidence bundle** — **Pass when:** Every draft finding uses the `[FILE:LINE] ISSUE_TITLE` header (line range allowed) **and** includes a verbatim quote or pointer to the `@doc` / `@spec` / doctest text in question. `Module.function/arity` may appear as supporting context but does not replace the `[FILE:LINE]` anchor. For “doctest fails” claims, **Pass when:** you cite `mix test` output for the relevant file or line, or the exact error string.
-4. **Protocol before report** — **Pass when:** You loaded and followed [review-verification-protocol](../review-verification-protocol/SKILL.md) (its Pre-Report checklist) **before** finalizing the issue list—not after.
+1. **Scope lock** — You listed the exact `.ex`/`.exs` file paths (or `Module` names) under review; no vague “the project” scope.
+2. **Full-context read** — For each candidate issue, you read the full surrounding definition (all clauses for multi-clause functions; full `@moduledoc` block for module-level claims), not only a diff hunk or search snippet.
+3. **Evidence bundle** — Every draft finding uses the `[FILE:LINE] ISSUE_TITLE` header (line range allowed) **and** includes a verbatim quote or pointer to the `@doc` / `@spec` / doctest text in question. `Module.function/arity` may appear as supporting context but does not replace the `[FILE:LINE]` anchor. For “doctest fails” claims, cite `mix test` output for the relevant file or line, or the exact error string.
+4. **Protocol before report** — `beagle-core:review-verification-protocol`'s Pre-Report Verification Checklist is applied **once** to the issue list before it is finalized — not once per finding, and not after shipping. Reporting is `beagle-core:verification-budget` tier REVERSIBLE.
 
 ## When to Load References
 

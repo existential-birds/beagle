@@ -48,14 +48,15 @@ Examples:
 
 ## Hard gates (before reporting)
 
-Complete **in order** for each finding you intend to report. Do not advance until the pass condition is satisfied.
+Load `beagle-core:review-verification-protocol` plus the [Swift / iOS delta](../review-verification-protocol/SKILL.md) **once, at review entry** — not once per finding. Reporting a finding is `beagle-core:verification-budget` tier REVERSIBLE: cite the evidence you already have and move on. Only a verdict that authorizes an irreversible action (deleting code, rewriting a file) earns that protocol's full evidence gate.
+
+The three gates below are per-finding and cheap. Apply them in order. Budget: max **1** pass per finding; stop when each gate has a recorded artifact; tie-break: drop the finding or downgrade it to an open question and proceed — never re-run the gates hoping for a cleaner answer.
 
 1. **Location artifact** — The finding includes `[FILE:LINE]` (or a line range) copied from the current file contents; the path resolves in this repo.
 2. **Scope read** — You read the full surrounding unit: the `View` body, `WKApplicationDelegate` / scene method, `TimelineProvider` implementation, `WCSessionDelegate` callback, or workout/background task handler that owns the behavior—not only a diff hunk.
 3. **watchOS or pairing claim** (only if the finding depends on background modes, complication/timeline contracts, `WCSession` reachability or transfer semantics, workout or extended runtime rules, or device-specific limits) — You name one concrete artifact you inspected (for example `Info.plist` / target capabilities for background modes, the `WK*` / `WCSession` call order in source, entitlements, or a subsection you read in the matching doc from [Quick Reference](#quick-reference)) **or** you downgrade the item to an open question in [Review Questions](#review-questions).
-4. **Protocol** — Pre-report steps in [review-verification-protocol](../review-verification-protocol/SKILL.md) are satisfied for this item (no finding if they are not).
 
-Use the issue format `[FILE:LINE] ISSUE_TITLE` for each reported finding. Hard gate 4 is the full pre-report checklist for this skill’s review type.
+Use the issue format `[FILE:LINE] ISSUE_TITLE` for each reported finding.
 
 ## Review Questions
 

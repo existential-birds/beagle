@@ -8,14 +8,14 @@ disable-model-invocation: true
 
 ## Hard gates (sequence)
 
-Advance only when each **pass condition** is objectively satisfied (prevents linter-owned false positives and ungrounded findings):
+Record an outcome for each gate once per review. Budget: max **1** pass over this table. Tie-break: ship with the unmet gate stated in the Review Summary — do not loop.
 
-| Gate | Pass condition |
+| Gate | Recorded outcome |
 |------|----------------|
 | **G1 — Diff scope** | Step 1 command has been run; the changed `.py` paths are enumerated in writing (list may be empty — if empty, state that explicitly and do not invent Python findings). |
 | **G2 — Linters before manual style/type** | For `ruff` and `mypy`: either no project config exists for that tool, **or** it was run on the changed files and you captured pass/fail (exit code or clear tool output). **Do not** add manual style or type findings for rules those tools already enforce when configured. |
-| **G3 — Protocol and base skills** | The [review-verification-protocol](../review-verification-protocol/SKILL.md), [python-code-review](../python-code-review/SKILL.md), and [fastapi-code-review](../fastapi-code-review/SKILL.md) skills are loaded before Step 6 substantive review. |
-| **G4 — Evidence per issue** | Step 7 checks are satisfied for each reported issue before it appears in the final list (re-read source, search references for “unused”, confirm framework handling for “missing”, verify syntax against current docs). |
+| **G3 — Protocol and base skills** | `beagle-core:review-verification-protocol` (plus the [Python delta](../review-verification-protocol/SKILL.md)), [python-code-review](../python-code-review/SKILL.md), and [fastapi-code-review](../fastapi-code-review/SKILL.md) are loaded **once**, before Step 6 substantive review. |
+| **G4 — Evidence** | Step 7 checks are applied to the finding list once, before it ships (re-read source, run the enumerated reference search for “unused”, confirm framework handling for “missing”, verify syntax against current docs). Reporting is `beagle-core:verification-budget` tier REVERSIBLE; reserve per-finding evidence gates for verdicts that authorize an IRREVERSIBLE action. |
 | **G5 — Output contract** | Findings use sequential numbering, every issue has `FILE:LINE`, and the **Verdict** follows Step 8 (Critical/Major only block; Minor/Informational do not). |
 
 ## Arguments
@@ -72,7 +72,7 @@ git diff --name-only $(git merge-base HEAD main)..HEAD | grep -E 'test.*\.py$'
 
 ## Step 4: Load Verification Protocol
 
-Load the [review-verification-protocol](../review-verification-protocol/SKILL.md) skill and keep its checklist in mind throughout the review.
+Load `beagle-core:review-verification-protocol` **once** here, plus this plugin's [Python delta](../review-verification-protocol/SKILL.md). Apply its checklist to the finding list at the end of the review, not once per finding.
 
 ## Step 5: Load Skills
 
@@ -120,13 +120,12 @@ Load each applicable skill (read its `SKILL.md`) before reviewing its domain.
 
 ## Step 7: Verify Findings
 
-**Pass (G4):** No issue ships until all bullets below are true for that issue.
+**G4:** One pass over the assembled finding list. Budget: max **1** pass. Stop when each item below has a recorded outcome for the list. Tie-break: ship anything still unresolved as a question, or drop it — do not open a second pass.
 
-Before reporting any issue:
 1. Re-read the actual code (not just diff context)
-2. For "unused" claims - did you search all references?
-3. For "missing" claims - did you check framework/parent handling?
-4. For syntax issues - did you verify against current version docs?
+2. For "unused" claims — run the four enumerated reference patterns from `beagle-core:review-verification-protocol` (direct call, re-export/`__all__`, string-literal or dynamic reference, framework-invoked contract) and report each count. Never claim "unused anywhere."
+3. For "missing" claims — did you check framework/parent handling?
+4. For syntax issues — did you verify against current version docs?
 5. Remove any findings that are style preferences, not actual issues
 
 ## Step 8: Review Convergence

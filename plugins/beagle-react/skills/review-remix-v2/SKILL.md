@@ -108,9 +108,10 @@ Sequential path:
 
 ## Step 6: Verify Findings
 
-Before reporting any issue:
+Budget: exactly **one** pass over the finding list. Stop when every finding has an answer for items 1–5. Tie-break: anything still uncertain ships as a question or is dropped — do not open another pass.
+
 1. Re-read the actual code (not just diff context)
-2. For "unused" claims — did you search all references, including route-file conventions?
+2. For "unused" claims — did you run the core protocol's four enumerated reference patterns (direct reference, re-export/barrel entry, string-literal or JSX-only reference, framework-invoked contract including Remix route-file conventions) and report the count for each? Report "no matches across the 4 enumerated patterns", never "unused anywhere"
 3. For "missing" claims — did you check parent routes, root.tsx, or framework defaults?
 4. For syntax issues — did you verify against Remix v2 docs (not v1, not React Router v7)?
 5. Remove findings that are style preferences, not actual issues

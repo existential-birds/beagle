@@ -4,7 +4,7 @@ This file provides guidance to Claude Code (claude.ai/code) when working with co
 
 ## What This Is
 
-Beagle is a Claude Code plugin marketplace providing framework-aware code review skills and verification workflows for pre-push reviews and GitHub bot feedback handling. It contains 10 focused plugins with 132 skills.
+Beagle is a Claude Code plugin marketplace providing framework-aware code review skills and verification workflows for pre-push reviews and GitHub bot feedback handling. It contains 10 focused plugins with 134 skills.
 
 ## Marketplace Architecture
 
@@ -13,7 +13,7 @@ beagle/
 ├── .claude-plugin/
 │   └── marketplace.json         # Marketplace manifest (10 plugins)
 └── plugins/
-    ├── beagle-core/             # Shared workflows, verification, git workflows, skill tooling (19 skills)
+    ├── beagle-core/             # Shared workflows, verification, git workflows, skill tooling (21 skills)
     ├── beagle-python/           # Python, FastAPI, SQLAlchemy, PostgreSQL, pytest (7 skills)
     ├── beagle-go/               # Go, BubbleTea, Wish SSH, Prometheus (13 skills)
     ├── beagle-elixir/           # Elixir, Phoenix, LiveView, ExUnit, ExDoc (11 skills)
@@ -74,6 +74,8 @@ Beagle-specific:
 | beagle-rust | `review-rust` | Rust/tokio/axum/sqlx/serde code review |
 | beagle-react | `review-remix-v2` | Remix v2 code review (loaders, actions, forms, sessions, perf/SSR) |
 | beagle-core | `review-plan` | Review implementation plans before execution |
+| beagle-core | `execution-contract` | Internal: stop rules, attempt budgets, and failure-matching semantics inlined into emitted plans and handoff prompts |
+| beagle-core | `verification-budget` | Internal: reversibility risk tiers, bounded loop budgets, and the one-echo rule that review/verify skills import |
 | beagle-core | `review-structure` | Repo-wide structural-maintainability review (code-judo restructurings, 1k-line file guard, anti-spaghetti branching, canonical-layer enforcement, anti-magic abstractions, explicit type/boundary contracts) |
 | beagle-core | `commit-push` | Commit with Conventional Commits format |
 | beagle-core | `create-pr` | Create PR with structured template |

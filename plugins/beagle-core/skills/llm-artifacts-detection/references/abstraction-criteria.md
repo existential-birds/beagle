@@ -1,294 +1,68 @@
-# Abstraction Criteria
+# Abstraction Criteria (language-neutral)
 
-Detailed detection criteria for over-engineering patterns commonly introduced by LLM coding agents.
+Detection criteria for over-engineering patterns commonly introduced by LLM coding agents. Everything here applies in any language.
+
+Worked BAD/GOOD examples live in a separate per-language file. Load [examples/python/abstraction.md](examples/python/abstraction.md) **only** when the code under review is Python. For any other language, apply the criteria below directly — substitute the local equivalents (abstract base class ≈ interface, trait, protocol, behaviour, or module signature).
 
 ## 1. Over-Abstraction
 
-### What to Look For
+**What to look for:** abstraction layers that add indirection without providing value.
 
-Unnecessary abstraction layers that add complexity without providing value.
+| Sub-pattern | Signal |
+|---|---|
+| Pass-through wrapper | A type whose every method forwards to one held dependency, unchanged |
+| Single-implementation interface | An interface/trait/protocol/abstract type with exactly one implementer |
+| Constant factory | A constructor function that always returns the same concrete type with no branching |
+| Layer stack | Three or more layers sharing the same method signatures, each delegating down |
+| Speculative extension point | An abstraction justified by "for future extensibility" with no second use in sight |
 
-### Detection Patterns
-
-**Wrapper Classes That Just Delegate**:
-```python
-# BAD - Wrapper adds nothing
-class DatabaseWrapper:
-    def __init__(self, db):
-        self.db = db
-
-    def query(self, sql):
-        return self.db.query(sql)  # Just delegates!
-
-    def execute(self, sql):
-        return self.db.execute(sql)  # Just delegates!
-
-# Usage
-wrapper = DatabaseWrapper(actual_db)
-wrapper.query(sql)  # Why not just use actual_db directly?
-```
-
-**Interfaces With Single Implementation**:
-```python
-# BAD - Abstract class with only one implementation
-from abc import ABC, abstractmethod
-
-class DataProcessor(ABC):
-    @abstractmethod
-    def process(self, data): ...
-
-class ConcreteDataProcessor(DataProcessor):  # Only implementation!
-    def process(self, data):
-        return data.transform()
-
-# No other implementations exist - why the abstraction?
-```
-
-**Protocol With One Implementer**:
-```python
-# BAD - Protocol nobody else implements
-from typing import Protocol
-
-class Fetcher(Protocol):
-    def fetch(self, url: str) -> bytes: ...
-
-class HttpFetcher:  # Only class implementing Fetcher
-    def fetch(self, url: str) -> bytes:
-        return requests.get(url).content
-
-# The protocol adds no value if there's only one implementation
-```
-
-**Factory That Always Returns Same Type**:
-```python
-# BAD - Factory with no variation
-def create_processor(config):
-    # Always returns the same type!
-    return DataProcessor(config)
-
-# Could just be:
-processor = DataProcessor(config)
-```
-
-**Unnecessary Indirection**:
-```python
-# BAD - Extra layers for no reason
-class ServiceLocator:
-    def get_user_service(self):
-        return UserService()
-
-class UserService:
-    def get_user(self, id):
-        return UserRepository().find(id)
-
-class UserRepository:
-    def find(self, id):
-        return db.query(User).get(id)
-
-# 3 layers when 1 would do
-```
-
-### Signs of Over-Abstraction
-
-- Class/function just calls through to another
-- Abstract class with exactly one concrete implementation
-- Factory that always returns the same type
-- Interface defined "for future extensibility" (YAGNI violation)
-- Multiple layers that all have the same method signatures
-
----
+**Before flagging:** a single-implementation interface is legitimate when it exists to define a **test seam**, a module boundary a build system enforces, or a published contract other repos implement. Check for test doubles implementing it before calling it dead weight.
 
 ## 2. Copy-Paste Drift
 
-### What to Look For
+**What to look for:** three or more near-identical blocks that should be one parameterized unit.
 
-Three or more similar code blocks that should be parameterized into a single function.
+| Sub-pattern | Signal |
+|---|---|
+| Near-identical functions | Same control flow, different type or field names |
+| Repeated error handling | The same try/catch/recover-and-wrap shape in every method of a client |
+| Parallel type structures | Several types with the same fields and the same methods differing only in what they name |
 
-### Detection Patterns
+**How to identify:**
 
-**Nearly Identical Functions**:
-```python
-# BAD - Three similar functions
-def process_users(users):
-    results = []
-    for user in users:
-        validated = validate(user)
-        transformed = transform(validated)
-        results.append(transformed)
-    return results
+1. Search for name families — `get_X`, `process_X`, `validate_X`, `handleX`.
+2. Look for identical control flow over different variables.
+3. Check for repeated error-handling shapes.
+4. Compare methods across sibling types.
 
-def process_orders(orders):
-    results = []
-    for order in orders:  # Same pattern!
-        validated = validate(order)
-        transformed = transform(validated)
-        results.append(transformed)
-    return results
-
-def process_products(products):
-    results = []
-    for product in products:  # Same pattern!
-        validated = validate(product)
-        transformed = transform(validated)
-        results.append(transformed)
-    return results
-
-# GOOD - Parameterized
-def process_items(items):
-    return [transform(validate(item)) for item in items]
-```
-
-**Repeated Patterns in Methods**:
-```python
-# BAD - Same error handling in multiple methods
-class ApiClient:
-    def get_users(self):
-        try:
-            response = self.session.get("/users")
-            response.raise_for_status()
-            return response.json()
-        except RequestException as e:
-            logger.error(f"Failed to get users: {e}")
-            raise ApiError(f"Failed to get users: {e}")
-
-    def get_orders(self):
-        try:
-            response = self.session.get("/orders")  # Same pattern!
-            response.raise_for_status()
-            return response.json()
-        except RequestException as e:
-            logger.error(f"Failed to get orders: {e}")
-            raise ApiError(f"Failed to get orders: {e}")
-
-# GOOD - Extract common pattern
-def _request(self, endpoint):
-    try:
-        response = self.session.get(endpoint)
-        response.raise_for_status()
-        return response.json()
-    except RequestException as e:
-        logger.error(f"Failed to get {endpoint}: {e}")
-        raise ApiError(f"Failed to get {endpoint}: {e}")
-
-def get_users(self):
-    return self._request("/users")
-```
-
-**Similar Class Structures**:
-```python
-# BAD - Multiple classes with same structure
-class UserValidator:
-    def validate(self, user):
-        errors = []
-        if not user.name:
-            errors.append("name required")
-        if not user.email:
-            errors.append("email required")
-        return errors
-
-class OrderValidator:
-    def validate(self, order):
-        errors = []
-        if not order.id:
-            errors.append("id required")
-        if not order.total:
-            errors.append("total required")
-        return errors
-
-# GOOD - Generic validator
-class RequiredFieldValidator:
-    def __init__(self, required_fields):
-        self.required_fields = required_fields
-
-    def validate(self, obj):
-        return [f"{f} required" for f in self.required_fields if not getattr(obj, f)]
-```
-
-### How to Identify
-
-1. Search for similar function names (get_X, process_X, validate_X)
-2. Look for identical control flow with different variables
-3. Check for repeated try/except patterns
-4. Find similar class methods across different classes
-
----
+**Before flagging:** three occurrences is the threshold, not two. Two similar blocks that are likely to diverge are cheaper duplicated than prematurely unified. Also check whether the "duplication" spans a module boundary that exists on purpose — coupling two independent modules to remove duplication is a net loss.
 
 ## 3. Over-Configuration
 
-### What to Look For
+**What to look for:** configuration and feature flags for things that do not actually vary.
 
-Configuration and feature flags for things that don't actually vary.
+| Sub-pattern | Signal |
+|---|---|
+| Never-toggled flag | A boolean with one state everywhere, guarding a branch that is therefore dead |
+| Single-value environment variable | An env var read with a default, never set in any environment |
+| Always-default options | A constructor or config struct whose options are never passed a non-default |
+| Unread configuration | A settings field loaded but never accessed |
+| Generic-for-one-caller | A parameterized implementation with exactly one call site |
 
-### Detection Patterns
+**Signs of over-configuration:**
 
-**Feature Flags Never Toggled**:
-```python
-# BAD - Flag always True
-ENABLE_NEW_PARSER = True  # Never set to False anywhere
+- Config values that never change across environments.
+- Feature flags with only one state in production.
+- Options whose defaults are always used.
+- Configuration loaded but never accessed.
+- Environment variables with no variation.
 
-def parse(data):
-    if ENABLE_NEW_PARSER:  # Always true!
-        return new_parse(data)
-    return old_parse(data)  # Dead code!
-```
-
-**Environment Variables With One Value**:
-```python
-# BAD - Always the same value
-DATABASE_POOL_SIZE = int(os.getenv("DB_POOL_SIZE", "10"))
-# But DB_POOL_SIZE is never set in any environment!
-
-# BAD - Config that doesn't vary
-config = {
-    "retry_count": os.getenv("RETRY_COUNT", "3"),
-    "timeout": os.getenv("TIMEOUT", "30"),
-}
-# All environments use the defaults
-```
-
-**Overly Generic Code for Single Use**:
-```python
-# BAD - Generic but only used once
-class DataProcessor:
-    def __init__(self,
-                 input_format="json",
-                 output_format="json",
-                 encoding="utf-8",
-                 validate=True,
-                 transform=True):
-        # Many options...
-        pass
-
-# Only ever called as:
-processor = DataProcessor()  # All defaults, always!
-```
-
-**Unused Configuration Options**:
-```python
-# config.py
-class Settings:
-    database_url: str
-    cache_ttl: int = 3600
-    max_retries: int = 3
-    enable_metrics: bool = True  # Never read!
-    legacy_mode: bool = False  # Never read!
-    debug_sql: bool = False  # Never read!
-```
-
-### Signs of Over-Configuration
-
-- Config values that never change across environments
-- Feature flags with only one state in production
-- Options with defaults that are always used
-- Configuration loaded but never accessed
-- Environment variables with no variation
-
----
+**Before flagging:** a flag that is currently single-valued but exists for an in-progress migration, an incident kill-switch, or a deployment-time override is doing its job. Check for the flag name in deployment manifests, CI config, and runbooks before calling it dead.
 
 ## Review Questions
 
-1. Does this abstraction have multiple implementations?
-2. Are there 3+ similar code blocks that could be parameterized?
-3. Is this configuration actually configured differently anywhere?
+1. Does this abstraction have more than one implementation, counting test doubles?
+2. Are there three or more similar blocks that could be parameterized without coupling independent modules?
+3. Is this configuration actually configured differently anywhere, including deployment config?
 4. Would removing this layer break anything meaningful?
-5. Is this factory/wrapper adding value or just indirection?
+5. Is this factory or wrapper adding value, or only indirection?

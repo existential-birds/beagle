@@ -4,155 +4,47 @@ description: Mandatory verification steps for all code reviews to reduce false p
 user-invocable: false
 ---
 
-# Review Verification Protocol
+# Review Verification Protocol — Python delta
 
-This protocol MUST be followed before reporting any code review finding. Skipping these steps leads to false positives that waste developer time and erode trust in reviews.
+**Load `beagle-core:review-verification-protocol` first.** It carries the hard gates, the Pre-Report Verification Checklist, Severity Calibration, the imported `beagle-core:verification-budget` vocabulary (risk tiers, loop budgets, the one-echo rule, the prove-a-negative ban), and the language-neutral Verification by Issue Type sections.
 
-## Anti-confabulation (gate 0 — runs before every other gate)
+This file adds **only** what is specific to Python and its web/data stack. Everything else is in the core; nothing here overrides it.
 
-Before issuing **any** verdict — flag, reject, or downgrade a finding — you MUST echo the exact artifact you are judging, quoted from a source you read in **this** turn:
-
-- For a code finding: the **file:line** plus the cited code, read freshly now (not recalled from earlier in the session).
-- For a diff review: the actual **diff hunk** under review.
-
-> The artifact is the only source of truth. **Never** infer what you are reviewing from the branch name, the working directory, surrounding files, or recollection. If your mental model differs from the freshly read source, **the source wins.** A verdict issued without a same-turn echo of its target is invalid — emit the echo first, or do not emit the verdict.
-
-This gate exists because an LLM under contextual priming will confidently flag code that is not in the file. It runs **before** the hard gates below.
-
-## Hard gates (sequence)
-
-Complete gates **in order** for each finding (or finding class). A gate **passes** only when the pass condition is objectively met—internal confidence is not enough.
-
-1. **Read scope** — **PASS when:** You cite the **full** enclosing unit you judged (e.g. function, method, or class): file path plus **start–end line range** or symbol name. Diff-only context without full-unit read **fails** this gate.
-2. **Reference check** (required for “unused”, “dead code”, “orphaned export”, “never called”) — **PASS when:** You ran a **workspace-wide search** for the symbol (ripgrep, IDE references, or `find_referencing_symbols`-style lookup) and noted whether non-definition matches exist. If use may be dynamic (decorators, `getattr`, entry points, plugins), **PASS when:** you state that and name the registration or import path that could justify the symbol.
-3. **Upstream / downstream** (required for “missing validation”, “no error handling”, “race”, “leak”) — **PASS when:** You checked at least one of: caller, route/middleware, parent task, framework hook, or lifecycle (e.g. teardown, signal), and recorded whether responsibility already sits there.
-4. **Evidence line** — **PASS when:** The finding includes **`[FILE:LINE]`** to the line that **shows** the issue (same requirement as *Before Submitting Review*).
-
-If any gate fails, **do not** report the issue; gather evidence or drop it.
-
-## Pre-Report Verification Checklist
-
-Before flagging ANY issue, verify (after **Hard gates** above):
-
-- [ ] **I read the actual code** - Not just the diff context, but the full function/class
-- [ ] **I searched for usages** - Before claiming "unused", searched all references
-- [ ] **I checked surrounding code** - The issue may be handled elsewhere (guards, earlier checks)
-- [ ] **I verified syntax against current docs** - Framework syntax evolves (Tailwind v4, TS 5.x, React 19)
-- [ ] **I distinguished "wrong" from "different style"** - Both approaches may be valid
-- [ ] **I considered intentional design** - Checked comments, project conventions (e.g. AGENTS.md or CLAUDE.md), architectural context
-
-## Verification by Issue Type
+## Verification by Issue Type — Python specifics
 
 ### "Unused Variable/Function"
 
-**Before flagging**, you MUST:
-1. Search for ALL references in the codebase (grep/find)
-2. Check if it's exported and used by external consumers
-3. Check if it's used via reflection, decorators, or dynamic dispatch
-4. Verify it's not a callback passed to a framework
+Run the core's four-pattern reference search. Python reference patterns that plain grep misses:
 
-**Common false positives:**
-- State setters in React (may trigger re-renders even if value appears unused)
-- Variables used in templates/JSX
-- Exports used by consuming packages
+- Decorator registration (`@app.route`, `@pytest.fixture`, `@celery.task`, `@click.command`)
+- `getattr` / `importlib` / plugin-entry-point dispatch and setuptools console scripts
+- Names re-exported through `__init__.py` or listed in `__all__`
+- Pydantic validators and SQLAlchemy event listeners invoked by the framework, never by a call site
 
 ### "Missing Validation/Error Handling"
 
-**Before flagging**, you MUST:
-1. Check if validation exists at a higher level (caller, middleware, route handler)
-2. Check if the framework provides validation (Pydantic, Zod, TypeScript)
-3. Verify the "missing" check isn't present in a different form
-
-**Common false positives:**
-- Framework already validates (FastAPI + Pydantic, React Hook Form)
-- Parent component validates before passing props
-- Error boundary catches at higher level
+Check whether FastAPI + Pydantic already validate the payload, whether a dependency (`Depends`) enforces it, or whether an exception handler or middleware catches the error at a higher level.
 
 ### "Type Assertion/Unsafe Cast"
 
-**Before flagging**, you MUST:
-1. Confirm it's actually an assertion, not an annotation
-2. Check if the type is narrowed by runtime checks before the point
-3. Verify if framework guarantees the type (loader data, form data)
+An annotation is not a cast, and `isinstance` narrowing is safe:
 
-**Valid patterns often flagged incorrectly:**
 ```python
-# Type annotation, NOT cast
+# Type annotation, NOT a cast
 data: UserData = await load_user()
 
 # Type narrowing with isinstance
 if isinstance(data, User):
-    data.name  # Mypy knows this is User
+    data.name  # the type checker knows this is User
 ```
 
-### "Potential Memory Leak/Race Condition"
+`typing.cast()` after a runtime check that establishes the type is valid.
 
-**Before flagging**, you MUST:
-1. Verify cleanup function is actually missing (not just in a different location)
-2. Check if AbortController signal is checked after awaits
-3. Confirm the component can actually unmount during the async operation
+### "Potential Leak / Race Condition"
 
-**Common false positives:**
-- Cleanup exists in useEffect return
-- Signal is checked (code reviewer missed it)
-- Operation completes before unmount is possible
-
-### "Performance Issue"
-
-**Before flagging**, you MUST:
-1. Confirm the code runs frequently enough to matter (render vs click handler)
-2. Verify the optimization would have measurable impact
-3. Check if the framework already optimizes this (React compiler, memoization)
-
-**Do NOT flag:**
-- Functions created in click handlers (runs once per click)
-- Array methods on small arrays (< 100 items)
-- Object creation in event handlers
-
-## Severity Calibration
-
-### Critical (Block Merge)
-
-**ONLY use for:**
-- Security vulnerabilities (injection, auth bypass, data exposure)
-- Data corruption bugs
-- Crash-causing bugs in happy path
-- Breaking changes to public APIs
-
-### Major (Should Fix)
-
-**Use for:**
-- Logic bugs that affect functionality
-- Missing error handling that causes poor UX
-- Performance issues with measurable impact
-- Accessibility violations
-
-### Minor (Consider Fixing)
-
-**Use for:**
-- Code clarity improvements
-- Documentation gaps
-- Inconsistent style (within reason)
-- Non-critical test coverage gaps
-
-### Informational (No Action Required)
-
-**Use for:**
-- Improvements that require adding new dependencies or modules
-- Suggestions for net-new code that didn't exist in the codebase before (new modules, test suites, abstractions)
-- Architectural ideas for future consideration
-- Test infrastructure suggestions (new mock libraries, behaviour extraction)
-- Optimizations without measurable impact in the current context
-
-**These are NOT review blockers.** They should be noted for the author's awareness but must not appear in the actionable issue count. The Verdict should ignore informational items entirely.
-
-### Do NOT Flag At All
-
-- Style preferences where both approaches are valid
-- Optimizations with no measurable benefit
-- Test code not meeting production standards (intentionally simpler)
-- Library/framework internal code (shadcn components, generated code)
-- Hypothetical issues that require unlikely conditions
+- Check for a context manager (`with`, `async with`) or a `finally` block before claiming missing cleanup
+- Check whether an `asyncio.Task` is cancelled on shutdown or tracked in a task set
+- Confirm the state is genuinely shared across tasks or threads
 
 ## Valid Patterns (Do NOT Flag)
 
@@ -160,19 +52,19 @@ if isinstance(data, User):
 
 | Pattern | Why It's Valid |
 |---------|----------------|
-| `dict.get(key, [])` | Returns default for missing keys, not error suppression |
+| `dict.get(key, [])` | Returns a default for missing keys, not error suppression |
 | `Optional[T]` return type | Standard way to express nullable in Python typing |
 | `assert` in test code | pytest uses assertions, not try/except |
-| Type annotation on variable | Not a cast, just a hint for type checkers |
-| `typing.cast()` with prior validation | Valid after runtime check confirms type |
+| Type annotation on a variable | Not a cast, just a hint for type checkers |
+| `typing.cast()` with prior validation | Valid after a runtime check confirms the type |
 
 ### FastAPI
 
 | Pattern | Why It's Valid |
 |---------|----------------|
-| `Depends()` without explicit type | FastAPI infers dependency type from function signature |
-| `async def` endpoint without await | May use sync DB calls or simple returns |
-| Response model different from DB model | Separation of concerns between API and persistence |
+| `Depends()` without an explicit type | FastAPI infers the dependency type from the signature |
+| `async def` endpoint without `await` | May use sync DB calls or simple returns |
+| Response model different from the DB model | Separation of concerns between API and persistence |
 | `BackgroundTasks` parameter | Valid for fire-and-forget operations |
 | Direct `request.state` access | Standard pattern for middleware-injected data |
 
@@ -180,58 +72,35 @@ if isinstance(data, User):
 
 | Pattern | Why It's Valid |
 |---------|----------------|
-| `assert` without message | pytest rewrites assertions to show detailed diffs |
-| `@pytest.fixture` without explicit scope | Default `function` scope is correct for most fixtures |
+| `assert` without a message | pytest rewrites assertions to show detailed diffs |
+| `@pytest.fixture` without an explicit scope | Default `function` scope is correct for most fixtures |
 | `monkeypatch` over `unittest.mock` | Simpler API, pytest-native |
-| Fixture returning mutable state | Each test gets fresh fixture invocation by default |
-
-### General
-
-| Pattern | Why It's Valid |
-|---------|----------------|
-| `+?` lazy quantifier in regex | Prevents over-matching, correct for many patterns |
-| Direct string concatenation | Simpler than template literals for simple cases |
-| Multiple returns in function | Can improve readability |
-| Comments explaining "why" | Better than no comments |
+| Fixture returning mutable state | Each test gets a fresh fixture invocation by default |
 
 ## Context-Sensitive Rules
 
+Each list below is an enumerated check, evaluated once. If an item is undecidable, drop the finding or ship it as a question — do not open another verification pass.
+
 ### Type Annotations
 
-Flag missing type annotation **ONLY IF ALL** of these are true:
-- [ ] Function is public API (not prefixed with `_`)
-- [ ] Types are not obvious from context (e.g., `x = 5` is clearly `int`)
+Flag a missing type annotation **ONLY IF ALL** of these hold:
+- [ ] The function is public API (not prefixed with `_`)
+- [ ] Types are not obvious from context (`x = 5` is clearly `int`)
 - [ ] Not a test function or fixture
-- [ ] Codebase has existing typing conventions
+- [ ] The codebase has existing typing conventions
 
 ### Exception Handling
 
-Flag bare `except` **ONLY IF**:
-- [ ] Not in a top-level error boundary / middleware
-- [ ] The caught exception is actually swallowed (not logged/re-raised)
+Flag a bare `except` **ONLY IF**:
+- [ ] Not in a top-level error boundary or middleware
+- [ ] The caught exception is actually swallowed (not logged or re-raised)
 - [ ] Specific exception types are known and available
 - [ ] Not in cleanup/teardown code where any error should be caught
 
 ### Error Handling
 
-Flag missing try/except **ONLY IF**:
+Flag a missing try/except **ONLY IF**:
 - [ ] No middleware or error handler catches this at a higher level
-- [ ] The framework doesn't handle errors (FastAPI exception handlers)
+- [ ] The framework doesn't handle it (FastAPI exception handlers)
 - [ ] The error would cause a crash, not just a failed operation
-- [ ] User needs specific feedback for this error type
-
-## Before Submitting Review
-
-Final verification:
-1. Re-read each finding and ask: "Did I verify this is actually an issue?"
-2. For each finding, can you point to the specific line that proves the issue exists?
-3. Would a domain expert agree this is a problem, or is it a style preference?
-4. Does fixing this provide real value, or is it busywork?
-5. Format every finding as: `[FILE:LINE] ISSUE_TITLE`
-6. For each finding, ask: "Does this fix existing code, or does it request entirely new code that didn't exist before?" If the latter, downgrade to Informational.
-7. If this is a re-review: ONLY verify previous fixes. Do not introduce new findings.
-
-If uncertain about any finding, either:
-- Remove it from the review
-- Mark it as a question rather than an issue
-- Verify by reading more code context
+- [ ] The user needs specific feedback for this error type

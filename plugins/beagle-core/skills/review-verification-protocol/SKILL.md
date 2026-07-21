@@ -6,238 +6,140 @@ user-invocable: false
 
 # Review Verification Protocol
 
-This protocol MUST be followed before reporting any code review finding. Skipping these steps leads to false positives that waste developer time and erode trust in reviews.
+The language-neutral core followed before reporting any code review finding. Skipping these steps leads to false positives that waste developer time and erode trust in reviews.
 
-## Anti-confabulation (gate 0 — applies to ALL review/verify skills)
+Each language plugin ships a **thin delta** under the same skill name, carrying only its own false-positive patterns and valid-pattern tables. Load this core plus the delta for the stack under review; the delta never restates what is here.
 
-Before issuing **any** verdict — confirm, reject, sever, fix, or adjudicate — you MUST echo the exact artifact you are judging, quoted from a source you read in **this** turn:
+## Imported vocabulary
 
-- For a code finding: the **file:line** plus the cited code, read freshly now (not recalled from earlier in the session).
-- For a diff review: the actual **diff hunk** under review.
-- For a structured report (e.g. `verify-llm-artifacts` adjudicating `findings[]`): the finding's id + file + line + description, printed from the **parsed source file**, not from memory.
+This protocol imports [verification-budget](../verification-budget/SKILL.md). Those definitions are authoritative — this file does not restate them:
 
-> The artifact is the only source of truth. **Never** infer what you are reviewing from the branch name, the working directory, surrounding files, or recollection. If your mental model differs from the freshly read source, **the source wins.** A verdict issued without a same-turn echo of its target is invalid — emit the echo first, or do not emit the verdict.
+- **Risk tier.** Reporting a finding is `verification-budget` tier REVERSIBLE: cite the evidence you already have and move on. Only a verdict that authorizes an IRREVERSIBLE action (deleting code, rewriting a file, rewriting history) earns the full evidence gate.
+- **One-echo.** Echo the artifact under review — the diff, the finding table, the file:line and its code — **once, at review entry**. Not once per verdict. A downstream stage in the same review pipeline trusts the upstream echo rather than re-reading to re-derive it. The single exception is the staleness re-read immediately before an IRREVERSIBLE action.
+- **Prove-a-negative ban.** Never claim or demand exhaustive absence. Report the enumerated patterns you searched, or a fixed-size sample and its size.
 
-This gate exists because an LLM under contextual priming will confidently adjudicate things that are not in the file. It runs **before** the per-finding hard gates below. Skills that consume this protocol implement it concretely: [verify-llm-artifacts](../verify-llm-artifacts/SKILL.md) (Load + ECHO + ID-lock gate), [review-llm-artifacts](../review-llm-artifacts/SKILL.md) (echo finding before writing JSON), [llm-artifacts-detection](../llm-artifacts-detection/SKILL.md) (anchor `FILE:LINE` from an opened buffer).
+Never infer what you are reviewing from the branch name, working directory, surrounding files, or recollection. Where your mental model differs from the source you read, the source wins.
 
 ## Hard gates (sequence)
 
-Apply **once per finding** before it may appear in the review. If a gate fails, **omit** the finding, **downgrade** to Informational (per [Severity Calibration](#severity-calibration)), or **rephrase** as a question—do not ship soft accusations.
+Apply **once per finding** before it may appear in the review. If a gate fails, **omit** the finding, **downgrade** to Informational (per [Severity Calibration](#severity-calibration)), or **rephrase** as a question — do not ship soft accusations.
 
 | Step | What you do | Pass condition (objective) |
 |------|----------------|----------------------------|
 | **1. Anchor** | Read the full enclosing symbol or module, not only the diff hunk. | You can state **file path** and **line range** (or symbol name + file) you are judging. |
-| **2. Evidence** | For this finding’s type, run the checks in [Verification by Issue Type](#verification-by-issue-type). | Each required check has an **artifact**: pasted tool output, **file:line** citation, or explicit **"none"** / **"N matches"** after a repo search—not a claim you "looked." |
+| **2. Evidence** | For this finding's type, run the checks in [Verification by Issue Type](#verification-by-issue-type). | Each required check has an **artifact**: pasted tool output, **file:line** citation, or a **"N matches"** count naming the patterns searched — not a claim you "looked." |
 | **3. Severity** | Assign severity using [Severity Calibration](#severity-calibration). | Label matches the table; requests for net-new code that did not exist in scope are **Informational** only. |
 | **4. Format** | Draft the finding for the report. | Matches `[FILE:LINE] ISSUE_TITLE`; Informational items do not add to the actionable count. |
 
-Style-only or preference items must fail gate 2 or map to **Do NOT Flag At All**—they do not get a severity.
+**Loop budget:** max **1** pass per finding. Stop when all four gate outputs are recorded for that finding. Tie-break: drop or downgrade the finding and proceed — never re-run the gates hoping for a cleaner answer.
+
+Style-only or preference items must fail gate 2 or map to **Do NOT Flag At All** — they do not get a severity.
 
 ## Pre-Report Verification Checklist
 
-Before flagging ANY issue, verify (these items are **what gate 2 must produce evidence for**):
+These items are **what gate 2 must produce evidence for**. They are an enumerated check list, not an advance gate: record the outcome of each, then proceed.
 
-- [ ] **I read the actual code** - Not just the diff context, but the full function/class
-- [ ] **I searched for usages** - Before claiming "unused", searched all references
-- [ ] **I checked surrounding code** - The issue may be handled elsewhere (guards, earlier checks)
-- [ ] **I verified syntax against current docs** - Framework syntax evolves (Tailwind v4, TS 5.x, React 19)
-- [ ] **I distinguished "wrong" from "different style"** - Both approaches may be valid
-- [ ] **I considered intentional design** - Checked comments, project conventions (e.g. AGENTS.md or CLAUDE.md), architectural context
+- [ ] **I read the actual code** — not just the diff context, but the full function/class/module
+- [ ] **I searched for usages** — before claiming "unused", ran the enumerated reference search below
+- [ ] **I checked surrounding code** — the issue may be handled elsewhere (guards, earlier checks, callers)
+- [ ] **I verified syntax against current docs** — framework and language syntax evolves
+- [ ] **I distinguished "wrong" from "different style"** — both approaches may be valid
+- [ ] **I considered intentional design** — comments, project conventions (AGENTS.md, CLAUDE.md), architectural context
 
 ## Verification by Issue Type
 
 ### "Unused Variable/Function"
 
-**Before flagging**, you MUST:
-1. Search for ALL references in the codebase (grep/find)
-2. Check if it's exported and used by external consumers
-3. Check if it's used via reflection, decorators, or dynamic dispatch
-4. Verify it's not a callback passed to a framework
+Search these **four** reference patterns and report each result with its count:
 
-**Common false positives:**
-- State setters in React (may trigger re-renders even if value appears unused)
-- Variables used in templates/JSX
-- Exports used by consuming packages
+1. Direct call or reference to the identifier
+2. Re-export, barrel entry, or public module surface
+3. String-literal or dynamic reference (reflection, decorators, selectors, registries, config)
+4. Framework-invoked contract (callback, lifecycle hook, trait/protocol/interface member)
+
+Report as "no matches across the 4 enumerated patterns" — never as "unused anywhere."
 
 ### "Missing Validation/Error Handling"
 
-**Before flagging**, you MUST:
-1. Check if validation exists at a higher level (caller, middleware, route handler)
-2. Check if the framework provides validation (Pydantic, Zod, TypeScript)
-3. Verify the "missing" check isn't present in a different form
+**Before flagging**, check:
+1. Whether validation exists at a higher level (caller, middleware, route handler, supervisor)
+2. Whether the framework or type system already enforces it
+3. Whether the "missing" check is present in a different form
 
-**Common false positives:**
-- Framework already validates (FastAPI + Pydantic, React Hook Form)
-- Parent component validates before passing props
-- Error boundary catches at higher level
+**Common false positives:** the framework already validates; a parent validates before delegating; a single higher-level handler catches for the whole path.
 
 ### "Type Assertion/Unsafe Cast"
 
-**Before flagging**, you MUST:
-1. Confirm it's actually an assertion, not an annotation
-2. Check if the type is narrowed by runtime checks before the point
-3. Verify if framework guarantees the type (loader data, form data)
-
-**Valid patterns often flagged incorrectly:**
-```typescript
-// Type annotation, NOT assertion
-const data: UserData = await loader()
-
-// Type narrowing makes this safe
-if (isUser(data)) {
-  data.name  // TypeScript knows this is User
-}
-```
+**Before flagging**, check:
+1. It is actually an assertion, not an annotation
+2. The type is not already narrowed by a runtime check upstream
+3. The framework does not guarantee the type at that boundary
 
 ### "Potential Memory Leak/Race Condition"
 
-**Before flagging**, you MUST:
-1. Verify cleanup function is actually missing (not just in a different location)
-2. Check if AbortController signal is checked after awaits
-3. Confirm the component can actually unmount during the async operation
-
-**Common false positives:**
-- Cleanup exists in useEffect return
-- Signal is checked (code reviewer missed it)
-- Operation completes before unmount is possible
+**Before flagging**, check:
+1. Cleanup is genuinely absent, not merely in a different location
+2. Cancellation or teardown is not handled after the async boundary
+3. The lifetime overlap that would cause the bug is actually reachable
 
 ### "Performance Issue"
 
-**Before flagging**, you MUST:
-1. Confirm the code runs frequently enough to matter (render vs click handler)
-2. Verify the optimization would have measurable impact
-3. Check if the framework already optimizes this (React compiler, memoization)
+**Before flagging**, check:
+1. The code runs often enough to matter (render/hot loop vs one-off handler)
+2. The optimization would have measurable impact
+3. The runtime, compiler, or framework does not already handle it
 
-**Do NOT flag:**
-- Functions created in click handlers (runs once per click)
-- Array methods on small arrays (< 100 items)
-- Object creation in event handlers
+**Do NOT flag:** one-off allocations in event handlers, linear work on small collections without evidence of scale, or object creation outside a hot path.
 
 ## Severity Calibration
 
 ### Critical (Block Merge)
 
-**ONLY use for:**
-- Security vulnerabilities (injection, auth bypass, data exposure)
-- Data corruption bugs
-- Crash-causing bugs in happy path
-- Breaking changes to public APIs
+**ONLY use for:** security vulnerabilities (injection, auth bypass, data exposure); data corruption; crash-causing bugs in the happy path; breaking changes to public APIs.
 
 ### Major (Should Fix)
 
-**Use for:**
-- Logic bugs that affect functionality
-- Missing error handling that causes poor UX
-- Performance issues with measurable impact
-- Accessibility violations
+**Use for:** logic bugs affecting functionality; missing error handling that degrades UX; performance issues with measurable impact; accessibility violations.
 
 ### Minor (Consider Fixing)
 
-**Use for:**
-- Code clarity improvements
-- Documentation gaps
-- Inconsistent style (within reason)
-- Non-critical test coverage gaps
+**Use for:** code clarity; documentation gaps; inconsistent style (within reason); non-critical test coverage gaps.
 
 ### Informational (No Action Required)
 
-**Use for:**
-- Improvements that require adding new dependencies or modules
-- Suggestions for net-new code that didn't exist in the codebase before (new modules, test suites, abstractions)
-- Architectural ideas for future consideration
-- Test infrastructure suggestions (new mock libraries, behaviour extraction)
-- Optimizations without measurable impact in the current context
+**Use for:** improvements requiring new dependencies or modules; suggestions for net-new code that did not exist before; architectural ideas for future consideration; test infrastructure suggestions; optimizations without measurable impact in the current context.
 
-**These are NOT review blockers.** They should be noted for the author's awareness but must not appear in the actionable issue count. The Verdict should ignore informational items entirely.
+**These are NOT review blockers.** Note them for the author's awareness, but they must not appear in the actionable issue count, and the Verdict ignores them entirely.
 
 ### Do NOT Flag At All
 
 - Style preferences where both approaches are valid
 - Optimizations with no measurable benefit
 - Test code not meeting production standards (intentionally simpler)
-- Library/framework internal code (shadcn components, generated code)
+- Library, vendored, or generated code
 - Hypothetical issues that require unlikely conditions
 
 ## Valid Patterns (Do NOT Flag)
 
-### TypeScript
-
-| Pattern | Why It's Valid |
-|---------|----------------|
-| `map.get(key) \|\| []` | `Map.get()` returns `T \| undefined`, fallback is correct |
-| Class exports without separate type export | Classes work as both value and type |
-| `as const` on literal arrays | Creates readonly tuple types |
-| Type annotation on variable declaration | Not a type assertion |
-| `satisfies` instead of `as` | Type checking without assertion |
-
-### React
-
-| Pattern | Why It's Valid |
-|---------|----------------|
-| Array index as key (static list) | Valid when: items don't reorder, list is static, no item identity needed |
-| Inline arrow in onClick | Valid for non-performance-critical handlers (runs once per click) |
-| State that appears unused | May be set via refs, external callbacks, or triggers re-renders |
-| Empty dependency array with refs | Refs are stable, don't need to be dependencies |
-| Non-null assertion after check | TypeScript narrowing may not track through all patterns |
-
-### Testing
-
-| Pattern | Why It's Valid |
-|---------|----------------|
-| `toHaveTextContent` without regex | Handles nested text correctly |
-| Mock at module level | Defined once, not duplicated |
-| Index-based test data | Tests don't need stable identity |
-| Simplified error messages | Test clarity over production polish |
-
-### General
+Language-specific tables live in each plugin's delta. Universally valid:
 
 | Pattern | Why It's Valid |
 |---------|----------------|
 | `+?` lazy quantifier in regex | Prevents over-matching, correct for many patterns |
-| Direct string concatenation | Simpler than template literals for simple cases |
-| Multiple returns in function | Can improve readability |
+| Direct string concatenation | Simpler than interpolation for simple cases |
+| Multiple returns in a function | Can improve readability |
 | Comments explaining "why" | Better than no comments |
-
-## Context-Sensitive Rules
-
-### React Keys
-
-Flag array index as key **ONLY IF ALL** of these are true:
-- [ ] Items CAN be reordered (sortable list, drag-drop)
-- [ ] Items CAN be inserted/removed from middle
-- [ ] Items HAVE stable identifiers available (id, uuid)
-- [ ] The list is NOT completely replaced atomically
-
-### useEffect Dependencies
-
-Flag missing dependency **ONLY IF**:
-- [ ] The value actually changes during component lifetime
-- [ ] Stale closure would cause incorrect behavior
-- [ ] The value is NOT a ref (refs are stable)
-- [ ] The value is NOT a stable callback (useCallback with empty deps)
-
-### Error Handling
-
-Flag missing try/catch **ONLY IF**:
-- [ ] No error boundary catches this at a higher level
-- [ ] The framework doesn't handle errors (loader errorElement)
-- [ ] The error would cause a crash, not just a failed operation
-- [ ] User needs specific feedback for this error type
 
 ## Before Submitting Review
 
-Final verification:
-0. Each finding passed [Anti-confabulation (gate 0)](#anti-confabulation-gate-0--applies-to-all-reviewverify-skills) — its target was echoed from a source read in this turn, not recalled or inferred.
-1. Each finding passed [Hard gates (sequence)](#hard-gates-sequence) (anchor, evidence with artifacts, severity, format).
-2. Re-read each finding and ask: "Did I verify this is actually an issue?"
-3. For each finding, can you point to the specific line that proves the issue exists?
-4. Would a domain expert agree this is a problem, or is it a style preference?
-5. Does fixing this provide real value, or is it busywork?
-6. Format every finding as: `[FILE:LINE] ISSUE_TITLE`
-7. For each finding, ask: "Does this fix existing code, or does it request entirely new code that didn't exist before?" If the latter, downgrade to Informational.
-8. If this is a re-review: ONLY verify previous fixes. Do not introduce new findings.
+**Budget:** exactly **one** pass over the finding list. Stop when every finding has an answer for items 1–7. Tie-break: any finding you still cannot answer for ships as a **question**, or is dropped — do not re-run the pass.
 
-If uncertain about any finding, either:
-- Remove it from the review
-- Mark it as a question rather than an issue
-- Verify by reading more code context
+1. Re-read each finding: did you verify this is actually an issue?
+2. Can you point to the specific line that proves the issue exists?
+3. Would a domain expert agree this is a problem, or is it a style preference?
+4. Does fixing this provide real value, or is it busywork?
+5. Every finding is formatted `[FILE:LINE] ISSUE_TITLE`.
+6. Does this fix existing code, or request entirely new code that did not exist before? If the latter, downgrade to Informational.
+7. If this is a re-review: ONLY verify previous fixes. Do not introduce new findings.
+
+If uncertain about a finding, remove it or mark it as a question — do not open another verification pass.

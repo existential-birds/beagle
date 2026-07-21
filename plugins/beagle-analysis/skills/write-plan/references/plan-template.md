@@ -1,6 +1,14 @@
 # Plan Document Template
 
-Use this template when writing the plan document. Save to `.beagle/concepts/<slug>/plan.md`.
+The single source of truth for the emitted plan's shape. `write-plan` saves to `.beagle/concepts/<slug>/plan.md`; `quick-plan` saves to `.beagle/plans/<slug>/plan.md`.
+
+The plan is written **for an execution-tier reader** — one that follows the plan closely and does not re-derive planning decisions. That means: helper signatures are given, non-trivial implementation steps carry a skeleton, and sweep targets are enumerated. A more capable executor is not harmed by the extra specificity; it reads past it.
+
+## The Executor Contract block is mandatory
+
+Every emitted plan opens with an `## Executor Contract` section containing the **full text of `beagle-core:execution-contract`, inlined verbatim**. Not a link, not a summary — the plan travels to sessions that do not have the skill installed, and the contract is what gives the executor a legal way to stop.
+
+Read `beagle-core:execution-contract` and paste its body (from "## Roles" onward) under the `## Executor Contract` heading. If `beagle-core` is unavailable, say so to the user before writing — a plan without the contract has no attempt budget, no pre-existing-red policy, and no stop-and-report script, which is the failure mode this section exists to prevent.
 
 ## Template
 
@@ -8,13 +16,21 @@ Use this template when writing the plan document. Save to `.beagle/concepts/<slu
 # [Feature Name] Implementation Plan
 
 > **Source spec:** `.beagle/concepts/<slug>/spec.md`
-> **For downstream agents:** Execute task-by-task. Each task uses `- [ ]` checkboxes for tracking. Do not skip the test-first steps — they catch wiring bugs that pure-logic tests miss.
+> **For downstream agents:** Execute task-by-task. Each task uses `- [ ]` checkboxes for tracking. Do not skip the test-first steps — they catch wiring bugs that pure-logic tests miss. Read the Executor Contract below before Task 1.
 
 **Goal:** [One sentence describing what this builds, mirroring the spec's Core Value.]
 
 **Architecture:** [2-3 sentences describing the approach — how the pieces fit together, what the data/control flow looks like at a high level.]
 
 **Tech Stack:** [Key technologies, libraries, frameworks.]
+
+**Baseline suite:** `[exact command that runs the suite this plan will be judged against]` — run this once, before Task 1, and record which tests are already failing. See the Executor Contract.
+
+---
+
+## Executor Contract
+
+[Full text of `beagle-core:execution-contract`, inlined verbatim — roles, failure-matching-by-shape, pre-existing-red policy, attempt budget, stop-and-report template, escape-hatch legitimacy, spike-failure script. Do not summarize it. Do not replace it with a link.]
 
 ---
 
@@ -45,7 +61,6 @@ Use this template when writing the plan document. Save to `.beagle/concepts/<slu
 ### Files to Create
 
 - `path/to/new_file.ext` — [responsibility, 1 line]
-- `path/to/another_file.ext` — [responsibility, 1 line]
 
 ### Files to Modify
 
@@ -66,16 +81,23 @@ Use this template when writing the plan document. Save to `.beagle/concepts/<slu
 
 - [ ] **Step 1: Write the failing test**
 
-[Show the assertions and the call site under test. Target ~15 lines or less. The seed/setup loops are recovered by the executor from existing types and helpers — name the helper (with signature if helpful) but do not implement it here. Assertions pin observable consequence — a value, a row, an output the next call would see — never dispatch.]
+[Show the assertions and the call site under test. Target ~15 lines or less. Do not write the seed/setup loop — instead name each helper the test calls with its FULL SIGNATURE, so the executor writes or reuses the right thing without guessing.]
+
+**Helpers this test uses:**
+- `seed_entries(&store, session_id: Uuid, count: i64) -> Vec<EntryId>` — [existing at `path:line` | to be written in this step]
 
 ```
 // Assertions + call site only. ~15 lines or less.
+// Assertions pin observable consequence — a value, a row, a written file,
+// the output the next call would see — never dispatch.
 ```
 
 - [ ] **Step 2: Run test to verify it fails**
 
 Run: `<exact project test command for this single test>`
-Expected: FAIL — "<exact failure substring you expect to see>"
+Expected: FAIL — `<the failure you expect>`.
+
+This prediction is a guess about *kind*, not a literal to match. A failure of the predicted kind with different wording satisfies this step. See the Executor Contract, "Failure matching is by shape, not string."
 
 - [ ] **Step 3: Implement against the test**
 
@@ -88,14 +110,36 @@ Expected: FAIL — "<exact failure substring you expect to see>"
 
 **Reference:** `path/to/analog.ext:line-line` — [one-sentence delta]. Pointer only; do NOT paste the cited code inline. The executor opens the file.
 
-- [ ] **Step 4: Run the new test AND the relevant suite, verify both green**
+**Skeleton** (required unless this step is a one-liner, a config edit, or a pure rename — signatures and numbered control flow only, no bodies):
+
+```
+fn new_or_changed_fn(args: Types) -> Result<Out, Error> {
+    // 1. [first thing it does]
+    // 2. [second thing]
+    // 3. [what it returns and when it errors]
+}
+```
+
+- [ ] **Step 4: Run the new test AND the relevant suite, diff against baseline**
 
 Run: `<same test command as Step 2>` → Expected: PASS.
-Then run: `<broader suite this task lives in — module, package, or contract suite>` → Expected: PASS with zero regressions. Specify the exact command; do not leave as "run the suite."
+Then run: `<broader suite this task lives in — module, package, or contract suite. Exact command; never "run the suite">`.
+
+**Judge the result against the baseline recorded before Task 1, not against green.** A test that was already failing in the baseline is recorded and skipped — not fixed, not retried, not counted here. Only a **regression** (green in baseline, red now) blocks this step. If a regression appears, that is a real signal: fix it within the attempt budget or emit the stop-and-report block.
+
+A new test that passes while a sibling silently regresses is a task failure, not a deferred concern.
 
 - [ ] **Step 5: Sweep modified files for leftovers**
 
-Describe sweep targets in plain language: "remove stale references to `<old_name>`, the orphaned `<import>`, and doc-comments describing the old shape." The executor greps for them. Do NOT enumerate line numbers — they'll be wrong by execution time. New-file-only and config-only tasks skip this step.
+**Enumerate the sweep targets by name.** Not "sweep the file," not line numbers (they rot before execution). List each one so the executor has a finite, checkable set:
+
+- `<symbol>` — [the orphaned import / dead field / unused helper]
+- `<comment or doc-header text>` — [describes the old shape]
+- `<match arm / branch>` — [now unreachable]
+
+The executor greps for each named item and reports per item: removed, or not present. When the list is complete, the sweep is done — do not widen it into an open-ended hunt.
+
+New-file-only and config-only tasks skip this step.
 
 - [ ] **Step 6: Commit**
 
@@ -108,7 +152,7 @@ git commit -m "<type>(<scope>): <imperative one-line summary>"
 
 ## Task 2: [Next Component or Behavior Name]
 
-[Same structure — Files / Step 1: failing test / Step 2: verify failure / Step 3: behavior contract for impl / Step 4: verify pass / Step 5: sweep / Step 6: commit]
+[Same structure — Files / Step 1 failing test + helper signatures / Step 2 verify failure / Step 3 contract + reference + skeleton / Step 4 baseline-diffed suite run / Step 5 enumerated sweep / Step 6 commit]
 
 ---
 
@@ -116,57 +160,49 @@ git commit -m "<type>(<scope>): <imperative one-line summary>"
 
 ---
 
-## Self-Review Outcome
+## Review Outcome
 
-[Short prose confirming the self-review pass was honest. Mention any spec gaps you closed, placeholders you killed, or assumptions you surfaced.]
+[Short prose recording what the one-pass plan review found and what you fixed. Not a re-run of a checklist, and not a promise — a record.]
 
-- **Spec coverage:** [confirmed / list of gaps closed]
-- **Placeholders:** [none / list of fixes]
-- **Type consistency:** [verified across tasks]
-- **Consumer check:** [every new public surface has a named production consumer in this plan / list of surfaces cut or tagged deferred]
-- **Discriminating assertion:** [no test admits a false-pass impl; payload-preservation tests assert the sentinel in the damaged region through every structurally-distinct producer]
-- **Project conventions:** [list the specific project rules followed — testing tier rules, comment policy, commit conventions]
+- **Reviewed against:** [spec at `<path>` | Intent block above]
+- **Blocking issues fixed:** [list, or "none found"]
+- **Advisory notes not acted on:** [list, or "none"]
+- **Known gaps:** [anything left open, and why — say so rather than lying to future readers]
 
 ````
 
 ## Guidelines
 
 **Header:**
-- The goal sentence should mirror the spec's Core Value, not invent a new one
+- The goal sentence mirrors the spec's Core Value; it does not invent a new one
 - Architecture is *approach*, not implementation detail (those live in tasks)
-- Tech stack should match the spec's Constraints; flag mismatches before drafting
+- Tech stack matches the spec's Constraints; flag mismatches before drafting
+- The baseline suite command must be real and copy-pasteable — it is the reference point every Step 4 is judged against
+
+**Executor Contract:**
+- Inlined verbatim, always, in every plan. It is the executor's only legal way to halt.
 
 **Assumptions:**
-- Include only assumptions that are *load-bearing* — change them and the plan changes
-- Don't list trivial defaults (e.g., "we'll use the existing test runner")
-- Each assumption should be one a future reader could plausibly disagree with
-- If a file the spec names has a comment or doc-header that contradicts the spec's characterization of it, that contradiction is an assumption-audit item
+- Only assumptions that are *load-bearing* — change them and the plan changes
+- Not trivial defaults ("we'll use the existing test runner")
+- If a file the spec names has a comment contradicting the spec's characterization, that contradiction is an assumption-audit item
 
 **Patterns:**
-- Only introduce when a transformation repeats across 3+ tasks
+- Only when a transformation repeats across 3+ tasks
 - Never absorb the test code or the commit message — those stay per-task
-- A pattern is a transformation shape + a reference example, not a stand-in for the task body
+- Patterns applied across many sites get a final `Audit` task (see `planning-disciplines.md`)
 
 **File Structure:**
-- Files to Create / Modify / Delete sections — keep them flat lists, one line each
-- The 1-line responsibility is for the *file*, not the change inside it; don't pre-describe code here
+- Flat lists, one line each; the 1-line responsibility is for the *file*, not the change inside it
 
 **Tasks:**
-- One cohesive unit per task. If you can't describe the task in 5 words, split it.
-- Steps are exhaustive — the engineer/agent reads them top to bottom, no skipping
-- **Recoverability rule** — after drafting each step, ask "can the executor recover this by reading the referenced file?" If yes, delete it. Verbosity is not specificity.
-- **Test step bodies show assertions + call site, not setup ceremony** — ~15 lines or less; the seed loop is recovered from existing types and helpers
-- **Tests reuse existing scaffolding** — grep for an existing helper/fixture/mock before inventing one in the plan; if no existing helper fits, name a specific one that was considered and why it didn't
-- **YAGNI for tests — except payload-preservation invariants** — one test per spec requirement and per named bug class; no speculative input-space exhaustion. For preserve/recover/transform invariants, enumerate every structurally-distinct producer and assert the sentinel in the damaged region — those producers and the corrupted region *are* the spec, not speculative edge cases
-- **Behavior contracts: 3-5 bullets, past 5 replace with reference** — the contract is the new/changed behavior, not a re-derivation of the impl
-- **References point, they do not paste** — `file.ext:line-line` is the reference; do not inline the cited code
-- **Modify-file tasks include a sweep step** — remove orphaned comments, unused imports, dead helpers in the modified files; describe targets in plain language, not line numbers
-- Commands are *exact* — the executor copies and runs them as-is
-- Expected outputs (FAIL/PASS messages) are *literal strings*, not paraphrases
+- One cohesive unit per task. If you can't describe it in 5 words, split it.
+- Steps are exhaustive — read top to bottom, no skipping
+- **Recoverability rule** — "can the executor recover this by reading the referenced file?" If yes, delete it. Sweep targets and helper signatures are the deliberate exceptions: they are not recoverable from any one file.
+- Commands are *exact*; expected outputs describe the failure's *kind*, not a literal string to match
 
-**Self-Review Outcome:**
-- A short honesty statement, not a re-run of the checklist
-- If you didn't actually verify a dimension, say so — don't lie to future readers
+**Review Outcome:**
+- A record of the review pass, not a checklist re-run. If a dimension went unchecked, say so.
 
 ## Examples of Good vs Bad Task Steps
 
@@ -174,31 +210,36 @@ git commit -m "<type>(<scope>): <imperative one-line summary>"
 |----------|-----------|
 | "Add validation" | "Test: assert `parse(\"\")` returns an empty-input error of the project's error type. Behavior contract: empty input → error variant named for the empty case, with a message naming the offending field." |
 | "Run tests" | "Run: `<project test command for this one test>`. Expected: PASS — 1 test." |
-| "Implement the controller" | (Split into 3-5 tasks, each with a failing test + behavior contract for one cohesive piece of controller behavior) |
-| Code block with `// TODO` or `unimplemented!()` as final state | Behavior contract with specific bullets; no placeholder code |
+| "Implement the controller" | (Split into 3-5 tasks, each with a failing test + behavior contract + skeleton for one cohesive piece) |
+| Code block with `// TODO` or `unimplemented!()` as final state | Behavior contract with specific bullets plus a signature-and-comments skeleton; no placeholder code |
 | "Similar to Task 2" with no further information | A `Patterns` reference, plus the task's own files, test code, and commit |
 | Test asserting `the handler was called` | Test asserting `the row appears in storage` / `the file is written` / `the next request returns the new state` |
-| Test invents `fn make_test_user()` without checking the codebase | Test uses existing `factories::user()` / `fixtures::user()`; or, if absent, the plan names the existing factories that were considered and why none fit |
-| 12 boundary tests for one parser ("empty, single char, leading whitespace, trailing whitespace, only whitespace, unicode emoji, BOM, …") | One test per spec-required behavior; one test per named bug class from the Assumption Audit. Speculative inputs go to a fuzz harness if one exists, otherwise omit. |
-| Task refactor lands but file still has `// returns the old PG pool` comments referring to the deleted field | Sweep step in the same task removes the orphaned comment alongside the impl change |
-| Test body: 60 lines of imports + 5-iteration seeding loop + 6 assertions across 4 follow-on queries | Test body: ~12 lines — one helper call to seed, the call site under test, 2-3 assertions on observable consequence. Setup is recovered from existing types and helpers. |
-| Reference: a 4-line `match` block pasted from the file under refactor | Reference: `launch.rs:397-400` — one-sentence delta describing what the new shape is. The executor opens the file. |
-| Behavior contract enumerates every column, type, index, and rationale for a new schema | Behavior contract: "Tables/columns/indexes match `existing_schema.sql` with `<one-sentence delta>`. Types per project's standard codec defaults." |
-| Sweep step lists "line 71-72, lines 117-122, line 194" | Sweep step: "remove stale references to `pool`, `session_store_override`, and the orphaned `PgPool` import in the modified files." The executor greps. |
+| Test calls `seed_entries(...)` with no signature given | `seed_entries(&store, session_id: Uuid, count: i64) -> Vec<EntryId>` — existing at `tests/support/db.rs:44` |
+| Test invents `fn make_test_user()` without checking the codebase | Test uses existing `factories::user()`; or the plan names the factories considered and why none fit |
+| 12 boundary tests for one parser ("empty, single char, BOM, …") | One test per spec-required behavior; one per named bug class. Speculative inputs go to a fuzz harness if one exists. |
+| Step 4: "Expected: PASS with zero regressions" against an already-red suite | Step 4: run the named suite, diff against the pre-Task-1 baseline; only newly-red tests block |
+| Step 5: "remove stale references — the executor greps" | Step 5: enumerated list — `PgPool` import, `session_store_override` field, the `// returns the PG pool` doc-comment, the `Backend::Legacy` match arm |
+| Step 5 lists "line 71-72, lines 117-122, line 194" | Step 5 lists symbols and comment text by name; line numbers rot before execution |
+| Test body: 60 lines of imports + a 5-iteration seeding loop + 6 assertions | Test body: ~12 lines — one helper call to seed, the call site, 2-3 assertions on observable consequence |
+| Reference: a 4-line `match` block pasted from the file under refactor | Reference: `launch.rs:397-400` — one-sentence delta. The executor opens the file. |
+| Behavior contract enumerates every column, type, index, and rationale | "Tables/columns/indexes match `existing_schema.sql` with `<one-sentence delta>`." |
+| Skeleton containing real expression-level bodies | Skeleton containing the signature plus numbered `//` steps |
 
-## Anti-Patterns To Reject During Self-Review
+## Anti-Patterns To Reject
 
-- Tasks that produce code without a failing-test step before the implementation step
-- "Step 1: Implement X" with no preceding test
+- A plan with no inlined Executor Contract, or no baseline suite command
+- Tasks that produce code without a failing-test step first
 - Test steps that assert dispatch rather than consequence
-- **Test bodies past ~15 lines** — setup ceremony has crept in; the executor recovers seed loops from existing types and helpers
-- **Implementation steps that contain speculative code blocks** — the planner is guessing at signatures and library shapes the executor will actually see; replace with a behavior contract
+- **Test bodies past ~15 lines** — setup ceremony crept in
+- **Implementation steps containing a finished implementation** — the planner is guessing at signatures and library shapes the executor can actually see; a signature-and-comments skeleton is the ceiling
 - **Behavior contracts past 5 bullets** — re-deriving the impl in markdown; tighten with a sharper reference
 - **References that paste cited code inline** — duplicates what the executor reads anyway, and rots
-- Behavior contracts that use vague verbs ("validate", "handle", "process") instead of naming the observable behavior
-- **Test helpers invented in the plan when an existing one in the codebase fits** — grep before authoring
-- **Speculative edge-case piling** — 5+ boundary tests for one function "just in case"; pin the spec, not every conceivable input
-- **Modify-file tasks with no sweep** — leaves stale comments, unused imports, and dead helpers in the file the task just touched
-- **Sweep steps enumerating line numbers** — line numbers rot; the executor greps. Describe targets by name (`pool`, `PgPool import`, doc-comments referring to the old shape).
-- Patterns introduced for a single use site (don't DRY for the sake of it)
+- Behavior contracts using vague verbs ("validate", "handle", "process") instead of naming observable behavior
+- **Test helpers invented in the plan when an existing one fits** — grep before authoring
+- **Helpers called without a signature** — the executor guesses, and guesses wrong
+- **Speculative edge-case piling** — 5+ boundary tests "just in case"
+- **Step 4 demanding absolute green** — pre-existing red is out of scope; diff against the baseline
+- **Modify-file tasks with no sweep**, or a sweep that is not an enumerated list
+- **Any step asking the executor to confirm exhaustive absence** ("grep and confirm zero remaining") — no terminating check; enumerate instead
+- Patterns introduced for a single use site
 - Commit messages that say "WIP" or describe multiple unrelated changes

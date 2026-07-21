@@ -4,90 +4,33 @@ description: Mandatory verification steps for all code reviews to reduce false p
 user-invocable: false
 ---
 
-# Review Verification Protocol
+# Review Verification Protocol — Go delta
 
-This protocol MUST be followed before reporting any code review finding. Skipping these steps leads to false positives that waste developer time and erode trust in reviews.
+**Load `beagle-core:review-verification-protocol` first.** It carries the hard gates, the Pre-Report Verification Checklist, Severity Calibration, the imported `beagle-core:verification-budget` vocabulary (risk tiers, loop budgets, the one-echo rule, the prove-a-negative ban), and the language-neutral Verification by Issue Type sections.
 
-## Anti-confabulation (gate 0 — runs before every other gate)
+This file adds **only** what is specific to Go. Everything else is in the core; nothing here overrides it.
 
-Before issuing **any** verdict — flag, reject, or downgrade a finding — you MUST echo the exact artifact you are judging, quoted from a source you read in **this** turn:
-
-- For a code finding: the **file:line** plus the cited code, read freshly now (not recalled from earlier in the session).
-- For a diff review: the actual **diff hunk** under review.
-
-> The artifact is the only source of truth. **Never** infer what you are reviewing from the branch name, the working directory, surrounding files, or recollection. If your mental model differs from the freshly read source, **the source wins.** A verdict issued without a same-turn echo of its target is invalid — emit the echo first, or do not emit the verdict.
-
-This gate exists because an LLM under contextual priming will confidently flag code that is not in the file. It runs **before** the hard gates below.
-
-## Hard gates (sequenced)
-
-Run these **in order**. Do not move to the next gate until its **pass** condition is met (objective evidence, not internal certainty).
-
-1. **Read** — Open the file and read the **full** enclosing function, method, or type (not only the diff hunk).  
-   **Pass:** You can name the symbol and cite at least one line **outside** the changed lines that shows control flow, scope, or use relevant to the finding.
-
-2. **Reference** (required before any “unused”, “dead code”, or “never called” claim) — Search the workspace for the identifier and for imports/exports that could reference it.  
-   **Pass:** Recorded outcome: match count or list, or explicit “zero matches in repo” *before* asserting unused.
-
-3. **Upstream** (required before “missing validation” or “missing error handling”) — Inspect the immediate caller, route/middleware, or documented framework behavior that might already enforce the rule.  
-   **Pass:** One sentence naming where responsibility lives, or “checked caller + framework path; still missing” with which layer you checked.
-
-4. **Severity** — Before assigning Critical or Major, map the issue to [Severity Calibration](#severity-calibration) and exclude style-only or [Informational](#informational-no-action-required) items.  
-   **Pass:** Chosen label matches a bullet under that severity; otherwise downgrade, reclassify as Informational, or omit.
-
-5. **Submit** — Each retained finding uses `[FILE:LINE]` plus a one-line proof; complete [Before Submitting Review](#before-submitting-review) steps 1–7 for this review.  
-   **Pass:** Every step satisfied or the finding was removed or downgraded.
-
-The checklist below expands these gates by issue type; use both.
-
-## Pre-Report Verification Checklist
-
-Before flagging ANY issue, verify:
-
-- [ ] **I read the actual code** - Not just the diff context, but the full function/class
-- [ ] **I searched for usages** - Before claiming "unused", searched all references
-- [ ] **I checked surrounding code** - The issue may be handled elsewhere (guards, earlier checks)
-- [ ] **I verified syntax against current docs** - Framework syntax evolves (Tailwind v4, TS 5.x, React 19)
-- [ ] **I distinguished "wrong" from "different style"** - Both approaches may be valid
-- [ ] **I considered intentional design** - Checked comments, project conventions (e.g. AGENTS.md or CLAUDE.md), architectural context
-
-## Verification by Issue Type
+## Verification by Issue Type — Go specifics
 
 ### "Unused Variable/Function"
 
-**Before flagging**, you MUST:
-1. Search for ALL references in the codebase (grep/find)
-2. Check if it's exported and used by external consumers
-3. Check if it's used via reflection, decorators, or dynamic dispatch
-4. Verify it's not a callback passed to a framework
+Run the core's four-pattern reference search. Go-specific reference patterns to include:
 
-**Common false positives:**
-- State setters in React (may trigger re-renders even if value appears unused)
-- Variables used in templates/JSX
-- Exports used by consuming packages
+- Exported identifiers consumed by another module or by external importers
+- Methods satisfying an interface implicitly — no explicit `implements` to grep for
+- Symbols reached by reflection, struct tags, or `init()` registration
+- Build-tag-gated files (`//go:build`) excluded from the default search
 
 ### "Missing Validation/Error Handling"
 
-**Before flagging**, you MUST:
-1. Check if validation exists at a higher level (caller, middleware, route handler)
-2. Check if the framework provides validation (Pydantic, Zod, TypeScript)
-3. Verify the "missing" check isn't present in a different form
-
-**Common false positives:**
-- Framework already validates (FastAPI + Pydantic, React Hook Form)
-- Parent component validates before passing props
-- Error boundary catches at higher level
+Check whether the caller, middleware chain, or `http.Handler` wrapper already enforces the rule before flagging, and whether the check exists in a different form (a sentinel error compared with `errors.Is`, a wrapped error, a validator on the request struct).
 
 ### "Type Assertion/Unsafe Cast"
 
-**Before flagging**, you MUST:
-1. Confirm it's actually an assertion, not an annotation
-2. Check if the type is narrowed by runtime checks before the point
-3. Verify if framework guarantees the type (loader data, form data)
+The comma-ok form and type switches are safe narrowing, not unsafe casts:
 
-**Valid patterns often flagged incorrectly:**
 ```go
-// Type assertion with ok check, NOT unsafe cast
+// Type assertion with ok check, NOT an unsafe cast
 data, ok := value.(UserData)
 if !ok {
     return fmt.Errorf("unexpected type: %T", value)
@@ -100,74 +43,13 @@ case User:
 }
 ```
 
-### "Potential Memory Leak/Race Condition"
+Only a bare `value.(T)` with no ok result is a genuine panic risk.
 
-**Before flagging**, you MUST:
-1. Verify cleanup function is actually missing (not just in a different location)
-2. Check if AbortController signal is checked after awaits
-3. Confirm the component can actually unmount during the async operation
+### "Potential Goroutine Leak / Race Condition"
 
-**Common false positives:**
-- Cleanup exists in useEffect return
-- Signal is checked (code reviewer missed it)
-- Operation completes before unmount is possible
-
-### "Performance Issue"
-
-**Before flagging**, you MUST:
-1. Confirm the code runs frequently enough to matter (render vs click handler)
-2. Verify the optimization would have measurable impact
-3. Check if the framework already optimizes this (React compiler, memoization)
-
-**Do NOT flag:**
-- Functions created in click handlers (runs once per click)
-- Array methods on small arrays (< 100 items)
-- Object creation in event handlers
-
-## Severity Calibration
-
-### Critical (Block Merge)
-
-**ONLY use for:**
-- Security vulnerabilities (injection, auth bypass, data exposure)
-- Data corruption bugs
-- Crash-causing bugs in happy path
-- Breaking changes to public APIs
-
-### Major (Should Fix)
-
-**Use for:**
-- Logic bugs that affect functionality
-- Missing error handling that causes poor UX
-- Performance issues with measurable impact
-- Accessibility violations
-
-### Minor (Consider Fixing)
-
-**Use for:**
-- Code clarity improvements
-- Documentation gaps
-- Inconsistent style (within reason)
-- Non-critical test coverage gaps
-
-### Informational (No Action Required)
-
-**Use for:**
-- Improvements that require adding new dependencies or modules
-- Suggestions for net-new code that didn't exist in the codebase before (new modules, test suites, abstractions)
-- Architectural ideas for future consideration
-- Test infrastructure suggestions (new mock libraries, behaviour extraction)
-- Optimizations without measurable impact in the current context
-
-**These are NOT review blockers.** They should be noted for the author's awareness but must not appear in the actionable issue count. The Verdict should ignore informational items entirely.
-
-### Do NOT Flag At All
-
-- Style preferences where both approaches are valid
-- Optimizations with no measurable benefit
-- Test code not meeting production standards (intentionally simpler)
-- Library/framework internal code (shadcn components, generated code)
-- Hypothetical issues that require unlikely conditions
+- Check for `context` cancellation, a `WaitGroup`, or a shutdown channel before claiming a leak
+- Check whether a `sync.Mutex`, channel, or `sync/atomic` already guards the access
+- Confirm the goroutine can actually outlive its parent scope
 
 ## Valid Patterns (Do NOT Flag)
 
@@ -176,9 +58,9 @@ case User:
 | Pattern | Why It's Valid |
 |---------|----------------|
 | `val, ok := map[key]` | Comma-ok idiom, standard for maps |
-| Returning `error` as last return value | Go error handling convention |
+| Returning `error` as the last return value | Go error handling convention |
 | `defer` for cleanup | Correct resource management pattern |
-| Short variable names in small scope | Idiomatic Go (e.g., `i`, `err`, `ctx`) |
+| Short variable names in small scope | Idiomatic Go (`i`, `err`, `ctx`) |
 | `interface{}` / `any` in generic code | Valid for truly heterogeneous data |
 
 ### Concurrency
@@ -200,53 +82,30 @@ case User:
 | `testify/assert` alongside stdlib | Common and acceptable in Go projects |
 | Test function names without `_` | `TestFooBar` is idiomatic Go |
 
-### General
-
-| Pattern | Why It's Valid |
-|---------|----------------|
-| `+?` lazy quantifier in regex | Prevents over-matching, correct for many patterns |
-| Direct string concatenation | Simpler than template literals for simple cases |
-| Multiple returns in function | Can improve readability |
-| Comments explaining "why" | Better than no comments |
-
 ## Context-Sensitive Rules
+
+Each list below is an enumerated check, evaluated once. If an item is undecidable, drop the finding or ship it as a question — do not open another verification pass.
 
 ### Error Handling
 
-Flag unchecked error **ONLY IF ALL** of these are true:
-- [ ] Error return is explicitly ignored (not `_`)
-- [ ] Function can return meaningful errors (not just `Close()`)
-- [ ] Not in test code or example code
-- [ ] Error would indicate a real problem, not a benign condition
+Flag an unchecked error **ONLY IF ALL** of these hold:
+- [ ] The error return is explicitly discarded (not via `_` with a justifying comment)
+- [ ] The function can return meaningful errors (not just `Close()`)
+- [ ] Not in test or example code
+- [ ] The error would indicate a real problem, not a benign condition
 
 ### Goroutine Lifecycle
 
-Flag goroutine leak **ONLY IF**:
+Flag a goroutine leak **ONLY IF**:
 - [ ] No context cancellation controls the goroutine
-- [ ] No channel or WaitGroup provides shutdown signal
-- [ ] Goroutine can outlive its parent scope
+- [ ] No channel or `WaitGroup` provides a shutdown signal
+- [ ] The goroutine can outlive its parent scope
 - [ ] Not a top-level server goroutine managed by the runtime
 
 ### Interface Design
 
-Flag missing interface **ONLY IF**:
-- [ ] Concrete type is used across package boundaries
+Flag a missing interface **ONLY IF**:
+- [ ] The concrete type is used across package boundaries
 - [ ] Testing requires mocking the dependency
 - [ ] Multiple implementations exist or are planned
-- [ ] Not a simple data struct (interfaces for behavior, not data)
-
-## Before Submitting Review
-
-Final verification:
-1. Re-read each finding and ask: "Did I verify this is actually an issue?"
-2. For each finding, can you point to the specific line that proves the issue exists?
-3. Would a domain expert agree this is a problem, or is it a style preference?
-4. Does fixing this provide real value, or is it busywork?
-5. Format every finding as: `[FILE:LINE] ISSUE_TITLE`
-6. For each finding, ask: "Does this fix existing code, or does it request entirely new code that didn't exist before?" If the latter, downgrade to Informational.
-7. If this is a re-review: ONLY verify previous fixes. Do not introduce new findings.
-
-If uncertain about any finding, either:
-- Remove it from the review
-- Mark it as a question rather than an issue
-- Verify by reading more code context
+- [ ] Not a simple data struct (interfaces are for behavior, not data)

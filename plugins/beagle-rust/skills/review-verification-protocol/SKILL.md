@@ -4,180 +4,144 @@ description: Mandatory verification steps for all code reviews to reduce false p
 user-invocable: false
 ---
 
-# Review Verification Protocol
+# Review Verification Protocol — Rust delta
 
-This protocol MUST be followed before reporting any code review finding. Skipping these steps leads to false positives that waste developer time and erode trust in reviews.
+**Load `beagle-core:review-verification-protocol` first.** It carries the hard gates, the Pre-Report Verification Checklist, Severity Calibration, the imported `beagle-core:verification-budget` vocabulary (risk tiers, loop budgets, the one-echo rule, the prove-a-negative ban), and the language-neutral Verification by Issue Type sections.
 
-## Anti-confabulation (gate 0 — runs before every other gate)
+This file adds **only** what is specific to Rust. Everything else is in the core; nothing here overrides it.
 
-Before issuing **any** verdict — flag, reject, or downgrade a finding — you MUST echo the exact artifact you are judging, quoted from a source you read in **this** turn:
+## Rust-specific gate: edition
 
-- For a code finding: the **file:line** plus the cited code, read freshly now (not recalled from earlier in the session).
-- For a diff review: the actual **diff hunk** under review.
+Add one gate to the core's sequence, before any edition-sensitive finding:
 
-> The artifact is the only source of truth. **Never** infer what you are reviewing from the branch name, the working directory, surrounding files, or recollection. If your mental model differs from the freshly read source, **the source wins.** A verdict issued without a same-turn echo of its target is invalid — emit the echo first, or do not emit the verdict.
+**Edition gate** — **Pass:** you opened the `Cargo.toml` for the crate under review and either quote its `[package] edition = "..."` line or name the manifest path and state that the default edition applies. This gate runs once per crate, not once per finding.
 
-This gate exists because an LLM under contextual priming will confidently flag code that is not in the file. It runs **before** the hard gates below.
+If the edition is not specified, Rust defaults to edition 2015. Most modern projects use 2021 or later.
 
-## Hard gates (sequenced)
+| Change | Edition 2021 | Edition 2024 |
+|--------|--------------|--------------|
+| `unsafe` inside `unsafe fn` | Optional style | Required (`unsafe_op_in_unsafe_fn` = deny) |
+| `extern "C" {}` | Valid | Must be `unsafe extern "C" {}` |
+| `#[no_mangle]` | Valid | Must be `#[unsafe(no_mangle)]` |
+| `#[export_name]` | Valid | Must be `#[unsafe(export_name)]` |
+| `-> impl Trait` lifetime capture | Explicit only | Captures all in-scope lifetimes |
+| `gen` as identifier | Valid | Reserved keyword (use `r#gen`) |
+| `!` type fallback | Falls back to `()` | Falls back to `!` |
+| `if let` temporaries | Dropped at end of block | Dropped at end of the `if let` |
+| Tail expression temporaries | Dropped after locals | Dropped before local variables |
+| `Box<[T]>` iteration | Needs explicit `.iter()` | Has an `IntoIterator` impl |
 
-Complete these **in order** before you add a finding. Skip a gate only when it clearly does not apply (e.g. skip the usages gate if the finding is not about dead code or “unused”).
+**Cross-reference:** [rust-code-review](../rust-code-review/SKILL.md) and [rust-best-practices](../rust-best-practices/SKILL.md) carry the edition-specific review guidance and idiomatic patterns.
 
-1. **Read scope** — **Pass:** You name the exact file path(s) and the function, `impl`, or `macro_rules!` block you read in full (not only a diff hunk or partial snippet).
-2. **Usages (dead / unused)** — **Pass:** You ran a repo-wide reference search (`rg`, IDE references, or equivalent) and either state zero matches for the symbol you call unused, or list each match and why it still supports the finding.
-3. **Surrounding behavior** — **Pass:** You checked callers, trait impls, `#[cfg]`, or error propagation that could make the pattern intentional; note one concrete checked location (path + rough location) or state “none relevant after search.”
-4. **Edition and API** — **Pass:** You opened the relevant `Cargo.toml` for the crate under review and either quote the `[package] edition = "..."` line or state the default edition applies and name the manifest path you checked.
-5. **Wrong vs style** — **Pass:** In one sentence, you explain why the code is incorrect, unsound, or risky for this project—not merely a different valid style.
-
-## Pre-Report Verification Checklist
-
-Before flagging ANY issue, verify:
-
-- [ ] **I read the actual code** - Not just the diff context, but the full function/impl block
-- [ ] **I searched for usages** - Before claiming "unused", searched all references
-- [ ] **I checked surrounding code** - The issue may be handled elsewhere (trait impls, error propagation)
-- [ ] **I verified syntax against current docs** - Rust edition, crate versions, and API changes
-- [ ] **I checked the project's Rust edition** - Edition 2021 vs 2024 changes what is required vs optional (see [Edition-Aware Review](#edition-aware-review))
-- [ ] **I distinguished "wrong" from "different style"** - Both approaches may be valid
-- [ ] **I considered intentional design** - Checked comments, project conventions (e.g. AGENTS.md or CLAUDE.md), architectural context
-
-## Verification by Issue Type
+## Verification by Issue Type — Rust specifics
 
 ### "Unused Variable/Function"
 
-**Before flagging**, you MUST:
-1. Search for ALL references in the codebase (grep/find)
-2. Check if it's `pub` and used by other crates in the workspace
-3. Check if it's used via derive macros, trait implementations, or conditional compilation (`#[cfg]`)
-4. Verify it's not a trait method required by the trait definition
+Run the core's four-pattern reference search. Rust reference patterns that plain grep misses:
 
-**Common false positives:**
-- Trait implementations where the method is defined by the trait
-- `#[cfg(test)]` items only used in test builds
-- Derive-generated code that uses struct fields
-- Types used via `From`/`Into` conversions
+- `pub` items used by other crates in the workspace
+- Derive macros and trait implementations that consume struct fields
+- `#[cfg(...)]`-gated items compiled only in some configurations
+- Trait methods required by the trait definition, and `From`/`Into` conversions used implicitly
 
 ### "Missing Error Handling"
 
-**Before flagging**, you MUST:
-1. Check if the error is handled at a higher level (caller propagates with `?`)
-2. Check if the crate has a top-level error type that wraps this error
-3. Verify the `unwrap()` isn't in test code or after a safety-ensuring check
+Check whether the caller propagates with `?`, whether a crate-level error type wraps this error, and whether the `unwrap()` sits in test code or after a safety-establishing check.
 
-**Common false positives:**
-- `unwrap()` in tests and examples (expected pattern)
-- `expect("reason")` after validation (e.g., `regex::Regex::new` on a literal)
-- Error propagation via `?` (the caller handles it)
-- `let _ = tx.send(...)` — intentional when receiver may have dropped
+**Common false positives:** `unwrap()` in tests and examples; `expect("reason")` after validation (e.g. `Regex::new` on a literal); propagation via `?`; `let _ = tx.send(...)` when the receiver may have dropped.
 
-### "Unnecessary Lifetime" / RPIT Capture (Edition 2024)
+### "Unnecessary Lifetime" / RPIT capture (edition 2024)
 
-**Before flagging**, you MUST:
-1. Check the project's Rust edition in `Cargo.toml`
+1. Check the crate's edition first
 2. In edition 2024, `-> impl Trait` captures ALL in-scope lifetimes by default
-3. A lifetime that appears "unnecessary" may be implicitly captured — the code is correct
-4. If the author uses `+ use<'a>` syntax, this is precise capture control, not a mistake
+3. A lifetime that looks unnecessary may be implicitly captured — the code is correct
+4. `+ use<'a, T>` is precise capture syntax, not a mistake
 
-**Common false positives:**
-- Lifetime parameters on functions returning `impl Trait` — edition 2024 captures them implicitly
-- `+ use<'a, T>` syntax — this is the new precise capturing syntax, not an error
-- Removing an explicit lifetime bound that edition 2024 now provides automatically
+### "Missing Unsafe Block" (edition 2024)
 
-### "Missing Unsafe Block" (Edition 2024)
-
-**Before flagging**, you MUST:
-1. Check if the code is inside an `unsafe fn`
-2. In edition 2024, `unsafe_op_in_unsafe_fn` is deny-by-default — unsafe operations inside `unsafe fn` REQUIRE explicit `unsafe {}` blocks
-3. This is edition-required behavior, not unnecessary verbosity
-
-**Common false positives:**
-- `unsafe {}` blocks inside `unsafe fn` — REQUIRED in edition 2024, not redundant
-- `unsafe extern "C" {}` — REQUIRED in edition 2024, not optional
-- `#[unsafe(no_mangle)]` / `#[unsafe(export_name)]` — REQUIRED in edition 2024
+`unsafe {}` inside an `unsafe fn`, `unsafe extern "C" {}`, and `#[unsafe(no_mangle)]` / `#[unsafe(export_name)]` are **required** in edition 2024 — not redundant verbosity. In edition 2021 they are optional style choices; do not require them.
 
 ### "Unnecessary Clone"
 
-**Before flagging**, you MUST:
-1. Confirm the clone is actually avoidable (borrow checker may require it)
-2. Check if the value needs to be moved into a closure/thread/task
-3. Verify the type isn't `Copy` (clone on Copy types is a no-op)
-4. Check if the clone is in a hot path (test/setup code cloning is fine)
+1. Confirm the clone is actually avoidable (the borrow checker may require it)
+2. Check whether the value must move into a closure, thread, or task
+3. Verify the type is not `Copy` (clone on `Copy` is a no-op)
+4. Check whether it is in a hot path — clones in test/setup code are fine
 
-**Common false positives:**
-- `Arc::clone(&arc)` — this is the recommended explicit clone for Arc
-- Clone before `tokio::spawn` — required for `'static` bound
-- Clone in test setup — clarity over performance
+**Common false positives:** `Arc::clone(&arc)` (the recommended explicit form); a clone before `tokio::spawn` (required for `'static`); clones in test setup.
 
 ### "Potential Race Condition"
 
-**Before flagging**, you MUST:
-1. Verify the data is actually shared across threads/tasks
-2. Check if `Mutex`, `RwLock`, or atomic operations protect the access
-3. Confirm the type doesn't already guarantee thread safety (e.g., `Arc<Mutex<T>>`)
-4. Check if the "race" is actually benign (e.g., logging, metrics)
-
-**Common false positives:**
-- `Arc<Mutex<T>>` — already thread-safe
-- Tokio channel operations — inherently synchronized
-- `std::sync::atomic` operations — designed for concurrent access
+1. Verify the data is actually shared across threads or tasks
+2. Check whether `Mutex`, `RwLock`, or atomics protect the access
+3. Confirm the type does not already guarantee thread safety (`Arc<Mutex<T>>`)
+4. Check whether the race is benign (logging, metrics)
 
 ### "Performance Issue"
 
-**Before flagging**, you MUST:
-1. Confirm the code runs frequently enough to matter
-2. Verify the optimization would have measurable impact
-3. Check if the compiler already optimizes this (iterator fusion, inlining)
+**Do NOT flag:** allocations in startup/init code, string formatting in error paths, clones in test code, `.collect()` on small iterators. The compiler already handles iterator fusion and inlining.
 
-**Do NOT flag:**
-- Allocations in startup/initialization code
-- String formatting in error paths
-- Clone in test code
-- `.collect()` on small iterators
+## Macro-specific verification
 
-## Severity Calibration
+### "Macro Hygiene Issue"
 
-### Critical (Block Merge)
+1. Verify the identifier actually leaks — types, modules, and functions are NOT hygienic in `macro_rules!`
+2. Check `$crate` is used correctly for exported macros (not `crate` or `self`)
+3. Confirm `::core::` / `::alloc::` paths are needed (only for no_std contexts)
+4. Check whether the macro is internal-only or `#[macro_export]`
 
-**ONLY use for:**
-- `unsafe` code with unsound invariants
-- SQL injection via string interpolation
-- Use-after-free or memory safety violations
-- Data races (concurrent mutation without synchronization)
-- Panics in production code paths on user input
+**Common false positives:** non-hygienic type names in internal macros; `$crate` absent from `pub(crate)`-only macros; `::std::` in std-only crates.
 
-### Major (Should Fix)
+### "Procedural Macro Performance"
 
-**Use for:**
-- Missing error context across module boundaries
-- Blocking operations in async runtime
-- Mutex guards held across await points
-- Missing transaction for multi-statement database writes
+1. Verify the crate really is a proc-macro crate (`proc-macro = true` in `Cargo.toml`)
+2. Check whether `syn` features are minimized (full `"full"` feature vs selective)
+3. Confirm the compile-time impact is meaningful (used across many files vs one-off)
 
-### Minor (Consider Fixing)
+### "Wrong Fragment Type"
 
-**Use for:**
-- Missing doc comments on public items
-- `String` parameters where `&str` would work
-- Suboptimal iterator patterns
-- Missing `#[must_use]` on functions with important return values
+1. Verify the suggested fragment type actually works in that position
+2. Check whether `:tt` is intentional for flexibility (common in TT-munching)
+3. Confirm `:expr` greediness issues actually manifest at the macro's real call sites
 
-### Informational (No Action Required)
+## FFI-specific verification
 
-**Use for:**
-- Suggestions for newtypes, builder patterns, or type state
-- Performance optimizations without measured impact
-- Suggestions to add `#[non_exhaustive]`
-- Refactoring ideas for trait design
+### "Missing repr(C)"
 
-**These are NOT review blockers.**
+1. Confirm the type actually crosses the FFI boundary
+2. Check whether it is only used on the Rust side of the wrapper
+3. Verify there is no `#[repr(transparent)]` wrapper instead
 
-### Do NOT Flag At All
+**Common false positives:** internal types converted before the FFI call; `repr(transparent)` newtypes; opaque pointer types (`*mut c_void`).
 
-- Style preferences where both approaches are valid (e.g., `if let` vs `match` for single variant)
-- Optimizations with no measurable benefit
-- Test code not meeting production standards
-- Generated code or macro output
-- Clippy lints that the project has intentionally suppressed
+### "FFI Safety"
+
+1. Check whether the unsafe FFI call has a SAFETY comment documenting the invariants
+2. Verify ownership transfer is genuinely ambiguous (look for `Box::into_raw`/`Box::from_raw` pairs)
+3. Confirm CString lifetime issues are real — the `CString` must outlive the pointer passed to C
+4. Check whether callback unwinding is actually possible
+
+**Common false positives:** `extern "C" fn` callbacks that cannot panic (no `catch_unwind` needed); `*const c_char` from `CStr::as_ptr()` held in the same scope; bindgen output, which is unsafe-heavy by design.
+
+## Concurrency-specific verification
+
+### "Memory Ordering Too Weak"
+
+1. Verify the atomic is actually shared between threads that need synchronization
+2. Check whether `Relaxed` is sufficient (counters, flags with no dependent data)
+3. Confirm the `Acquire`/`Release` vs `SeqCst` choice matters — most code does not need `SeqCst`
+
+**Common false positives:** `Relaxed` on counters/metrics; `Relaxed` on boolean flags polled in a loop; `SeqCst` used "for safety" — over-synchronized, not wrong.
+
+## Rust severity notes
+
+The core's Severity Calibration applies. Rust-specific placements:
+
+- **Critical:** `unsafe` with unsound invariants; SQL injection via string interpolation; use-after-free or other memory-safety violations; data races; panics on user input in production paths.
+- **Major:** missing error context across module boundaries; blocking operations in an async runtime; mutex guards held across await points; missing transaction for multi-statement writes.
+- **Minor:** missing doc comments on public items; `String` parameters where `&str` works; suboptimal iterator patterns; missing `#[must_use]`.
+- **Informational:** newtype/builder/typestate suggestions; unmeasured performance ideas; `#[non_exhaustive]` suggestions; trait-design refactors.
+- **Do NOT flag:** `if let` vs `match` for a single variant and similar style choices; generated code or macro output; clippy lints the project intentionally suppressed.
 
 ## Valid Patterns (Do NOT Flag)
 
@@ -191,26 +155,25 @@ Before flagging ANY issue, verify:
 | `Box<dyn Error>` in binaries | Not every app needs custom error types |
 | `String` fields in structs | Owned data is correct for struct fields |
 | `Arc::clone(&x)` | Explicit Arc cloning is idiomatic and recommended |
-| `#[allow(clippy::...)]` with reason | Intentional suppression is valid |
-| `#[expect(lint)]` instead of `#[allow]` | Self-cleaning suppression (stable since 1.81) — warns when lint no longer triggers |
-| `unsafe {}` inside `unsafe fn` | Required in edition 2024 (`unsafe_op_in_unsafe_fn` = deny) |
+| `#[allow(clippy::...)]` with a reason | Intentional suppression is valid |
+| `#[expect(lint)]` instead of `#[allow]` | Self-cleaning suppression — warns when the lint stops triggering |
+| `unsafe {}` inside `unsafe fn` | Required in edition 2024 |
 | `unsafe extern "C" {}` | Required in edition 2024 for extern blocks |
-| `#[unsafe(no_mangle)]` | Required in edition 2024 for safety-relevant attributes |
-| `#[unsafe(export_name = "...")]` | Required in edition 2024 for safety-relevant attributes |
+| `#[unsafe(no_mangle)]` / `#[unsafe(export_name = "...")]` | Required in edition 2024 for safety-relevant attributes |
 | `+ use<'a, T>` on `impl Trait` returns | Precise capture syntax for edition 2024 RPIT |
-| `r#gen` as identifier | `gen` is reserved in edition 2024 |
-| `LazyLock` / `LazyCell` | Standard library replacements for `once_cell`/`lazy_static` (stable since 1.80) |
-| `async fn` in trait definitions | No longer needs `async-trait` crate (stable since 1.75) |
-| `#[diagnostic::on_unimplemented]` | Custom trait error messages (stable since 1.78) |
+| `r#gen` as an identifier | `gen` is reserved in edition 2024 |
+| `LazyLock` / `LazyCell` | Standard library replacements for `once_cell`/`lazy_static` |
+| `async fn` in trait definitions | No longer needs the `async-trait` crate |
+| `#[diagnostic::on_unimplemented]` | Custom trait error messages |
 
-### Async/Tokio
+### Async / Tokio
 
 | Pattern | Why It's Valid |
 |---------|----------------|
 | `std::sync::Mutex` for short critical sections | Tokio docs recommend this for non-async locks |
 | `tokio::spawn` without join | Valid for background tasks with shutdown signaling |
-| `select!` with `default` branch | Non-blocking check, intentional pattern |
-| `#[tokio::test]` without multi_thread | Default single-thread is fine for most tests |
+| `select!` with a `default` branch | Non-blocking check, intentional pattern |
+| `#[tokio::test]` without `multi_thread` | Default single-thread is fine for most tests |
 
 ### Testing
 
@@ -221,7 +184,7 @@ Before flagging ANY issue, verify:
 | Large test functions | Integration tests can be long |
 | `let _ = ...` in test cleanup | Cleanup errors are often unactionable |
 
-### General
+### General Rust idioms
 
 | Pattern | Why It's Valid |
 |---------|----------------|
@@ -232,9 +195,11 @@ Before flagging ANY issue, verify:
 
 ## Context-Sensitive Rules
 
+Each list below is an enumerated check, evaluated once. If an item is undecidable, drop the finding or ship it as a question — do not open another verification pass.
+
 ### Ownership
 
-Flag unnecessary `.clone()` **ONLY IF**:
+Flag an unnecessary `.clone()` **ONLY IF**:
 - [ ] In a hot path (not test/setup code)
 - [ ] A borrow or reference would work
 - [ ] The clone is not required for `Send`/`'static` bounds
@@ -243,137 +208,17 @@ Flag unnecessary `.clone()` **ONLY IF**:
 ### Error Handling
 
 Flag missing error context **ONLY IF**:
-- [ ] Error crosses a module boundary
-- [ ] The error type doesn't already carry context (thiserror messages)
+- [ ] The error crosses a module boundary
+- [ ] The error type does not already carry context (thiserror messages)
 - [ ] Not in test code
 - [ ] The bare `?` loses meaningful information about what operation failed
 
 ### Unsafe Code
 
-Flag unsafe **ONLY IF**:
-- [ ] Safety comment is missing or doesn't explain the invariant
+Flag `unsafe` **ONLY IF**:
+- [ ] The safety comment is missing or does not explain the invariant
 - [ ] The unsafe block is broader than necessary
-- [ ] The invariant is not actually upheld by surrounding code
+- [ ] The invariant is not actually upheld by the surrounding code
 - [ ] A safe alternative exists with equivalent performance
 
-**Edition 2024 unsafe changes** — check `Cargo.toml` edition before flagging:
-- `unsafe {}` inside `unsafe fn` is **required** (not style) in edition 2024
-- `unsafe extern "C" {}` is **required** in edition 2024 — bare `extern "C" {}` is a compile error
-- `#[unsafe(no_mangle)]` and `#[unsafe(export_name)]` are **required** in edition 2024
-- In edition 2021, these patterns are optional style choices — do not require them
-
-## Edition-Aware Review
-
-**BEFORE flagging any edition-specific pattern**, check `Cargo.toml` for the project's edition:
-
-```toml
-[package]
-edition = "2024"  # or "2021", "2018"
-```
-
-Edition 2024 changes that affect review findings:
-
-| Change | Edition 2021 | Edition 2024 |
-|--------|--------------|--------------|
-| `unsafe` inside `unsafe fn` | Optional style | Required (`unsafe_op_in_unsafe_fn` = deny) |
-| `extern "C" {}` | Valid | Must be `unsafe extern "C" {}` |
-| `#[no_mangle]` | Valid | Must be `#[unsafe(no_mangle)]` |
-| `#[export_name]` | Valid | Must be `#[unsafe(export_name)]` |
-| `-> impl Trait` lifetime capture | Explicit only | Captures all in-scope lifetimes |
-| `gen` as identifier | Valid | Reserved keyword (use `r#gen`) |
-| `!` type fallback | Falls back to `()` | Falls back to `!` |
-| `if let` temporaries | Dropped at end of block | Dropped earlier (end of `if let`) |
-| Tail expression temporaries | Dropped after locals | Dropped before local variables |
-| `Box<[T]>` iteration | Needs explicit `.iter()` | Has `IntoIterator` impl |
-
-**If edition is not specified**, Rust defaults to edition 2015. Most modern projects use 2021 or later.
-
-**Cross-reference**: The [rust-code-review](../rust-code-review/SKILL.md) and [rust-best-practices](../rust-best-practices/SKILL.md) skills provide edition-specific code review guidance and idiomatic patterns.
-
-## Macro-Specific Verification
-
-### "Macro Hygiene Issue"
-
-**Before flagging**, you MUST:
-1. Verify the identifier actually leaks — types, modules, and functions are NOT hygienic in `macro_rules!`
-2. Check if `$crate` is used correctly for exported macros (not `crate` or `self`)
-3. Confirm `::core::` / `::alloc::` paths are needed (only for macros used in no_std contexts)
-4. Check whether the macro is internal-only or `#[macro_export]`
-
-**Common false positives:**
-- Non-hygienic type names in internal macros — only matters for exported macros
-- `$crate` not used in macros that are only `pub(crate)` — `$crate` is for cross-crate usage
-- Using `::std::` in macros for std-only crates — only flag if crate supports no_std
-
-### "Procedural Macro Performance"
-
-**Before flagging**, you MUST:
-1. Verify the macro is actually in a proc-macro crate (check `Cargo.toml` for `proc-macro = true`)
-2. Check if `syn` features are minimized (full `syn` with `"full"` feature vs selective features)
-3. Confirm compile-time impact is meaningful (proc macros used across many files vs one-off)
-
-### "Wrong Fragment Type"
-
-**Before flagging**, you MUST:
-1. Verify the suggested fragment type actually works in that position
-2. Check if `:tt` is intentionally used for flexibility (common in TT munching patterns)
-3. Confirm `:expr` greediness issues actually manifest (test with the macro's actual call sites)
-
-## FFI-Specific Verification
-
-### "Missing repr(C)"
-
-**Before flagging**, you MUST:
-1. Confirm the type actually crosses the FFI boundary (passed to/from C code)
-2. Check if the type is only used on the Rust side of the FFI wrapper
-3. Verify there isn't a `#[repr(transparent)]` wrapper instead
-
-**Common false positives:**
-- Internal Rust types that are converted before FFI call — only the FFI-facing type needs `repr(C)`
-- Types used with `repr(transparent)` newtype wrappers — the wrapper handles layout
-- Opaque pointer types (`*mut c_void`) — no layout guarantee needed
-
-### "FFI Safety"
-
-**Before flagging**, you MUST:
-1. Check if the unsafe FFI call has a SAFETY comment documenting invariants
-2. Verify ownership transfer is actually ambiguous (check for `Box::into_raw`/`Box::from_raw` pairs)
-3. Confirm CString lifetime issues are real (the CString must outlive the pointer passed to C)
-4. Check if callback unwinding is actually possible (pure data functions can't panic across FFI)
-
-**Common false positives:**
-- `extern "C" fn` callbacks that never panic — `catch_unwind` not needed
-- `*const c_char` from CStr::as_ptr() held within the same scope — lifetime is fine
-- Bindgen-generated code with `unsafe` — bindgen output is inherently unsafe-heavy by design
-
-## Concurrency-Specific Verification
-
-### "Memory Ordering Too Weak"
-
-**Before flagging**, you MUST:
-1. Verify the atomic is actually shared between threads that need synchronization
-2. Check if `Relaxed` is sufficient (counters, flags with no dependent data)
-3. Confirm `Acquire/Release` vs `SeqCst` choice matters (most code doesn't need SeqCst)
-
-**Common false positives:**
-- `Relaxed` on simple counters/metrics — no ordering needed for independent values
-- `Relaxed` on boolean flags polled in a loop — the loop provides eventual visibility
-- `SeqCst` used "for safety" — not wrong, just potentially over-synchronized
-
-## Before Submitting Review
-
-**Submission gate** — **Pass:** Every finding uses `[FILE:LINE] ISSUE_TITLE` and includes the exact line (or minimal contiguous lines) that demonstrates the issue, so a reader can jump to the proof without trusting memory.
-
-Final verification:
-1. Re-read each finding and ask: "Did I verify this is actually an issue?"
-2. For each finding, can you point to the specific line that proves the issue exists?
-3. Would a Rust domain expert agree this is a problem, or is it a style preference?
-4. Does fixing this provide real value, or is it busywork?
-5. Format every finding as: `[FILE:LINE] ISSUE_TITLE`
-6. For each finding, ask: "Does this fix existing code, or does it request entirely new code that didn't exist before?" If the latter, downgrade to Informational.
-7. If this is a re-review: ONLY verify previous fixes. Do not introduce new findings.
-
-If uncertain about any finding, either:
-- Remove it from the review
-- Mark it as a question rather than an issue
-- Verify by reading more code context
+Check the edition gate first: in edition 2024 several `unsafe` spellings are required, not stylistic.

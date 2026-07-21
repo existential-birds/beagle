@@ -10,8 +10,12 @@ Turn a fuzzy idea into a comprehensive, implementation-free project spec through
 The output is a standalone spec document — structured enough for any agentic system to consume, clear enough for a human to act on. It captures WHAT and WHY, never HOW.
 
 <hard_gate>
-Do NOT write any code, create implementation plans, scaffold projects, or take any implementation action. This skill produces a SPEC DOCUMENT only. Every project goes through this process regardless of perceived simplicity — "simple" projects are where unexamined assumptions waste the most work.
+Do NOT write any code, create implementation plans, scaffold projects, or take any implementation action. This skill produces a SPEC DOCUMENT only.
 </hard_gate>
+
+**Proportionate process.** The nine steps below are the full path. For a genuinely simple concept — one subsystem, requirements the user can already state concretely, greenfield or an unambiguous brownfield gap — compress the dialogue: fewer questions, skip Scope Assessment, skip the 2-3 direction proposal when only one direction is actually live. Say which steps you are compressing and why, so the user can push back.
+
+What never compresses is the **output contract**: the spec still lands at `.beagle/concepts/<slug>/spec.md`, still carries all eight sections, still gets one self-review pass, still gets explicit user approval before it is written. Compressing the conversation is proportionate; compressing the artifact is not.
 
 ## Workflow
 
@@ -63,6 +67,8 @@ The brief is a context handoff, not a gate. Run your own Self-Review on the spec
 
 This step exists because of a specific, expensive failure: drafting a spec that reinvents a capability the codebase already has. It applies whenever the idea is a feature being added to an **existing codebase** (brownfield). For greenfield ideas with no existing code, skip it.
 
+**This section is the only place the sweep is mandated.** It runs **once per concept**, here at step 2. `references/spec-reviewer.md` §7 is a backstop that checks the sweep *happened* and that its findings landed in the spec — it does not re-run the grep. If you already swept this session, record the result and move on; a second sweep over the same workspace produces the same hits at twice the cost.
+
 **The failure mode it prevents:** An issue or brief frames a feature as new ("we removed the old truncation, design fresh") or simply omits that prior work exists. You — or a subagent you delegate exploration to — inherit that framing, look only where the framing points, confirm the framing, and spec a feature that duplicates code already shipped and tested. The spec then teaches the downstream planner and executor to rebuild something that exists.
 
 **The discipline: search neutrally, independent of framing.**
@@ -90,6 +96,14 @@ You are a thinking partner, not an interviewer. The user has a fuzzy idea — yo
 - **Make the abstract concrete.** "Walk me through using this." "What does that actually look like?"
 - **Clarify ambiguity.** "When you say Z, do you mean A or B?"
 - **Know when to stop.** When you understand what, why, who, and what done looks like — offer to proceed.
+
+**Question budget** (`beagle-core:verification-budget` budget syntax):
+
+- **Max passes:** 8 clarifying questions before drafting — 3 when a concept brief was ingested, since customer, problem, and motivation are already decided.
+- **Stop condition:** all four items on the *Background checklist* below are answered, or the cap is reached — whichever comes first. This is observable: you can point at the answer for each of the four.
+- **Tie-break:** at the cap, **stop asking and draft.** Anything still unknown becomes an entry in the spec's *Open Questions* section, which is exactly what that section is for and what `resolve-beagle` exists to close. Never spend a ninth question instead of writing an Open Question.
+
+The user can always ask for more exploration, and you should keep going if they do — the budget bounds *your* initiative, not theirs. A spec with three honest Open Questions beats an interrogation that never converges.
 
 **Question mechanics:**
 
@@ -220,27 +234,23 @@ Requirements must be concrete and testable:
 
 ## Self-Review
 
-After drafting the spec, review it for:
+**One pass over the draft, then present.** This is a review, not a gate loop.
 
-1. **Placeholders** — any TBD, TODO, vague requirements? Fix them.
-2. **Contradictions** — do any sections conflict? Resolve them.
-3. **Implementation leakage** — does any requirement prescribe HOW? Rewrite as WHAT.
-4. **Untestable requirements** — could someone verify this was met? Make it concrete.
-5. **Missing rationale** — do constraints and out-of-scope items explain WHY? Add reasons.
-6. **Scope** — is this focused enough for a single planning cycle?
-7. **Reinvention (brownfield)** — does any must-have rebuild a capability that already exists in the codebase? If the prior art check wasn't run, run it now. Reframe duplicated requirements around the actual gap.
-8. **Consumer (brownfield)** — does any must-have introduce a new externally-facing capability (API surface, command, endpoint, exported contract) that nothing else in the spec consumes? If who/what consumes it isn't named, either name the consumer or move the item to *Future Considerations*. Unconsumed externally-facing surface is speculative — fix it before presenting.
+`references/spec-reviewer.md` is the **single source** for the review criteria — nine dimensions plus the calibration bar for what counts as a real issue. Read it, apply it once, fix what it surfaces inline. Do not restate its checks here, and do not build a second parallel checklist alongside it.
 
-Fix issues inline. Then present to the user for review.
+**Budget** (`beagle-core:verification-budget` budget syntax):
 
-See `references/spec-reviewer.md` for the detailed review checklist.
+- **Max passes:** 1 over the drafted spec. A second pass is legitimate only when the first pass rewrote a requirement's *meaning* and neighbouring sections need reconciling against the new wording. Never a third.
+- **Stop condition:** every dimension in `references/spec-reviewer.md` has been considered once, and the issues it surfaced are fixed in the draft text. Observable — the fixes are visible in the prose.
+- **Tie-break:** anything you could not resolve within the pass becomes an entry in *Open Questions* with a one-line note on what is unresolved, and you proceed to user review. Proceed and flag; never re-review instead.
 
-**Pass before presenting the draft (user review step):** Advance only when every item is honestly **yes** — not “feels fine.”
+Three delivery rules for that pass:
 
-1. **Template:** The draft follows the section structure in `references/spec-template.md` (or you note deliberate omissions and why).
-2. **No honor-system completeness:** Steps 1–7 above are satisfied; unresolved placeholders/TODOs are confined to *Open Questions* (not smuggled into must-haves).
-3. **Leakage check:** Every must-have / should-have passes the two-approach test under **Implementation Leakage** in `references/spec-reviewer.md`, except items explicitly listed under *Constraints* with rationale.
-4. **Artifact:** The draft text exists in the conversation (or a single attached buffer) so the user is reviewing concrete prose, not a summary.
+- **Fix inline, don't flag.** A surfaced issue gets edited in the draft, not listed for the user to adjudicate.
+- **Placeholders live in Open Questions.** Unresolved TBDs and TODOs belong there explicitly — never smuggled into must-haves as if they were settled.
+- **Present concrete prose.** The draft text exists in the conversation (or one attached buffer) and follows the section structure in `references/spec-template.md`, so the user reviews the actual spec rather than a summary of it. Note any deliberate section omission and why.
+
+Then present to the user for review.
 
 ## Writing the Spec
 
@@ -260,6 +270,7 @@ See `references/spec-reviewer.md` for the detailed review checklist.
 ## Key Principles
 
 - **One question at a time** — don't overwhelm
+- **Converge, don't interrogate** — the question budget has a cap; unknowns become Open Questions
 - **Follow the thread** — don't walk a checklist
 - **YAGNI ruthlessly** — remove anything that isn't clearly needed
 - **Concrete decisions only** — "card-based layout" not "modern and clean"

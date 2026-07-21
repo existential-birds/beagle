@@ -25,12 +25,15 @@ fix-llm-artifacts [--dry-run] [--all] [--category <name>]
 
 ### Hard gates
 
+Every fix this skill applies is `verification-budget` tier **IRREVERSIBLE** — edits and deletes against the user's working tree. These gates are the evidence gate for that tier, and none of them are optional.
+
 Sequence matters. Do not apply fixes until each **pass condition** is satisfied (these steps are not “internal verification”).
 
 1. **Working tree** — `git status --porcelain` is empty **or** a stash was created with message `beagle-core: pre-fix-llm-artifacts backup` and `git stash list` shows it. If the user refuses stash/backup, **stop** or document explicit acceptance of risk in the report before edits.
 2. **Review artifact on disk** — `.beagle/llm-artifacts-review.json` exists, **or** `--all` completed a `review-llm-artifacts` run that wrote that file. Otherwise **stop** (no fixes from memory or guesses).
-2a. **Echo + ID lock (anti-confabulation)** — After loading the review (Section 3), echo the finding table (`id | category | file:line | description`) from the **parsed JSON** and record the exact id set as the **locked id set**. You fix only findings in this set; never fix a finding inferred from the branch name, directory, or memory. Every fix you apply or skip maps 1:1 to a locked id. See the [review-verification-protocol](../review-verification-protocol/SKILL.md) skill → Anti-confabulation (gate 0).
-2b. **Per-fix existence precondition** — Before editing for any finding, confirm (i) its `id` is in the locked set, and (ii) the cited `file` exists and the cited code is actually present at `file:line` (read it now). If the file or code is absent, **do not edit** — the finding is stale or confabulated; mark it skipped with a reason and move on. Never create or rewrite a file to match a finding.
+2a. **Per-fix code-presence check** — Before editing for any finding, confirm the cited `file` exists and the cited code is actually present at `file:line` — **read it now, immediately before acting.** If the file or code is absent, **do not edit**; mark the finding skipped with a reason and move on. Never create or rewrite a file to match a finding.
+
+    This is the one-echo rule's stated exception (`verification-budget` §3): an irreversible action re-reads its target immediately before acting. The purpose is **staleness**, not confabulation — the tree may have moved since the review ran, and an edit against a stale line number damages the wrong code. It is not a re-derivation of the finding table, which this stage takes from upstream unchanged.
 3. **Stale review** — If `jq -r '.git_head' .beagle/llm-artifacts-review.json` ≠ `git rev-parse HEAD`, prompt to re-run review. **`y`** → re-run review, then continue. **`n`** → **abort** the fix pass (do not apply fixes against stale findings).
 4. **Verification overlay** — If `.beagle/llm-artifacts-verification.json` exists, it must **parse**; build exclude/inconclusive sets **before** partitioning (Section 4). On parse failure, **stop** and report the error.
 5. **Risky fixes** — No `code_removal`, `logic_change`, `mock_boundary`, `abstraction_change`, or `test_refactor` work without the interactive choice in Section 6 (or `s` to skip all remaining risky items).
@@ -73,30 +76,22 @@ cat .beagle/llm-artifacts-review.json 2>/dev/null
 - If `--all` flag: Run `review-llm-artifacts --all` first to produce a full-project review
 - Otherwise: Fail with: "No review results found. Run the review-llm-artifacts skill first."
 
-**Echo + lock ids (gate 2a):** Once the file is present, print every finding from the parsed JSON and lock the id set before partitioning:
+Parse the findings and fix only the ids in `findings[]`. Per `verification-budget` one-echo, this stage **trusts the upstream record** — the finding table was already echoed once at pipeline entry, by `verify-llm-artifacts` when it ran, otherwise by the `review-llm-artifacts` run that wrote this file. Do not reprint the table and do not re-derive the id set as a separate "lock" step. Gate 2a re-reads each finding's *code*, which is a different question: staleness of the tree, not identity of the finding.
+
+Run the structural check instead — a scripted integrity test, not an echo:
 
 ```bash
-python3 - <<'PY'
-import json
-r = json.load(open('.beagle/llm-artifacts-review.json'))
-f = r['findings']
-if not isinstance(f, list) or not f:
-    raise SystemExit("No findings to lock; aborting.")
-ids = [x.get('id') for x in f]
-if any(not isinstance(i, int) for i in ids):
-    raise SystemExit("All finding ids must be integers; aborting.")
-if len(set(ids)) != len(ids):
-    raise SystemExit("Duplicate finding ids detected; aborting.")
-print("| id | category | file:line | description |")
-print("|----|----------|-----------|-------------|")
-for x in f:
-    desc = (x.get('description') or '').replace('|', '\\|')[:80]
-    print(f"| {x['id']} | {x.get('category')} | {x.get('file')}:{x.get('line')} | {desc} |")
-print("Locked ids: {" + ", ".join(str(i) for i in sorted(set(ids))) + "}")
-PY
+jq -e '.findings
+       | (length > 0)
+         and (map(.id) | all(type == "number"))
+         and ((map(.id) | unique | length) == length)' \
+  .beagle/llm-artifacts-review.json \
+  || echo "ABORT: findings[] is empty, has non-integer ids, or has duplicate ids."
 ```
 
-Adjudicate and fix only the ids above. If your sense of what to fix differs from this table, the table wins.
+Non-zero exit is an **abort**, not a warning — duplicate or non-integer ids break the 1:1 mapping the verification overlay depends on.
+
+If your sense of what to fix differs from the parsed `findings[]`, the parsed array wins. Never fix a finding inferred from the branch name, directory, or memory.
 
 **Optional verification overlay** — if `.beagle/llm-artifacts-verification.json` exists:
 - Build a set of finding ids with `status: false_positive` → **exclude** these from all fix lists.
@@ -163,10 +158,10 @@ Otherwise, apply the safe fixes per category. **If the agent supports subagents*
 ```
 Apply safe fixes for category "{category}"
 Files: [list of files with findings in this category]
-Instructions: For EACH finding, first confirm it is in the locked id set and that the
-cited code exists at file:line (read it). If the file or code is absent, skip the finding
-with a reason — do NOT create or rewrite a file to match the finding. Then apply each
-confirmed fix, preserving surrounding code. Report success/failure/skip per fix by id.
+Instructions: For EACH finding, first confirm the cited code exists at file:line (read it
+now — gate 2a). If the file or code is absent, skip the finding with a reason — do NOT
+create or rewrite a file to match the finding. Then apply each confirmed fix, preserving
+surrounding code. Report success/failure/skip per fix by id.
 ```
 
 Categories (parallelized across subagents when supported, otherwise handled sequentially):
@@ -176,6 +171,8 @@ Categories (parallelized across subagents when supported, otherwise handled sequ
 - `abstraction` - Safe refactors
 
 ### 6. Handle Risky Fixes
+
+**Before any delete** (`fix_action: delete`, `fix_safety: code_removal`, or category `dead-code`), run the enumerated reference search from the `verify-llm-artifacts` checklist — direct references, string literals and re-exports, dynamic registration, and sibling packages when a monorepo marker is present — and put the result in the prompt below. Deletion is tier IRREVERSIBLE; this search is required even when verification already confirmed the finding, because the tree may have gained a caller since the review ran. Report it as a bounded claim ("no references across the 4 enumerated patterns"), never as "no references."
 
 For each risky fix, prompt interactively:
 

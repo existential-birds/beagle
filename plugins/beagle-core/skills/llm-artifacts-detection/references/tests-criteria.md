@@ -1,217 +1,72 @@
-# Test Quality Criteria
+# Test Quality Criteria (language-neutral)
 
-Detailed detection criteria for test quality issues commonly introduced by LLM coding agents.
+Detection criteria for test quality issues commonly introduced by LLM coding agents. Everything here applies in any language.
+
+Worked BAD/GOOD examples live in a separate per-language file. Load [examples/python/tests.md](examples/python/tests.md) **only** when the tests under review are Python. For any other language, apply the criteria below directly — substitute the local equivalents (fixture ≈ setup helper, factory, builder, or `TestMain`; mock ≈ double, stub, fake, or interface substitution).
 
 ## 1. DRY Violations
 
-### What to Look For
+**What to look for:** setup or teardown repeated across test functions instead of a shared fixture, factory, or helper.
 
-Repeated setup/teardown code across test functions instead of using fixtures, conftest, or shared helpers.
+| Sub-pattern | Signal |
+|---|---|
+| Repeated object construction | The same value built literally, identically, in three or more tests |
+| Repeated double configuration | The same stub/mock wiring copied per test |
+| Copy-pasted resource setup | Database, temp dir, server, or client bootstrapped inline in every test |
 
-### Detection Patterns
+**How to fix:**
 
-**Repeated Object Creation**:
-```python
-# BAD - Same setup in multiple tests
-def test_user_creation():
-    db = Database(host="localhost", port=5432)
-    user = User(name="test", email="test@example.com")
-    # test logic
+1. Extract to the language's shared-setup mechanism — a fixture file, a setup function, a builder, or a suite-level hook.
+2. Choose the narrowest scope that still shares the work: per-test, per-suite, per-run.
+3. Prefer factories over fixed literals when the tests need varying data.
+4. Compose small helpers rather than growing one setup that every test partially ignores.
 
-def test_user_update():
-    db = Database(host="localhost", port=5432)  # Repeated!
-    user = User(name="test", email="test@example.com")  # Repeated!
-    # test logic
-
-# GOOD - Use fixtures
-@pytest.fixture
-def db():
-    return Database(host="localhost", port=5432)
-
-@pytest.fixture
-def test_user():
-    return User(name="test", email="test@example.com")
-
-def test_user_creation(db, test_user):
-    # test logic
-```
-
-**Repeated Mock Configuration**:
-```python
-# BAD - Mock setup copied across tests
-def test_api_success():
-    mock_response = Mock()
-    mock_response.status_code = 200
-    mock_response.json.return_value = {"data": "test"}
-    with patch("requests.get", return_value=mock_response):
-        # test
-
-def test_api_parsing():
-    mock_response = Mock()  # Repeated!
-    mock_response.status_code = 200
-    mock_response.json.return_value = {"data": "test"}
-    with patch("requests.get", return_value=mock_response):  # Repeated!
-        # test
-```
-
-**Copy-Pasted Database Setup**:
-```python
-# BAD - Database initialization in every test
-def test_query_users():
-    engine = create_engine("sqlite:///:memory:")
-    Base.metadata.create_all(engine)
-    Session = sessionmaker(bind=engine)
-    session = Session()
-    # test
-
-def test_query_orders():
-    engine = create_engine("sqlite:///:memory:")  # Repeated!
-    Base.metadata.create_all(engine)  # Repeated!
-    Session = sessionmaker(bind=engine)  # Repeated!
-    session = Session()
-    # test
-```
-
-### How to Fix
-
-1. Extract to `conftest.py` fixtures
-2. Use fixture scope appropriately (function, class, module, session)
-3. Create factory fixtures for parameterized data
-4. Use fixture composition for complex setups
-
----
+**Before flagging:** repetition in tests is not automatically a defect. Explicit, duplicated setup is often *more* readable than a shared fixture that hides what a test depends on. Flag it when the duplication is mechanical and identical, not when it is deliberately explicit.
 
 ## 2. Library Testing
 
-### What to Look For
+**What to look for:** tests validating the standard library or a third-party framework rather than the project's own code.
 
-Tests that validate standard library or framework behavior rather than application code.
+**Signals:**
 
-### Detection Patterns
+- The test file imports only stdlib and third-party packages, and nothing from the project.
+- The assertions restate documented framework behavior.
+- The assertions match examples from the framework's own documentation.
+- No domain logic is exercised anywhere in the test.
 
-**No Application Imports**:
-```python
-# BAD - Testing Python stdlib, not our code
-import json
+**How to fix:**
 
-def test_json_loads():
-    result = json.loads('{"key": "value"}')
-    assert result == {"key": "value"}
+1. Delete tests that only verify framework behavior.
+2. Test the project's code that *uses* the framework.
+3. Test business logic, not library internals.
+4. Trust well-tested dependencies.
 
-def test_json_dumps():
-    result = json.dumps({"key": "value"})
-    assert result == '{"key": "value"}'
-```
-
-**Testing Framework Behavior**:
-```python
-# BAD - Testing SQLAlchemy, not our models
-from sqlalchemy import Column, Integer, String
-
-def test_column_types():
-    col = Column(Integer)
-    assert col.type.__class__.__name__ == "Integer"
-
-# BAD - Testing Pydantic validation
-from pydantic import BaseModel
-
-def test_pydantic_validates():
-    class M(BaseModel):
-        x: int
-    assert M(x=1).x == 1
-```
-
-**Signs of Library Testing**:
-- Test file imports only stdlib/third-party, no `from myapp import`
-- Tests verify documented framework behavior
-- Assertions match framework documentation examples
-- No domain logic being tested
-
-### How to Fix
-
-1. Delete tests that only verify framework behavior
-2. Focus on testing YOUR code that uses the framework
-3. Test business logic, not library internals
-4. Trust well-tested libraries
-
----
+**Before flagging:** a test that pins framework behavior the project genuinely depends on — a serialization format, a specific coercion rule, a version-sensitive default — is a regression guard, not library testing. The distinction is whether the project would break if the behavior changed.
 
 ## 3. Mock Boundaries
 
-### What to Look For
+**What to look for:** doubles placed at the wrong level — too deep, or too shallow.
 
-Mocking at the wrong level - either too deep (internal implementation) or too shallow (missing integration points).
+**Too deep — mocking internals.** Substituting private helpers, internal methods, or implementation details of the unit under test.
 
-### Too Deep: Mocking Internals
+Problems: tests break on refactors that change nothing observable; the test encodes implementation knowledge; internals can change while the test still passes, which is false confidence.
 
-```python
-# BAD - Mocking private methods
-def test_process():
-    service = DataService()
-    with patch.object(service, "_internal_helper"):  # Too deep!
-        with patch.object(service, "_validate_internal"):  # Too deep!
-            service.process(data)
+**Too shallow — missing integration points.** Leaving real network, database, or filesystem calls in a unit test.
 
-# BAD - Mocking implementation details
-def test_calculate():
-    with patch("myapp.service._cache_lookup"):  # Internal!
-        with patch("myapp.service._serialize"):  # Internal!
-            result = calculate(input)
-```
+Problems: slow tests; flaky tests bound to external availability; edge cases that cannot be provoked.
 
-**Problems with Deep Mocking**:
-- Tests break when refactoring internals
-- Tests know too much about implementation
-- False confidence - internals change, tests still pass
+**Correct boundary:** substitute at architectural seams — the interfaces the unit talks *through* — and let everything inside the unit run for real.
 
-### Too Shallow: Missing Integration Points
+| Test type | Substitute | Do NOT substitute |
+|-----------|-----------|-------------------|
+| Unit | External APIs, database, filesystem, clock | Internal helpers, private methods |
+| Integration | External APIs only | Database, internal services |
+| E2E | Nothing, or external APIs only | Internal systems |
 
-```python
-# BAD - Not mocking external API in unit test
-def test_get_weather():
-    # Actually calls the real weather API!
-    result = weather_service.get_current("NYC")
-    assert result.temp > 0
+## Review Questions
 
-# BAD - Not mocking database in unit test
-def test_user_service():
-    # Actually hits the real database!
-    user = user_service.get_by_id(1)
-```
-
-**Problems with Shallow Mocking**:
-- Tests are slow (real network/DB calls)
-- Tests are flaky (external dependencies)
-- Can't test edge cases easily
-
-### Correct Mock Boundaries
-
-```python
-# GOOD - Mock at integration boundaries
-def test_weather_service(mock_weather_api):
-    mock_weather_api.get.return_value = WeatherResponse(temp=72)
-    result = weather_service.get_current("NYC")
-    assert result.temp == 72
-
-# GOOD - Mock external dependencies, not internals
-def test_data_processor(mock_database, mock_external_api):
-    mock_database.query.return_value = [...]
-    mock_external_api.fetch.return_value = {...}
-    result = processor.process()
-    # Tests OUR logic with controlled inputs
-```
-
-### Guidelines
-
-| Test Type | What to Mock | What NOT to Mock |
-|-----------|--------------|------------------|
-| Unit | External APIs, DB, file system | Internal helpers, private methods |
-| Integration | External APIs only | DB, internal services |
-| E2E | Nothing (or external APIs) | Internal systems |
-
-### Review Questions
-
-1. Are private methods (`_method`) being mocked?
-2. Are tests making real external API calls?
-3. Do mock boundaries match architectural boundaries?
-4. Would refactoring internals break these tests?
+1. Are private or internal helpers being substituted?
+2. Are tests making real external calls?
+3. Do the substitution boundaries match the project's architectural boundaries?
+4. Would refactoring internals — with no behavior change — break these tests?
+5. Is the duplicated setup mechanical, or deliberately explicit?

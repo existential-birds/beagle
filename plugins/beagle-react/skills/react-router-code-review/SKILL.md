@@ -68,7 +68,7 @@ Run in order. **Pass each gate with evidence** (paths, line refs, or a one-line 
 
 ### Gate 4 — Verification protocol
 
-Load `beagle-core:review-verification-protocol` plus the [React / TypeScript delta](../review-verification-protocol/SKILL.md) **once, at review entry**. **Pass when:** Its pre-report checklist has been walked in one pass over the finding list. Reporting a finding is `beagle-core:verification-budget` tier REVERSIBLE — cite the evidence you already have; only a verdict authorizing an irreversible action earns the full evidence gate. Tie-break: anything still uncertain ships as a question or is dropped — do not open another pass.
+Load `beagle-core:review-verification-protocol` plus the [React / TypeScript delta](../react-verification-protocol/SKILL.md) **once, at review entry**. **Pass when:** Its pre-report checklist has been walked in one pass over the finding list. Reporting a finding is `beagle-core:verification-budget` tier REVERSIBLE — cite the evidence you already have; only a verdict authorizing an irreversible action earns the full evidence gate. Tie-break: anything still uncertain ships as a question or is dropped — do not open another pass.
 
 ## When to Load References
 

@@ -66,7 +66,7 @@ Budget: max **1** pass over these gates. Stop when each gate has a recorded outc
 
 1. **Anchored evidence** — Open the source for the findings you plan to report and note **file path + line number** from that read (not from memory or diff snippets alone). Each finding cites `path:line` that you opened.
 2. **“Handled elsewhere” sweep** — Before reporting “missing validation,” “missing auth,” or “wrong status,” search these three places: the router (pipelines/scopes), the controller (`action_fallback`, `plug`), and the relevant context module. Record each result. Report as "no handling across the 3 enumerated locations" — never as "handled nowhere."
-3. **Verification protocol** — Load `beagle-core:review-verification-protocol` **once** (plus this plugin's [Elixir delta](../review-verification-protocol/SKILL.md)) and apply its Pre-Report Verification Checklist to the finding list as a whole. Reporting is `beagle-core:verification-budget` tier REVERSIBLE; reserve the full per-finding evidence gate for verdicts authorizing an IRREVERSIBLE action.
+3. **Verification protocol** — Load `beagle-core:review-verification-protocol` **once** (plus this plugin's [Elixir delta](../elixir-verification-protocol/SKILL.md)) and apply its Pre-Report Verification Checklist to the finding list as a whole. Reporting is `beagle-core:verification-budget` tier REVERSIBLE; reserve the full per-finding evidence gate for verdicts authorizing an IRREVERSIBLE action.
 4. **Finding shape** — Emit each issue as `[FILE:LINE] ISSUE_TITLE` with a one-line rationale tied to the cited code.
 
 ## Before Submitting Findings

@@ -33,7 +33,7 @@ description: Reviews SQLAlchemy code for session management, relationships, N+1 
 
 Run **once per review**, over the assembled set of SQLAlchemy findings, and only for the gates whose claim type you actually make. Budget: max **1** pass. Stop when every gate you invoked has its cited artifact recorded. Tie-break: any finding still missing its artifact ships as a question or is dropped — do not re-run the gates.
 
-Reporting is `beagle-core:verification-budget` tier REVERSIBLE. A verdict that authorizes an IRREVERSIBLE action (dropping a column, deleting a migration, rewriting a session factory) re-reads its target immediately before acting. Core gates, severity calibration, and the Pre-Report checklist live in `beagle-core:review-verification-protocol`; Python-specific reference patterns live in this plugin's [Python delta](../review-verification-protocol/SKILL.md).
+Reporting is `beagle-core:verification-budget` tier REVERSIBLE. A verdict that authorizes an IRREVERSIBLE action (dropping a column, deleting a migration, rewriting a session factory) re-reads its target immediately before acting. Core gates, severity calibration, and the Pre-Report checklist live in `beagle-core:review-verification-protocol`; Python-specific reference patterns live in this plugin's [Python delta](../python-verification-protocol/SKILL.md).
 
 ### Gate 1 — Session scope and lifecycle
 

@@ -17,7 +17,7 @@ Complete in order before writing **Issues** in the output (empty scope is allowe
 
 1. **Scope gate:** You have an explicit list of `.rs` paths under review (from Step 1 or the user-provided path). **Pass:** List printed or "No Rust files in scope" — then stop with no Issues.
 2. **Compiler/linter gate:** Step 3 commands were run from the crate or workspace root (`Cargo.toml` present); if they cannot run, one line states why (e.g. missing toolchain, no `Cargo.toml`, sandbox). **Pass:** You do not report a problem already shown as an error/warning in Step 3 output, and you do not duplicate compiler or clippy diagnostics the author must fix first.
-3. **Protocol gate:** `beagle-core:review-verification-protocol` and the Rust delta at [review-verification-protocol](../review-verification-protocol/SKILL.md) are loaded before Step 7. **Pass:** Step 8's single pass over the consolidated finding list ran; if there are zero findings, say "Protocol applied; no issues" in the Review Summary.
+3. **Protocol gate:** `beagle-core:review-verification-protocol` and the Rust delta at [rust-verification-protocol](../rust-verification-protocol/SKILL.md) are loaded before Step 7. **Pass:** Step 8's single pass over the consolidated finding list ran; if there are zero findings, say "Protocol applied; no issues" in the Review Summary.
 4. **Evidence gate (Critical/Major):** For each Critical or Major item, you re-read the file at `FILE:LINE` with full surrounding context (not only the diff hunk). **Pass:** The Issue description matches observable code at that location.
 
 ## Step 1: Identify Changed Files
@@ -149,7 +149,7 @@ git diff $(git merge-base HEAD main)..HEAD -- '*.rs' | grep -cE 'mem::replace|sw
 
 ## Step 5: Load Verification Protocol
 
-Load `beagle-core:review-verification-protocol` plus the Rust delta at [review-verification-protocol](../review-verification-protocol/SKILL.md) once, here, at review entry. Its checklist is applied **once over the consolidated finding list** in Step 8 — not once per finding. Reporting a finding is `beagle-core:verification-budget` tier REVERSIBLE: cite the evidence you already have and move on.
+Load `beagle-core:review-verification-protocol` plus the Rust delta at [rust-verification-protocol](../rust-verification-protocol/SKILL.md) once, here, at review entry. Its checklist is applied **once over the consolidated finding list** in Step 8 — not once per finding. Reporting a finding is `beagle-core:verification-budget` tier REVERSIBLE: cite the evidence you already have and move on.
 
 ## Step 6: Load Skills
 

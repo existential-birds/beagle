@@ -73,7 +73,7 @@ Complete **in order**, once over the assembled finding list. Budget: max **1** p
 
 2. **ExUnit false-positive veto** — Check this skill’s **Valid Patterns** and **Context-Sensitive Rules**. Drop any finding those sections cover.
 
-3. **Cross-protocol verification** — Apply `beagle-core:review-verification-protocol` (full-context read; the enumerated reference-pattern search before “unused” claims) once to the finding list. Reporting is `beagle-core:verification-budget` tier REVERSIBLE; reserve the full evidence gate for verdicts that authorize an IRREVERSIBLE action. Elixir-specific reference patterns live in this plugin's [Elixir delta](../review-verification-protocol/SKILL.md).
+3. **Cross-protocol verification** — Apply `beagle-core:review-verification-protocol` (full-context read; the enumerated reference-pattern search before “unused” claims) once to the finding list. Reporting is `beagle-core:verification-budget` tier REVERSIBLE; reserve the full evidence gate for verdicts that authorize an IRREVERSIBLE action. Elixir-specific reference patterns live in this plugin's [Elixir delta](../elixir-verification-protocol/SKILL.md).
 
 ## Before Submitting Findings
 

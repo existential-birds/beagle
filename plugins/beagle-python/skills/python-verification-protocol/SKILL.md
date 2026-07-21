@@ -1,6 +1,6 @@
 ---
-name: review-verification-protocol
-description: Mandatory verification steps for all code reviews to reduce false positives. Load this skill before reporting ANY code review findings.
+name: python-verification-protocol
+description: Python-specific verification steps for code review findings — decorator/entry-point reference patterns, async and ORM pitfalls, and other Python and web/data stack specifics that plain grep misses. Extends the shared language-neutral core in `beagle-core:review-verification-protocol`, which carries the hard gates, Pre-Report Verification Checklist, and severity calibration. Load the core first, then this delta, before reporting ANY Python code review findings.
 user-invocable: false
 ---
 

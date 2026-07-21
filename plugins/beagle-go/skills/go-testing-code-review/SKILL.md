@@ -18,7 +18,7 @@ An enumerated sequence, run **once** in order. Record each **Pass** outcome, the
 3. **Scope the checklist** — Decide which [Review Checklist](#review-checklist) rows apply (table-driven structure, parallelism, HTTP, golden files, mocks). Open [references/structure.md](references/structure.md) and/or [references/mocking.md](references/mocking.md) for those topics; skip rows N/A to the diff with a one-line reason (e.g. “no `t.Parallel` in change”).  
    **Pass:** The review (or working notes) lists which checklist themes you applied, or marks themes N/A with a diff-tied reason.
 
-4. **Pre-report verification** — Load `beagle-core:review-verification-protocol` plus the Go delta at [review-verification-protocol](../review-verification-protocol/SKILL.md). Apply the protocol **once over the assembled finding list**, not once per finding — reporting a finding is `beagle-core:verification-budget` tier REVERSIBLE, so cite the evidence you already have and move on. Only a finding whose recommended action is IRREVERSIBLE (deleting a test, rewriting a fixture file) earns the full evidence gate.  
+4. **Pre-report verification** — Load `beagle-core:review-verification-protocol` plus the Go delta at [go-verification-protocol](../go-verification-protocol/SKILL.md). Apply the protocol **once over the assembled finding list**, not once per finding — reporting a finding is `beagle-core:verification-budget` tier REVERSIBLE, so cite the evidence you already have and move on. Only a finding whose recommended action is IRREVERSIBLE (deleting a test, rewriting a fixture file) earns the full evidence gate.  
    **Pass:** One pass over the finding list is recorded — actual test code read, surrounding context checked, “wrong” vs “different style” distinguished. Budget: max **1** pass. Tie-break: ship any still-uncertain finding as a question or drop it, and proceed.
 
 ## Hard gates (same sequence, shorter)
@@ -28,7 +28,7 @@ An enumerated sequence, run **once** in order. Record each **Pass** outcome, the
 | 1 | `go X.YY` from `go.mod` is recorded before version-specific test advice. |
 | 2 | Full enclosing test (or helper it uses) read per in-scope test file, not diff-only. |
 | 3 | In-scope checklist themes listed or N/A with diff-tied reason; references opened as needed. |
-| 4 | `review-verification-protocol` applied once over the finding list (per-finding evidence gate only for IRREVERSIBLE-action findings). |
+| 4 | `beagle-core:review-verification-protocol` + `go-verification-protocol` applied once over the finding list (per-finding evidence gate only for IRREVERSIBLE-action findings). |
 
 ## Output Format
 

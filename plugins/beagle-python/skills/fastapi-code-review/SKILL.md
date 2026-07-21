@@ -54,7 +54,7 @@ Only flag issues when the context warrants it:
 
 Run **once per review**, over the assembled set of FastAPI findings, and only for the gates whose claim type you actually make. Budget: max **1** pass. Stop when every gate you invoked has its cited artifact recorded. Tie-break: any finding still missing its artifact ships as a question or is dropped — do not re-run the gates.
 
-Reporting a finding is `beagle-core:verification-budget` tier REVERSIBLE, so these gates exist to anchor citations, not to re-litigate each item. A verdict that authorizes an IRREVERSIBLE action (deleting a handler, a dependency, or a route registration) re-reads its target immediately before acting. Core gates, severity calibration, and the Pre-Report checklist live in `beagle-core:review-verification-protocol`; Python-specific reference patterns live in this plugin's [Python delta](../review-verification-protocol/SKILL.md).
+Reporting a finding is `beagle-core:verification-budget` tier REVERSIBLE, so these gates exist to anchor citations, not to re-litigate each item. A verdict that authorizes an IRREVERSIBLE action (deleting a handler, a dependency, or a route registration) re-reads its target immediately before acting. Core gates, severity calibration, and the Pre-Report checklist live in `beagle-core:review-verification-protocol`; Python-specific reference patterns live in this plugin's [Python delta](../python-verification-protocol/SKILL.md).
 
 ### Gate 1 — Route decorator and response surface
 

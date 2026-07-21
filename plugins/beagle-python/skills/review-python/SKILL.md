@@ -14,7 +14,7 @@ Record an outcome for each gate once per review. Budget: max **1** pass over thi
 |------|----------------|
 | **G1 — Diff scope** | Step 1 command has been run; the changed `.py` paths are enumerated in writing (list may be empty — if empty, state that explicitly and do not invent Python findings). |
 | **G2 — Linters before manual style/type** | For `ruff` and `mypy`: either no project config exists for that tool, **or** it was run on the changed files and you captured pass/fail (exit code or clear tool output). **Do not** add manual style or type findings for rules those tools already enforce when configured. |
-| **G3 — Protocol and base skills** | `beagle-core:review-verification-protocol` (plus the [Python delta](../review-verification-protocol/SKILL.md)), [python-code-review](../python-code-review/SKILL.md), and [fastapi-code-review](../fastapi-code-review/SKILL.md) are loaded **once**, before Step 6 substantive review. |
+| **G3 — Protocol and base skills** | `beagle-core:review-verification-protocol` (plus the [Python delta](../python-verification-protocol/SKILL.md)), [python-code-review](../python-code-review/SKILL.md), and [fastapi-code-review](../fastapi-code-review/SKILL.md) are loaded **once**, before Step 6 substantive review. |
 | **G4 — Evidence** | Step 7 checks are applied to the finding list once, before it ships (re-read source, run the enumerated reference search for “unused”, confirm framework handling for “missing”, verify syntax against current docs). Reporting is `beagle-core:verification-budget` tier REVERSIBLE; reserve per-finding evidence gates for verdicts that authorize an IRREVERSIBLE action. |
 | **G5 — Output contract** | Findings use sequential numbering, every issue has `FILE:LINE`, and the **Verdict** follows Step 8 (Critical/Major only block; Minor/Informational do not). |
 
@@ -72,7 +72,7 @@ git diff --name-only $(git merge-base HEAD main)..HEAD | grep -E 'test.*\.py$'
 
 ## Step 4: Load Verification Protocol
 
-Load `beagle-core:review-verification-protocol` **once** here, plus this plugin's [Python delta](../review-verification-protocol/SKILL.md). Apply its checklist to the finding list at the end of the review, not once per finding.
+Load `beagle-core:review-verification-protocol` **once** here, plus this plugin's [Python delta](../python-verification-protocol/SKILL.md). Apply its checklist to the finding list at the end of the review, not once per finding.
 
 ## Step 5: Load Skills
 

@@ -1,6 +1,6 @@
 ---
-name: review-verification-protocol
-description: Mandatory verification steps for all code reviews to reduce false positives. Load this skill before reporting ANY code review findings.
+name: ios-verification-protocol
+description: Swift, SwiftUI, and Apple-platform delta to the shared review verification protocol. Extends `beagle-core:review-verification-protocol` — load that skill first for the hard gates, Pre-Report Verification Checklist, severity calibration, and language-neutral verification rules, then load this one for iOS-specific verification of Swift concurrency, SwiftUI lifecycle, optionals and memory semantics, and fast-moving Apple SDK APIs. Load before reporting ANY Swift or iOS code review findings.
 user-invocable: false
 ---
 

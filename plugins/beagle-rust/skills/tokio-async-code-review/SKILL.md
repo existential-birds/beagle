@@ -20,7 +20,7 @@ Complete in order for the review scope. Do not assert **Critical** or **Major** 
 1. **Dependency surface** — Read the crate (and workspace, if inherited) `Cargo.toml` that supplies `tokio`. **Pass:** Written note of `tokio` version and enabled features, or explicit statement that there is no direct `tokio` dependency and where it comes from (workspace/path).
 2. **Runtime model** — Locate runtime construction (`#[tokio::main]`, `Runtime::builder`, tests, or library with no owned runtime). **Pass:** One line naming flavor (`multi_thread` / `current_thread` / tests-only / none) and where it is defined.
 3. **Blocking inventory** — Search reviewed paths for blocking APIs (`std::fs::`, `std::net::` without async wrappers, `std::thread::sleep`, heavy CPU loops in `async fn`). **Pass:** Each hit listed as `path:line` (or tool output excerpt), or explicit “no blocking patterns found in reviewed async code” after the search.
-4. **Protocol** — Load `beagle-core:review-verification-protocol` plus the Rust delta at [review-verification-protocol](../review-verification-protocol/SKILL.md). **Pass:** One pass over the assembled finding list, with file:line evidence recorded for each asserted issue. One pass total, not one per finding — reporting is `beagle-core:verification-budget` tier REVERSIBLE.
+4. **Protocol** — Load `beagle-core:review-verification-protocol` plus the Rust delta at [rust-verification-protocol](../rust-verification-protocol/SKILL.md). **Pass:** One pass over the assembled finding list, with file:line evidence recorded for each asserted issue. One pass total, not one per finding — reporting is `beagle-core:verification-budget` tier REVERSIBLE.
 
 ## Output Format
 
@@ -121,4 +121,4 @@ Description of the issue and why it matters.
 
 ## Before Submitting Findings
 
-After **Gates**, make **one** pass over the assembled finding list using `beagle-core:review-verification-protocol` and the [Rust delta](../review-verification-protocol/SKILL.md), recording evidence and disposition for each. Budget: max **1** pass. Tie-break: ship a still-uncertain finding as a question or drop it, and proceed.
+After **Gates**, make **one** pass over the assembled finding list using `beagle-core:review-verification-protocol` and the [Rust delta](../rust-verification-protocol/SKILL.md), recording evidence and disposition for each. Budget: max **1** pass. Tie-break: ship a still-uncertain finding as a question or drop it, and proceed.

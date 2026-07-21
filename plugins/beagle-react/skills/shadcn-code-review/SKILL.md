@@ -39,7 +39,7 @@ Run these in order over the batch you are about to report. Budget: max **1** pas
 
 3. **Context-sensitive claims** — **Pass:** For accessibility or Radix-related flags, you checked the file for imports/wrappers showing what actually runs (or you cite the concrete gap).
 
-4. **Protocol** — **Pass:** `beagle-core:review-verification-protocol` (plus the [React / TypeScript delta](../review-verification-protocol/SKILL.md)) was loaded once at review entry, and its Pre-Report Verification Checklist was walked **once for this review** — not once per finding. Reporting a finding is `beagle-core:verification-budget` tier REVERSIBLE.
+4. **Protocol** — **Pass:** `beagle-core:review-verification-protocol` (plus the [React / TypeScript delta](../react-verification-protocol/SKILL.md)) was loaded once at review entry, and its Pre-Report Verification Checklist was walked **once for this review** — not once per finding. Reporting a finding is `beagle-core:verification-budget` tier REVERSIBLE.
 
 ## Valid Patterns (Do NOT Flag)
 

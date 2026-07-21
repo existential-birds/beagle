@@ -1,6 +1,6 @@
 ---
-name: review-verification-protocol
-description: Mandatory verification steps for all code reviews to reduce false positives. Load this skill before reporting ANY code review findings.
+name: rust-verification-protocol
+description: Rust-specific verification delta that extends the shared core protocol in `beagle-core:review-verification-protocol`. Adds the edition gate, Rust verification steps by issue type (borrow/lifetime, RPIT capture, unsafe blocks, clones, races), macro/FFI/concurrency-specific checks, Rust severity notes, valid Rust patterns not to flag, and context-sensitive ownership, error-handling, and unsafe rules. Load the core protocol first, then this delta, before reporting any Rust code review findings.
 user-invocable: false
 ---
 

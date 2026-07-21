@@ -17,7 +17,7 @@ Complete in order before writing **Issues** in the output (empty scope is allowe
 
 1. **Scope gate:** You have an explicit list of `.swift` paths under review (from Step 1 or a user-provided path). **Pass:** List captured in working notes **or** one line: `No Swift files in scope` — then stop with no Issues.
 2. **Linter gate (style):** Step 2 commands ran for this tree; if no `.swiftlint.yml` / `.swiftlint.yaml`, note that in one line. **Pass:** You do not report a style issue that SwiftLint would already enforce for that line when config exists and `swiftlint` succeeds.
-3. **Protocol gate:** `beagle-core:review-verification-protocol` and the [Swift / iOS delta](../review-verification-protocol/SKILL.md) are loaded **once**, before Step 6 — applied per review, not per finding. **Pass:** If you report any Issues, the finding list went through one protocol pass (name one checklist item you applied in Review Summary); if you report zero Issues, state `Protocol applied; no issues` in Review Summary.
+3. **Protocol gate:** `beagle-core:review-verification-protocol` and the [Swift / iOS delta](../ios-verification-protocol/SKILL.md) are loaded **once**, before Step 6 — applied per review, not per finding. **Pass:** If you report any Issues, the finding list went through one protocol pass (name one checklist item you applied in Review Summary); if you report zero Issues, state `Protocol applied; no issues` in Review Summary.
 4. **Evidence gate (Critical/Major):** For each Critical or Major item, you re-read the file at `FILE:LINE` (full surrounding context, not only the diff hunk). **Pass:** The Issue text matches observable code at that location.
 
 Do not begin Step 6 until **Gates 1–3** are satisfied (skills load order stays Steps 4–5).
@@ -83,7 +83,7 @@ grep -r "PhaseAnimator\|KeyframeAnimator\|matchedGeometryEffect\|navigationTrans
 
 ## Step 4: Load Verification Protocol
 
-Load `beagle-core:review-verification-protocol` plus the [Swift / iOS delta](../review-verification-protocol/SKILL.md) once here. Its checklist is applied in a single pass over the finding list at Step 6 — not re-run per finding.
+Load `beagle-core:review-verification-protocol` plus the [Swift / iOS delta](../ios-verification-protocol/SKILL.md) once here. Its checklist is applied in a single pass over the finding list at Step 6 — not re-run per finding.
 
 ## Step 5: Load Skills
 

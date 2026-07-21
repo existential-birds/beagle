@@ -1,6 +1,6 @@
 ---
-name: review-verification-protocol
-description: Mandatory verification steps for all code reviews to reduce false positives. Load this skill before reporting ANY code review findings.
+name: react-verification-protocol
+description: React/TypeScript-specific verification deltas for code reviews — JSX-referenced identifiers, React state setters, hook dependency arrays, TypeScript type-level references, and frontend false-positive traps. Extends the shared language-neutral protocol in `beagle-core:review-verification-protocol`, which must be loaded first; this file adds only the frontend specifics and overrides nothing. Load alongside the core before reporting ANY React or TypeScript code review findings.
 user-invocable: false
 ---
 

@@ -39,7 +39,7 @@ git diff --name-only $(git merge-base HEAD main)..HEAD | grep -E '\.test\.tsx?$'
 
 ## Step 3: Load Verification Protocol
 
-Load `beagle-core:review-verification-protocol` plus the [React / TypeScript delta](../review-verification-protocol/SKILL.md) **once**, before any substantive judgment on code. Its checklist is applied in a single pass over the finding list — not re-run per finding.
+Load `beagle-core:review-verification-protocol` plus the [React / TypeScript delta](../react-verification-protocol/SKILL.md) **once**, before any substantive judgment on code. Its checklist is applied in a single pass over the finding list — not re-run per finding.
 
 **Pass before Step 5:** The skills are loaded (or their checklists are open in context). Do not classify severity or write findings until this gate clears.
 
@@ -198,7 +198,7 @@ All checks must pass before approval.
 Advance in order; do not skip a **pass condition** by restating it informally.
 
 1. **Scope recorded** — **Pass when:** You have the output of the Step 1 command (or an explicit substitute path list) naming what is in scope for this review.
-2. **Protocol + branch skills loaded** — **Pass when:** `beagle-core:review-verification-protocol`, the [React / TypeScript delta](../review-verification-protocol/SKILL.md), and [shadcn-code-review](../shadcn-code-review/SKILL.md) are loaded, **and** either (a) Step 2 found Remix v2 and [review-remix-v2](../review-remix-v2/SKILL.md) is loaded (without [react-router-code-review](../react-router-code-review/SKILL.md)), or (b) Step 2 found no Remix v2 and [react-router-code-review](../react-router-code-review/SKILL.md) is loaded — before first severity judgment.
+2. **Protocol + branch skills loaded** — **Pass when:** `beagle-core:review-verification-protocol`, the [React / TypeScript delta](../react-verification-protocol/SKILL.md), and [shadcn-code-review](../shadcn-code-review/SKILL.md) are loaded, **and** either (a) Step 2 found Remix v2 and [review-remix-v2](../review-remix-v2/SKILL.md) is loaded (without [react-router-code-review](../react-router-code-review/SKILL.md)), or (b) Step 2 found no Remix v2 and [react-router-code-review](../react-router-code-review/SKILL.md) is loaded — before first severity judgment.
 3. **Conditional skills** — **Pass when:** For each Step 2 detection row (Remix v2, @xyflow/react, Zustand, Tailwind v4, test files), you either loaded the listed skill or recorded that detection was negative (which command returned no matches).
 4. **Critical/Major evidence** — **Pass when:** Each such finding cites `FILE:LINE` that exists in the tree and meets the Step 6 pass rule for that finding type.
 5. **Single output** — **Pass when:** The Issues section uses one continuous numbering sequence and this deliverable satisfies Step 7 single-pass completeness (no withheld issue types or rounds).

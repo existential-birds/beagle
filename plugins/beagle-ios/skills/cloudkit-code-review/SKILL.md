@@ -55,7 +55,7 @@ Examples:
 
 ## Hard gates (before reporting)
 
-Load `beagle-core:review-verification-protocol` plus the [Swift / iOS delta](../review-verification-protocol/SKILL.md) **once, at review entry** — not once per finding. Reporting a finding is `beagle-core:verification-budget` tier REVERSIBLE: cite the evidence you already have and move on. Only a verdict that authorizes an irreversible action (deleting code, rewriting a file) earns that protocol's full evidence gate.
+Load `beagle-core:review-verification-protocol` plus the [Swift / iOS delta](../ios-verification-protocol/SKILL.md) **once, at review entry** — not once per finding. Reporting a finding is `beagle-core:verification-budget` tier REVERSIBLE: cite the evidence you already have and move on. Only a verdict that authorizes an irreversible action (deleting code, rewriting a file) earns that protocol's full evidence gate.
 
 The three gates below are per-finding and cheap. Apply them in order. Budget: max **1** pass per finding; stop when each gate has a recorded artifact; tie-break: drop the finding or downgrade it to an open question and proceed — never re-run the gates hoping for a cleaner answer.
 

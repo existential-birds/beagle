@@ -31,7 +31,7 @@ Complete in order. **Do not emit findings** until **Gate 4** passes for each iss
 **PASS when:** Every planned finding has a target `[FILE:LINE]` from a full function/block you read, not only diff hunks or partial snippets.
 
 **Gate 4 — Pre-report protocol**  
-**PASS when:** You loaded `beagle-core:review-verification-protocol` plus the Rust delta at [review-verification-protocol](../review-verification-protocol/SKILL.md), and made **one** pass over the assembled finding list — consulting the delta's **FFI-specific verification** section for `repr(C)`, safety comments, ownership/callbacks, or bindgen-heavy findings. One pass total, not one per finding: reporting is `beagle-core:verification-budget` tier REVERSIBLE. Budget: max **1** pass; tie-break: ship a still-uncertain finding as a question or drop it.
+**PASS when:** You loaded `beagle-core:review-verification-protocol` plus the Rust delta at [rust-verification-protocol](../rust-verification-protocol/SKILL.md), and made **one** pass over the assembled finding list — consulting the delta's **FFI-specific verification** section for `repr(C)`, safety comments, ownership/callbacks, or bindgen-heavy findings. One pass total, not one per finding: reporting is `beagle-core:verification-budget` tier REVERSIBLE. Budget: max **1** pass; tie-break: ship a still-uncertain finding as a question or drop it.
 
 ## Output Format
 
@@ -154,4 +154,4 @@ Description of the issue and why it matters.
 
 ## Before Submitting Findings
 
-Complete **Gates 1-4 in order** before reporting any issue; Gate 4 is the single verification pass over the finding list, using `beagle-core:review-verification-protocol` plus the [Rust delta](../review-verification-protocol/SKILL.md).
+Complete **Gates 1-4 in order** before reporting any issue; Gate 4 is the single verification pass over the finding list, using `beagle-core:review-verification-protocol` plus the [Rust delta](../rust-verification-protocol/SKILL.md).

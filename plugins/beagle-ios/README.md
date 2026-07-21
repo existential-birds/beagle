@@ -36,7 +36,7 @@ claude plugin install beagle-ios@existential-birds
 | `ios-animation-code-review` | Animation correctness, performance, accessibility, and Apple API best practices |
 | `ios-animation-design` | Plan and spec iOS animations covering transitions, micro-interactions, and gesture-driven motion |
 | `ios-animation-implementation` | Write Swift animation code with first-party SwiftUI, Core Animation, and UIKit APIs |
-| `review-verification-protocol` | Reference: mandatory verification steps to reduce false positives |
+| `ios-verification-protocol` | Reference: Swift/iOS delta to `beagle-core:review-verification-protocol` for verification steps that reduce false positives |
 
 ## See Also
 

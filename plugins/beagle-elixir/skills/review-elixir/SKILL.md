@@ -17,7 +17,7 @@ Complete in order before writing **Issues** in the output (empty scope is allowe
 
 1. **Scope gate:** You have an explicit list of `.ex`/`.exs`/`.heex` paths under review (from Step 1 or user path). Print the list or "No Elixir files in scope" — then stop with no Issues.
 2. **Linter gate (style):** Step 2 commands ran for this Mix project; skipped tools are noted in one line (e.g. no `.credo.exs`). Do not report a style issue that already passes the project's formatter/linter for that line.
-3. **Protocol gate:** `beagle-core:review-verification-protocol` (plus the [Elixir delta](../review-verification-protocol/SKILL.md)) is loaded **once**, before Step 6, and its Pre-Report Verification Checklist is applied to the finding list before it ships. Reporting is `beagle-core:verification-budget` tier REVERSIBLE — no per-finding recitation of which subsection you satisfied.
+3. **Protocol gate:** `beagle-core:review-verification-protocol` (plus the [Elixir delta](../elixir-verification-protocol/SKILL.md)) is loaded **once**, before Step 6, and its Pre-Report Verification Checklist is applied to the finding list before it ships. Reporting is `beagle-core:verification-budget` tier REVERSIBLE — no per-finding recitation of which subsection you satisfied.
 4. **Evidence gate (Critical/Major):** For each Critical or Major item, you re-read the file at `FILE:LINE` (full surrounding context, not only the diff hunk). The Issue description matches observable code at that location.
 
 ## Step 1: Identify Changed Files
@@ -68,7 +68,7 @@ git diff --name-only $(git merge-base HEAD main)..HEAD | grep -E '_test\.exs$'
 
 ## Step 4: Load Verification Protocol
 
-Load `beagle-core:review-verification-protocol` **once** here, plus this plugin's [Elixir delta](../review-verification-protocol/SKILL.md). Apply its checklist to the finding list at the end of the review, not once per finding.
+Load `beagle-core:review-verification-protocol` **once** here, plus this plugin's [Elixir delta](../elixir-verification-protocol/SKILL.md). Apply its checklist to the finding list at the end of the review, not once per finding.
 
 ## Step 5: Load Skills
 

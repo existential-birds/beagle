@@ -61,4 +61,4 @@ Complete **in order**, once over the assembled finding list. Budget: max **1** p
 
 Use the issue format: `[FILE:LINE] ISSUE_TITLE` for each finding.
 
-Gate 4 draws on `beagle-core:review-verification-protocol` for the pre-report checklist, severity calibration, and issue-type verification (it extends beyond this skill’s summary). Elixir-specific reference patterns live in this plugin's [Elixir delta](../review-verification-protocol/SKILL.md).
+Gate 4 draws on `beagle-core:review-verification-protocol` for the pre-report checklist, severity calibration, and issue-type verification (it extends beyond this skill’s summary). Elixir-specific reference patterns live in this plugin's [Elixir delta](../elixir-verification-protocol/SKILL.md).

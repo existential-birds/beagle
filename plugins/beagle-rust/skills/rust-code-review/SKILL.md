@@ -22,7 +22,7 @@ These steps are **sequenced**: do not skip ahead with “mental verification.”
 1. **Crate context** — Before relying on edition-specific checklist rows (Edition 2024, MSRV-sensitive APIs) or dependency assumptions. **Pass:** You opened the relevant `Cargo.toml` (package or workspace manifest) and can state `edition` and `rust-version` (if set) in one line.
 2. **Expanded read** — Before reporting a **Major** or **Critical** finding. **Pass:** You read the full function, `unsafe` block, or `impl` / trait item that contains the cited line (not only a diff hunk).
 3. **Severity match** — Before each finding line in the report. **Pass:** The **Severity** label matches **Severity Calibration** for that issue class, or you use **Informational** and give a one-line rationale.
-4. **Verification protocol** — Before finalizing the report. **Pass:** `beagle-core:review-verification-protocol` and the Rust delta at [review-verification-protocol](../review-verification-protocol/SKILL.md) are loaded, and **one** pass over the assembled finding list is recorded with an artifact per check (do not substitute a vague “I checked”). One pass total, not one per finding — reporting is `beagle-core:verification-budget` tier REVERSIBLE. Budget: max **1** pass; tie-break: ship a still-uncertain finding as a question or drop it.
+4. **Verification protocol** — Before finalizing the report. **Pass:** `beagle-core:review-verification-protocol` and the Rust delta at [rust-verification-protocol](../rust-verification-protocol/SKILL.md) are loaded, and **one** pass over the assembled finding list is recorded with an artifact per check (do not substitute a vague “I checked”). One pass total, not one per finding — reporting is `beagle-core:verification-budget` tier REVERSIBLE. Budget: max **1** pass; tie-break: ship a still-uncertain finding as a question or drop it.
 
 ## Output Format
 
@@ -286,4 +286,4 @@ Only flag these issues when the specific conditions apply:
 
 ## Before Submitting Findings
 
-Satisfy **Gates** § verification protocol (step 4): `beagle-core:review-verification-protocol` plus the [Rust delta](../review-verification-protocol/SKILL.md), applied in a single pass over the finding list.
+Satisfy **Gates** § verification protocol (step 4): `beagle-core:review-verification-protocol` plus the [Rust delta](../rust-verification-protocol/SKILL.md), applied in a single pass over the finding list.

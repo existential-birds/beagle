@@ -18,7 +18,7 @@ Follow this sequence **in order**. Do not emit findings until every **Pass** bel
 3. **Scope the checklist** — Using [Quick Reference](#quick-reference), decide which [Review Checklist](#review-checklist) rows and [references](#when-to-load-references) apply; open those reference files; skip rows clearly unrelated to the diff.  
    **Pass:** The review (or working notes) lists which checklist areas you applied, or marks areas N/A with a one-line reason tied to the diff (e.g. “no SwiftUI / @Observable in change”).
 
-4. **Pre-report verification** — Load `beagle-core:review-verification-protocol` plus the [Swift / iOS delta](../review-verification-protocol/SKILL.md) **once, at review entry**, and apply its hard gates across the finding list in a single pass. Reporting a finding is `beagle-core:verification-budget` tier REVERSIBLE — cite the evidence you already have; only a verdict authorizing an irreversible action earns the full evidence gate.  
+4. **Pre-report verification** — Load `beagle-core:review-verification-protocol` plus the [Swift / iOS delta](../ios-verification-protocol/SKILL.md) **once, at review entry**, and apply its hard gates across the finding list in a single pass. Reporting a finding is `beagle-core:verification-budget` tier REVERSIBLE — cite the evidence you already have; only a verdict authorizing an irreversible action earns the full evidence gate.  
    **Pass:** The finding list has been through that one pass (`[FILE:LINE]` proof, severity calibrated, enumerated usage search before “unused”, caller checked before “missing handling”). Tie-break: anything still uncertain ships as a question or is dropped — do not open another pass.
 
 ## Hard gates (same sequence, shorter)

@@ -56,7 +56,7 @@ description: Reviews Elixir code for performance issues including GenServer bott
 
 Do these **in order**, once for the performance review. Budget: max **1** pass. Stop when each step has a recorded outcome for the finding list. Tie-break: ship the remainder as **suspected**, or drop them — do not re-run the gates.
 
-1. **Protocol loaded** — Load `beagle-core:review-verification-protocol` **once**, at review entry, plus this plugin's [Elixir delta](../review-verification-protocol/SKILL.md). Apply its Pre-Report Verification Checklist (and its "Performance Issue" section) to the finding list as a whole. Reporting is `beagle-core:verification-budget` tier REVERSIBLE — no per-finding recitation of which subsection you satisfied.
+1. **Protocol loaded** — Load `beagle-core:review-verification-protocol` **once**, at review entry, plus this plugin's [Elixir delta](../elixir-verification-protocol/SKILL.md). Apply its Pre-Report Verification Checklist (and its "Performance Issue" section) to the finding list as a whole. Reporting is `beagle-core:verification-budget` tier REVERSIBLE — no per-finding recitation of which subsection you satisfied.
 2. **Anchored evidence** — Each finding includes a concrete locator: `path:line` (or line range), or `Module.function/arity` plus a short quoted snippet from the file.
 3. **Performance claims** — For anything under [Context-Sensitive Rules](#context-sensitive-rules), or any claim of bottleneck, N+1, unbounded growth, or heavy memory/binary cost, state the **observed or measured** fact that meets “Flag ONLY IF” (e.g. rate, item count, ratio), or attach an artifact (profiler output, SQL/log excerpt, `grep`/search scope)—otherwise downgrade to **question** / **suspected** with what was not verified.
 

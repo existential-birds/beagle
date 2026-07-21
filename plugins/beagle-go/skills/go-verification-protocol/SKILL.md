@@ -1,6 +1,6 @@
 ---
-name: review-verification-protocol
-description: Mandatory verification steps for all code reviews to reduce false positives. Load this skill before reporting ANY code review findings.
+name: go-verification-protocol
+description: Go-specific verification deltas layered on top of beagle-core:review-verification-protocol. Covers how to confirm Go review findings before reporting them — unused identifiers, error handling, goroutine and concurrency claims, interface and generics usage. Load the shared core protocol first, then this skill, before reporting ANY Go code review findings.
 user-invocable: false
 ---
 

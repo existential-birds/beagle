@@ -18,7 +18,7 @@ An enumerated check list, evaluated **once** in order (reduces scope drift and u
 | Gate | Pass condition |
 |------|----------------|
 | **G1 — Scope** | Step 1 produced a concrete list of target `.go` paths (from the git command or an explicit user path). If the list is empty, you **stopped** for scope clarification **or** recorded an agreed non-git scope (e.g. single file/dir) before reviewing. |
-| **G2 — Skills before review** | `beagle-core:review-verification-protocol` and its Go delta [review-verification-protocol](../review-verification-protocol/SKILL.md), [go-code-review](../go-code-review/SKILL.md), and [bubbletea-code-review](../bubbletea-code-review/SKILL.md) are loaded; Step 4 conditionals (tests → [go-testing-code-review](../go-testing-code-review/SKILL.md), Wish → [wish-ssh-code-review](../wish-ssh-code-review/SKILL.md)) are loaded **before** Step 5. |
+| **G2 — Skills before review** | `beagle-core:review-verification-protocol` and its Go delta [go-verification-protocol](../go-verification-protocol/SKILL.md), [go-code-review](../go-code-review/SKILL.md), and [bubbletea-code-review](../bubbletea-code-review/SKILL.md) are loaded; Step 4 conditionals (tests → [go-testing-code-review](../go-testing-code-review/SKILL.md), Wish → [wish-ssh-code-review](../wish-ssh-code-review/SKILL.md)) are loaded **before** Step 5. |
 | **G3 — Evidence for Critical/Major** | Each Critical/Major finding cites **file path + line** (or a short quoted snippet) from the **opened** source—not from diff hunks alone. |
 | **G4 — Pre-output hygiene** | Step 7's single pass over the consolidated finding list ran **before** the Issues section was written. One pass total, not one per finding. |
 
@@ -51,7 +51,7 @@ git diff --name-only $(git merge-base HEAD main)..HEAD | grep -E '_test\.go$'
 
 ## Step 3: Load Verification Protocol
 
-Load `beagle-core:review-verification-protocol` plus the Go delta at **[review-verification-protocol](../review-verification-protocol/SKILL.md)** once, here, at review entry. Its checklist is applied **once over the consolidated finding list** in Step 7 — not once per finding. Reporting a finding is `beagle-core:verification-budget` tier REVERSIBLE: cite the evidence you already have and move on.
+Load `beagle-core:review-verification-protocol` plus the Go delta at **[go-verification-protocol](../go-verification-protocol/SKILL.md)** once, here, at review entry. Its checklist is applied **once over the consolidated finding list** in Step 7 — not once per finding. Reporting a finding is `beagle-core:verification-budget` tier REVERSIBLE: cite the evidence you already have and move on.
 
 ## Step 4: Load Skills
 

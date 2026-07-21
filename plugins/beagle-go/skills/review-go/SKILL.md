@@ -40,7 +40,7 @@ git diff --name-only $(git merge-base HEAD main)..HEAD | grep -E '_test\.go$'
 
 ## Step 3: Load Verification Protocol
 
-Load `beagle-core:review-verification-protocol` plus the Go delta at **[review-verification-protocol](../review-verification-protocol/SKILL.md)** once, here, at review entry. Its checklist is applied **once over the consolidated finding list** in Step 6 — not once per finding. Reporting a finding is `beagle-core:verification-budget` tier REVERSIBLE: cite the evidence you already have and move on.
+Load `beagle-core:review-verification-protocol` plus the Go delta at **[go-verification-protocol](../go-verification-protocol/SKILL.md)** once, here, at review entry. Its checklist is applied **once over the consolidated finding list** in Step 6 — not once per finding. Reporting a finding is `beagle-core:verification-budget` tier REVERSIBLE: cite the evidence you already have and move on.
 
 ## Step 4: Load Skills
 

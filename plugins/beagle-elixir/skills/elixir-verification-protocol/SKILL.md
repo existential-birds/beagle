@@ -1,6 +1,6 @@
 ---
-name: review-verification-protocol
-description: Mandatory verification steps for all code reviews to reduce false positives. Load this skill before reporting ANY code review findings.
+name: elixir-verification-protocol
+description: Elixir/OTP/Phoenix/LiveView delta on top of the shared `beagle-core:review-verification-protocol`. Adds language-specific verification steps — BEAM reference patterns for "unused" claims (apply/3, @behaviour callbacks, macro-generated functions, config-driven modules), OTP and LiveView false-positive traps. Load the core protocol first, then this, before reporting ANY Elixir code review findings.
 user-invocable: false
 ---
 

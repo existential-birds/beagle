@@ -51,3 +51,17 @@ skill_research/
 # Review tooling
 .daydream/
 .review-output.md
+
+# Local agent-harness settings
+.claude/settings.local.json
+
+# Entire session recording — personal tooling, not a repo dependency.
+# Keep the harness integrations local so cloning the repo does not opt a
+# contributor into session capture. .codex/INSTALL.md is Beagle's own Codex
+# support doc and stays tracked — only the Entire-generated files are ignored.
+.entire/
+.codex/config.toml
+.codex/hooks.json
+.cursor/
+.opencode/
+.pi/

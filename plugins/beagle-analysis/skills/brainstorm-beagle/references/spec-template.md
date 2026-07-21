@@ -1,6 +1,6 @@
 # Spec Document Template
 
-Use this template when writing the final spec document. Save to `docs/specs/YYYY-MM-DD-<topic>.md`.
+Use this template when writing the final spec document. Save to `.beagle/concepts/<slug>/spec.md` — this is the path `write-plan` and `resolve-beagle` read from, so a spec written anywhere else is invisible to the rest of the workflow.
 
 ## Template
 

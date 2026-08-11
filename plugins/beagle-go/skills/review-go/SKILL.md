@@ -40,7 +40,7 @@ git diff --name-only $(git merge-base HEAD main)..HEAD | grep -E '_test\.go$'
 
 ## Step 3: Load Verification Protocol
 
-Load the **[review-verification-protocol](../review-verification-protocol/SKILL.md)** skill and keep its checklist in mind throughout the review.
+Load `beagle-core:review-verification-protocol` plus the Go delta at **[go-verification-protocol](../go-verification-protocol/SKILL.md)** once, here, at review entry. Its checklist is applied **once over the consolidated finding list** in Step 6 — not once per finding. Reporting a finding is `beagle-core:verification-budget` tier REVERSIBLE: cite the evidence you already have and move on.
 
 ## Step 4: Load Skills
 
@@ -79,9 +79,10 @@ Load each applicable skill below (open its `SKILL.md` and follow it).
 
 ## Step 6: Verify Findings
 
-Before reporting any issue:
+One pass over the consolidated finding list. Budget: max **1** pass. Stop when every finding has an answer for items 1–5. Tie-break: ship a still-uncertain finding as a question or drop it — do not open another pass.
+
 1. Re-read the actual code (not just diff context)
-2. For "unused" claims - did you search all references?
+2. For "unused" claims — search the four enumerated reference patterns from the core protocol (direct call, re-export/package surface, string-literal or reflection reference, implicit interface satisfaction) and report the count per pattern. Never claim "unused anywhere."
 3. For "missing" claims - did you check framework/parent handling?
 4. For syntax issues - did you verify against current version docs?
 5. Remove any findings that are style preferences, not actual issues

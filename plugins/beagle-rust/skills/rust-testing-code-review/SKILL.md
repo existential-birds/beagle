@@ -20,7 +20,7 @@ Do not advance to **Output Format** until each pass condition is satisfied (yes/
 
 1. **Edition recorded** — Open the target crate’s `Cargo.toml` (or workspace `[workspace.package]` / inherited edition) and note the `edition` value. **Pass:** you can quote `edition = "…"` (or document “inherited from workspace”) before citing Rust 2024–specific behavior (`if let` / tail temporary drops, `#[expect]` vs `#[allow]` migration, native `async fn` in traits as default). If edition is not `2024`, do **not** report those items as edition-2024 regressions; at most **Informational** if still useful.
 2. **`dyn` vs static async mocks** — Before suggesting native `async fn` in traits instead of `async-trait`, check whether the mock is used as `dyn Trait`. **Pass:** if `dyn` is required, you either skip that suggestion or align with **Valid Patterns** (`async-trait` still needed).
-3. **Verification protocol** — **Pass:** steps from the [review-verification-protocol](../review-verification-protocol/SKILL.md) skill are done before any finding is listed (see **Before Submitting Findings**).
+3. **Verification protocol** — **Pass:** one pass over the assembled finding list using `beagle-core:review-verification-protocol` plus the Rust delta at [rust-verification-protocol](../rust-verification-protocol/SKILL.md) is recorded before the Issues section is written (see **Before Submitting Findings**). One pass total, not one per finding.
 
 ## Output Format
 
@@ -199,4 +199,4 @@ Description of the issue and why it matters.
 
 ## Before Submitting Findings
 
-Load and follow the [review-verification-protocol](../review-verification-protocol/SKILL.md) skill before reporting any issue.
+Make **one** pass over the assembled finding list using `beagle-core:review-verification-protocol` and the [Rust delta](../rust-verification-protocol/SKILL.md). Reporting a finding is `beagle-core:verification-budget` tier REVERSIBLE — cite the evidence you already have and move on. Budget: max **1** pass. Tie-break: ship a still-uncertain finding as a question or drop it, and proceed.

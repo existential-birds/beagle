@@ -54,12 +54,12 @@ description: Reviews Elixir code for performance issues including GenServer bott
 
 ## Gates — before reporting
 
-Do these **in order** for the performance review. Do not publish findings until each step passes.
+Do these **in order**, once for the performance review. Budget: max **1** pass. Stop when each step has a recorded outcome for the finding list. Tie-break: ship the remainder as **suspected**, or drop them — do not re-run the gates.
 
-1. **Protocol loaded** — Read [review-verification-protocol](../review-verification-protocol/SKILL.md) and apply its checks for each finding (hot paths, concurrency, resource use). **Pass:** For every substantive finding, you can name which protocol subsection you satisfied or state **N/A** with reason (e.g. pure reference to this skill’s Valid Patterns).
-2. **Anchored evidence** — **Pass:** Each finding includes a concrete locator: `path:line` (or line range), or `Module.function/arity` plus a short quoted snippet from the file.
-3. **Performance claims** — For anything under [Context-Sensitive Rules](#context-sensitive-rules), or any claim of bottleneck, N+1, unbounded growth, or heavy memory/binary cost, **Pass:** You state the **observed or measured** fact that meets “Flag ONLY IF” (e.g. rate, item count, ratio), or attach an artifact (profiler output, SQL/log excerpt, `grep`/search scope)—otherwise downgrade to **question** / **suspected** with what was not verified.
+1. **Protocol loaded** — Load `beagle-core:review-verification-protocol` **once**, at review entry, plus this plugin's [Elixir delta](../elixir-verification-protocol/SKILL.md). Apply its Pre-Report Verification Checklist (and its "Performance Issue" section) to the finding list as a whole. Reporting is `beagle-core:verification-budget` tier REVERSIBLE — no per-finding recitation of which subsection you satisfied.
+2. **Anchored evidence** — Each finding includes a concrete locator: `path:line` (or line range), or `Module.function/arity` plus a short quoted snippet from the file.
+3. **Performance claims** — For anything under [Context-Sensitive Rules](#context-sensitive-rules), or any claim of bottleneck, N+1, unbounded growth, or heavy memory/binary cost, state the **observed or measured** fact that meets “Flag ONLY IF” (e.g. rate, item count, ratio), or attach an artifact (profiler output, SQL/log excerpt, `grep`/search scope)—otherwise downgrade to **question** / **suspected** with what was not verified.
 
 ## Before Submitting Findings
 
-Complete **Gates — before reporting** (section above) first; the verification protocol is mandatory input to those gates.
+Record an outcome for each of **Gates — before reporting** above, then ship.

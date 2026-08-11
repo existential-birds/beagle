@@ -1,6 +1,21 @@
 # Spec Self-Review Checklist
 
-Run this review after drafting the spec. Fix issues inline — don't flag them and move on.
+This file is the **single source** for brainstorm-beagle's spec review criteria. SKILL.md points here; it does not carry a second copy. Run this review **once** after drafting the spec, under the budget SKILL.md's *Self-Review* section declares. Fix issues inline — don't flag them and move on.
+
+## Calibration — read this before you review anything
+
+**Approve the spec unless there are serious gaps.** The default verdict is approve. This bar sits at the top of the file, not the bottom, because it governs every dimension below — a reviewer that reaches the last section still hunting for problems has already spent more than the review is worth.
+
+**Only fix issues that would cause real problems downstream.** A downstream planning system acting on this spec should be able to:
+
+- Understand what to build without asking the user again
+- Decompose requirements into tasks
+- Know what's in scope and what's not
+- Understand the constraints they're working within
+
+If it can do those four things, the spec passes. Minor wording preferences, stylistic consistency, and "sections that could be more detailed" are **not** issues. Ambiguity that could lead someone to build the wrong thing **is** an issue.
+
+When a dimension below is ambiguous, resolve it toward approve-and-note — record the doubt in the spec's *Open Questions* and proceed to user review. The user is the next reviewer; you are not the last line of defense.
 
 ## Review Dimensions
 
@@ -68,15 +83,16 @@ Is this focused enough for a single planning cycle?
 
 ### 7. Reinvention (brownfield only)
 
-For a feature being added to an existing codebase, the most expensive miss is specing a capability the code already has. The *Prior Art Check* step (in SKILL.md) should have run before drafting — this is the backstop.
+For a feature being added to an existing codebase, the most expensive miss is specing a capability the code already has. The *Prior Art Check* step in SKILL.md is where that sweep is mandated and where it runs. **This dimension does not re-run it** — it checks that the sweep happened and that its findings reached the spec.
 
 | Check | What to look for |
 |-------|-----------------|
-| No duplicated capability | No must-have rebuilds something a neutral capability-keyword grep across the whole workspace would surface |
+| Sweep ran | The workspace capability-keyword sweep was performed this session and its hits (or clean result) are on record |
+| No duplicated capability | No must-have rebuilds something the sweep surfaced |
 | Framing not trusted | The spec didn't inherit an issue/brief claim that "X was removed / doesn't exist" without disproving it against current code |
 | Build-on recorded | Where prior art exists, a Key Decision says whether to extend it or replace it, and why |
 
-If the prior art check was skipped, run it now: `grep -riE '<capability synonyms>'` across all source roots before approving. One matching file means a requirement needs reframing from "build X" to "extend/fix/wire-up the existing X."
+If — and only if — the sweep was never run, run it once now per *Prior Art Check* in SKILL.md. One matching file means a requirement needs reframing from "build X" to "extend/fix/wire-up the existing X."
 
 ### 8. Consumer (brownfield only)
 
@@ -100,16 +116,6 @@ For an existing mechanism the prior-art sweep surfaced that sits upstream or dow
 
 A new mechanism that composes wrongly with an existing one in the same pipeline ships broken even though neither piece was reinvented.
 
-## Calibration
+## Exit
 
-**Only fix issues that would cause real problems downstream.**
-
-A downstream planning system acting on this spec should be able to:
-- Understand what to build without asking the user again
-- Decompose requirements into tasks
-- Know what's in scope and what's not
-- Understand the constraints they're working within
-
-Minor wording preferences, stylistic consistency, and "sections that could be more detailed" are not issues. Ambiguity that could lead someone to build the wrong thing IS an issue.
-
-**Approve the spec unless there are serious gaps.** Then present to the user for review.
+The pass is done when each dimension above has been considered once and its fixes are in the draft text. Apply the *Calibration* bar at the top of this file, then present the spec to the user for review.

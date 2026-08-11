@@ -8,9 +8,11 @@ disable-model-invocation: true
 
 Detect common artifacts left behind by LLM coding agents: over-abstraction, dead code, DRY violations in tests, verbose comments, and defensive overkill.
 
+This skill imports its verification vocabulary from the `beagle-core:verification-budget` skill — risk tiers, budget syntax, the one-echo rule, and the prove-a-negative ban are defined there and are **not restated here**. Reporting a finding is tier REVERSIBLE, so there is **no per-finding verification ceremony** in this skill. Loading `beagle-core:review-verification-protocol` is **not** a prerequisite for this run.
+
 ## Hard gates (sequence)
 
-Advance only when each **pass condition** is objectively true (prevents “review complete” without artifacts):
+Four ordered checks, each with an objective pass condition. Record the outcome of each and proceed — this is an enumerated check list, not a re-runnable loop.
 
 | Gate | Pass condition |
 |------|----------------|
@@ -18,6 +20,8 @@ Advance only when each **pass condition** is objectively true (prevents “revie
 | **G2 — Four categories** | Tests, dead code, abstraction, and style are each reviewed (four parallel subagent runs when supported, or four sequential passes covering the same categories). **Stop** if any category did not complete; do not write JSON or a summary that implies a full pass. |
 | **G3 — JSON before summary** | `.beagle/llm-artifacts-review.json` exists and is valid JSON **before** Step 6 markdown. |
 | **G4 — Integrity** | Step 7 checks pass before treating the run as complete. |
+
+**Budget:** max **1** pass per gate. Stop when all four gates have a recorded outcome. Tie-break: on a gate that will not pass after its one pass, report the exact failing condition and halt — do not re-run the gate sequence.
 
 ## Arguments
 
@@ -159,7 +163,9 @@ Once all four category reviews have completed (parallel subagents or sequential 
 2. Assign unique IDs (1, 2, 3...)
 3. Group by category for display
 
-**Echo before write (anti-confabulation):** Every finding written to JSON MUST come from a category review's `[FILE:LINE] ISSUE_TITLE` output, not from the branch name, directory, or your own inference. After assigning ids, echo the consolidated table — `id | category | file:line | description` — and confirm each row traces to a specific category result. Do not add findings that no category review reported.
+**Stage-entry echo (`verification-budget` §3, one-echo).** This is this stage's **single** echo, and it happens once — here, before the JSON write — not once per finding. After assigning ids, echo the consolidated table (`id | category | file:line | description`) and confirm each row traces to a specific category review's `[FILE:LINE] ISSUE_TITLE` output. Do not add findings that no category review reported, and never derive a finding from the branch name, the working directory, or inference.
+
+Downstream stages (`verify-llm-artifacts`, `fix-llm-artifacts`) trust this recorded echo and the ids written to JSON; they do not re-derive the finding set from source.
 
 **ID lock:** Ids are contiguous `1..N` with no gaps or duplicates. This `1..N` set is the **locked id set** that downstream skills ([verify-llm-artifacts](../verify-llm-artifacts/SKILL.md), [fix-llm-artifacts](../fix-llm-artifacts/SKILL.md)) bind to 1:1. `summary.total` MUST equal `N`, and `summary.by_category` counts MUST sum to `N`. State the id set before writing JSON.
 
@@ -269,7 +275,9 @@ if [ "$STORED_HEAD" != "$CURRENT_HEAD" ]; then
 fi
 ```
 
-If any verification fails, report the error and do not proceed.
+**Loop budget — integrity reconciliation.** Max **1** corrective pass. Stop condition: the JSON parses, ids are contiguous `1..N`, and both count checks print consistent. Tie-break: if the second run still fails, ship the file, report the exact script output, and recommend against running `verify-llm-artifacts` until it is reconciled. Do not re-run the category reviews.
+
+If a check fails outright (missing or unparseable JSON), report the error and do not proceed.
 
 **Finding-level verification** (precision, not JSON syntax) is a **separate** skill: [verify-llm-artifacts](../verify-llm-artifacts/SKILL.md) — run it before mass deletes or `--fix` on risky items.
 
@@ -284,7 +292,7 @@ If any verification fails, report the error and do not proceed.
 ## Rules
 
 - Follow **Hard gates** order; do not skip **G3** (JSON before Step 6).
-- **Anti-confabulation:** every finding must trace to a category review's `[FILE:LINE]` output (Step 4 echo); never invent findings from the branch name, directory, or inference. See the [review-verification-protocol](../review-verification-protocol/SKILL.md) skill → Anti-confabulation (gate 0).
+- **One echo, at Step 4:** every finding must trace to a category review's `[FILE:LINE]` output in the Step 4 consolidated echo; never invent findings from the branch name, directory, or inference. Per `beagle-core:verification-budget` §3 (one-echo rule), that single stage-entry echo is sufficient — do not re-echo per finding, and do not load `beagle-core:review-verification-protocol` to satisfy it.
 - Always load the [llm-artifacts-detection](../llm-artifacts-detection/SKILL.md) skill first
 - Use parallel subagents (when the agent supports them) for the four category reviews when >= 4 files; otherwise run them sequentially
 - Every finding MUST have file:line reference

@@ -1,231 +1,85 @@
-# Dead Code Criteria
+# Dead Code Criteria (language-neutral)
 
-Detailed detection criteria for dead code and cleanup opportunities commonly left by LLM coding agents.
+Detection criteria for dead code and cleanup opportunities commonly left by LLM coding agents. Everything here applies in any language.
+
+Worked BAD/GOOD examples live in a separate per-language file. Load [examples/python/dead-code.md](examples/python/dead-code.md) **only** when the code under review is Python. For any other language, apply the criteria below directly — the patterns are structural, not syntactic.
 
 ## 1. Unused Code
 
-### What to Look For
+**What to look for:** functions, types, and variables with no references anywhere in the codebase.
 
-Functions, classes, and variables with no references anywhere in the codebase.
+| Sub-pattern | Signal |
+|---|---|
+| Unused function | Defined, exported or not, with zero call sites |
+| Unused type | Class/struct/interface/enum never constructed or referenced in a signature |
+| Unused module-level binding | Constant or global assigned and never read |
+| Unused local | Assigned inside a function, then never used before return |
+| Unreachable code | Statements after an unconditional return, throw, panic, or exit |
 
-### Detection Patterns
+**How to find:**
 
-**Unused Functions**:
-```python
-# Function defined but never called
-def helper_process_data(data):  # No callers!
-    """Process data helper."""
-    return data.strip().lower()
+1. "Find usages" / go-to-references in an editor or language server.
+2. The language's own dead-code tooling — an unused-symbol linter, an unused-import check, or the compiler's own dead-code warnings where the language has them.
+3. Direct search for the symbol name across the repo.
+4. Unused-import detection, which is usually the cheapest true positive in this category.
 
-def unused_validation(value):  # No callers!
-    """Validate value format."""
-    return bool(re.match(r"^\d+$", value))
-```
-
-**Unused Classes**:
-```python
-# Class defined but never instantiated
-class DataTransformer:  # Never used!
-    """Transform data between formats."""
-    def transform(self, data):
-        return data
-
-class LegacyProcessor:  # Never used!
-    """Old processor implementation."""
-    pass
-```
-
-**Unused Variables**:
-```python
-# Module-level variables never read
-DEFAULT_TIMEOUT = 30  # Never referenced
-CACHE_SIZE = 1000  # Never referenced
-
-# Assigned but never used
-def process():
-    result = compute()  # 'result' never used
-    intermediate = transform()  # Never used
-    return other_compute()
-```
-
-**Unreachable Code**:
-```python
-def calculate(x):
-    if x > 0:
-        return x * 2
-    return x * -1
-
-    # Unreachable!
-    logger.info("Calculation complete")
-    cleanup()
-```
-
-### How to Find
-
-1. Use IDE "Find Usages" on suspected dead code
-2. Run `vulture` or similar dead code detector
-3. Search for function/class name across codebase
-4. Check import statements for unused imports
-
----
+**Before flagging:** a symbol reachable only through reflection, dynamic dispatch by name, serialization, DI registration, or a framework's string-keyed routing is **not** dead. Search for the name as a string literal, not just as an identifier.
 
 ## 2. TODO/FIXME Comments
 
-### What to Look For
-
-Comments indicating incomplete work, technical debt, or known issues.
-
-### Detection Patterns
-
-```python
-# TODO: implement caching  <-- Incomplete feature
-def get_user(id):
-    return db.query(User).get(id)
-
-# FIXME: this breaks with unicode  <-- Known bug
-def parse_name(name):
-    return name.split()[0]
-
-# HACK: temporary workaround for issue #123  <-- Tech debt
-result = data.replace("\x00", "")
-
-# XXX: this needs to be refactored  <-- Acknowledged mess
-def complex_function():
-    # 200 lines of spaghetti
-    pass
-
-# NOTE: remove after migration  <-- Scheduled for deletion
-old_format = convert_legacy(data)
-```
-
-### Categories
+**What to look for:** comments marking incomplete work, technical debt, or known issues. The marker set is near-universal across languages; only the comment syntax changes.
 
 | Marker | Meaning | Action |
 |--------|---------|--------|
-| TODO | Planned work | Complete or create ticket |
-| FIXME | Known bug | Fix or document as known issue |
-| HACK | Workaround | Refactor or document why needed |
+| TODO | Planned work | Complete or create a ticket |
+| FIXME | Known bug | Fix, or document as a known issue |
+| HACK | Workaround | Refactor, or document why it is needed |
 | XXX | Needs attention | Review and address |
-| NOTE | Information | Review if still relevant |
+| NOTE | Information | Review whether still relevant |
 
----
+An LLM-authored TODO is frequently a placeholder for work the agent chose not to do, not a considered deferral. Age and specificity separate the two: a TODO naming a ticket is a deferral, a TODO naming an aspiration is a gap.
 
 ## 3. Backwards Compatibility Cruft
 
-### What to Look For
+**What to look for:** code kept "just in case" for a compatibility requirement that no longer exists.
 
-Patterns suggesting removed features kept around "just in case" or for backwards compatibility that's no longer needed.
+| Sub-pattern | Signal |
+|---|---|
+| Unused renames | Bindings renamed with `_unused`, `_old`, `_deprecated`, `_legacy` prefixes or suffixes |
+| Legacy-suffixed functions | `process_old`, `validateLegacy`, `handlerV1` with no remaining callers |
+| Compatibility re-exports | An export whose only purpose is to keep an old import path working |
+| Removal comments | Commented-out code annotated "removed", "legacy", "deprecated" |
+| Empty compatibility stubs | A type or function retained with an empty body so old call sites still link |
 
-### Detection Patterns
+**How to evaluate:**
 
-**Unused Renames**:
-```python
-# Variables renamed to indicate unused
-_unused_config = old_config  # Why keep it?
-_old_handler = legacy_handler  # Delete it!
-_deprecated_cache = cache_v1  # Remove!
-
-# Functions with "old" or "legacy" suffixes
-def process_old(data):  # Is this still needed?
-    pass
-
-def validate_legacy(value):  # Who calls this?
-    pass
-```
-
-**Re-exports for Compatibility**:
-```python
-# In __init__.py - re-exporting moved code
-from .new_location import Thing  # noqa: F401
-from .new_module import OldName as OldName  # Backwards compat
-
-# Explicit compatibility exports
-__all__ = [
-    "NewThing",
-    "OldThing",  # Deprecated, remove in v3.0
-]
-```
-
-**Removal Comments**:
-```python
-# # removed - no longer used
-# old_function = None
-
-# # legacy - kept for backwards compatibility
-# LegacyClass = NewClass
-
-# # deprecated - use new_method instead
-def old_method():
-    return new_method()
-```
-
-**Empty Compatibility Stubs**:
-```python
-class LegacyAdapter:
-    """Kept for backwards compatibility."""
-    pass  # Empty!
-
-def deprecated_function(*args, **kwargs):
-    """Deprecated. Use new_function instead."""
-    pass  # Does nothing!
-```
-
-### How to Evaluate
-
-1. Check if the "legacy" code has any callers
-2. Search for imports of deprecated names
-3. Check if deprecation warnings are even triggered
-4. Review git history - how long has it been "deprecated"?
-
----
+1. Does the "legacy" code have any callers?
+2. Is the deprecated name still imported anywhere?
+3. Are deprecation warnings ever actually triggered?
+4. How long has it been deprecated? Check git history — an item deprecated across several releases with no removal is cruft, not a migration in progress.
 
 ## 4. Orphaned Tests
 
-### What to Look For
+**What to look for:** tests referencing code that no longer exists.
 
-Tests that reference code that no longer exists.
+| Sub-pattern | Signal |
+|---|---|
+| Test file without source | A test file whose corresponding source file was deleted |
+| Test importing deleted code | An import that fails, or resolves somewhere unintended |
+| Test for moved code | A test importing from a path the symbol has since left |
+| Stale skip | A skipped or ignored test whose skip reason no longer applies |
 
-### Detection Patterns
+**How to find:**
 
-**Test Files Without Source**:
-```
-tests/
-  test_old_feature.py  # But old_feature.py doesn't exist!
-  test_removed_module.py  # removed_module/ was deleted
-```
-
-**Tests Importing Deleted Code**:
-```python
-# This import fails or imports from wrong place
-from myapp.deleted_module import RemovedClass  # Module deleted!
-
-def test_removed_feature():
-    obj = RemovedClass()  # Class doesn't exist!
-    assert obj.method() == expected
-```
-
-**Tests for Renamed/Moved Code**:
-```python
-# Old test file testing moved functionality
-# test_utils.py
-def test_helper_function():
-    from myapp.utils import helper  # Moved to myapp.helpers!
-    assert helper(1) == 2
-```
-
-### How to Find
-
-1. Run the test suite - import errors reveal orphans
-2. Check test file names against source file names
-3. Review test imports for deleted modules
-4. Look for skipped tests with outdated skip reasons
-
----
+1. Run the suite — import and link errors surface orphans immediately.
+2. Compare test file names against source file names.
+3. Review test imports for deleted modules.
+4. List skipped/ignored tests and read their reasons.
 
 ## Review Questions
 
-1. Are there functions with zero callers?
-2. How old are the TODO/FIXME comments?
-3. Is "deprecated" code actually deprecated (with timeline)?
+1. Are there functions with zero call sites, including string-keyed and reflective ones?
+2. How old are the TODO/FIXME comments, and do they name concrete work?
+3. Is "deprecated" code actually on a deprecation timeline, or just abandoned?
 4. Do all test files have corresponding source files?
-5. Are there variables assigned but never read?
+5. Are there bindings assigned but never read?

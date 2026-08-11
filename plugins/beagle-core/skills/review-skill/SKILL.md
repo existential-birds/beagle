@@ -52,16 +52,19 @@ Apply every check in [references/marketplace-checks.md](references/marketplace-c
 
 Marketplace violations are HIGH confidence because they can be verified by reading manifest files.
 
-### Step 7: Load and Apply Verification Protocol
+### Step 7: Single Verification Pass
 
-Load the [review-verification-protocol](../review-verification-protocol/SKILL.md) skill. Before reporting any finding, verify:
+Reporting a skill-review finding is `beagle-core:verification-budget` tier REVERSIBLE, so this is **one pass over the whole finding list**, not a gate applied per finding. Step 3 already read each changed skill end-to-end — that read is the review's single echo (`verification-budget` §3), so do not re-open files to re-derive findings.
 
-1. You read the actual skill content, not just the diff context
-2. The issue is real, not a style preference
-3. The issue applies to skill files specifically (not general code review concerns)
-4. You can point to the specific line that proves the issue
+Load `beagle-core:review-verification-protocol` only if you need its severity calibration or its false-positive tables; it is not a prerequisite for this step.
 
-Remove any finding you cannot verify.
+Walk the list once and record, for each finding, an answer to:
+
+1. Does it cite a specific line in skill content you read in Step 3?
+2. Is it a real defect rather than a style preference?
+3. Does it apply to skill files specifically, not general code review concerns?
+
+**Budget:** max **1** pass. Stop when every finding has all three answers recorded. Tie-break: a finding you still cannot answer for is dropped or reworded as a question and shipped as Informational — do not open a second pass.
 
 ### Step 8: Write Output
 

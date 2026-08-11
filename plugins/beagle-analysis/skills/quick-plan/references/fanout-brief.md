@@ -14,6 +14,8 @@ If the environment supports subagents, send them in **one message, multiple tool
 
 Give each agent the relevant slice of the Intent Brief (the goal + the must-haves that touch its area) so its recommendation is anchored to what's actually being built — not generic advice.
 
+**Where reports land.** Each subagent writes its full report to `.beagle/plans/<slug>/fanout/<area>.md` — the same `<slug>` the plan will be written under, so the exploration that produced the plan sits beside it. Create the `fanout/` directory before dispatching. If the slug is not settled yet, settle it now; it is the plan's output path either way. Agents return a short summary to you; the long report stays on disk so it does not consume your context.
+
 ## Dispatch template
 
 Fill the brackets per agent. Keep the brief tight; the value is in the structured return.
@@ -48,7 +50,7 @@ Return a compact structured report with EXACTLY these sections:
 
 Rules: cite real `file:line` you actually read; never invent paths or symbols. If something isn't in the code, say "not found" rather than guessing.
 
-Write your report to [WORKSPACE/fanout-<area>.md]. Return ≤250 words: the report's headline findings and every Reference point and spike-candidate verbatim.
+Write your report to `.beagle/plans/[SLUG]/fanout/[AREA].md`. Return ≤250 words: the report's headline findings and every Reference point and spike-candidate verbatim.
 ```
 
 ## Folding reports back into the plan
@@ -56,7 +58,7 @@ Write your report to [WORKSPACE/fanout-<area>.md]. Return ≤250 words: the repo
 Each report feeds specific parts of the plan — this is the whole point of the fanout:
 
 - **File map** → the plan's *File Structure* section.
-- **Conventions** → the exact test/commit commands in each task's Step 2 and Step 4; the project rules the self-review checks.
+- **Conventions** → the exact test/commit commands in each task's Step 2 and Step 4; the baseline suite command in the plan header; the project rules the review pass checks.
 - **Reference points** → the `file:line` **Reference** under each implementation step's behavior contract. These are the analogs the executor mirrors.
 - **Approach + risks** → the Intent Brief's *Approach decisions* (the Key-Decisions equivalent that lands in the plan's `## Intent` block), and the *pitfalls* become named bug-class tests or spike candidates.
 - **Spike candidates** → a `Task 0: Spike <claim>` per unverified load-bearing claim.

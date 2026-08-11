@@ -12,26 +12,25 @@ Above all, this skill should push the reviewer to be **ambitious** about code st
 
 The structural lens is **repo-wide**: read and search any file in the codebase as needed to judge whether canonical helpers already exist, whether file-size budgets are honored, and whether the change makes the codebase easier or harder to live with.
 
-## Anti-confabulation (gate 0 — runs before every other gate)
+## Imported vocabulary
 
-Before issuing **any** verdict — flag, propose a restructuring, or assert a structural claim — you MUST echo the exact artifact you are judging, quoted from a source you read in **this** turn:
+This skill imports the `beagle-core:verification-budget` skill. Risk tiers, budget syntax, the one-echo rule, and the prove-a-negative ban are defined there and are **not restated here**.
 
-- For a code finding: the **file:line** plus the cited code, read freshly now (not recalled from earlier in the session).
-- For a structural claim ("no canonical helper exists", "file exceeds 1 000 lines"): the **search pattern + result** or **`wc -l`/read-based count** that backs it.
-
-> The artifact is the only source of truth. **Never** infer what you are reviewing from the branch name, the working directory, surrounding files, or recollection. If your mental model differs from the freshly read source, **the source wins.** A verdict issued without a same-turn echo of its target is invalid — emit the echo first, or do not emit the verdict.
-
-This gate exists because an LLM under contextual priming will confidently flag code that is not in the file. It runs **before** the hard gates below.
+- **One-echo.** Echo the artifact under review — the changed-file list, and the file:line plus cited code for each file in scope — **once, at review entry** (gate G2 below). Not once per verdict. Emitting a structural review is `verification-budget` tier REVERSIBLE, so no finding earns its own evidence gate.
+- **Source wins.** Never infer what you are reviewing from the branch name, the working directory, surrounding files, or recollection. Where your mental model differs from the source you read, the source wins.
+- **Prove-a-negative ban.** "No canonical helper exists" is not a claim you can establish exhaustively. Report the enumerated search patterns you ran and their results — see G3.
 
 ## Hard gates (sequence)
 
-Advance only when each **pass condition** is objectively satisfied (artifact path, tool output, or labeled capture — not "I checked it mentally"):
+Three ordered checks, each with an objective pass condition (artifact path, tool output, or labeled capture — not "I checked it mentally"). Record the outcome of each and proceed.
 
 | Gate | Pass condition |
 |------|----------------|
 | **G1 — Changed-file list** | `git diff --name-only` (or equivalent) returns a non-empty list *or* you exit with an explicit "no changed files" message; the list is recorded before any review step begins. |
-| **G2 — Full file reads** | Every file in scope has been read in full; for each file you record the path and line count (e.g. `src/foo.ts — 342 lines`). Do **not** proceed to findings until all reads are logged. |
-| **G3 — Canonical-helper and 1k-line claims verified** | Any finding that asserts "no canonical helper exists" must cite a codebase-search artifact showing the search pattern and result. Any finding that asserts a file exceeds 1 000 lines must cite a `wc -l` or read-based line-count artifact. Findings lacking these artifacts are **blocked** from the report. |
+| **G2 — Full file reads (the stage-entry echo)** | Every file in scope has been read in full **in this turn**; for each file you record the path and line count (e.g. `src/foo.ts — 342 lines`). This single capture is the review's echo; individual findings cite file:line against it rather than re-reading. |
+| **G3 — Search-backed claims** | A finding asserting "no canonical helper exists" cites the **enumerated** search patterns it ran (identifier, re-export/barrel entry, string-literal or dynamic reference) with each result and count — phrased as "no matches across the 3 enumerated patterns," never "does not exist anywhere." A finding asserting a file exceeds 1 000 lines cites the `wc -l` or read-based count from G2. Findings lacking these artifacts are **blocked** from the report. |
+
+**Budget:** max **1** pass over the gates. Stop when all three have a recorded outcome. Tie-break: drop or downgrade any finding whose artifact is missing and proceed — never re-run the sequence hoping for a cleaner answer.
 
 ## Core Prompt
 
@@ -248,7 +247,7 @@ Rationale: [1-2 sentences]
 
 ## Rules
 
-- Read and search repo-wide before claiming a canonical helper does not exist
+- Back a "no canonical helper" claim with G3's three enumerated search patterns and their counts — never with an unbounded absence claim
 - Number every issue sequentially (1, 2, 3...)
 - Include FILE:LINE for each issue
 - Separate Issue/Why/Fix clearly

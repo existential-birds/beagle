@@ -17,7 +17,7 @@ This skill does not write code, scaffold projects, design architecture, or creat
 
 Objective pass conditions so steps are not skippable by assertion alone:
 
-1. **Spec located** — The target file path is known and `Read` succeeds (or the user supplied a valid path after you listed 3–5 recent `docs/specs/` candidates).
+1. **Spec located** — The target file path is known and `Read` succeeds (or the user supplied a valid path after you listed 3–5 recent `.beagle/concepts/*/spec.md` candidates).
 2. **Gap list published** — One message lists every explicit Open Question bullet **and** each latent gap you will treat as in-scope. **Do not dispatch research** until the user adjusts the list (add/remove/defer) **or** explicitly tells you to proceed with that list.
 3. **Research artifact per gap** — Before you present a proposal for gap *G*, you have a structured note for *G*: recommended answer, 1–2 rejected alternatives with reasons, and evidence (file:line, URL, or in-spec citation). No proposal without that artifact.
 4. **One proposal queue** — Do not open the next gap’s proposal until the current gap has a clear outcome (accepted, revised wording applied, rejected with what happens next, or deferred with reason).
@@ -26,7 +26,7 @@ Objective pass conditions so steps are not skippable by assertion alone:
 
 ## Workflow
 
-1. **Locate the spec** — explicit path from the user, or the most recent file in `docs/specs/`
+1. **Locate the spec** — explicit path from the user, or the most recently modified `.beagle/concepts/<slug>/spec.md`
 2. **Extract gaps** — parse Open Questions *and* audit for latent issues (placeholders, vague requirements, missing rationale, contradictions)
 3. **Show the gap list** — present everything you plan to close in one summary so the user can add or remove items before research starts
 4. **Dispatch research** — one task per gap, in parallel via subagents when available; otherwise sequentially inline
@@ -49,9 +49,9 @@ Locate spec → Extract gaps → Show list ──→ User adds/removes
 
 If the user gave a path, use it.
 
-Otherwise, list the 3–5 most recently modified files in `docs/specs/` and ask: "Work on `<most recent>`, or another one?" Don't scan the whole directory tree — specs are top-level per `brainstorm-beagle`'s convention.
+Otherwise, list the 3–5 most recently modified `.beagle/concepts/<slug>/spec.md` files and ask: "Work on `<most recent>`, or another one?" Don't scan the whole directory tree — `brainstorm-beagle` writes exactly one spec per concept slug, so `.beagle/concepts/*/spec.md` is the complete candidate set.
 
-If no spec directory exists, ask the user for the path.
+If `.beagle/concepts/` does not exist, ask the user for the path.
 
 ## Extracting gaps
 

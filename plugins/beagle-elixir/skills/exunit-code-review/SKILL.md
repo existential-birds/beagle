@@ -67,17 +67,14 @@ description: Reviews ExUnit test code for proper patterns, boundary mocking with
 
 ## Gates (sequence)
 
-Complete **in order**. Do not emit a finding until the prior step passes for that issue.
+Complete **in order**, once over the assembled finding list. Budget: max **1** pass. Stop when each step has a recorded outcome. Tie-break: ship the remainder as questions, or drop them — do not re-run the gates.
 
-1. **Evidence from the file** — Open the test module (or helper) and tie the claim to concrete lines.
-   - **Pass when:** Each prospective finding includes `[FILE:LINE]` **and** a one-line factual description of what is on that line (or an adjacent line you name), not a generic style complaint.
+1. **Evidence from the file** — Open the test module (or helper) and tie each claim to concrete lines. Each finding includes `[FILE:LINE]` **and** a one-line factual description of what is on that line (or an adjacent line you name), not a generic style complaint.
 
-2. **ExUnit false-positive veto** — Check this skill’s **Valid Patterns** and **Context-Sensitive Rules** for the case.
-   - **Pass when:** You can state “not covered by Do NOT Flag / Flag ONLY IF” in one sentence, or you drop the finding.
+2. **ExUnit false-positive veto** — Check this skill’s **Valid Patterns** and **Context-Sensitive Rules**. Drop any finding those sections cover.
 
-3. **Cross-protocol verification** — Apply [review-verification-protocol](../review-verification-protocol/SKILL.md) (e.g. read full function/block, search usages before “unused” claims) to that same finding.
-   - **Pass when:** At least one protocol check relevant to the claim type is satisfied and would appear in your rationale if challenged.
+3. **Cross-protocol verification** — Apply `beagle-core:review-verification-protocol` (full-context read; the enumerated reference-pattern search before “unused” claims) once to the finding list. Reporting is `beagle-core:verification-budget` tier REVERSIBLE; reserve the full evidence gate for verdicts that authorize an IRREVERSIBLE action. Elixir-specific reference patterns live in this plugin's [Elixir delta](../elixir-verification-protocol/SKILL.md).
 
 ## Before Submitting Findings
 
-Use `[FILE:LINE] ISSUE_TITLE` per finding after **Gates (sequence)** and the linked protocol are satisfied.
+Use `[FILE:LINE] ISSUE_TITLE` per finding once **Gates (sequence)** has a recorded outcome.

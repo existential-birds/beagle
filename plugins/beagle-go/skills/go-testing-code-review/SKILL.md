@@ -7,7 +7,7 @@ description: Reviews Go test code for proper table-driven tests, assertions, and
 
 ## Review Workflow
 
-Follow this sequence **in order**. Do not emit findings until every **Pass** below is satisfied.
+An enumerated sequence, run **once** in order. Record each **Pass** outcome, then emit findings; if a Pass cannot be satisfied, drop or downgrade the affected findings and flag why — do not re-run the sequence.
 
 1. **Baseline `go.mod`** — Open `go.mod` for the module under review and read the `go` directive.  
    **Pass:** You can state the exact `go X.YY` value (in the review preamble or working notes). Apply version-gated advice only when it matches this baseline (e.g. fuzz tests Go 1.18+, loop-variable capture pre-Go 1.22).
@@ -18,8 +18,8 @@ Follow this sequence **in order**. Do not emit findings until every **Pass** bel
 3. **Scope the checklist** — Decide which [Review Checklist](#review-checklist) rows apply (table-driven structure, parallelism, HTTP, golden files, mocks). Open [references/structure.md](references/structure.md) and/or [references/mocking.md](references/mocking.md) for those topics; skip rows N/A to the diff with a one-line reason (e.g. “no `t.Parallel` in change”).  
    **Pass:** The review (or working notes) lists which checklist themes you applied, or marks themes N/A with a diff-tied reason.
 
-4. **Pre-report verification** — Load and follow [review-verification-protocol](../review-verification-protocol/SKILL.md).  
-   **Pass:** The protocol’s **Pre-Report Verification Checklist** is satisfied for each finding you will report (actual test code read, surrounding context checked, “wrong” vs “different style” distinguished, etc.).
+4. **Pre-report verification** — Load `beagle-core:review-verification-protocol` plus the Go delta at [go-verification-protocol](../go-verification-protocol/SKILL.md). Apply the protocol **once over the assembled finding list**, not once per finding — reporting a finding is `beagle-core:verification-budget` tier REVERSIBLE, so cite the evidence you already have and move on. Only a finding whose recommended action is IRREVERSIBLE (deleting a test, rewriting a fixture file) earns the full evidence gate.  
+   **Pass:** One pass over the finding list is recorded — actual test code read, surrounding context checked, “wrong” vs “different style” distinguished. Budget: max **1** pass. Tie-break: ship any still-uncertain finding as a question or drop it, and proceed.
 
 ## Hard gates (same sequence, shorter)
 
@@ -28,7 +28,7 @@ Follow this sequence **in order**. Do not emit findings until every **Pass** bel
 | 1 | `go X.YY` from `go.mod` is recorded before version-specific test advice. |
 | 2 | Full enclosing test (or helper it uses) read per in-scope test file, not diff-only. |
 | 3 | In-scope checklist themes listed or N/A with diff-tied reason; references opened as needed. |
-| 4 | `review-verification-protocol` completed for every reported issue. |
+| 4 | `beagle-core:review-verification-protocol` + `go-verification-protocol` applied once over the finding list (per-finding evidence gate only for IRREVERSIBLE-action findings). |
 
 ## Output Format
 

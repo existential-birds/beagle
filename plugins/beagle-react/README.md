@@ -48,7 +48,7 @@ claude plugin install beagle-react@existential-birds
 | `remix-v2-perf-ssr` | Remix v2 performance, streaming, HTTP caching, and server/client boundaries |
 | `remix-v2-perf-ssr-review` | Review perf/SSR code: caching misuse, missing server/client split, hydration mismatches, prefetch hygiene |
 | `remix-v2-error-boundaries-review` | Review error handling: unified ErrorBoundary, isRouteErrorResponse narrowing, v1 holdovers |
-| `review-verification-protocol` | Reference: mandatory verification steps loaded before reporting code review findings |
+| `react-verification-protocol` | Reference: React/TypeScript verification deltas layered on `beagle-core:review-verification-protocol` before reporting review findings |
 
 ## See Also
 

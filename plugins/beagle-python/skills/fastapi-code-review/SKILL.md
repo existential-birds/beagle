@@ -52,7 +52,9 @@ Only flag issues when the context warrants it:
 
 ## Gates (FastAPI-specific)
 
-Run **once per FastAPI-related finding**, after you can anchor **`file:line`** for the handler (see [review-verification-protocol](../review-verification-protocol/SKILL.md)) and **before** the finding text ships. If a step’s pass condition is not met, **do not** assert the finding as written—gather evidence, withdraw, downgrade severity, or rephrase as a question.
+Run **once per review**, over the assembled set of FastAPI findings, and only for the gates whose claim type you actually make. Budget: max **1** pass. Stop when every gate you invoked has its cited artifact recorded. Tie-break: any finding still missing its artifact ships as a question or is dropped — do not re-run the gates.
+
+Reporting a finding is `beagle-core:verification-budget` tier REVERSIBLE, so these gates exist to anchor citations, not to re-litigate each item. A verdict that authorizes an IRREVERSIBLE action (deleting a handler, a dependency, or a route registration) re-reads its target immediately before acting. Core gates, severity calibration, and the Pre-Report checklist live in `beagle-core:review-verification-protocol`; Python-specific reference patterns live in this plugin's [Python delta](../python-verification-protocol/SKILL.md).
 
 ### Gate 1 — Route decorator and response surface
 
@@ -102,5 +104,5 @@ Before flagging "missing" functionality, verify FastAPI isn't handling it.
 
 ## Before Submitting Findings
 
-1. For each FastAPI-related finding, complete **Gates (FastAPI-specific)** above.
-2. Load and follow [review-verification-protocol](../review-verification-protocol/SKILL.md) (Pre-Report checklist and **Verification by Issue Type**) before reporting any issue.
+1. Run **Gates (FastAPI-specific)** above once over the assembled FastAPI findings.
+2. Apply `beagle-core:review-verification-protocol` (Pre-Report checklist and **Verification by Issue Type**) once to the finding list before it ships.

@@ -1,6 +1,6 @@
 ---
 name: quick-plan
-description: "Use when you need a bite-sized, TDD-driven implementation plan but do NOT have a brainstorm-beagle spec to plan against. quick-plan reconstructs intent from the current conversation, fans out domain-expert exploration subagents across the codebase, and synthesizes the same plan format write-plan produces — without requiring `.beagle/concepts/<slug>/spec.md`. Triggers on: \"quick plan\", \"plan this out\", \"plan what we just discussed\", \"turn this into an implementation plan\", \"plan this without a spec\", \"I don't have a spec, just plan it\", \"write-plan but no spec\". Make sure to use this skill whenever the user wants an implementation or TDD plan and there is no spec to plan against — even if they just say \"plan it\" after discussing a feature. Writes to `.beagle/plans/<slug>/plan.md`. If a finalized spec already exists at `.beagle/concepts/<slug>/spec.md`, prefer write-plan. Does NOT brainstorm specs, write code, or execute the plan — produces the plan document (and an optional handoff prompt) only."
+description: "Use when the user wants a bite-sized, TDD-driven implementation plan and there is no brainstorm-beagle spec to plan against — including a bare \"plan it\" after discussing a feature. Reconstructs intent from the conversation, explores the codebase via parallel subagents, and writes write-plan's plan format to `.beagle/plans/<slug>/plan.md`. Triggers on: \"quick plan\", \"plan this out\", \"plan what we just discussed\", \"turn this into an implementation plan\", \"plan this without a spec\". Prefer write-plan when a finalized spec exists at `.beagle/concepts/<slug>/spec.md`. Does NOT brainstorm specs, write code, or execute the plan."
 ---
 
 # Quick Plan: Conversation Into Implementation Plan
@@ -20,7 +20,7 @@ write-plan leans on a reviewed spec for three things. quick-plan reconstructs ea
 | **Reference Points** (analogous existing code) | The same fanout subagents, returning `file:line` analogs the plan mirrors. |
 | **A human-reviewed gate** | A **gap check**: proceed silently when the conversation is unambiguous; ask the user targeted questions only where intent has real holes. |
 
-The spec is a contract written *before* planning. quick-plan writes that contract *during* planning, from cheaper signals, and confirms only the load-bearing parts with the user. Everything downstream of the Intent Brief — task decomposition, TDD discipline, the recoverability test, the self-review gates — is **identical to write-plan**. Same output, different front-half.
+The spec is a contract written *before* planning. quick-plan writes that contract *during* planning, from cheaper signals, and confirms only the load-bearing parts with the user. Everything downstream of the Intent Brief — task decomposition, TDD discipline, the recoverability test, the one-pass draft review — is **identical to write-plan**. Same output, different front-half.
 
 ## Workflow
 
@@ -32,7 +32,7 @@ Complete these steps in order:
 4. **Read project conventions** — scan `AGENTS.md`/`CLAUDE.md` (root and nested) for testing tiers, comment policy, commit format, forbidden patterns the plan must respect.
 5. **Design file structure** — map files to create/modify before writing any task.
 6. **Decompose into tasks** — bite-sized (2-5 min) TDD steps with exact paths, tests, and commands — using write-plan's format exactly. See *Plan Format*.
-7. **Self-review** — run the checklist (intent coverage, placeholders, discriminating assertions, spike/parallel gates). See *Self-Review*.
+7. **Review the draft — one pass** — inline or via a reviewer subagent, against write-plan's [plan-reviewer.md](../write-plan/references/plan-reviewer.md). See *Review the Draft*.
 8. **Present draft to user** — show the full draft in chat; iterate on request.
 9. **Write to disk** — save to `.beagle/plans/<slug>/plan.md` only after explicit approval, then offer the execution handoff.
 
@@ -47,14 +47,14 @@ Read project conventions (AGENTS.md / CLAUDE.md)   ─┘→ merge findings into
         ↓
 Design file structure → Decompose into TDD tasks
         ↓
-Self-review → fix inline
+One review pass → fix inline
         ↓
 Present draft → User review
                ├─ Changes? → Revise
                └─ Approved? → Write to .beagle/plans/<slug>/plan.md
 ```
 
-**The terminal state is a written plan.** quick-plan does not execute the plan, run tests, or modify production code. After writing it asks whether to generate an execution handoff prompt via the **subagent-prompt** skill ([../../../beagle-core/skills/subagent-prompt/SKILL.md](../../../beagle-core/skills/subagent-prompt/SKILL.md)).
+**The terminal state is a written plan.** quick-plan does not execute the plan, run tests, or modify production code. After writing it asks whether to generate an execution handoff prompt via the **subagent-prompt** skill (`beagle-core:subagent-prompt`).
 
 ## Reconstructing Intent
 
@@ -101,7 +101,7 @@ Each subagent is briefed as a senior expert in that area's stack and returns a c
 
 ## Plan Format
 
-The plan document — header, file structure, task blocks, TDD steps, self-review outcome — uses **write-plan's template exactly**: [../write-plan/references/plan-template.md](../write-plan/references/plan-template.md). Read it; it is the single source of truth for the output shape, so the two skills never drift apart.
+The plan document — header, Executor Contract, file structure, task blocks, TDD steps, review outcome — uses **write-plan's template exactly**: [../write-plan/references/plan-template.md](../write-plan/references/plan-template.md). Read it; it is the single source of truth for the output shape, so the two skills never drift apart. That includes the mandatory inlined `## Executor Contract` block and the baseline suite command in the header — a quick-plan plan is no less in need of a legal way to stop.
 
 **One override:** quick-plan has no spec to link, so replace the template's `> **Source spec:** …` header line with the synthesized **Intent** block:
 
@@ -109,13 +109,15 @@ The plan document — header, file structure, task blocks, TDD steps, self-revie
 # [Feature Name] Implementation Plan
 
 > **Source:** Reconstructed from conversation via quick-plan (no spec). Intent captured below.
-> **For downstream agents:** Execute task-by-task. Each task uses `- [ ]` checkboxes. Do not skip the test-first steps — they catch wiring bugs that pure-logic tests miss.
+> **For downstream agents:** Execute task-by-task. Each task uses `- [ ]` checkboxes. Do not skip the test-first steps — they catch wiring bugs that pure-logic tests miss. Read the Executor Contract below before Task 1.
 
 **Goal:** [Intent Brief → Goal]
 
 **Architecture:** [2-3 sentences — the approach, informed by the fanout experts' recommendation]
 
 **Tech Stack:** [from Intent Brief → Constraints]
+
+**Baseline suite:** `[exact command, from the fanout Conventions reports]`
 
 ## Intent
 - **Must-haves:** [bulleted, each testable]
@@ -127,50 +129,26 @@ The plan document — header, file structure, task blocks, TDD steps, self-revie
 
 The **Intent** block is load-bearing, not decoration: it is the contract this plan was built against. A future reader (or executor agent) has no spec to fall back on — the plan must stand completely alone.
 
-Everything else — the `## Assumptions`, `## Patterns`, `## File Structure`, `## Task N` blocks, and `## Self-Review Outcome` — follows the template unchanged.
+Everything else — `## Executor Contract`, `## Assumptions`, `## Patterns`, `## File Structure`, the `## Task N` blocks, and `## Review Outcome` — follows the template unchanged.
 
-### TDD and Contract Discipline (inherited from write-plan)
+### Drafting Disciplines
 
-quick-plan produces the *same* plans, so the same discipline applies. These are the load-bearing rules; write-plan's [SKILL.md](../write-plan/SKILL.md) carries the full rationale for each:
+quick-plan produces the *same* plans, so the same discipline applies. Read write-plan's [references/planning-disciplines.md](../write-plan/references/planning-disciplines.md) before writing task bodies — it is the single source for all of it, and nothing is restated here.
 
-- **Bite-sized always** — 2-5 minute steps (write failing test → run it, see it fail → implement → run suite green → sweep → commit). Never bundle.
-- **TDD by default** — a failing-test step precedes every implementation step.
-- **Tests are the contract; impls are not.** Show real, exact test assertions + the call site (~15 lines, no seed-loop ceremony). For implementations, show a **behavior contract** — files touched + 3-5 bullets of new/changed behavior + a `file:line` **Reference** to the closest analog the fanout found. Do NOT pre-write implementation code; the executor writes it against the test under real signatures.
-- **Assertions pin observable consequence** — a value, a row, a written file, the output the next call sees — never dispatch ("the handler was called").
-- **Recoverability test** — delete anything the executor can recover by reading the referenced file. Verbosity is not specificity. References point (`file.ext:line-line`), they never paste.
-- **Reuse scaffolding** — grep for an existing helper/fixture/mock before inventing one; if none fits, name the one considered and why.
-- **Failure-propagation policy is non-optional** — every new fallible op (serialize/parse/convert/open/connect) states how its error propagates. `.unwrap_or(<plausible fallback>)` without explicit rationale is a bug class.
-- **Sweep on the way out** — every modify-file task ends by removing orphaned comments, unused imports, and dead helpers in the files it touched (targets named in plain language, not line numbers).
-- **DRY repetition with Patterns** — a transformation across 3+ sites is named once in a `Patterns` section; each task still owns its files, test, and commit. Patterns applied across N sites get a final `Audit` task.
-- **No placeholders** — no TBD/TODO, no "add validation" without naming which rules, no "similar to Task N." A behavior contract is the deliberate exception: specific contract, not vague verbs.
+Two of those disciplines bite **harder** without a spec, because no reviewed Key Decision stands behind the plan's assumptions:
 
-### Spike and Parallel-Implementation Gates (stricter here)
+- **Spike before plan-lock.** Reconstructed intent carries *more* unverified "tool X does Y" and input-shape claims than a vetted spec. Scan hard for them; each gets a `Task 0: Spike <claim>`.
+- **Parallel-implementation gate.** A second backend/platform/adapter behind an existing interface still requires the final contract-equivalence task. Non-optional.
 
-These two gates from write-plan matter **more** without a spec, because no reviewed Key Decision stands behind the plan's assumptions:
+## Review the Draft — One Pass
 
-- **Spike before plan-lock.** Any claim of the form "tool X does Y" or "input arrives in shape Z" that neither this repo nor the conversation has verified gets a `Task 0: Spike <claim>` — run the canonical command against this repo, capture real output, confirm or revise before other tasks run. Reconstructed intent has *more* unverified claims than a vetted spec, so scan hard for them.
-- **Parallel-implementation gate.** If the plan adds a second backend/platform/adapter behind an existing interface, the final task runs the canonical contract suite against **both** and asserts byte-identical observable behavior. Non-optional.
+After the complete draft exists, run **one** review pass against write-plan's [references/plan-reviewer.md](../write-plan/references/plan-reviewer.md), which carries every review criterion — format integrity, coverage and scope, test quality, implementation contracts, gates and loops. Pass the plan's `## Intent` block as the contract to review against, where write-plan would pass the spec.
 
-## Self-Review
+**If the agent supports subagents**, dispatch a reviewer with that brief for long (>10 tasks), unfamiliar, or high-stakes plans. **Otherwise**, or for short plans over familiar code, run the same pass inline. Identical criteria either way.
 
-After drafting the plan, look at the Intent Brief with fresh eyes and check the plan against it. Same checklist as write-plan, with **intent coverage** standing in for spec coverage:
+Fix blocking findings inline and move on — do not re-run the pass to confirm your own fixes landed. Record the outcome in the plan's `## Review Outcome`, including anything left open.
 
-| Dimension | What to check |
-|-----------|---------------|
-| **Intent coverage** | Every must-have in the Intent Brief maps to a task. Every task traces back to a must-have or a fanout finding — nothing invented. List any gap. |
-| **Scope discipline** | No task drifts into something the Brief marks out of scope. Without a spec, this is the easiest line to cross — cut creep. |
-| **Placeholder scan** | No TBD/TODO/"handle errors"/vague verbs. Fix inline. |
-| **Type consistency** | Names, signatures, and types match across tasks (`clearLayers()` vs `clearFullLayers()` is a bug). |
-| **Test discipline** | Every behavior-changing task has a failing-test step before its implementation step. |
-| **Discriminating assertion** | For each test, name a plausible broken/no-op impl that still passes it. If one exists, the assertion is on the wrong target — move it to the region the bug corrupts. |
-| **Consumer check** | Every new public surface (trait method, exported fn, endpoint, CLI flag) has a named **production** consumer in this plan — a test is not a consumer. Cut dead surface. |
-| **Spike candidates** | Every unverified "tool X does Y" / input-shape claim has a `Task 0` spike, or the Brief is revised. |
-| **Parallel-implementation gate** | Second backend/adapter behind an interface → final contract-equivalence task present. |
-| **Failure-propagation** | Every new fallible op's contract names its error policy. |
-| **Project conventions** | Plan respects AGENTS.md/CLAUDE.md — test tiers, comment policy, commit format. |
-| **Open questions closed** | Every Intent Brief open question is resolved — answered by the user, by fanout, or recorded as an Assumption. None left dangling. |
-
-Fix issues inline. Advance only when every item is honestly *yes*.
+Don't dispatch ritualistically; the user review that follows catches most of what a second machine pass would.
 
 ## Draft Review
 
@@ -195,9 +173,8 @@ If the user requests changes, revise inline and present again. Do not write to d
 - After writing, tell the user:
   > "Plan written to `.beagle/plans/<slug>/plan.md`. Review it on disk and let me know if you want changes."
 - Then ask exactly: **"Do you want a prompt to execute this plan in a new session?"**
-  - **If yes:** load the **subagent-prompt** skill ([../../../beagle-core/skills/subagent-prompt/SKILL.md](../../../beagle-core/skills/subagent-prompt/SKILL.md)), naming the just-written `plan.md` as the source material so its task-decomposition gates resolve from the plan without re-interrogating the user.
-  - **If no:** tell the user the plan is ready and they can hand it off later via the **subagent-prompt** skill in a fresh session.
-  - **If subagent-prompt is unavailable** (e.g. `beagle-core` not installed): instruct the user to invoke it themselves.
+  - **If yes:** load the **subagent-prompt** skill (`beagle-core:subagent-prompt`), naming the just-written `plan.md` as the source material so its task-decomposition gates resolve from the plan without re-interrogating the user. subagent-prompt owns the prompt's contract — do not restate it here.
+  - **If no, or if `beagle-core` is unavailable:** tell the user the plan is ready and they can hand it off later by invoking **subagent-prompt** themselves in a fresh session.
 - Wait for the next instruction before considering work complete.
 
 **Do not start executing.** quick-plan produces the plan (and optionally the handoff prompt); execution is a separate decision and a separate skill.
@@ -207,7 +184,7 @@ If the user requests changes, revise inline and present again. Do not write to d
 - **Conversation is the contract source** — reconstruct intent from the whole session and write it into the plan's Intent block; the plan must stand alone with no spec behind it.
 - **Confirm only the gaps** — proceed silently when intent is clear; spend user questions only on holes that change the plan's shape.
 - **Fanout experts reconstruct Reference Points and Key Decisions** — parallel explore-and-advise subagents ground the plan in real code and stack idioms; reconcile their conflicts, don't rubber-stamp.
-- **Same output as write-plan** — identical template, TDD discipline, recoverability test, and self-review gates; quick-plan only changes how the contract is sourced.
+- **Same output as write-plan** — identical template, disciplines, and one-pass review; quick-plan only changes how the contract is sourced.
 - **Spike harder** — reconstructed intent carries more unverified claims than a vetted spec; every "tool X does Y" or input-shape assumption gets a Task 0 spike.
 - **Guard scope** — without a spec boundary, creep is the main failure mode; the Intent Brief's out-of-scope list is load-bearing.
 

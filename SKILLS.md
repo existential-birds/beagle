@@ -42,7 +42,7 @@ Python, FastAPI, SQLAlchemy, PostgreSQL, pytest.
 | `sqlalchemy-code-review` | Sessions, relationships, N+1 queries, migrations |
 | `postgres-code-review` | Indexing, JSONB, connection pooling, transactions |
 | `pytest-code-review` | Async tests, fixtures, parametrize, mocking |
-| `review-verification-protocol` | Reference: mandatory verification steps for reviews |
+| `python-verification-protocol` | Reference: Python-specific false-positive patterns; extends `beagle-core:review-verification-protocol` |
 
 ## beagle-go
 
@@ -62,7 +62,7 @@ Go, BubbleTea, Wish SSH, Prometheus.
 | `bubbletea-code-review` | Model/update/view patterns and Lipgloss styling |
 | `wish-ssh-code-review` | SSH middleware, session handling, security |
 | `prometheus-go-code-review` | Metric types, labels, instrumentation patterns |
-| `review-verification-protocol` | Reference: mandatory verification steps for reviews |
+| `go-verification-protocol` | Reference: Go-specific false-positive patterns; extends `beagle-core:review-verification-protocol` |
 
 ## beagle-rust
 
@@ -81,7 +81,7 @@ Rust, tokio, axum, sqlx, serde.
 | `serde-code-review` | Derive patterns, enum representations, custom impls |
 | `ffi-code-review` | Type safety and unsafe boundary correctness |
 | `macros-code-review` | Macro hygiene, fragments, proc-macro patterns |
-| `review-verification-protocol` | Reference: mandatory verification steps for reviews |
+| `rust-verification-protocol` | Reference: Rust-specific false-positive patterns; extends `beagle-core:review-verification-protocol` |
 
 ## beagle-elixir
 
@@ -99,7 +99,7 @@ Elixir, Phoenix, LiveView, ExUnit, ExDoc.
 | `elixir-docs-review` | @moduledoc/@doc/@spec coverage and doctests |
 | `elixir-writing-docs` | Writing Elixir docs with metadata and cross-refs |
 | `exdoc-config` | Configure ExDoc generation |
-| `review-verification-protocol` | Reference: mandatory verification steps for reviews |
+| `elixir-verification-protocol` | Reference: Elixir-specific false-positive patterns; extends `beagle-core:review-verification-protocol` |
 
 ## beagle-react
 
@@ -134,7 +134,7 @@ React, React Flow, shadcn/ui, Tailwind, Vitest, Remix v2.
 | `remix-v2-perf-ssr` | Performance, streaming, caching, server/client split |
 | `remix-v2-perf-ssr-review` | Caching headers, hydration, prefetch hygiene |
 | `remix-v2-error-boundaries-review` | Unified ErrorBoundary and v1 holdovers |
-| `review-verification-protocol` | Reference: mandatory verification steps for reviews |
+| `react-verification-protocol` | Reference: React/TypeScript-specific false-positive patterns; extends `beagle-core:review-verification-protocol` |
 
 ## beagle-ios
 
@@ -157,7 +157,7 @@ Swift, SwiftUI, SwiftData, iOS frameworks.
 | `ios-animation-design` | Plan and spec iOS animations |
 | `ios-animation-implementation` | Write SwiftUI/Core Animation/UIKit animations |
 | `ios-animation-code-review` | Animation correctness, performance, accessibility |
-| `review-verification-protocol` | Reference: mandatory verification steps for reviews |
+| `ios-verification-protocol` | Reference: Swift/iOS-specific false-positive patterns; extends `beagle-core:review-verification-protocol` |
 
 ## beagle-docs
 

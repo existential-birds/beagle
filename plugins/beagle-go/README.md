@@ -33,7 +33,7 @@ claude plugin install beagle-go@existential-birds
 | `go-concurrency-web` | Worker pools, rate limiting, race detection, and safe shared state for high-throughput web apps |
 | `go-data-persistence` | Raw SQL with sqlx/pgx, Ent/GORM ORMs, connection pooling, golang-migrate, and transaction management |
 | `go-middleware` | HTTP middleware with context propagation, slog logging, centralized error handling, and panic recovery |
-| `review-verification-protocol` | Reference: mandatory verification steps loaded before reporting any review findings |
+| `go-verification-protocol` | Reference: Go-specific verification deltas layered on `beagle-core:review-verification-protocol` before reporting any review findings |
 
 ## See Also
 

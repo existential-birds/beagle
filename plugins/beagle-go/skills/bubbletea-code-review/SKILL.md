@@ -7,13 +7,13 @@ description: Reviews BubbleTea TUI code for proper Elm architecture, model/updat
 
 ## Hard gates (sequence)
 
-Advance only when each **pass condition** is objectively true (reduces false positives on `tea.Cmd` and unsubstantiated blocking claims):
+An enumerated check list, evaluated **once** in order (reduces false positives on `tea.Cmd` and unsubstantiated blocking claims). Record each **pass condition**'s outcome and proceed; if one cannot be satisfied, drop or downgrade the affected findings and flag why — do not re-run the sequence.
 
 | Gate | Pass condition |
 |------|----------------|
 | **G1 — Anti–false-positive** | You skimmed **NOT Issues** below **or** read [references/elm-architecture.md](references/elm-architecture.md) **before** recording a finding about `tea.Cmd` returns, value receivers on `Update`, or nested child `Update`. |
 | **G2 — Evidence for blocking / suspicious I/O** | Each Critical/Major finding names **file path + line** (or a short quoted snippet) showing the blocking call, `huh.Form.Run` in the wrong place, or other asserted anti-pattern—not a hypothetical. |
-| **G3 — Verification** | Before publishing review output, you applied the **[review-verification-protocol](../review-verification-protocol/SKILL.md)** to each proposed finding. |
+| **G3 — Verification** | Before publishing review output, you made **one** pass over the assembled finding list using `beagle-core:review-verification-protocol` plus the Go delta [go-verification-protocol](../go-verification-protocol/SKILL.md). One pass total, not one per finding — reporting is `beagle-core:verification-budget` tier REVERSIBLE. Tie-break: ship an uncertain finding as a question or drop it, and proceed. |
 
 ## Quick Reference
 

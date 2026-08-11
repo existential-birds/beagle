@@ -30,7 +30,7 @@ Complete in order. **Do not emit findings** until **Gate 4** passes for each iss
 **PASS when:** Each planned issue has `[FILE:LINE]` from the current tree for the macro definition, attribute/derive site, or generated code location you are discussing (not from memory, docs-only, or another branch).
 
 **Gate 4 — Pre-report protocol**  
-**PASS when:** You loaded and applied the [review-verification-protocol](../review-verification-protocol/SKILL.md) skill, including **Macro-Specific Verification** for hygiene, fragment type, and proc-macro performance claims. **Then** add findings.
+**PASS when:** You loaded `beagle-core:review-verification-protocol` plus the Rust delta at [rust-verification-protocol](../rust-verification-protocol/SKILL.md), and made **one** pass over the assembled finding list — consulting the delta's **Macro-specific verification** section for hygiene, fragment type, and proc-macro performance claims. One pass total, not one per finding: reporting is `beagle-core:verification-budget` tier REVERSIBLE. Budget: max **1** pass; tie-break: ship a still-uncertain finding as a question or drop it.
 
 ## Output Format
 

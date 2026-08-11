@@ -66,13 +66,13 @@ Only flag these issues when the specific conditions apply:
 
 ## Gates (reporting workflow)
 
-Complete **in order**. Do not advance until each **pass condition** is met.
+Complete **in order**. Budget: max **1** pass over this list per review. Stop when every item below has a recorded outcome. Tie-break: ship the review with the unresolved items flagged inline — do not re-run the list.
 
-1. **Scope** — **Pass:** You list every `.py` path (or explicit glob) you inspected this run.
-2. **False-positive screen** — **Pass:** For each issue you plan to report, you checked **Valid Patterns** and **Context-Sensitive Rules** above; you drop or narrow the finding if those sections say not to flag it.
-3. **Evidence** — **Pass:** Each remaining finding includes **`[FILE:LINE]`** (or a bounded line range). Symbols or short verbatim snippets may supplement the location anchor but do not replace it.
-4. **Verification protocol** — **Pass:** You load [review-verification-protocol](../review-verification-protocol/SKILL.md) and complete its mandatory steps **for each reported issue** before the user-facing write-up.
-5. **Ship** — **Pass:** The user-visible output matches whatever structure that protocol requires (no issues-only dump that skips its checks).
+1. **Scope** — You list every `.py` path (or explicit glob) you inspected this run.
+2. **False-positive screen** — For each issue you plan to report, you checked **Valid Patterns** and **Context-Sensitive Rules** above; you drop or narrow the finding if those sections say not to flag it.
+3. **Evidence** — Each remaining finding includes **`[FILE:LINE]`** (or a bounded line range). Symbols or short verbatim snippets may supplement the location anchor but do not replace it.
+4. **Verification protocol** — Load `beagle-core:review-verification-protocol` (plus this plugin's [Python delta](../python-verification-protocol/SKILL.md)) **once per review**, before the user-facing write-up, and apply its Pre-Report Verification Checklist to the finding list as a whole. Reporting a finding is `beagle-core:verification-budget` tier REVERSIBLE — cite the evidence you already have and move on. Only a finding whose verdict authorizes an IRREVERSIBLE action (deleting code, rewriting a file wholesale) gets the full per-finding evidence gate.
+5. **Ship** — The user-visible output matches whatever structure that protocol requires (no issues-only dump that skips its checks).
 
 ## When to Load References
 

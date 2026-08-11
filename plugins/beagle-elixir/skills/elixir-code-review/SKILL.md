@@ -70,12 +70,12 @@ description: Reviews Elixir code for idiomatic patterns, OTP basics, and documen
 
 ## Gates — before reporting
 
-Do these **in order** for the review batch. Do not publish findings until each step passes.
+Do these **in order**, once for the review batch. Budget: max **1** pass. Stop when each step has a recorded outcome for the finding list. Tie-break: ship the remainder as questions, or drop them — do not re-run the gates.
 
-1. **Protocol loaded** — Read [review-verification-protocol](../review-verification-protocol/SKILL.md) and apply its checks for each finding category you use (unused, validation, security, performance, etc.). **Pass:** For every substantive finding, you can name which protocol subsection you satisfied or state **N/A** with reason (pure style).
-2. **Anchored evidence** — **Pass:** Each finding includes a concrete locator: `path:line` (or line range), or `Module.function/arity` plus a short quoted snippet from the file.
-3. **Claims backed by artifacts** — For assertions like unused code, missing validation, or security risk, **Pass:** You attach the supporting artifact (e.g. search results, file read scope) or downgrade the item to an explicit **question** / **uncertain** with what you did not verify.
+1. **Protocol loaded** — Load `beagle-core:review-verification-protocol` **once**, at review entry, plus this plugin's [Elixir delta](../elixir-verification-protocol/SKILL.md). Apply its Pre-Report Verification Checklist to the finding list as a whole. Reporting is `beagle-core:verification-budget` tier REVERSIBLE — no per-finding recitation of which subsection you satisfied. Only a verdict authorizing an IRREVERSIBLE action (deleting a module, function, or migration) earns the full per-finding evidence gate.
+2. **Anchored evidence** — Each finding includes a concrete locator: `path:line` (or line range), or `Module.function/arity` plus a short quoted snippet from the file.
+3. **Claims backed by artifacts** — For assertions like unused code, missing validation, or security risk, attach the supporting artifact (search results naming the patterns searched, file read scope) or downgrade the item to an explicit **question** / **uncertain** with what you did not verify.
 
 ## Before Submitting Findings
 
-Complete **Gates — before reporting** (section above) first; the verification protocol is mandatory input to those gates.
+Record an outcome for each of **Gates — before reporting** above, then ship.

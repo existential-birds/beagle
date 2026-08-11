@@ -27,7 +27,7 @@ claude plugin install beagle-python@existential-birds
 | `sqlalchemy-code-review` | Session management, relationships, N+1 queries, and migration patterns |
 | `postgres-code-review` | Indexing strategies, JSONB operations, connection pooling, and transaction safety |
 | `pytest-code-review` | Async test patterns, fixtures, parametrize, and mocking |
-| `review-verification-protocol` | Reference: mandatory verification steps to reduce false positives |
+| `python-verification-protocol` | Reference: Python-specific verification steps extending `beagle-core:review-verification-protocol` |
 
 ## See Also
 

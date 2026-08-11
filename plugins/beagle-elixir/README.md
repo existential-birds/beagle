@@ -31,7 +31,7 @@ claude plugin install beagle-elixir@existential-birds
 | `elixir-docs-review` | Documentation completeness, @spec coverage, and doctest correctness |
 | `elixir-writing-docs` | Writing @moduledoc, @doc, @typedoc, doctests, cross-references, and metadata |
 | `exdoc-config` | ExDoc setup: mix.exs config, extras, groups, cheatsheets, and livebooks |
-| `review-verification-protocol` | Reference: mandatory verification steps to reduce false positives |
+| `elixir-verification-protocol` | Reference: Elixir-specific verification delta over `beagle-core:review-verification-protocol` |
 
 ## See Also
 

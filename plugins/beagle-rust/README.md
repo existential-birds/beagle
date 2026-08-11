@@ -32,7 +32,7 @@ claude plugin install beagle-rust@existential-birds
 | `rust-testing-code-review` | Reviews unit, integration, async, mock, and property-based tests including Rust 2024 testing changes |
 | `ffi-code-review` | Reviews extern blocks, `#[repr(C)]` types, string handling, callbacks, and unsafe boundary correctness |
 | `macros-code-review` | Reviews `macro_rules!` and procedural, derive, and attribute macros for hygiene, fragment misuse, and compile-time impact |
-| `review-verification-protocol` | Reference: mandatory verification steps loaded before reporting any review findings to reduce false positives |
+| `rust-verification-protocol` | Reference: Rust-specific verification delta extending `beagle-core:review-verification-protocol`, loaded before reporting any review findings |
 
 ## See Also
 

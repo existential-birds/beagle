@@ -29,6 +29,8 @@ Language-agnostic developer workflows: code review, git, PR/feedback handling, L
 | `review-feedback-schema` | Reference: schema for tracking review outcomes |
 | `review-skill-improver` | Reference: suggest review-skill improvements from feedback logs |
 | `review-verification-protocol` | Reference: mandatory verification steps for reviews |
+| `refactor-repo` | Survey a repo and file evidence-backed refactoring issues |
+| `fowler-refactoring` | Reference: Fowler refactoring decision rules and chapter mechanics |
 
 ## beagle-python
 

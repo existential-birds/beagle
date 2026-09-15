@@ -1,6 +1,6 @@
 # beagle-core
 
-Language-agnostic developer workflows shared across every beagle plugin: commit and push, open pull requests, generate release notes, review implementation plans and repo structure, detect and fix LLM coding artifacts, process PR and reviewer feedback, and build new skills. Part of the [beagle](https://github.com/existential-birds/beagle) Agent Skills marketplace — see the [full skill catalog](../../SKILLS.md).
+Language-agnostic developer workflows shared across every beagle plugin: commit and push, open pull requests, generate release notes, review implementation plans and repo structure, propose evidence-backed refactorings, detect and fix LLM coding artifacts, process PR and reviewer feedback, and build new skills. Part of the [beagle](https://github.com/existential-birds/beagle) Agent Skills marketplace — see the [full skill catalog](../../SKILLS.md).
 
 ## Installation
 
@@ -40,6 +40,12 @@ claude plugin install beagle-core@existential-birds
 | `review-verification-protocol` | Reference: mandatory verification steps loaded before reporting any code review findings |
 | `review-feedback-schema` | Reference: schema for tracking code review outcomes to enable feedback-driven skill improvement |
 | `review-skill-improver` | Reference: analyzes feedback logs to surface patterns and suggest improvements to review skills |
+| `refactor-repo` | Survey a repository and file evidence-backed, Fowler-grounded refactoring issues (drafts by default; publishes only when authorized) |
+| `fowler-refactoring` | Reference: Fowler refactoring decision rules and chapter mechanics for behavior-preserving changes |
+
+## Invocation
+
+Invoke the skills by the hosting agent's own convention. In Claude Code, use the namespaced plugin form (for example `/beagle-core:refactor-repo /path/to/repo drafts only`). In Codex and other namespace-free agents, load the installed skill by name and give it the same instruction (`refactor-repo on /path/to/repo, drafts only`). `fowler-refactoring` loads automatically when refactoring work is detected; it is not user-invocable.
 
 ## See Also
 

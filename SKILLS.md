@@ -1,6 +1,6 @@
 # Skill Catalog
 
-All **82** skills in [Beagle](README.md), organized by domain. Every skill lives under `skills/<skill-name>/SKILL.md` and follows the [Agent Skills specification](https://agentskills.io/specification).
+All **84** skills in [Beagle](README.md), organized by domain. Every skill lives under `skills/<skill-name>/SKILL.md` and follows the [Agent Skills specification](https://agentskills.io/specification).
 
 Install all skills or pick individual ones with the [skills CLI](https://skills.sh/docs/cli):
 
@@ -13,13 +13,15 @@ Once installed, compatible coding agents load relevant skills automatically or w
 
 ## Core Review, PR Feedback & Skill Tooling
 
-Cross-language code review, verification, PR comment triage, LLM-artifact cleanup, and skill authoring/validation (12 skills).
+Cross-language code review, verification, PR comment triage, refactoring surveys, LLM-artifact cleanup, and skill authoring/validation (14 skills).
 
 | Skill | Description |
 |-------|-------------|
 | [`review-plan`](skills/review-plan/SKILL.md) | Review implementation plans for parallelization, TDD adherence, type/API accuracy, best practices, and security before execution |
 | [`review-structure`](skills/review-structure/SKILL.md) | Repo-wide structural-maintainability review covering code-judo simplifications, 1k-line guards, branching, canonical layers, and boundary contracts |
 | [`review-verification-protocol`](skills/review-verification-protocol/SKILL.md) | Mandatory verification steps for code reviews and static audits to eliminate false positives and confabulated findings |
+| [`refactor-repo`](skills/refactor-repo/SKILL.md) | Survey a repository and prepare or publish evidence-backed refactoring GitHub issues grounded in Fowler's catalog |
+| [`fowler-refactoring`](skills/fowler-refactoring/SKILL.md) | Reference knowledge base of Martin Fowler's *Refactoring* (2nd ed.) decision rules, code smells, and chapter mechanics |
 | [`fetch-pr-feedback`](skills/fetch-pr-feedback/SKILL.md) | Fetch unresolved GitHub PR review comments, strip bot noise, format by reviewer, and triage via `receive-feedback` |
 | [`receive-feedback`](skills/receive-feedback/SKILL.md) | Process external PR, LLM, or CI review feedback with verification-first rigor and isolated fixes |
 | [`respond-pr-feedback`](skills/respond-pr-feedback/SKILL.md) | Post concise technical replies to unreplied PR review comments and resolve threads via GitHub REST and GraphQL APIs |

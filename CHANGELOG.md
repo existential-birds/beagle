@@ -6,6 +6,11 @@ Format follows [Keep a Changelog](https://keepachangelog.com/en/1.1.0/). Version
 
 ## [Unreleased]
 
+### Added
+- **`refactor-repo` and `fowler-refactoring`:** Added two new skills for evidence-backed repository refactoring surveys ([#155](https://github.com/existential-birds/beagle/pull/155)):
+  - `refactor-repo` pins a repository commit, inventories tracked blobs, analyzes shards across four investigation lenses, adjudicates candidates against a coverage ledger, and prepares (or, when explicitly authorized, publishes) scoped GitHub issues grounded in named Fowler refactorings — backed by a stdlib-only Python helper (`scripts/repo_refactor.py`) with stable-marker deduplication, exact readback verification, and 34 hermetic tests (`scripts/test_repo_refactor.py`).
+  - `fowler-refactoring` provides a structured reference knowledge base of *Refactoring* (2nd ed.) decision rules, code smells, and 14 chapter/glossary guides.
+
 ## [5.0.0] - 2026-11-25
 
 ### Breaking

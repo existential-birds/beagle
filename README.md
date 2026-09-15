@@ -74,6 +74,8 @@ Your agent discovers every skill automatically; these are the headline ones, gro
 
 **Analysis & planning** — `review-plan`, `write-adr`, `brainstorm-beagle`, `write-plan`, `quick-plan`, `llm-judge`, `strategy-interview`, `prfaq-beagle`, `web-research`.
 
+**Refactoring** — `refactor-repo` (evidence-backed refactoring backlog issues), `fowler-refactoring` (Fowler decision rules and chapter mechanics).
+
 **Testing** — `gen-test-plan`, `run-test-plan`.
 
 **Skill tooling** — `skill-builder`, `review-skill`.

@@ -1,8 +1,8 @@
 blank_issues_enabled: false
 contact_links:
-  - name: Claude Code Documentation
-    url: https://docs.anthropic.com/en/docs/claude-code
-    about: Official Claude Code documentation
+  - name: Agent Skills Specification
+    url: https://agentskills.io/specification
+    about: Official Agent Skills specification and authoring format
   - name: Discussions
     url: https://github.com/existential-birds/beagle/discussions
     about: Ask questions and share ideas

@@ -1,22 +1,22 @@
 ---
 name: New skill request
-about: Request a new technology skill or command
+about: Request a new technology or workflow skill
 title: "[Skill] "
 labels: new-skill
 assignees: ''
 ---
 
-## Technology or framework
+## Technology or workflow
 
-What technology should this skill cover?
+What technology or workflow should this skill cover?
 
 ## Why is this needed?
 
-What problems would this skill solve for Claude Code users?
+What non-obvious pitfalls, recent framework changes, or workflow gaps would this skill solve for coding-agent users?
 
 ## Key knowledge areas
 
-What should Claude know about this technology? List 3-5 specific topics:
+What should an agent know about this technology? List 3-5 specific topics:
 
 1.
 2.

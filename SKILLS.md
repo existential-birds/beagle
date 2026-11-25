@@ -1,207 +1,164 @@
 # Skill Catalog
 
-Every skill in the [beagle](README.md) Agent Skills marketplace, grouped by plugin. Each plugin's own README has fuller descriptions and install notes; this page is the at-a-glance index.
+All **82** skills in [Beagle](README.md), organized by domain. Every skill lives under `skills/<skill-name>/SKILL.md` and follows the [Agent Skills specification](https://agentskills.io/specification).
 
-Skills are invoked automatically by any compatible coding agent, or run directly by name (for example `review-python`). The deprecated `beagle-ai` plugin is not listed.
+Install all skills or pick individual ones with the [skills CLI](https://skills.sh/docs/cli):
 
-## beagle-core
+```bash
+npx skills add existential-birds/beagle
+npx skills add existential-birds/beagle --skill review-python
+```
 
-Language-agnostic developer workflows: code review, git, PR/feedback handling, LLM-artifact cleanup, and skill tooling.
+Once installed, compatible coding agents load relevant skills automatically or when invoked by name.
 
-| Skill | Description |
-|-------|-------------|
-| `commit-push` | Commit and push local changes |
-| `create-pr` | Open a PR with a standardized description |
-| `gen-release-notes` | Generate release notes since a tag |
-| `review-plan` | Review an implementation plan before execution |
-| `review-structure` | Repo-wide structural-maintainability review |
-| `review-llm-artifacts` | Detect LLM coding artifacts across tests, dead code, abstraction, and style |
-| `verify-llm-artifacts` | Confirm or reject artifact findings before deletes |
-| `fix-llm-artifacts` | Apply fixes from a review-llm-artifacts run (safe/risky) |
-| `receive-feedback` | Process external review feedback, verifying claims first |
-| `fetch-pr-feedback` | Fetch unresolved PR review comments and evaluate them |
-| `respond-pr-feedback` | Reply to PR review comments after fixes |
-| `skill-builder` | Create Agent Skills with best practices and validation |
-| `review-skill` | Review PRs that add or modify Agent Skills |
-| `subagent-prompt` | Hand off the session to a fresh orchestrator-plus-subagents session |
-| `prompt-improver` | Optimize prompts for code-related tasks |
-| `llm-artifacts-detection` | Reference: detection patterns for LLM coding artifacts |
-| `review-feedback-schema` | Reference: schema for tracking review outcomes |
-| `review-skill-improver` | Reference: suggest review-skill improvements from feedback logs |
-| `review-verification-protocol` | Reference: mandatory verification steps for reviews |
+## Core Review, PR Feedback & Skill Tooling
 
-## beagle-python
-
-Python, FastAPI, SQLAlchemy, PostgreSQL, pytest.
+Cross-language code review, verification, PR comment triage, LLM-artifact cleanup, and skill authoring/validation (12 skills).
 
 | Skill | Description |
 |-------|-------------|
-| `review-python` | Comprehensive Python/FastAPI code review |
-| `python-code-review` | Type safety, async patterns, error handling |
-| `fastapi-code-review` | Routing, dependency injection, validation, async handlers |
-| `sqlalchemy-code-review` | Sessions, relationships, N+1 queries, migrations |
-| `postgres-code-review` | Indexing, JSONB, connection pooling, transactions |
-| `pytest-code-review` | Async tests, fixtures, parametrize, mocking |
-| `review-verification-protocol` | Reference: mandatory verification steps for reviews |
+| [`review-plan`](skills/review-plan/SKILL.md) | Review implementation plans for parallelization, TDD adherence, type/API accuracy, best practices, and security before execution |
+| [`review-structure`](skills/review-structure/SKILL.md) | Repo-wide structural-maintainability review covering code-judo simplifications, 1k-line guards, branching, canonical layers, and boundary contracts |
+| [`review-verification-protocol`](skills/review-verification-protocol/SKILL.md) | Mandatory verification steps for code reviews and static audits to eliminate false positives and confabulated findings |
+| [`fetch-pr-feedback`](skills/fetch-pr-feedback/SKILL.md) | Fetch unresolved GitHub PR review comments, strip bot noise, format by reviewer, and triage via `receive-feedback` |
+| [`receive-feedback`](skills/receive-feedback/SKILL.md) | Process external PR, LLM, or CI review feedback with verification-first rigor and isolated fixes |
+| [`respond-pr-feedback`](skills/respond-pr-feedback/SKILL.md) | Post concise technical replies to unreplied PR review comments and resolve threads via GitHub REST and GraphQL APIs |
+| [`review-llm-artifacts`](skills/review-llm-artifacts/SKILL.md) | Detect LLM coding artifacts across tests, dead code, abstraction, and style (changed files since main by default, or `--all`) |
+| [`verify-llm-artifacts`](skills/verify-llm-artifacts/SKILL.md) | Confirm or reject findings from `review-llm-artifacts` before deletes or risky refactors |
+| [`fix-llm-artifacts`](skills/fix-llm-artifacts/SKILL.md) | Apply fixes from a prior `review-llm-artifacts` run with safe/risky classification, honoring `verify-llm-artifacts` output |
+| [`llm-artifacts-detection`](skills/llm-artifacts-detection/SKILL.md) | Reference catalog of detection patterns for LLM coding agent cruft across tests, dead code, over-abstraction, and style |
+| [`skill-builder`](skills/skill-builder/SKILL.md) | Create and refine Agent Skills with `agentskills.io` compliance, progressive disclosure, validation, and testing |
+| [`review-skill`](skills/review-skill/SKILL.md) | Review PRs that add or modify Agent Skills for structural validity, design quality, spec compliance, and repository consistency |
 
-## beagle-go
+## Analysis, Strategy & Planning
 
-Go, BubbleTea, Wish SSH, Prometheus.
-
-| Skill | Description |
-|-------|-------------|
-| `review-go` | Comprehensive Go backend review (detects BubbleTea, Wish, Prometheus) |
-| `review-tui` | BubbleTea TUI review (Elm architecture, Lipgloss) |
-| `go-code-review` | Idiomatic patterns, error handling, concurrency safety |
-| `go-testing-code-review` | Table-driven tests, assertions, coverage |
-| `go-architect` | App architecture, routing, project layout, DI |
-| `go-web-expert` | Production-quality Go web development persona |
-| `go-concurrency-web` | Worker pools, rate limiting, race-safe shared state |
-| `go-data-persistence` | SQL, ORMs, pooling, migrations, transactions |
-| `go-middleware` | Context propagation, slog, error handling, recovery |
-| `bubbletea-code-review` | Model/update/view patterns and Lipgloss styling |
-| `wish-ssh-code-review` | SSH middleware, session handling, security |
-| `prometheus-go-code-review` | Metric types, labels, instrumentation patterns |
-| `review-verification-protocol` | Reference: mandatory verification steps for reviews |
-
-## beagle-rust
-
-Rust, tokio, axum, sqlx, serde.
+Concept filtering, spec brainstorming, gap resolution, TDD planning, ADRs, strategy, research, and implementation comparison (12 skills).
 
 | Skill | Description |
 |-------|-------------|
-| `review-rust` | Comprehensive Rust review across detected tech areas |
-| `rust-code-review` | Ownership, borrowing, lifetimes, traits, unsafe |
-| `rust-testing-code-review` | Unit/integration/async tests, mocking, property tests |
-| `rust-best-practices` | Idiomatic Rust development guidance |
-| `rust-project-setup` | Scaffolding new projects, Cargo.toml, CI, workspaces |
-| `axum-code-review` | Routing, extractors, middleware, state, errors |
-| `tokio-async-code-review` | Tasks, sync primitives, channels, runtime config |
-| `sqlx-code-review` | Compile-time queries, pools, migrations, Postgres |
-| `serde-code-review` | Derive patterns, enum representations, custom impls |
-| `ffi-code-review` | Type safety and unsafe boundary correctness |
-| `macros-code-review` | Macro hygiene, fragments, proc-macro patterns |
-| `review-verification-protocol` | Reference: mandatory verification steps for reviews |
+| [`prfaq-beagle`](skills/prfaq-beagle/SKILL.md) | Working Backwards PRFAQ gauntlet to pass/fail a product, tool, or OSS concept before `brainstorm-beagle` |
+| [`brainstorm-beagle`](skills/brainstorm-beagle/SKILL.md) | Shape a fuzzy idea into a concrete WHAT/WHY project spec at `.beagle/concepts/<slug>/spec.md` |
+| [`resolve-beagle`](skills/resolve-beagle/SKILL.md) | Close Open Questions and latent gaps in a `brainstorm-beagle` spec before planning or implementation |
+| [`write-plan`](skills/write-plan/SKILL.md) | Turn a finalized `brainstorm-beagle` spec into a bite-sized, TDD-driven implementation plan |
+| [`quick-plan`](skills/quick-plan/SKILL.md) | Produce a bite-sized TDD implementation plan reconstructed from conversation when no spec exists |
+| [`write-adr`](skills/write-adr/SKILL.md) | Extract architectural decisions from discussions and generate/verify MADR Architecture Decision Records |
+| [`agent-architecture-analysis`](skills/agent-architecture-analysis/SKILL.md) | Deep per-factor codebase audit against the 12-Factor Agents methodology with file-level evidence |
+| [`llm-judge`](skills/llm-judge/SKILL.md) | Compare two or more code implementations against a spec or requirements doc with structured scoring |
+| [`strategy-interview`](skills/strategy-interview/SKILL.md) | Build or clarify product, company, or initiative strategy through guided conversation |
+| [`strategy-review`](skills/strategy-review/SKILL.md) | Pressure-test an existing strategy document across seven dimensions and optional strategic lenses |
+| [`web-research`](skills/web-research/SKILL.md) | Gather multi-angle web evidence into a written plan and cited synthesis report on disk |
+| [`artifact-analysis`](skills/artifact-analysis/SKILL.md) | Scan local documents and project knowledge into a path-cited synthesis report on disk |
 
-## beagle-elixir
+## Documentation & Writing Quality
 
-Elixir, Phoenix, LiveView, ExUnit, ExDoc.
-
-| Skill | Description |
-|-------|-------------|
-| `review-elixir` | Comprehensive Elixir/Phoenix review |
-| `elixir-code-review` | Idiomatic patterns, OTP basics, documentation |
-| `phoenix-code-review` | Controllers, context boundaries, routing, plugs |
-| `liveview-code-review` | Lifecycle, assigns/streams, components, security |
-| `exunit-code-review` | Test patterns and boundary mocking with Mox |
-| `elixir-performance-review` | GenServer bottlenecks, memory, concurrency |
-| `elixir-security-review` | Code injection, atom exhaustion, secret handling |
-| `elixir-docs-review` | @moduledoc/@doc/@spec coverage and doctests |
-| `elixir-writing-docs` | Writing Elixir docs with metadata and cross-refs |
-| `exdoc-config` | Configure ExDoc generation |
-| `review-verification-protocol` | Reference: mandatory verification steps for reviews |
-
-## beagle-react
-
-React, React Flow, shadcn/ui, Tailwind, Vitest, Remix v2.
+Diataxis documentation auditing and AI-writing detection/humanization (3 skills).
 
 | Skill | Description |
 |-------|-------------|
-| `review-frontend` | Comprehensive React/TypeScript review |
-| `review-remix-v2` | Comprehensive Remix v2 review |
-| `react-router-v7` | Data-driven routing best practices |
-| `react-router-code-review` | Data loading, mutations, navigation |
-| `react-flow` | Workflow visualization with custom nodes and edges |
-| `react-flow-implementation` | Build node-based UIs with @xyflow/react |
-| `react-flow-advanced` | Sub-flows, drag-and-drop, undo/redo |
-| `react-flow-architecture` | Designing node-based UI architecture |
-| `react-flow-code-review` | React Flow anti-patterns and performance |
-| `dagre-react-flow` | Automatic graph layout with dagre |
-| `shadcn-ui` | shadcn/ui component patterns with Radix + Tailwind |
-| `shadcn-code-review` | CVA patterns, composition, accessibility |
-| `tailwind-v4` | Tailwind v4 CSS-first config and design tokens |
-| `ai-elements` | Vercel AI Elements for workflow UI |
-| `zustand-state` | Zustand state management |
-| `vitest-testing` | Vitest patterns and best practices |
-| `remix-v2-routing` | Flat-routes v2 conventions and layouts |
-| `remix-v2-routing-review` | Route naming, layouts, resource-route shape |
-| `remix-v2-data-flow` | Loaders, actions, deferred data, revalidation |
-| `remix-v2-data-flow-review` | Mutations-in-loader, validation, return helpers |
-| `remix-v2-forms` | Form submissions, optimistic UI, uploads |
-| `remix-v2-forms-review` | Manual-fetch mutations, pending state, intents |
-| `remix-v2-meta-sessions` | Meta/SEO, sessions, auth, CSRF |
-| `remix-v2-meta-sessions-review` | v1 meta shape, cookie security, auth layer |
-| `remix-v2-perf-ssr` | Performance, streaming, caching, server/client split |
-| `remix-v2-perf-ssr-review` | Caching headers, hydration, prefetch hygiene |
-| `remix-v2-error-boundaries-review` | Unified ErrorBoundary and v1 holdovers |
-| `review-verification-protocol` | Reference: mandatory verification steps for reviews |
+| [`improve-doc`](skills/improve-doc/SKILL.md) | Audit and refactor Markdown documentation using Diataxis principles, split mixed sections, and check type balance (`--balance`) |
+| [`review-ai-writing`](skills/review-ai-writing/SKILL.md) | Detect AI-generated writing patterns across docs, docstrings, commit messages, PR descriptions, and comments |
+| [`humanize-beagle`](skills/humanize-beagle/SKILL.md) | Rewrite AI-generated developer text to fix inflated language, filler, and robotic tone with safe/risky controls |
 
-## beagle-ios
+## End-to-End Testing
 
-Swift, SwiftUI, SwiftData, iOS frameworks.
+Language-agnostic E2E test plan generation and execution, including browser testing via `agent-browser` (2 skills).
 
 | Skill | Description |
 |-------|-------------|
-| `review-ios` | Comprehensive iOS/SwiftUI review |
-| `swift-code-review` | Concurrency safety, error handling, memory |
-| `swiftui-code-review` | View composition, state, performance, accessibility |
-| `swiftdata-code-review` | Model design, queries, concurrency, migrations |
-| `swift-testing-code-review` | #expect/#require, parameterized and async tests |
-| `combine-code-review` | Memory leaks, operator misuse, error handling |
-| `urlsession-code-review` | Async networking, requests, caching, background |
-| `app-intents-code-review` | Intents, entities, shortcuts, parameters |
-| `cloudkit-code-review` | Containers, records, subscriptions, sharing |
-| `healthkit-code-review` | Authorization, queries, background delivery |
-| `widgetkit-code-review` | Timelines, view composition, configurable intents |
-| `watchos-code-review` | Lifecycle, complications, WatchConnectivity |
-| `ios-animation-design` | Plan and spec iOS animations |
-| `ios-animation-implementation` | Write SwiftUI/Core Animation/UIKit animations |
-| `ios-animation-code-review` | Animation correctness, performance, accessibility |
-| `review-verification-protocol` | Reference: mandatory verification steps for reviews |
+| [`gen-test-plan`](skills/gen-test-plan/SKILL.md) | Analyze repo, detect stack, trace changes to user-facing entry points, and generate an E2E YAML test plan |
+| [`run-test-plan`](skills/run-test-plan/SKILL.md) | Execute a YAML test plan, stop on first failure, and output a structured debug prompt |
 
-## beagle-docs
+## Python
 
-Documentation quality and AI-writing detection (Diataxis).
+Python, FastAPI, SQLAlchemy 2.0, PostgreSQL, and pytest (5 skills).
 
 | Skill | Description |
 |-------|-------------|
-| `improve-doc` | Analyze and improve existing docs (Diataxis) |
-| `draft-docs` | Generate first-draft docs from code analysis |
-| `ensure-docs` | Check doc coverage and fill gaps interactively |
-| `review-ai-writing` | Detect AI-writing patterns in developer text |
-| `humanize-beagle` | Rewrite AI-generated text to sound human |
-| `docs-style` | Core documentation writing principles |
-| `tutorial-docs` | Patterns for learning-oriented tutorials |
-| `howto-docs` | Patterns for task-oriented how-to guides |
-| `reference-docs` | Patterns for API and reference docs |
-| `explanation-docs` | Patterns for conceptual explanation docs |
+| [`review-python`](skills/review-python/SKILL.md) | Comprehensive Python backend code review across FastAPI, SQLAlchemy, PostgreSQL, and pytest |
+| [`fastapi-code-review`](skills/fastapi-code-review/SKILL.md) | FastAPI routing, dependency injection (`Depends`/`Annotated`), Pydantic v2 validation, and async/sync handler safety |
+| [`sqlalchemy-code-review`](skills/sqlalchemy-code-review/SKILL.md) | SQLAlchemy 2.0 `Mapped` models, session lifecycle, N+1 queries, bulk DML, and safe Alembic migrations |
+| [`postgres-code-review`](skills/postgres-code-review/SKILL.md) | PostgreSQL indexing strategies, JSONB operations, connection pooling, and transaction safety |
+| [`pytest-code-review`](skills/pytest-code-review/SKILL.md) | `pytest-asyncio` configuration, async resource cleanup, fixture scoping, parametrize, and mock correctness |
 
-## beagle-analysis
+## Frontend (React & TypeScript)
 
-Brainstorming, ADRs, strategy, LLM-as-judge, planning, research.
+React 19, React Router v7, `@xyflow/react`, shadcn/ui, Tailwind CSS v4, Zustand v5, Vitest v4, and legacy Remix v2 maintenance (10 skills).
 
 | Skill | Description |
 |-------|-------------|
-| `brainstorm-beagle` | Shape a fuzzy idea into a concrete project spec |
-| `resolve-beagle` | Close open questions and gaps in a brainstorm spec |
-| `prfaq-beagle` | Working Backwards PRFAQ filter (pass/fail a concept) |
-| `write-plan` | Turn a brainstorm spec into a TDD implementation plan |
-| `quick-plan` | TDD plan with no spec, reconstructed from the conversation |
-| `write-adr` | Generate ADRs from the current session |
-| `adr-writing` | Write/format an ADR using the MADR template |
-| `adr-decision-extraction` | Mine a conversation for architectural decisions |
-| `agent-architecture-analysis` | Audit a codebase against 12-Factor Agents |
-| `strategy-interview` | Build strategy through guided conversation |
-| `strategy-review` | Pressure-test an existing strategy document |
-| `web-research` | Parallel web research with a cited synthesis report |
-| `artifact-analysis` | Cited, structured read of local docs |
-| `llm-judge` | Compare 2+ implementations against a spec with scoring |
+| [`review-frontend`](skills/review-frontend/SKILL.md) | Comprehensive React/TypeScript review with tech detection across React Router, React Flow, shadcn/ui, Tailwind v4, Zustand, and Vitest |
+| [`react-router-v7`](skills/react-router-v7/SKILL.md) | React Router v7 best practices for data-driven routing, loaders, actions, forms, fetchers, and search params |
+| [`react-router-code-review`](skills/react-router-code-review/SKILL.md) | React Router v7 (and v6.4+ Data Router) code review for data loading, mutations, error handling, and navigation |
+| [`react-flow`](skills/react-flow/SKILL.md) | Implement and structure node-based UIs with `@xyflow/react` v12/v13, sub-flows, store subscriptions, and `@dagrejs/dagre` layout |
+| [`react-flow-code-review`](skills/react-flow-code-review/SKILL.md) | Review `@xyflow/react` v12/v13 code for re-render traps, SSR/measurement bugs, coordinate offsets, and deprecated APIs |
+| [`shadcn-code-review`](skills/shadcn-code-review/SKILL.md) | Review shadcn/ui components for CVA patterns, `asChild` or Base UI `render` composition, accessibility states, and `data-slot` usage |
+| [`tailwind-v4`](skills/tailwind-v4/SKILL.md) | Tailwind CSS v4 CSS-first configuration, OKLCH design tokens, `@theme`, `@utility`, `@custom-variant` dark mode, and v3-to-v4 updates |
+| [`zustand-state`](skills/zustand-state/SKILL.md) | Zustand v5 state management with curried `create<T>()(...)`, `useShallow`, `partialize`, middleware, and React Context injection |
+| [`vitest-testing`](skills/vitest-testing/SKILL.md) | Vitest v4 testing patterns, `vitest.config`, mocking (`vi.mock`/`vi.hoisted`/`vi.fn`), coverage, and Browser Mode |
+| [`review-remix-v2`](skills/review-remix-v2/SKILL.md) | Legacy maintenance review for EOL Remix v2 (`@remix-run/*`) apps covering routing, loaders/actions, forms, sessions, and SSR |
 
-## beagle-testing
+## Go
 
-Generate and execute language-agnostic end-to-end test plans, including browser tests via agent-browser.
+Go backend services, `net/http` 1.22+, BubbleTea/Wish v1 & v2 TUIs, persistence, and Prometheus instrumentation (9 skills).
 
 | Skill | Description |
 |-------|-------------|
-| `gen-test-plan` | Detect stack, trace changes, generate an E2E YAML test plan |
-| `run-test-plan` | Execute a YAML test plan, stop on first failure |
+| [`review-go`](skills/review-go/SKILL.md) | Comprehensive Go backend code review; detects BubbleTea, Wish SSH, and Prometheus and loads matching skills |
+| [`review-tui`](skills/review-tui/SKILL.md) | Comprehensive BubbleTea TUI review for `charmbracelet` and `charm.land/v2` terminal applications and Wish SSH servers |
+| [`go-code-review`](skills/go-code-review/SKILL.md) | Idiomatic Go review covering error handling, concurrency safety, generics, `errors.Join`, `slog`, and Go 1.22+ loop semantics |
+| [`go-testing-code-review`](skills/go-testing-code-review/SKILL.md) | Go test code review for table-driven tests, `t.Helper()`, assertions, benchmarks, and coverage patterns |
+| [`go-architect`](skills/go-architect/SKILL.md) | Go application architecture with `net/http` 1.22+ routing, middleware, project layout, graceful shutdown, and dependency injection |
+| [`go-data-persistence`](skills/go-data-persistence/SKILL.md) | Go persistence patterns covering `sqlx`/`pgx`, Ent/GORM, connection pooling, `golang-migrate`, and transactions |
+| [`bubbletea-code-review`](skills/bubbletea-code-review/SKILL.md) | BubbleTea Elm architecture, model/update/view patterns, and Lipgloss styling across v1 and `charm.land/bubbletea/v2` |
+| [`wish-ssh-code-review`](skills/wish-ssh-code-review/SKILL.md) | Wish SSH server middleware, PTY/session handling, and security patterns for `charmbracelet/wish` and `charm.land/wish/v2` |
+| [`prometheus-go-code-review`](skills/prometheus-go-code-review/SKILL.md) | Prometheus instrumentation in Go (`prometheus/client_golang`) for metric types, route labels, and custom registries |
+
+## Rust
+
+Rust Edition 2024, tokio, axum 0.7/0.8+, sqlx, serde, FFI, and macros (10 skills).
+
+| Skill | Description |
+|-------|-------------|
+| [`review-rust`](skills/review-rust/SKILL.md) | Comprehensive Rust code review that detects technology areas and coordinates sub-reviews |
+| [`rust-code-review`](skills/rust-code-review/SKILL.md) | Rust review for ownership, lifetimes, error handling, traits, memory ordering, lock-free patterns, and `unsafe` usage |
+| [`rust-testing-code-review`](skills/rust-testing-code-review/SKILL.md) | Rust unit/integration/async tests, `tokio::test`, mocking, property testing, `loom`/Miri concurrency tests, and `#[expect]` |
+| [`rust-best-practices`](skills/rust-best-practices/SKILL.md) | Idiomatic, performant, safe Rust authoring, API design, Cargo workspace lints/features, and Rust Edition 2024 migration |
+| [`axum-code-review`](skills/axum-code-review/SKILL.md) | Axum web framework review for routing, extractors (`State`, `Path`, `Query`, `Json`), Tower middleware, and axum 0.7/0.8+ |
+| [`tokio-async-code-review`](skills/tokio-async-code-review/SKILL.md) | Tokio async runtime tasks, synchronization primitives, channels, cancellation safety, and runtime configuration |
+| [`sqlx-code-review`](skills/sqlx-code-review/SKILL.md) | Compile-time `sqlx` query checking, connection pools, migrations, offline mode, and PostgreSQL usage |
+| [`serde-code-review`](skills/serde-code-review/SKILL.md) | Serde derive patterns, enum representations, custom `Serialize`/`Deserialize` impls, and format pitfalls |
+| [`ffi-code-review`](skills/ffi-code-review/SKILL.md) | Rust FFI type safety, `#[repr(C)]` layout, `CStr`/`CString`, callbacks, atomics, and `unsafe` boundary correctness |
+| [`macros-code-review`](skills/macros-code-review/SKILL.md) | Rust `macro_rules!` hygiene, fragment specifiers, compile-time impact, and procedural/derive macro patterns |
+
+## Elixir & Phoenix
+
+Elixir 1.17–1.18, Phoenix 1.8, LiveView 1.1+, ExUnit, BEAM performance/security, and ExDoc (8 skills).
+
+| Skill | Description |
+|-------|-------------|
+| [`review-elixir`](skills/review-elixir/SKILL.md) | Comprehensive Elixir and Phoenix codebase review with Mix linter gates and technology detection |
+| [`phoenix-code-review`](skills/phoenix-code-review/SKILL.md) | Phoenix controller patterns, context boundaries, Phoenix 1.8 `Scope`, routing pipelines, and plugs |
+| [`liveview-code-review`](skills/liveview-code-review/SKILL.md) | Phoenix LiveView lifecycle, assigns/streams (`stream_async`), `.heex` templates, LiveComponents, and security |
+| [`exunit-code-review`](skills/exunit-code-review/SKILL.md) | ExUnit async safety, Ecto Sandbox, boundary mocking with `Req.Test` and `Mox`, and test adapters |
+| [`elixir-performance-review`](skills/elixir-performance-review/SKILL.md) | BEAM performance review for GenServer bottlenecks, binary memory, ETS concurrency, and task supervision |
+| [`elixir-security-review`](skills/elixir-security-review/SKILL.md) | Elixir/BEAM security review for code injection, atom exhaustion, secret handling, and process exposure |
+| [`elixir-writing-docs`](skills/elixir-writing-docs/SKILL.md) | Authoring Elixir documentation with `@moduledoc`, `@doc`, `@typedoc`, `@spec`, doctests, and ExDoc cross-references |
+| [`exdoc-config`](skills/exdoc-config/SKILL.md) | Configuring ExDoc in `mix.exs` including extras, groups, cheatsheets, livebooks, and annotations |
+
+## iOS & Swift
+
+Swift 6.2 concurrency, SwiftUI, SwiftData, Swift Testing, animations, and Apple system frameworks (11 skills).
+
+| Skill | Description |
+|-------|-------------|
+| [`review-ios`](skills/review-ios/SKILL.md) | Comprehensive iOS, iPadOS, watchOS, and SwiftUI review covering concurrency, networking, testing, animations, and frameworks |
+| [`swift-code-review`](skills/swift-code-review/SKILL.md) | Swift 6/6.2 concurrency safety, actor isolation, `Sendable`, `@Observable`, error handling, and memory management |
+| [`swiftui-code-review`](skills/swiftui-code-review/SKILL.md) | SwiftUI view composition, `@Observable`/`@State`/`@Bindable` state management, performance, and accessibility |
+| [`swiftdata-code-review`](skills/swiftdata-code-review/SKILL.md) | SwiftData `@Model` design, `#Predicate` queries, `@ModelActor` concurrency, `#Unique`, and `VersionedSchema` migrations |
+| [`swift-testing-code-review`](skills/swift-testing-code-review/SKILL.md) | Swift Testing (`@Test`, `@Suite`, `#expect`/`#require`, parameterized, async, and exit tests) |
+| [`ios-animation-code-review`](skills/ios-animation-code-review/SKILL.md) | iOS animation correctness, performance, Reduce Motion accessibility, `PhaseAnimator`, transitions, and UIKit/Core Animation |
+| [`app-intents-code-review`](skills/app-intents-code-review/SKILL.md) | Apple App Intents structure, `@AppIntent(schema:)`, `AppEntity`, `AppShortcutsProvider`, queries, and `@Parameter` |
+| [`cloudkit-code-review`](skills/cloudkit-code-review/SKILL.md) | CloudKit containers, records, `CKSyncEngine`, subscriptions, `CKAsset`, and `CKShare` sharing patterns |
+| [`healthkit-code-review`](skills/healthkit-code-review/SKILL.md) | HealthKit authorization, `HKSampleQueryDescriptor` async queries, `HKObserverQuery` background delivery, and data types |
+| [`widgetkit-code-review`](skills/widgetkit-code-review/SKILL.md) | WidgetKit `TimelineProvider`, `ControlWidget`, interactive `Button(intent:)` views, configurable intents, and memory limits |
+| [`watchos-code-review`](skills/watchos-code-review/SKILL.md) | watchOS app lifecycle, `WKApplicationDelegate`, WidgetKit complications, `WCSession`, Always-On, and workouts |

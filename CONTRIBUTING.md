@@ -1,65 +1,64 @@
 # Contributing to Beagle
 
-Contributions are welcome. This guide covers how to add skills and documentation to the Beagle Agent Skills marketplace.
+Contributions are welcome. This guide covers how to add or update skills and documentation in the Beagle Agent Skills repository.
 
 ## Quick start
 
 1. Fork and clone the repository.
 2. Create a branch: `git checkout -b feat/my-skill`.
-3. Make changes under the relevant `plugins/<plugin>/skills/` directory.
-4. Run the portability check and inspect the changed Markdown.
+3. Add or edit skills under `skills/<skill-name>/`.
+4. Run `./scripts/check-portability.sh` and `npx skills add . --list`.
 5. Submit a pull request.
 
 ## Repository layout
 
-Active marketplace plugins live under `plugins/`:
+All skills live directly under `skills/`:
 
 ```text
-plugins/<plugin>/
-├── README.md
-└── skills/
-    └── <skill-name>/
-        ├── SKILL.md
-        └── references/      # Optional supporting docs
+skills/<skill-name>/
+├── SKILL.md           # Required entrypoint (<500 lines, valid YAML frontmatter)
+├── references/        # Optional supporting docs
+├── scripts/           # Optional helper scripts
+└── assets/            # Optional static assets
 ```
 
-The marketplace manifest is `.claude-plugin/marketplace.json`. There are no per-plugin `plugin.json` files and no active `commands/` directories; former command workflows were converted to skills.
+Domain groupings are maintained in [SKILLS.md](SKILLS.md), [README.md](README.md), and [llms.txt](llms.txt) rather than nested subdirectories so the repository layout matches `.agents/skills/<skill-name>/` 1:1.
 
 ## Local development
 
-Install the whole marketplace for any compatible agent with the skills CLI:
+Install skills from this repository for any compatible agent with the [skills CLI](https://skills.sh/docs/cli):
+
+```bash
+# Preview discovered skills without installing
+npx skills add . --list
+
+# Install from the local checkout
+npx skills add .
+```
+
+Or install from GitHub:
 
 ```bash
 npx skills add existential-birds/beagle
 ```
 
-During local Claude Code development, add the checkout to `~/.claude/settings.json`:
-
-```json
-{
-  "plugins": ["/path/to/your/beagle"]
-}
-```
-
-Restart the agent after changes so skill discovery reloads. Codex users can link skills from this checkout into `~/.agents/skills/`; see [.codex/INSTALL.md](.codex/INSTALL.md) and [docs/README.codex.md](docs/README.codex.md).
-
 ## Creating skills
 
-Skills are technology knowledge bases in `plugins/<plugin>/skills/<skill-name>/SKILL.md`. See the [Agent Skills specification](https://agentskills.io/specification) and [Agent Skills best practices](https://docs.claude.com/en/docs/agents-and-tools/agent-skills/best-practices) for authoring guidance.
+Skills are technology knowledge bases in `skills/<skill-name>/SKILL.md`. See the [Agent Skills specification](https://agentskills.io/specification) and `skills/skill-builder/SKILL.md` for authoring guidance.
 
 ### Beagle-specific guidelines
 
-- **Description**: Include trigger keywords, for example "React hooks" or "FastAPI endpoints".
-- **Content**: Keep `SKILL.md` under 500 lines; use `references/` for details.
+- **Frontmatter**: Use only `agentskills.io` core fields (`name`, `description`, and optional `license`, `compatibility`, `metadata`, `allowed-tools`). `name` must match the parent directory (`^[a-z0-9]+(-[a-z0-9]+)*$`, `<= 64` chars) and `description` (`<= 1024` chars) must include clear trigger keywords.
+- **Content**: Keep `SKILL.md` under 500 lines; use `references/` for details. Do not place extra `.md` files directly beside `SKILL.md`.
 - **Focus**: Include Beagle-specific workflow and current ecosystem details, not generic facts every agent already knows.
-- **Code review skills**: Report issues as `[FILE:LINE] ISSUE_TITLE`.
-- **Portability**: Do not hard-code one harness as the executing agent. Avoid named tool instructions such as `Task tool`, slash-command invocations, and plugin-namespace tokens in active skill content.
-- **References**: If multiple skills need the same verification protocol, prefer relative links to the canonical reference instead of copying large blocks.
+- **Code review skills**: Report issues as `[FILE:LINE] ISSUE_TITLE` and link `../review-verification-protocol/SKILL.md` (naming `review-verification-protocol` in prose for single-skill installs).
+- **Portability**: Do not hard-code one harness as the executing agent. Avoid named harness tool instructions, slash-command invocations, and plugin-namespace tokens.
+- **References**: Prefer relative `../<skill-name>/SKILL.md` links to canonical shared references instead of duplicating large blocks.
 
 ### Structure
 
 ```text
-plugins/beagle-example/skills/my-skill/
+skills/my-skill/
 ├── SKILL.md
 └── references/
     └── advanced.md
@@ -67,26 +66,16 @@ plugins/beagle-example/skills/my-skill/
 
 ## Validation
 
-This repository is a Markdown marketplace, not a buildable package. Use the checks that match your change:
+Run the repository validation script and verify CLI discovery before committing:
 
 ```bash
 ./scripts/check-portability.sh
-python3 - <<'PY'
-from pathlib import Path
-import yaml
-for path in Path('plugins').glob('*/skills/*/SKILL.md'):
-    text = path.read_text()
-    if not text.startswith('---'):
-        raise SystemExit(f'missing frontmatter: {path}')
-    end = text.find('\n---', 3)
-    if end == -1:
-        raise SystemExit(f'unclosed frontmatter: {path}')
-    yaml.safe_load(text[3:end])
-print('frontmatter ok')
-PY
+npx skills add . --list
 ```
 
-For a changed skill, also read it from a fresh agent session or install/link it locally and confirm the trigger description loads the intended workflow.
+`./scripts/check-portability.sh` validates layout preconditions, harness portability, absence of legacy install references, `agentskills.io` frontmatter + `<500`-line limits, and all relative markdown links and `#anchor` headings.
+
+For a changed skill, also test it in a fresh agent session or install it locally with `npx skills add . --skill <skill-name>` and confirm the trigger description loads the intended workflow.
 
 ## Commits
 
@@ -104,8 +93,8 @@ Types: `feat`, `fix`, `docs`, `refactor`, `test`, `chore`.
 
 1. Create a feature branch from `main`.
 2. Make focused changes, usually one skill or closely related skill set per PR.
-3. Update the relevant plugin README and [SKILLS.md](SKILLS.md) when adding, removing, or renaming skills.
-4. Include the portability/frontmatter checks you ran in the PR body.
+3. Update [SKILLS.md](SKILLS.md) (and [README.md](README.md) / [llms.txt](llms.txt) / [AGENTS.md](AGENTS.md) if domain counts or key entry points change) when adding, removing, or renaming skills.
+4. Include the `./scripts/check-portability.sh` and `npx skills add . --list` results in the PR body.
 
 ## What makes a good skill?
 
@@ -119,8 +108,8 @@ Types: `feat`, `fix`, `docs`, `refactor`, `test`, `chore`.
 
 Maintainers release from `main`:
 
-1. Update `CHANGELOG.md` with a Keep a Changelog version section.
-2. Bump `metadata.version` in `.claude-plugin/marketplace.json`.
-3. Commit with `chore(release): X.Y.Z`.
+1. Update `CHANGELOG.md` with a Keep a Changelog version section and updated footer compare links.
+2. Run `./scripts/check-portability.sh` and `npx skills add . --list`.
+3. Commit with `chore(release): prepare vX.Y.Z`.
 4. Tag and push: `git tag -a vX.Y.Z -m "Release vX.Y.Z" && git push origin vX.Y.Z`.
 5. Create the GitHub release for the tag.

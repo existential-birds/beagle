@@ -39,6 +39,7 @@ build/
 *.pfx
 *credentials*
 *secret*
+!skills/elixir-security-review/references/secrets.md
 .env*
 !.env.example
 .serena/

@@ -1,6 +1,6 @@
 ---
 name: Bug report
-about: Report a problem with a skill or command
+about: Report a problem with a skill
 title: "[Bug] "
 labels: bug
 assignees: ''
@@ -10,10 +10,9 @@ assignees: ''
 
 A clear description of what went wrong.
 
-## Which skill or command?
+## Which skill?
 
-- [ ] Skill: `skill-name`
-- [ ] Command: `/beagle:command-name`
+- Skill: `skill-name`
 
 ## Steps to reproduce
 
@@ -30,9 +29,10 @@ What happened instead.
 
 ## Environment
 
-- Claude Code version: [e.g., 1.0.0]
-- Beagle version: [e.g., 1.0.0]
-- OS: [e.g., macOS 14.0]
+- Coding agent & version: [e.g., Codex CLI / Cursor / OpenCode]
+- `skills` CLI version: [e.g., 1.7.6]
+- Beagle version / commit: [e.g., 5.0.0]
+- OS: [e.g., macOS 15.0]
 
 ## Additional context
 

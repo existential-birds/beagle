@@ -6,8 +6,37 @@ Format follows [Keep a Changelog](https://keepachangelog.com/en/1.1.0/). Version
 
 ## [Unreleased]
 
+## [5.0.0] - 2026-11-25
+
+### Breaking
+- **Vanilla Agent Skills repository (`skills/<skill-name>/`):** Converted Beagle from a Claude Code plugin marketplace (`plugins/`, `.claude-plugin/marketplace.json`) into a flat [Agent Skills](https://agentskills.io/specification) repository with `npx skills add existential-birds/beagle` as the sole supported installation path.
+- **Legacy harness & plugin removal:** Removed `.claude-plugin/`, `.claude/`, `CLAUDE.md`, `.codex/`, `docs/README.codex.md`, `plugins/*/README.md`, `plugins/*/.claude-plugin/plugin.json`, `.github/workflows/daydream-*.yml`, `.github/workflows/README.md`, and `.feedback-log.csv`.
+- **Deprecated `beagle-ai` removal:** Deleted all 13 deprecated `beagle-ai` skills (`deepagents-*`, `langgraph-*`, `pydantic-ai-*`, `vercel-ai-sdk`).
+- **Strict `agentskills.io` frontmatter:** Stripped Claude-specific `disable-model-invocation` and `user-invocable` frontmatter extension keys across all retained skills.
+
 ### Added
-- **beagle-analysis (`quick-plan`):** New skill that produces the same bite-sized, TDD-driven implementation plan as `write-plan` but without requiring a `brainstorm-beagle` spec. It reconstructs intent from the current conversation into an Intent Brief, runs an adaptive gap check (asks the user only where intent has real holes), and fans out parallel domain-expert exploration subagents that double as the spec's *Reference Points* and *Key Decisions* — returning file maps, exact test commands, `file:line` analogs, and stack idioms/pitfalls. Reuses `write-plan`'s `plan-template.md` and full TDD/self-review discipline verbatim (single source of truth for the output format) and tightens the spike + parallel-implementation gates, since reconstructed intent carries more unverified claims than a vetted spec. Writes to `.beagle/plans/<slug>/plan.md` and offers the same `subagent-prompt` execution handoff.
+- **`quick-plan`:** New skill that produces the same bite-sized, TDD-driven implementation plan as `write-plan` without requiring a `brainstorm-beagle` spec. Reconstructs intent from the current conversation into an Intent Brief, runs an adaptive gap check, fans out parallel domain-expert exploration subagents, reuses `write-plan`'s `plan-template.md`, and writes to `.beagle/plans/<slug>/plan.md`.
+- **`elixir-security-review`:** Added `references/secrets.md` covering `config/runtime.exs` `System.fetch_env!/1`, `:filter_parameters`, `@derive {Inspect, except: [...]}`, `Plug.Session` / `Phoenix.Token` / `Plug.Crypto` salts, and `Path.safe_relative/1,2`.
+
+### Changed
+- **Full catalog audit & consolidation (145 → 82 skills):** Read every skill across the repository, deduplicated shared protocols, merged overlapping skills, and verified retained framework/language guidance against current official docs and specifications:
+  - Deduplicated 7 copies of `review-verification-protocol` into a single canonical `skills/review-verification-protocol/SKILL.md` (folding unique language guards into `review-python`, `fastapi-code-review`, `pytest-code-review`, `review-go`, `review-rust`, `ffi-code-review`, `macros-code-review`, `review-elixir`, and `review-ios`).
+  - Consolidated `adr-writing` and `adr-decision-extraction` into `write-adr` (using relative `scripts/next_adr_number.py` paths).
+  - Consolidated Diataxis compass rules (`docs-style`) and `--balance` type-coverage mode (`ensure-docs`) into `improve-doc`, and aligned `review-ai-writing` + `humanize-beagle` to `34/34` pattern/fix-strategy parity.
+  - Consolidated 6 Remix v2 area review skills into a self-contained maintenance skill (`review-remix-v2`) with an EOL/React Router v7 migration notice; consolidated `react-flow-implementation`, `react-flow-advanced`, and `dagre-react-flow` into `react-flow`; deduplicated root uppercase `.md` files into `references/` across `react-router-v7`, `vitest-testing`, `zustand-state`, and `receive-feedback`.
+  - Folded high-signal rules from `python-code-review` into `review-python`, `elixir-code-review` into `review-elixir`, `elixir-docs-review` into `elixir-writing-docs`, `urlsession-code-review` and `combine-code-review` into `review-ios`, `ios-animation-implementation` into `ios-animation-code-review`, `go-middleware` into `go-architect`, and `rust-project-setup` Cargo pitfalls into `rust-best-practices`.
+  - Updated retained stack checklists for React 19, React Router v7, `@xyflow/react` v12/v13, Tailwind v4, Vitest 4, Zustand v5, FastAPI/Pydantic v2, SQLAlchemy 2.0, `psycopg` v3, Go 1.22–1.24, BubbleTea/Wish v2, Rust Edition 2024 / `axum` 0.8+ / `sqlx` 0.8–0.9, Elixir 1.17–1.18 / Phoenix 1.8 `Scope` / LiveView 1.1+, and Swift 6.2 Approachable Concurrency / Swift Testing 6.1–6.2 / SwiftData / App Intents / CloudKit `CKSyncEngine` / HealthKit descriptors.
+  - Converted cross-skill links to flat `../<skill>/SKILL.md` relative paths and updated `review-skill` and `skill-builder` for `agentskills.io` and `npx skills`.
+- **Portability & validation tooling:** Rewrote `scripts/check-portability.sh` with 5 validation gates covering layout preconditions, harness portability, legacy install/marketplace pattern rejection, `agentskills.io` frontmatter + `<500`-line limits, and relative markdown links + GitHub heading anchors.
+- **Repository documentation & templates:** Updated `README.md`, `SKILLS.md`, `AGENTS.md`, `llms.txt`, `CONTRIBUTING.md`, `PRIVACY.md`, `.github/PULL_REQUEST_TEMPLATE.md`, and `.github/ISSUE_TEMPLATE/*` to match the 82-skill catalog, flat `skills/` layout, and `npx skills add` workflow.
+
+### Removed
+- **Pruned 63 catalog entries (from 145 original to 82 retained):** Removed 13 deprecated `beagle-ai` skills, 6 duplicate `review-verification-protocol` copies, 17 consolidated source directories, and 27 generic, low-value, or EOL implementation skills (`commit-push`, `create-pr`, `gen-release-notes`, `prompt-improver`, `review-feedback-schema`, `review-skill-improver`, `subagent-prompt`, `tutorial-docs`, `howto-docs`, `reference-docs`, `explanation-docs`, `draft-docs`, `remix-v2-data-flow`, `remix-v2-forms`, `remix-v2-meta-sessions`, `remix-v2-perf-ssr`, `remix-v2-routing`, `react-flow-architecture`, `ai-elements`, `shadcn-ui`, `go-web-expert`, `go-concurrency-web`, `go-middleware`, `rust-project-setup`, `combine-code-review`, `ios-animation-design`, `ios-animation-implementation`).
+
+### Fixed
+- Fixed unquoted YAML `#` description truncation in `rust-testing-code-review` and `swift-testing-code-review`.
+- Fixed broken `references/secrets.md` link in `elixir-security-review`, removed dead `beagle-ai` link in `review-python`, and updated stale `python-code-review` and `subagent-prompt` references in `review-plan`, `receive-feedback`, `write-plan`, and `quick-plan`.
+- Fixed chronological ordering of the `[2.7.1]` footer compare link.
 
 ## [4.4.0] - 2026-06-17
 
@@ -538,7 +567,8 @@ Format follows [Keep a Changelog](https://keepachangelog.com/en/1.1.0/). Version
 - Development commands: `skill-builder`, `ensure-docs`
 - Cursor IDE command equivalents
 
-[Unreleased]: https://github.com/existential-birds/beagle/compare/v4.4.0...HEAD
+[Unreleased]: https://github.com/existential-birds/beagle/compare/v5.0.0...HEAD
+[5.0.0]: https://github.com/existential-birds/beagle/compare/v4.4.0...v5.0.0
 [4.4.0]: https://github.com/existential-birds/beagle/compare/v4.3.0...v4.4.0
 [4.3.0]: https://github.com/existential-birds/beagle/compare/v4.2.0...v4.3.0
 [4.2.0]: https://github.com/existential-birds/beagle/compare/v4.1.0...v4.2.0
@@ -564,6 +594,7 @@ Format follows [Keep a Changelog](https://keepachangelog.com/en/1.1.0/). Version
 [2.10.0]: https://github.com/existential-birds/beagle/compare/v2.9.0...v2.10.0
 [2.9.0]: https://github.com/existential-birds/beagle/compare/v2.8.0...v2.9.0
 [2.8.0]: https://github.com/existential-birds/beagle/compare/v2.7.1...v2.8.0
+[2.7.1]: https://github.com/existential-birds/beagle/compare/v2.7.0...v2.7.1
 [2.7.0]: https://github.com/existential-birds/beagle/compare/v2.6.0...v2.7.0
 [2.6.0]: https://github.com/existential-birds/beagle/compare/v2.5.0...v2.6.0
 [2.5.0]: https://github.com/existential-birds/beagle/compare/v2.4.0...v2.5.0
@@ -575,7 +606,6 @@ Format follows [Keep a Changelog](https://keepachangelog.com/en/1.1.0/). Version
 [2.1.0]: https://github.com/existential-birds/beagle/compare/v2.0.3...v2.1.0
 [2.0.3]: https://github.com/existential-birds/beagle/compare/v2.0.2...v2.0.3
 [2.0.2]: https://github.com/existential-birds/beagle/compare/v2.0.1...v2.0.2
-[2.7.1]: https://github.com/existential-birds/beagle/compare/v2.7.0...v2.7.1
 [2.0.1]: https://github.com/existential-birds/beagle/compare/v2.0.0...v2.0.1
 [2.0.0]: https://github.com/existential-birds/beagle/compare/v1.14.0...v2.0.0
 [1.14.0]: https://github.com/existential-birds/beagle/compare/v1.13.1...v1.14.0

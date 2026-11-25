@@ -1,14 +1,14 @@
 ---
 name: Feature request
-about: Suggest an improvement to an existing skill or command
+about: Suggest an improvement to an existing skill
 title: "[Feature] "
 labels: enhancement
 assignees: ''
 ---
 
-## Which skill or command?
+## Which skill?
 
-Name the existing skill or command you want to improve.
+Name the existing skill you want to improve.
 
 ## What problem does this solve?
 

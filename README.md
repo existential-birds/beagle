@@ -10,8 +10,6 @@ Beagle is a curated [Agent Skills](https://agentskills.io/specification) reposit
 
 Install for any compatible agent with [`npx skills add existential-birds/beagle`](https://skills.sh/docs/cli). Once installed, your agent loads the right skill automatically, or you can invoke one by name (for example `review-python`).
 
-Pairs with [Amelia](https://github.com/existential-birds/amelia) for agent-based workflows and [Daydream](https://github.com/existential-birds/daydream) for automated review-fix-test loops.
-
 ## Installation
 
 **Prerequisites:**

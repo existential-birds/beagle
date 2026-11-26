@@ -1,18 +1,18 @@
 # Beagle
 
-> Beagle is a vanilla Agent Skills repository: 82 framework-aware code review, planning, documentation, testing, and architectural analysis skills for any compatible coding agent. Skills cover Python, Go, Rust, Elixir, React/TypeScript, and iOS/Swift.
+> Beagle is a vanilla Agent Skills repository: 84 framework-aware code review, planning, documentation, testing, and architectural analysis skills for any compatible coding agent. Skills cover Python, Go, Rust, Elixir, React/TypeScript, and iOS/Swift.
 
 Skills follow the [Agent Skills specification](https://agentskills.io/specification) and live in flat `skills/<skill-name>/SKILL.md` directories. Compatible coding agents load them automatically or by name (for example `review-python`). Install for any compatible agent with `npx skills add existential-birds/beagle` (or a single skill via `--skill <name>`).
 
 ## Docs
 
 - [README](https://github.com/existential-birds/beagle/blob/main/README.md): Overview, `npx skills add` installation, and 10-domain summary.
-- [Skill catalog](https://github.com/existential-birds/beagle/blob/main/SKILLS.md): All 82 skills grouped into 10 domains with descriptions and direct `SKILL.md` links.
+- [Skill catalog](https://github.com/existential-birds/beagle/blob/main/SKILLS.md): All 84 skills grouped into 10 domains with descriptions and direct `SKILL.md` links.
 - [Agent & contributor guide](https://github.com/existential-birds/beagle/blob/main/AGENTS.md): Flat `skills/` layout, validation via `./scripts/check-portability.sh`, and authoring conventions.
 
-## Domains (82 Skills)
+## Domains (84 Skills)
 
-- [Core Review, PR Feedback & Skill Tooling](https://github.com/existential-birds/beagle/blob/main/SKILLS.md#core-review-pr-feedback--skill-tooling) (12): Plan and structural maintainability review, shared verification protocol, GitHub PR feedback fetch/triage/reply, LLM coding-artifact detection/verification/fixing, and Agent Skills authoring/PR review.
+- [Core Review, PR Feedback & Skill Tooling](https://github.com/existential-birds/beagle/blob/main/SKILLS.md#core-review-pr-feedback--skill-tooling) (14): Plan and structural maintainability review, shared verification protocol, GitHub PR feedback fetch/triage/reply, repository refactoring surveys and Fowler catalog, LLM coding-artifact detection/verification/fixing, and Agent Skills authoring/PR review.
 - [Analysis, Strategy & Planning](https://github.com/existential-birds/beagle/blob/main/SKILLS.md#analysis-strategy--planning) (12): PRFAQ concept filtering, spec brainstorming and gap resolution, spec-driven and no-spec TDD planning, MADR ADRs, 12-Factor Agents audits, strategy interviews/reviews, cited web and local-doc research, and LLM-as-judge implementation comparison.
 - [Documentation & Writing Quality](https://github.com/existential-birds/beagle/blob/main/SKILLS.md#documentation--writing-quality) (3): Diataxis doc auditing and type-balance checks (`improve-doc`), AI-writing detection (`review-ai-writing`), and safe/risky humanization (`humanize-beagle`).
 - [End-to-End Testing](https://github.com/existential-birds/beagle/blob/main/SKILLS.md#end-to-end-testing) (2): Stack-aware E2E YAML test plan generation and stop-on-first-failure execution (`gen-test-plan`, `run-test-plan`).

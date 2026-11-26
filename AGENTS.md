@@ -4,13 +4,13 @@ This file provides guidance to coding agents and contributors working in this re
 
 ## What This Is
 
-Beagle is a vanilla [Agent Skills](https://agentskills.io/specification) repository providing **82** framework-aware code review, planning, documentation, testing, and analysis skills installed via `npx skills add existential-birds/beagle`.
+Beagle is a vanilla [Agent Skills](https://agentskills.io/specification) repository providing **84** framework-aware code review, planning, documentation, testing, and analysis skills installed via `npx skills add existential-birds/beagle`.
 
 ## Repository Layout
 
 ```text
 beagle/
-├── skills/                      # 82 flat Agent Skills (skills/<skill-name>/SKILL.md)
+├── skills/                      # 84 flat Agent Skills (skills/<skill-name>/SKILL.md)
 │   ├── <skill-name>/
 │   │   ├── SKILL.md             # Required entrypoint (<500 lines, valid YAML frontmatter)
 │   │   ├── references/          # Optional progressive-disclosure reference files
@@ -21,7 +21,7 @@ beagle/
 │   └── check-portability.sh     # 5-gate layout, portability, frontmatter, and link validator
 ├── assets/                      # Repository assets (e.g. README hero image)
 ├── .github/                     # PR and issue templates
-├── SKILLS.md                    # Full 82-skill catalog grouped into 10 domains
+├── SKILLS.md                    # Full 84-skill catalog grouped into 10 domains
 ├── README.md                    # Overview and installation instructions
 ├── AGENTS.md                    # Contributor & agent instructions (this file)
 ├── CONTRIBUTING.md              # Contribution and validation guide
@@ -75,6 +75,7 @@ Beagle-specific rules:
 | iOS/Swift | `review-ios` | Swift 6.2/SwiftUI/SwiftData/Apple frameworks code review |
 | Core | `review-plan` | Review implementation plans before execution |
 | Core | `review-structure` | Repo-wide structural-maintainability review |
+| Core | `refactor-repo` | Evidence-backed repository refactoring survey and GitHub issue workflow |
 | Core | `skill-builder` | Guided `agentskills.io` skill authoring and validation |
 | Core | `review-skill` | Skill PR review for structural validity, design quality, and portability |
 | Core | `receive-feedback` | Verification-first external review feedback triage and fixing |

@@ -1,124 +1,118 @@
 # AGENTS.md
 
-This file provides guidance to Codex when working with code in this repository.
+This file provides guidance to coding agents and contributors working in this repository.
 
 ## What This Is
 
-Beagle is a Claude Code plugin marketplace providing framework-aware code review skills and verification workflows for pre-push reviews and GitHub bot feedback handling. It contains 10 focused plugins with 132 skills.
+Beagle is a vanilla [Agent Skills](https://agentskills.io/specification) repository providing **82** framework-aware code review, planning, documentation, testing, and analysis skills installed via `npx skills add existential-birds/beagle`.
 
-## Marketplace Architecture
+## Repository Layout
 
 ```text
 beagle/
-├── .claude-plugin/
-│   └── marketplace.json         # Marketplace manifest (10 plugins)
-└── plugins/
-    ├── beagle-core/             # Shared workflows, verification, git workflows, skill tooling (19 skills)
-    ├── beagle-python/           # Python, FastAPI, SQLAlchemy, PostgreSQL, pytest (7 skills)
-    ├── beagle-go/               # Go, BubbleTea, Wish SSH, Prometheus (13 skills)
-    ├── beagle-elixir/           # Elixir, Phoenix, LiveView, ExUnit, ExDoc (11 skills)
-    ├── beagle-ios/              # Swift, SwiftUI, SwiftData, iOS frameworks (16 skills)
-    ├── beagle-react/            # React, React Flow, shadcn/ui, Tailwind, Vitest, Remix v2 (28 skills)
-    ├── beagle-rust/             # Rust, tokio, axum, sqlx, serde (12 skills)
-    ├── beagle-ai/               # Pydantic AI, LangGraph, DeepAgents, Vercel AI SDK (deprecated)
-    ├── beagle-docs/             # Documentation quality, AI writing detection (10 skills)
-    ├── beagle-analysis/         # Brainstorming, ADRs, strategy, LLM-as-judge, spec resolution, PRFAQ filter (14 skills)
-    └── beagle-testing/          # Test plan generation and execution (2 skills)
+├── skills/                      # 82 flat Agent Skills (skills/<skill-name>/SKILL.md)
+│   ├── <skill-name>/
+│   │   ├── SKILL.md             # Required entrypoint (<500 lines, valid YAML frontmatter)
+│   │   ├── references/          # Optional progressive-disclosure reference files
+│   │   ├── scripts/             # Optional helper scripts (e.g. write-adr/scripts/)
+│   │   └── assets/              # Optional static assets
+│   └── ...
+├── scripts/
+│   └── check-portability.sh     # 5-gate layout, portability, frontmatter, and link validator
+├── assets/                      # Repository assets (e.g. README hero image)
+├── .github/                     # PR and issue templates
+├── SKILLS.md                    # Full 82-skill catalog grouped into 10 domains
+├── README.md                    # Overview and installation instructions
+├── AGENTS.md                    # Contributor & agent instructions (this file)
+├── CONTRIBUTING.md              # Contribution and validation guide
+├── CHANGELOG.md                 # Keep a Changelog history
+└── llms.txt                     # Concise LLM catalog index
 ```
 
-Each active plugin is a directory under `plugins/` with its own `README.md` and `skills/` directory. The marketplace manifest at `.claude-plugin/marketplace.json` is the only plugin manifest; individual plugin directories do not have `plugin.json` files.
+Each skill lives directly under `skills/<skill-name>/SKILL.md`. Domain groupings are maintained in `SKILLS.md`, `README.md`, and `llms.txt` rather than nested subdirectories so the repo layout matches `.agents/skills/<skill-name>/` 1:1.
 
-## Local Development
+## Local Development & Validation
 
-Test the marketplace during development:
+Preview skill discovery locally with the `skills` CLI (non-destructive) and run the portability suite before every commit or PR:
 
 ```bash
-# In Claude Code settings (~/.claude/settings.json)
-{
-  "plugins": ["/path/to/your/beagle"]
-}
+# Validate layout, portability, legacy patterns, frontmatter, and relative links
+./scripts/check-portability.sh
+
+# Verify skill discovery with the skills CLI
+npx skills add . --list
 ```
 
-Restart Claude Code after changes to reload. Skills are discovered from plugin `skills/` directories and trigger keywords in skill frontmatter. Codex users can install the same skills by linking active skill directories into `~/.agents/skills/` (see [.codex/INSTALL.md](.codex/INSTALL.md)).
+`./scripts/check-portability.sh` enforces 5 gates:
+1. **Layout preconditions**: ensures the legacy plugin tree does not exist, `skills/` is non-empty, no `__pycache__`/`.pyc`/`.DS_Store` caches exist, no extra root `.md` files sit beside `SKILL.md`, and only `references/`, `scripts/`, or `assets/` subdirectories exist.
+2. **Harness portability**: blocks harness-specific tool names, slash invocations, namespace tokens, and non-spec frontmatter keys in `skills/**/*.md`.
+3. **Legacy install/harness references**: blocks legacy marketplace/plugin install instructions, deleted plugin references, and non-spec frontmatter extensions across skills, active docs, and `.github/` templates.
+4. **`agentskills.io` frontmatter & line count**: checks `< 500` lines per `SKILL.md`, required `name` (`^[a-z0-9]+(-[a-z0-9]+)*$`, `<= 64` chars, matching parent dir, unique) and `description` (`1–1024` chars, no unquoted `#` truncation), only allowed spec keys (`name`, `description`, `license`, `compatibility`, `metadata`, `allowed-tools`), and no `metadata.internal: true` on catalog skills.
+5. **Relative markdown links & anchors**: checks every relative file target and `#heading-anchor` fragment across `skills/**/*.md` and active root docs/templates.
 
-## Skills
+## Authoring & Updating Skills
 
-See [Agent Skills](https://docs.claude.com/en/docs/agents-and-tools/agent-skills/overview) for the canonical format.
+See the [Agent Skills specification](https://agentskills.io/specification) and `skills/skill-builder/SKILL.md` for full authoring guidance.
 
-Beagle treats skills as the canonical format. Former command workflows were unified into `SKILL.md` files under each plugin's `skills/` directory, where frontmatter controls user exposure and behavior. The 10 active marketplace plugins contain 132 canonical `SKILL.md` entry points; the deprecated `beagle-ai` skill files remain on disk for backward compatibility and are not listed in the main catalog.
+Beagle-specific rules:
+- Place every skill in `skills/<skill-name>/SKILL.md` (single-level `references/`, `scripts/`, `assets/` subdirectories only — no extra root `.md` files beside `SKILL.md`).
+- Keep `SKILL.md` under 500 lines; move deep material to `references/`.
+- Use only `agentskills.io` core frontmatter fields (`name`, `description`, and optional `license`, `compatibility`, `metadata`, `allowed-tools`). Do not add harness-specific frontmatter extension keys.
+- Code review skills: report findings with `[FILE:LINE] ISSUE_TITLE` and link `../review-verification-protocol/SKILL.md` (naming `review-verification-protocol` in prose for single-skill installs).
+- Link sibling skills with `../<target-skill>/SKILL.md` (or `../../<target-skill>/...` from `references/`), and avoid harness-specific tool phrasing.
 
-**Skills** (`plugins/<name>/skills/` folders): Auto-loaded when relevant. Structure: `skill-name/SKILL.md` with optional `references/` folder and frontmatter such as `disable-model-invocation` and `user-invocable`.
+## Key Entry-Point Skills
 
-## Creating New Skills
-
-See [Agent Skills best practices](https://docs.claude.com/en/docs/agents-and-tools/agent-skills/best-practices) for authoring guidance.
-
-Beagle-specific:
-- Keep SKILL.md under 500 lines; use `references/` for details
-- Some skills use multiple root-level .md files (e.g., react-router-v7)
-- Code review skills: use format `[FILE:LINE] ISSUE_TITLE`
-- Place new skills in the appropriate plugin directory
-- Mark workflow skills with `disable-model-invocation: true`
-- Mark internal-only reference skills with `user-invocable: false`
-
-## Key Skills
-
-| Plugin | Skill | Purpose |
-|--------|---------|---------|
-| beagle-python | `review-python` | Python/FastAPI code review with tech detection |
-| beagle-react | `review-frontend` | React/TypeScript code review with tech detection |
-| beagle-go | `review-go` | Go code review with BubbleTea/Wish/Prometheus detection |
-| beagle-go | `review-tui` | BubbleTea TUI code review with Elm architecture focus |
-| beagle-ios | `review-ios` | iOS/SwiftUI code review |
-| beagle-elixir | `review-elixir` | Elixir/Phoenix/LiveView code review |
-| beagle-rust | `review-rust` | Rust/tokio/axum/sqlx/serde code review |
-| beagle-react | `review-remix-v2` | Remix v2 code review (loaders, actions, forms, sessions, perf/SSR) |
-| beagle-core | `review-plan` | Review implementation plans before execution |
-| beagle-core | `commit-push` | Commit with Conventional Commits format |
-| beagle-core | `create-pr` | Create PR with structured template |
-| beagle-core | `gen-release-notes` | Generate changelog from git history |
-| beagle-core | `skill-builder` | Guided skill creation workflow |
-| beagle-core | `review-skill` | Automated skill PR review for structural validity, design quality, and marketplace consistency |
-| beagle-core | `receive-feedback` | Process code review feedback with verification |
-| beagle-core | `fetch-pr-feedback` | Fetch and evaluate bot review comments from PR |
-| beagle-core | `respond-pr-feedback` | Post replies to bot review comments |
-| beagle-core | `review-llm-artifacts` | Detect LLM coding artifacts |
-| beagle-core | `verify-llm-artifacts` | Adjudicate review findings (confirm/false-positive/inconclusive) before deletes |
-| beagle-core | `fix-llm-artifacts` | Fix detected artifacts |
-| beagle-core | `prompt-improver` | Optimize prompts |
-| beagle-analysis | `llm-judge` | Compare implementations using LLM-as-judge |
-| beagle-analysis | `write-adr` | Generate ADRs from decisions |
-| beagle-analysis | `brainstorm-beagle` | Turn fuzzy ideas into structured project specs |
-| beagle-analysis | `resolve-beagle` | Close Open Questions and latent gaps in a brainstorm-beagle spec |
-| beagle-analysis | `strategy-interview` | Build strategy through guided conversation |
-| beagle-analysis | `strategy-review` | Pressure-test existing strategy documents |
-| beagle-analysis | `prfaq-beagle` | Working Backwards PRFAQ filter — pass/fail concepts before brainstorming |
-| beagle-analysis | `web-research` | Parallel web-search research with cited synthesis report |
-| beagle-analysis | `artifact-analysis` | Parallel-subagent scan of local docs with cited extraction |
-| beagle-docs | `draft-docs` | Generate documentation drafts |
-| beagle-docs | `improve-doc` | Improve docs using Diataxis principles |
-| beagle-docs | `ensure-docs` | Documentation coverage check |
-| beagle-docs | `review-ai-writing` | Detect AI writing patterns in docs and code |
-| beagle-docs | `humanize-beagle` | Fix AI writing with safe/risky classification |
-| beagle-testing | `gen-test-plan` | Generate YAML test plan from branch changes |
-| beagle-testing | `run-test-plan` | Execute test plan, stop on first failure |
+| Domain | Skill | Purpose |
+|--------|-------|---------|
+| Python | `review-python` | Python/FastAPI/SQLAlchemy/PostgreSQL/pytest code review |
+| Frontend | `review-frontend` | React/TypeScript code review with stack detection |
+| Frontend (legacy) | `review-remix-v2` | Legacy maintenance review for EOL Remix v2 apps |
+| Go | `review-go` | Go backend review with BubbleTea/Wish/Prometheus detection |
+| Go | `review-tui` | BubbleTea v1/v2 & Wish SSH TUI code review |
+| Rust | `review-rust` | Rust Edition 2024 review with axum/tokio/sqlx/serde/FFI/macros routing |
+| Elixir | `review-elixir` | Elixir/Phoenix 1.8/LiveView/ExUnit code review |
+| iOS/Swift | `review-ios` | Swift 6.2/SwiftUI/SwiftData/Apple frameworks code review |
+| Core | `review-plan` | Review implementation plans before execution |
+| Core | `review-structure` | Repo-wide structural-maintainability review |
+| Core | `skill-builder` | Guided `agentskills.io` skill authoring and validation |
+| Core | `review-skill` | Skill PR review for structural validity, design quality, and portability |
+| Core | `receive-feedback` | Verification-first external review feedback triage and fixing |
+| Core | `fetch-pr-feedback` | Fetch unresolved GitHub PR review comments for triage |
+| Core | `respond-pr-feedback` | Post replies and resolve GitHub PR review threads |
+| Core | `review-llm-artifacts` | Detect LLM coding artifacts across changed or repo files |
+| Core | `verify-llm-artifacts` | Adjudicate artifact findings before deletes |
+| Core | `fix-llm-artifacts` | Apply verified safe/risky artifact cleanups |
+| Analysis | `prfaq-beagle` | Working Backwards PRFAQ pass/fail concept filter |
+| Analysis | `brainstorm-beagle` | Turn fuzzy ideas into structured `.beagle/concepts/<slug>/spec.md` specs |
+| Analysis | `resolve-beagle` | Close Open Questions and latent gaps in a spec |
+| Analysis | `write-plan` | Generate spec-grounded TDD implementation plans |
+| Analysis | `quick-plan` | Generate TDD implementation plans from conversation intent without a spec |
+| Analysis | `write-adr` | Extract decisions and generate/validate MADR ADRs |
+| Analysis | `agent-architecture-analysis` | Audit LLM agent codebases against 12-Factor Agents |
+| Analysis | `llm-judge` | Compare 2+ implementations against a spec with rubric scoring |
+| Analysis | `strategy-interview` | Build strategy through guided conversation |
+| Analysis | `strategy-review` | Pressure-test existing strategy documents |
+| Analysis | `web-research` | Cited multi-angle web research reports |
+| Analysis | `artifact-analysis` | Cited structured scans of local docs |
+| Docs | `improve-doc` | Audit and refactor docs using Diataxis principles and `--balance` checks |
+| Docs | `review-ai-writing` | Detect AI writing patterns in docs, comments, and commits |
+| Docs | `humanize-beagle` | Rewrite AI writing with safe/risky controls |
+| Testing | `gen-test-plan` | Generate E2E YAML test plans from branch changes |
+| Testing | `run-test-plan` | Execute E2E YAML test plans, stopping on first failure |
 
 ## Conventions
 
-- **Commits**: Conventional Commits format (feat, fix, docs, refactor, test, chore)
-- **Versioning**: Semantic versioning in `.claude-plugin/marketplace.json`
-- **Release notes**: Keep a Changelog format, generated via `/beagle-core:gen-release-notes`
-- **Skill references**: Use `<plugin-name>:<skill-name>` format (e.g., `beagle-python:python-code-review`)
-
-## No Build System
-
-This is a pure markdown plugin marketplace. No npm, no build, no tests. Validation is manual inspection of markdown syntax and YAML frontmatter.
+- **Commits**: Conventional Commits format (`feat`, `fix`, `docs`, `refactor`, `test`, `chore`)
+- **Versioning**: Semantic versioning tracked via git tags (`vX.Y.Z`) and `CHANGELOG.md`
+- **Release notes**: Keep a Changelog format in `CHANGELOG.md`
+- **Skill references**: Use relative paths (`../<skill-name>/SKILL.md`) plus the skill name in prose
 
 ## Release Process
 
-1. **Update CHANGELOG.md** - Add new version section with changes (Keep a Changelog format)
-2. **Bump version** - Update `metadata.version` in `.claude-plugin/marketplace.json` (semver)
-3. **Commit** - `chore(release): bump version to X.Y.Z`
+1. **Run validation** - Confirm `./scripts/check-portability.sh` prints `PORTABILITY OK` and `npx skills add . --list` discovers all skills cleanly
+2. **Update CHANGELOG.md** - Move `[Unreleased]` entries into `## [X.Y.Z] - YYYY-MM-DD` (Keep a Changelog format) and update footer compare links
+3. **Commit** - `chore(release): prepare vX.Y.Z`
 4. **Push** - `git push origin main`
 5. **Tag** - `git tag -a vX.Y.Z -m "Release vX.Y.Z - Summary"` and `git push origin vX.Y.Z`
 6. **Release** - `gh release create vX.Y.Z --title "vX.Y.Z" --notes "..."`
@@ -126,4 +120,4 @@ This is a pure markdown plugin marketplace. No npm, no build, no tests. Validati
 Version bumping:
 - **Patch** (x.y.Z): Bug fixes, documentation
 - **Minor** (x.Y.0): New skills or features
-- **Major** (X.0.0): Breaking changes to existing skills
+- **Major** (X.0.0): Breaking changes to repository layout or existing skills

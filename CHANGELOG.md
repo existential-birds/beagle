@@ -6,6 +6,8 @@ Format follows [Keep a Changelog](https://keepachangelog.com/en/1.1.0/). Version
 
 ## [Unreleased]
 
+## [5.1.0] - 2026-11-25
+
 ### Added
 - **`refactor-repo` and `fowler-refactoring`:** Added two new skills for evidence-backed repository refactoring surveys ([#155](https://github.com/existential-birds/beagle/pull/155)):
   - `refactor-repo` pins a repository commit, inventories tracked blobs, analyzes shards across four investigation lenses, adjudicates candidates against a coverage ledger, and prepares (or, when explicitly authorized, publishes) scoped GitHub issues grounded in named Fowler refactorings — backed by a stdlib-only Python helper (`scripts/repo_refactor.py`) with stable-marker deduplication, exact readback verification, and 34 hermetic tests (`scripts/test_repo_refactor.py`).
@@ -572,7 +574,8 @@ Format follows [Keep a Changelog](https://keepachangelog.com/en/1.1.0/). Version
 - Development commands: `skill-builder`, `ensure-docs`
 - Cursor IDE command equivalents
 
-[Unreleased]: https://github.com/existential-birds/beagle/compare/v5.0.0...HEAD
+[Unreleased]: https://github.com/existential-birds/beagle/compare/v5.1.0...HEAD
+[5.1.0]: https://github.com/existential-birds/beagle/compare/v5.0.0...v5.1.0
 [5.0.0]: https://github.com/existential-birds/beagle/compare/v4.4.0...v5.0.0
 [4.4.0]: https://github.com/existential-birds/beagle/compare/v4.3.0...v4.4.0
 [4.3.0]: https://github.com/existential-birds/beagle/compare/v4.2.0...v4.3.0
